@@ -8,7 +8,7 @@ import {
   Flex,
   Text,
 } from '@radix-ui/themes'
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Submit } from './Submit'
 import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 import { useForm, SubmitHandler } from 'react-hook-form'
@@ -39,8 +39,6 @@ export const Form = ({
   runsQueryOptions,
   createMessageMutationOptions,
 }: Args) => {
-  const [prevContent, setPrevContent] = useState('')
-
   const {
     register,
     handleSubmit,
@@ -69,8 +67,6 @@ export const Form = ({
   })
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    setPrevContent(data.content)
-
     reset()
     // @ts-ignore-next-line
     await createMessage({
