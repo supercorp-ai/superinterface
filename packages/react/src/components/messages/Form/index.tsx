@@ -8,7 +8,7 @@ import {
   Flex,
   Text,
 } from '@radix-ui/themes'
-import { useMemo } from 'react'
+import { useMemo, useContext } from 'react'
 import { Submit } from './Submit'
 import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 import { useForm, SubmitHandler } from 'react-hook-form'
@@ -17,7 +17,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { TextareaBase } from '@/components/textareas/TextareaBase'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useCreateMessage } from '@/hooks/messages/useCreateMessage'
-import { Examples } from './Examples'
+import { AssistantNameContext } from '@/contexts/assistants/AssistantNameContext'
 import { MessagesPage, RunsPage, Message } from '@/types'
 
 export const schema = z.object({
@@ -83,19 +83,14 @@ export const Form = ({
     latestMessage?.metadata?.isBlocking
   ), [latestMessage])
 
+  const assistantNameContext = useContext(AssistantNameContext)
+
   return (
     <Container
       size="2"
       px="2"
       grow="0"
     >
-      {!isDisabled && <Examples
-        createMessageMutationOptions={createMessageMutationOptions}
-        messagesQueryOptions={messagesQueryOptions}
-        runsQueryOptions={runsQueryOptions}
-        latestMessage={latestMessage}
-        isLoading={isLoading}
-      />}
       <Flex
         direction="column"
         shrink="0"
@@ -124,7 +119,7 @@ export const Form = ({
                 >
                   <TextareaBase
                     minRows={1}
-                    placeholder="Message Superdomain..."
+                    placeholder={`Message ${assistantNameContext}...`}
                     disabled={isLoading || isDisabled}
                     onKeyDown={(e: any) => {
                       if (e.key === 'Enter' && !e.shiftKey) {

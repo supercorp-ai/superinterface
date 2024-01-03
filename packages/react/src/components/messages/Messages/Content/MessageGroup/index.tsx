@@ -1,3 +1,4 @@
+import { useContext } from 'react'
 import {
   Box,
   Avatar,
@@ -8,6 +9,7 @@ import {
 import { MessagesGroupBase } from '@/components/messageGroups/MessagesGroupBase'
 import { Name } from '@/components/messageGroups/MessagesGroupBase/Name'
 import { AssistantAvatar } from '@/components/messageGroups/MessagesGroupBase/AssistantAvatar'
+import { AssistantNameContext } from '@/contexts/assistants/AssistantNameContext'
 import { MessageGroup as MessageGroupType } from '@/types'
 import { Content } from './Content'
 
@@ -17,25 +19,29 @@ type Args = {
 
 export const MessageGroup = ({
   messageGroup,
-}: Args) => (
-  <MessagesGroupBase>
-    {messageGroup.role === 'user' ? (
-      <Avatar
-        fallback={<PersonIcon />}
-        size="1"
-      />
-    ) : (
-      <AssistantAvatar />
-    )}
+}: Args) => {
+  const assistantNameContext = useContext(AssistantNameContext)
 
-    <Box>
-      <Name>
-        {messageGroup.role === 'user' ? 'You' : 'Superdomain'}
-      </Name>
+  return (
+    <MessagesGroupBase>
+      {messageGroup.role === 'user' ? (
+        <Avatar
+          fallback={<PersonIcon />}
+          size="1"
+        />
+      ) : (
+        <AssistantAvatar />
+      )}
 
-      <Content
-        messageGroup={messageGroup}
-      />
-    </Box>
-  </MessagesGroupBase>
-)
+      <Box>
+        <Name>
+          {messageGroup.role === 'user' ? 'You' : assistantNameContext}
+        </Name>
+
+        <Content
+          messageGroup={messageGroup}
+        />
+      </Box>
+    </MessagesGroupBase>
+  )
+}
