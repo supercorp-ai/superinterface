@@ -1,0 +1,18 @@
+{
+  "name": "@superinterface/superinterface",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "tsc --build --verbose tsconfig.build.json",
+    "dev": "tsc --build --verbose tsconfig.build.json && tsc --build --verbose tsconfig.build.json --watch"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.17.0",
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "resolve-tspaths": "^0.8.17"
+  }
+}
