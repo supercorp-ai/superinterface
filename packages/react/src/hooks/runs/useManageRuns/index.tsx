@@ -6,7 +6,6 @@ import {
 import { useEffect } from 'react'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useLatestRun } from '@/hooks/runs/useLatestRun'
-import { useManageActions } from '@/hooks/actions/useManageActions'
 import { useCreateRun } from '@/hooks/runs/useCreateRun'
 import { isOptimistic } from '@/lib/optimistic/isOptimistic'
 import { MessagesPage, RunsPage, Run } from '@/types'
@@ -15,14 +14,12 @@ type Args = {
   messagesQueryOptions: UseInfiniteQueryOptions<InfiniteData<MessagesPage>>
   runsQueryOptions: UseInfiniteQueryOptions<InfiniteData<RunsPage>>
   createRunMutationOptions: UseMutationOptions<{ run: Run }>
-  handleActionMutationOptions: UseMutationOptions<{ run: Run }>
 }
 
 export const useManageRuns = ({
   messagesQueryOptions,
   runsQueryOptions,
   createRunMutationOptions,
-  handleActionMutationOptions,
 }: Args) => {
   const latestRunProps = useLatestRun({
     runsQueryOptions,
@@ -30,11 +27,6 @@ export const useManageRuns = ({
 
   const latestMessageProps = useLatestMessage({
     messagesQueryOptions,
-  })
-
-  useManageActions({
-    runsQueryOptions,
-    handleActionMutationOptions,
   })
 
   const createRunProps = useCreateRun({

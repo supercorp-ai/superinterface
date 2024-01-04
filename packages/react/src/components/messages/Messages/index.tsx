@@ -10,8 +10,7 @@ import {
 import { useInfiniteScroll } from '@/hooks/misc/useInfiniteScroll'
 import { MessagesSkeleton } from '@/components/skeletons/MessagesSkeleton'
 import { useMessages } from '@/hooks/messages/useMessages'
-import { useManageRuns } from '@/hooks/runs/useManageRuns'
-import { usePolling } from '@/hooks/polling/usePolling'
+import { useManageLifecycle } from '@/hooks/runs/useManageLifecycle'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 import { Content } from './Content'
@@ -42,16 +41,11 @@ export const Messages = ({
     messagesQueryOptions,
   })
 
-  useManageRuns({
+  useManageLifecycle({
     messagesQueryOptions,
     runsQueryOptions,
     createRunMutationOptions,
     handleActionMutationOptions,
-  })
-
-  usePolling({
-    messagesQueryOptions,
-    runsQueryOptions,
   })
 
   const { containerRef, loaderRef } = useInfiniteScroll({
