@@ -1,3 +1,5 @@
+import { uid } from 'radash'
+
 export const optimisticId = () => (
-  '-optimistic-id'
+  `-${uid(24)}`
 )

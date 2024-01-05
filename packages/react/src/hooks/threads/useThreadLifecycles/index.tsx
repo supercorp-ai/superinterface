@@ -15,7 +15,7 @@ type Args = {
   handleActionMutationOptions: UseMutationOptions<{ run: Run }>
 }
 
-export const useManageLifecycle = ({
+export const useThreadLifecycles = ({
   messagesQueryOptions,
   runsQueryOptions,
   createRunMutationOptions,

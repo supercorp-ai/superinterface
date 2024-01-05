@@ -3,6 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./*": "./dist/*.js",
+    "./types": "./dist/types/index.js",
+    "./lib": "./dist/lib/index.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

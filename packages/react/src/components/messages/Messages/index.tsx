@@ -10,7 +10,7 @@ import {
 import { useInfiniteScroll } from '@/hooks/misc/useInfiniteScroll'
 import { MessagesSkeleton } from '@/components/skeletons/MessagesSkeleton'
 import { useMessages } from '@/hooks/messages/useMessages'
-import { useManageLifecycle } from '@/hooks/runs/useManageLifecycle'
+import { useThreadLifecycles } from '@/hooks/threads/useThreadLifecycles'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 import { Content } from './Content'
@@ -41,7 +41,7 @@ export const Messages = ({
     messagesQueryOptions,
   })
 
-  useManageLifecycle({
+  useThreadLifecycles({
     messagesQueryOptions,
     runsQueryOptions,
     createRunMutationOptions,
