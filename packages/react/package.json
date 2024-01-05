@@ -1,6 +1,6 @@
 {
   "name": "@superinterface/react",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "./dist/index.js",
   "exports": {
     ".": "./dist/index.js",
@@ -8,6 +8,9 @@
     "./types": "./dist/types/index.js",
     "./lib": "./dist/lib/index.js"
   },
+  "files": [
+    "dist"
+  ],
   "keywords": [],
   "license": "ISC",
   "scripts": {
