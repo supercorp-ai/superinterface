@@ -2,7 +2,7 @@
   "compilerOptions": {
     "incremental": true,
     "target": "es2019",
-    "lib": ["es2023"],
+    "lib": ["es2023", "dom"],
     "module": "commonjs",
     "declaration": true,
     "sourceMap": true,

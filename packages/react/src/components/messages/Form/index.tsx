@@ -8,17 +8,18 @@ import {
   Flex,
   Text,
 } from '@radix-ui/themes'
-import { useMemo, useContext } from 'react'
-import { Submit } from './Submit'
-import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
+import { useRef, useEffect, useMemo, useContext } from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { usePrevious } from 'react-use'
+import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 import { TextareaBase } from '@/components/textareas/TextareaBase'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useCreateMessage } from '@/hooks/messages/useCreateMessage'
 import { AssistantNameContext } from '@/contexts/assistants/AssistantNameContext'
 import { MessagesPage, RunsPage, Message } from '@/types'
+import { Submit } from './Submit'
 
 export const schema = z.object({
   content: z.string().min(1).max(300),
@@ -81,7 +82,24 @@ export const Form = ({
   const isDisabled = useMemo(() => (
     // @ts-ignore-next-line
     latestMessage?.metadata?.isBlocking
-  ), [latestMessage])
+  ), [latestMessage, isLoading])
+
+  const isInputDisabled = useMemo(() => (
+    isLoading || isDisabled || false
+  ), [isLoading, isDisabled])
+
+  const isInputDisabledPrevious = usePrevious(isInputDisabled)
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const textareaProps = register('content')
+
+  useEffect(() => {
+    if (isInputDisabled) return
+    if (!isInputDisabledPrevious) return
+    if (!textareaRef.current) return
+
+    textareaRef.current.focus()
+  }, [isInputDisabled, isInputDisabledPrevious, textareaProps])
 
   const assistantNameContext = useContext(AssistantNameContext)
 
@@ -127,7 +145,13 @@ export const Form = ({
                         handleSubmit(onSubmit)()
                       }
                     }}
-                    {...register('content')}
+                    autoFocus
+                    {...textareaProps}
+                    ref={(e: any) => {
+                      textareaProps.ref(e)
+                      // @ts-ignore-next-line
+                      textareaRef.current = e
+                    }}
                   />
                 </Flex>
               </Text>
