@@ -1,6 +1,6 @@
 {
   "name": "@superinterface/react",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "./dist/index.js",
   "exports": {
     ".": "./dist/index.js",
@@ -33,12 +33,15 @@
     "zod": "^3.22.4"
   },
   "peerDependencies": {
+    "@tanstack/react-query": "^5",
     "react": "^18"
   },
   "devDependencies": {
+    "@tanstack/react-query": "^5.17.9",
     "@types/lodash": "^4.14.202",
     "@types/react": "^18.2.46",
     "install-peers-cli": "^2.2.0",
+    "react": "^18.2.0",
     "resolve-tspaths": "^0.8.17"
   }
 }
