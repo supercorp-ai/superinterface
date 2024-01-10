@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import {
   useInfiniteQuery,
   InfiniteData,
+  useQueryClient,
   UseInfiniteQueryOptions,
 } from '@tanstack/react-query'
 import { Message, MessagesPage } from '@/types'
@@ -29,6 +30,9 @@ const messages = ({
 export const useMessages = ({
   messagesQueryOptions,
 }: Args) => {
+  const queryClient = useQueryClient()
+  console.log({ queryClient, useQueryClient })
+
   const props = useInfiniteQuery({
     ...defaultQueryOptions,
     ...messagesQueryOptions,
