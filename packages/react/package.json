@@ -2,6 +2,8 @@
   "name": "@superinterface/react",
   "version": "1.0.4",
   "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": "./dist/index.js",
     "./*": "./dist/*.js",
@@ -14,6 +16,7 @@
   "keywords": [],
   "license": "ISC",
   "scripts": {
+    "build": "tsup",
     "resolve-tspaths": "resolve-tspaths",
     "install-peers": "install-peers"
   },
@@ -42,6 +45,7 @@
     "@types/react": "^18.2.46",
     "install-peers-cli": "^2.2.0",
     "react": "^18.2.0",
-    "resolve-tspaths": "^0.8.17"
+    "resolve-tspaths": "^0.8.17",
+    "tsup": "^8.0.1"
   }
 }

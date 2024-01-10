@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "incremental": true,
     "target": "es2019",
     "lib": ["es2023", "dom"],
     "module": "commonjs",
