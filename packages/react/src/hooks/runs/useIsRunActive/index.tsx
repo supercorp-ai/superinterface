@@ -1,18 +1,8 @@
-import {
-  UseInfiniteQueryOptions,
-  InfiniteData,
-} from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useIsMutating } from '@tanstack/react-query'
 import { useLatestRun } from '@/hooks/runs/useLatestRun'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { isRunEditingMessage } from '@/lib/runs/isRunEditingMessage'
-import { MessagesPage, RunsPage } from '@/types'
-
-type Args = {
-  messagesQueryOptions: UseInfiniteQueryOptions<InfiniteData<MessagesPage>>
-  runsQueryOptions: UseInfiniteQueryOptions<InfiniteData<RunsPage>>
-}
 
 const statuses = [
   'queued',
@@ -40,18 +30,13 @@ const isRunActive = ({
   return isRunEditingMessage({ message: latestMessageProps.latestMessage })
 }
 
-export const useIsRunActive = ({
-  messagesQueryOptions,
-  runsQueryOptions,
-}: Args) => {
-  const latestRunProps = useLatestRun({
-    runsQueryOptions,
-  })
+type Args = {
+  [key: string]: any
+}
 
-  const latestMessageProps = useLatestMessage({
-    messagesQueryOptions,
-  })
-
+export const useIsRunActive = (args: Args) => {
+  const latestRunProps = useLatestRun(args)
+  const latestMessageProps = useLatestMessage(args)
   const isMutating = useIsMutating()
 
   return useMemo(() => ({

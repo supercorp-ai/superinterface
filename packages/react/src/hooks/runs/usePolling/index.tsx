@@ -1,28 +1,18 @@
 import {
   useQueryClient,
-  UseInfiniteQueryOptions,
-  InfiniteData,
 } from '@tanstack/react-query'
 import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 import { useInterval } from 'react-use'
 import { refetch } from './lib/refetch'
-import { MessagesPage, RunsPage } from '@/types'
 
 type Args = {
-  messagesQueryOptions: UseInfiniteQueryOptions<InfiniteData<MessagesPage>>
-  runsQueryOptions: UseInfiniteQueryOptions<InfiniteData<RunsPage>>
-}
+  [key: string]: any
+} | {}
 
-export const usePolling = ({
-  messagesQueryOptions,
-  runsQueryOptions,
-}: Args) => {
+export const usePolling = (args: Args = {}) => {
   const queryClient = useQueryClient()
 
-  const isRunActiveProps = useIsRunActive({
-    messagesQueryOptions,
-    runsQueryOptions,
-  })
+  const isRunActiveProps = useIsRunActive(args)
 
   useInterval(() => {
     refetch({

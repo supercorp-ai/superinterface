@@ -1,30 +1,29 @@
 import {
+  UseMutationOptions,
   useMutation,
   useQueryClient,
-  UseMutationOptions,
 } from '@tanstack/react-query'
-import { mutationOptions } from './lib/mutationOptions'
+import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { Message } from '@/types'
+import { mergeOptions } from '@/lib/core/mergeOptions'
+import { mutationOptions as defaultMutationOptions } from '@/hooks/messages/useCreateMessage/lib/mutationOptions'
 
-type Args = {
-  createMessageMutationOptions: UseMutationOptions<{ message: Message }>
-}
+type Args = (args: any) => UseMutationOptions<{ message: Message }>
 
-export const useCreateMessage = ({
-  createMessageMutationOptions,
-}: Args) => {
+// @ts-ignore-next-line
+export const useCreateMessage = (mutationOptions: Args = () => {}) => {
+  const superinterfaceContext = useSuperinterfaceContext()
+
   const queryClient = useQueryClient()
 
-  // @ts-ignore-next-line
-  const mutationProps = useMutation({
-    ...mutationOptions({
-      queryClient,
-    }),
-    ...createMessageMutationOptions,
-  })
+  const props = useMutation(mergeOptions(
+    defaultMutationOptions,
+    superinterfaceContext.mutationOptions.createMessage({ queryClient }),
+    typeof mutationOptions === 'function' ? mutationOptions({ queryClient }) : mutationOptions,
+  ))
 
   return {
-    ...mutationProps,
-    createMessage: mutationProps.mutateAsync,
+    ...props,
+    createMessage: props.mutateAsync,
   }
 }

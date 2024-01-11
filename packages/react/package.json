@@ -36,8 +36,8 @@
     "zod": "^3.22.4"
   },
   "peerDependencies": {
-    "react": "^18",
-    "@tanstack/react-query": "^5"
+    "@tanstack/react-query": "^5",
+    "react": "^18"
   },
   "devDependencies": {
     "@tanstack/react-query": "^5.17.9",

@@ -1,9 +1,4 @@
 import {
-  UseMutationOptions,
-  UseInfiniteQueryOptions,
-  InfiniteData,
-} from '@tanstack/react-query'
-import {
   ArrowUpIcon,
 } from '@radix-ui/react-icons'
 import {
@@ -12,31 +7,19 @@ import {
 } from '@radix-ui/themes'
 import { useCreateMessage } from '@/hooks/messages/useCreateMessage'
 import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
-import { Message, MessagesPage, RunsPage } from '@/types'
 
 type Args = {
   example: string
-  messagesQueryOptions: UseInfiniteQueryOptions<InfiniteData<MessagesPage>>
-  runsQueryOptions: UseInfiniteQueryOptions<InfiniteData<RunsPage>>
-  createMessageMutationOptions: UseMutationOptions<{ message: Message }>
 }
 
 export const Example = ({
   example,
-  messagesQueryOptions,
-  runsQueryOptions,
-  createMessageMutationOptions,
 }: Args) => {
   const {
     createMessage,
-  } = useCreateMessage({
-    createMessageMutationOptions,
-  })
+  } = useCreateMessage()
 
-  const { isRunActive } = useIsRunActive({
-    messagesQueryOptions,
-    runsQueryOptions,
-  })
+  const { isRunActive } = useIsRunActive()
 
   return (
     <Button

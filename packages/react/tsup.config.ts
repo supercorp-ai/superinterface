@@ -12,7 +12,7 @@ export default defineConfig({
     'src/lib/*.ts',
   ],
   external: [
-    '@tanstack/react-query',
+    // '@tanstack/react-query',
     'react',
   ],
   format: ['cjs'],

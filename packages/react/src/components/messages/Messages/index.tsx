@@ -1,9 +1,5 @@
 'use client'
-import {
-  UseInfiniteQueryOptions,
-  UseMutationOptions,
-  InfiniteData,
-} from '@tanstack/react-query'
+
 import {
   Flex,
 } from '@radix-ui/themes'
@@ -15,38 +11,24 @@ import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 import { Content } from './Content'
 import { ProgressMessage } from './ProgressMessage'
-import { MessagesPage, RunsPage, Run } from '@/types'
 
 type Args = {
-  messagesQueryOptions: UseInfiniteQueryOptions<InfiniteData<MessagesPage>>
-  runsQueryOptions: UseInfiniteQueryOptions<InfiniteData<RunsPage>>
-  createRunMutationOptions: UseMutationOptions<{ run: Run }>
-  handleActionMutationOptions: UseMutationOptions<{ run: Run }>
   children?: React.ReactNode
+  [key: string]: any
 }
 
 export const Messages = ({
-  messagesQueryOptions,
-  runsQueryOptions,
-  createRunMutationOptions,
-  handleActionMutationOptions,
   children,
+  ...args
 }: Args) => {
   const {
     messages,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-  } = useMessages({
-    messagesQueryOptions,
-  })
+  } = useMessages(args)
 
-  useThreadLifecycles({
-    messagesQueryOptions,
-    runsQueryOptions,
-    createRunMutationOptions,
-    handleActionMutationOptions,
-  })
+  useThreadLifecycles(args)
 
   const { containerRef, loaderRef } = useInfiniteScroll({
     isFetchingNextPage,
@@ -54,14 +36,8 @@ export const Messages = ({
     fetchNextPage,
   })
 
-  const { isRunActive } = useIsRunActive({
-    messagesQueryOptions,
-    runsQueryOptions,
-  })
-
-  const { latestMessage } = useLatestMessage({
-    messagesQueryOptions,
-  })
+  const { isRunActive } = useIsRunActive(args)
+  const { latestMessage } = useLatestMessage(args)
 
   return (
     <Flex

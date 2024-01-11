@@ -1,37 +1,17 @@
-import {
-  UseInfiniteQueryOptions,
-  UseMutationOptions,
-  InfiniteData,
-} from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useLatestRun } from '@/hooks/runs/useLatestRun'
 import { useCreateRun } from '@/hooks/runs/useCreateRun'
 import { isOptimistic } from '@/lib/optimistic/isOptimistic'
-import { MessagesPage, RunsPage, Run } from '@/types'
 
 type Args = {
-  messagesQueryOptions: UseInfiniteQueryOptions<InfiniteData<MessagesPage>>
-  runsQueryOptions: UseInfiniteQueryOptions<InfiniteData<RunsPage>>
-  createRunMutationOptions: UseMutationOptions<{ run: Run }>
+  [key: string]: any
 }
 
-export const useManageRuns = ({
-  messagesQueryOptions,
-  runsQueryOptions,
-  createRunMutationOptions,
-}: Args) => {
-  const latestRunProps = useLatestRun({
-    runsQueryOptions,
-  })
-
-  const latestMessageProps = useLatestMessage({
-    messagesQueryOptions,
-  })
-
-  const createRunProps = useCreateRun({
-    createRunMutationOptions,
-  })
+export const useManageRuns = (args: Args) => {
+  const latestRunProps = useLatestRun(args)
+  const latestMessageProps = useLatestMessage(args)
+  const createRunProps = useCreateRun(args)
 
   useEffect(() => {
     if (createRunProps.isPending) return

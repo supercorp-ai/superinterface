@@ -6,11 +6,9 @@ import { useMemo } from 'react'
 import { useRuns } from '@/hooks/runs/useRuns'
 import { RunsPage } from '@/types'
 
-type Args = {
-  runsQueryOptions: UseInfiniteQueryOptions<InfiniteData<RunsPage>>
-}
+type Args = UseInfiniteQueryOptions<InfiniteData<RunsPage>> | {}
 
-export const useLatestRun = (args: Args) => {
+export const useLatestRun = (args: Args = {}) => {
   const props = useRuns(args)
 
   return useMemo(() => ({

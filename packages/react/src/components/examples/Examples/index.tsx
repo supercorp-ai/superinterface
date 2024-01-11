@@ -1,18 +1,10 @@
 import {
-  UseMutationOptions,
-  UseInfiniteQueryOptions,
-  InfiniteData,
-} from '@tanstack/react-query'
-import {
   Grid,
 } from '@radix-ui/themes'
-import { Message, MessagesPage, RunsPage } from '@/types'
+import { Message } from '@/types'
 import { Example } from './Example'
 
 type Args = {
-  messagesQueryOptions: UseInfiniteQueryOptions<InfiniteData<MessagesPage>>
-  runsQueryOptions: UseInfiniteQueryOptions<InfiniteData<RunsPage>>
-  createMessageMutationOptions: UseMutationOptions<{ message: Message }>
   latestMessage: Message | null
   isLoading: boolean
 }
@@ -29,9 +21,6 @@ const regularExamples = [
 ]
 
 export const Examples = ({
-  createMessageMutationOptions,
-  messagesQueryOptions,
-  runsQueryOptions,
   latestMessage,
   isLoading,
 }: Args) => {
@@ -49,9 +38,6 @@ export const Examples = ({
           <Example
             key={example}
             example={example}
-            createMessageMutationOptions={createMessageMutationOptions}
-            messagesQueryOptions={messagesQueryOptions}
-            runsQueryOptions={runsQueryOptions}
           />
         ))}
       </Grid>
@@ -72,9 +58,6 @@ export const Examples = ({
           <Example
             key={example}
             example={example}
-            createMessageMutationOptions={createMessageMutationOptions}
-            messagesQueryOptions={messagesQueryOptions}
-            runsQueryOptions={runsQueryOptions}
           />
         ))}
       </Grid>
