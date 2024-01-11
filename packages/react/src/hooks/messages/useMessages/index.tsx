@@ -33,9 +33,7 @@ export const useMessages = (queryOptions: Args = {}) => {
     superinterfaceContext.queryOptions.messages,
     queryOptions,
   )
-  console.log({ superinterfaceContext, queryOptions, merged })
   const props = useInfiniteQuery(merged)
-  console.log({ props })
 
   return useMemo(() => ({
     ...props,

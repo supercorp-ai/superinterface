@@ -49,8 +49,6 @@ export const SuperinterfaceProvider = ({
     rest
   )
 
-  console.log({ value, rest, superinterfaceContext })
-
   return (
     <SuperinterfaceContext.Provider
       value={value}
