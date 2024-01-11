@@ -1,14 +1,7 @@
-import { QueryClient } from '@tanstack/react-query'
-// import { mutationFn } from './mutationFn'
+import { onMutate } from './onMutate'
 import { onSettled } from './onSettled'
 
-type Args = {
-  queryClient: QueryClient
+export const mutationOptions = {
+  onMutate,
+  onSettled,
 }
-
-export const mutationOptions = ({
-  queryClient,
-}: Args) => ({
-  // mutationFn,
-  onSettled: onSettled({ queryClient }),
-})

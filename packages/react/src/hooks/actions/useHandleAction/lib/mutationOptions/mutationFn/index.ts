@@ -3,7 +3,7 @@ import pMap from 'p-map'
 import { client } from '@/lib/ai'
 import { toolOutput } from './toolOutput'
 
-type Args = {
+export type Args = {
   latestRun: Run
   functions?: Functions
 }

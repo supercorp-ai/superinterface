@@ -23,6 +23,7 @@ export const onSettled = async (
       args: variables,
     }),
   })
+
   await context.meta.queryClient.invalidateQueries({
     queryKey: fillOption({
       value: context.meta.superinterfaceContext.queryOptions.runs.queryKey,

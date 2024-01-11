@@ -3,27 +3,24 @@ import {
   useInfiniteQuery,
   UseInfiniteQueryOptions,
   InfiniteData,
-  useQueryClient,
 } from '@tanstack/react-query'
 import { getRuns } from './lib/getRuns'
 import { RunsPage } from '@/types'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { extendOptions } from '@/lib/core/extendOptions'
+import { useMeta } from '@/hooks/metas/useMeta'
 
 type Args = UseInfiniteQueryOptions<InfiniteData<RunsPage>> | {}
 
 export const useRuns = (args: Args = {}) => {
+  const { meta } = useMeta()
   const superinterfaceContext = useSuperinterfaceContext()
-  const queryClient = useQueryClient()
 
   // @ts-ignore-next-line
   const props = useInfiniteQuery(extendOptions({
     defaultOptions: superinterfaceContext.queryOptions.runs,
     args,
-    meta: {
-      superinterfaceContext,
-      queryClient,
-    },
+    meta,
   }))
 
   return useMemo(() => ({

@@ -1,7 +1,7 @@
 import { Run } from '@/types'
 import { client } from '@/lib/ai'
 
-type Args = {
+export type Args = {
   threadId: string
   assistantId: string
 }

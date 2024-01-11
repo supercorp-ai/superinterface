@@ -1,9 +1,9 @@
 import { fillOption } from '@/lib/core/fillOption'
-import { Args as NewMessageArgs } from '../mutationFn'
+import { Args } from '../mutationFn'
 import { data } from './data'
 
 export const onMutate = async (
-  newMessage: NewMessageArgs,
+  newMessage: Args,
   context: any,
 ) => {
   await context.meta.queryClient.cancelQueries(

@@ -1,20 +1,29 @@
-import { Run } from '@/types'
-import { queryKey as messagesQueryKey } from '@/hooks/messages/useMessages/lib/queryOptions/queryKey'
-import { queryKey as runsQueryKey } from '@/hooks/runs/useRuns/lib/queryOptions/queryKey'
+import { fillOption } from '@/lib/core/fillOption'
 
 type Args = {
-  queryClient: any
-  latestRun: Run
+  meta: any
+  args: any
 }
 
 export const refetch = async ({
-  queryClient,
-  latestRun,
+  meta,
+  args,
 }: Args) => {
-  await queryClient.invalidateQueries({
-    queryKey: messagesQueryKey(),
+  await meta.queryClient.invalidateQueries({
+    queryKey: fillOption({
+      value: meta.superinterfaceContext.queryOptions.messages.queryKey,
+      key: 'queryKey',
+      meta,
+      args,
+    }),
   })
-  await queryClient.invalidateQueries({
-    queryKey: runsQueryKey(),
+
+  await meta.queryClient.invalidateQueries({
+    queryKey: fillOption({
+      value: meta.superinterfaceContext.queryOptions.runs.queryKey,
+      key: 'queryKey',
+      meta,
+      args,
+    }),
   })
 }
