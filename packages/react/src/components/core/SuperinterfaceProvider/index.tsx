@@ -32,9 +32,13 @@ export const SuperinterfaceProvider = ({
       new QueryClient({
         defaultOptions: {
           queries: {
+            retry: false,
             // With SSR, we usually want to set some default staleTime
             // above 0 to avoid refetching immediately on the client
             staleTime: 10000,
+          },
+          mutations: {
+            retry: false,
           },
         },
       }),

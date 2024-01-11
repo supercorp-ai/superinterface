@@ -22,13 +22,6 @@ export const useCreateMessage = (args: Args = () => {}) => {
       queryClient,
     },
   }))
-  // console.log({
-  //   props,
-  //   options,
-  //   defaultMutationOptions,
-  //   sup: superinterfaceContext.mutationOptions.createMessage({ queryClient }),
-  //   mutationOptions
-  // })
 
   return {
     ...props,

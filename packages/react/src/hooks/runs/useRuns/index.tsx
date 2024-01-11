@@ -18,7 +18,7 @@ export const useRuns = (args: Args = {}) => {
 
   // @ts-ignore-next-line
   const props = useInfiniteQuery(extendOptions({
-    defaultOptions: superinterfaceContext.queryOptions.messages,
+    defaultOptions: superinterfaceContext.queryOptions.runs,
     args,
     meta: {
       superinterfaceContext,

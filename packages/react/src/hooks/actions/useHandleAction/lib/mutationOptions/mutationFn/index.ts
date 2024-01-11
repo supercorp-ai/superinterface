@@ -33,7 +33,6 @@ export const mutationFn = async ({
   )
 
   return {
-    // @ts-ignore-next-line
     run,
   }
 }
