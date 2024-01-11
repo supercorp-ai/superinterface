@@ -7,22 +7,22 @@ import { hasNextPage } from './hasNextPage'
 
 type Args = {
   threadId: string
-  cursor?: string
+  pageParam?: string
 }
 
 export const queryFn = async ({
   threadId,
-  cursor,
+  pageParam,
 }: Args): Promise<MessagesPage> => {
   const messagesResponse = await client.beta.threads.messages.list(threadId, {
-    ...(cursor ? { after: cursor } : {}),
+    ...(pageParam ? { after: pageParam } : {}),
     limit: messagesLimit,
   })
 
   return {
     data: await data({
       messagesResponse,
-      cursor,
+      pageParam,
       threadId,
     }),
     hasNextPage: hasNextPage({ messagesResponse }),

@@ -3,11 +3,13 @@ import {
   InfiniteData,
   UseInfiniteQueryOptions,
   useInfiniteQuery,
+  useQueryClient,
 } from '@tanstack/react-query'
 import { Message, MessagesPage } from '@/types'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
-import { queryOptions as defaultQueryOptions } from '@/hooks/messages/useMessages/lib/queryOptions'
-import { mergeOptions } from '@/lib/core/mergeOptions'
+// import { queryOptions as defaultQueryOptions } from '@/hooks/messages/useMessages/lib/queryOptions'
+// import { mergeOptions } from '@/lib/core/mergeOptions'
+import { extendOptions } from '@/lib/core/extendOptions'
 
 type Args = UseInfiniteQueryOptions<InfiniteData<MessagesPage>> | {}
 
@@ -25,15 +27,19 @@ const messages = ({
   ), [])
 }
 
-export const useMessages = (queryOptions: Args = {}) => {
+export const useMessages = (args: Args = {}) => {
   const superinterfaceContext = useSuperinterfaceContext()
+  const queryClient = useQueryClient()
 
-  const merged = mergeOptions(
-    defaultQueryOptions,
-    superinterfaceContext.queryOptions.messages,
-    queryOptions,
-  )
-  const props = useInfiniteQuery(merged)
+  // @ts-ignore-next-line
+  const props = useInfiniteQuery(extendOptions({
+    defaultOptions: superinterfaceContext.queryOptions.messages,
+    args,
+    meta: {
+      superinterfaceContext,
+      queryClient,
+    },
+  }))
 
   return useMemo(() => ({
     ...props,

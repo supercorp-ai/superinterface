@@ -1,24 +1,35 @@
-import { queryKey as runsQueryKey } from '@/hooks/runs/useRuns/lib/queryOptions/queryKey'
 import { Response } from './mutationFn'
+import { fillOption } from '@/lib/core/fillOption'
 
-type Args = {
-  queryClient: any
+type Variables = {
+  assistantConversationId: string
 }
 
-export const onSuccess = ({
-  queryClient,
-}: Args) => (response: Response) => (
-  queryClient.setQueryData(
-    runsQueryKey(),
+type Context = {
+  meta: any
+}
+
+export const onSuccess = async (
+  data: Response,
+  variables: Variables,
+  context: Context,
+) => (
+  context.meta.queryClient.setQueryData(
+    fillOption({
+      value: context.meta.superinterfaceContext.queryOptions.runs.queryKey,
+      key: 'queryKey',
+      meta: context.meta,
+      args: variables,
+    }),
     (prevData: any) => {
       if (!prevData) {
         return {
           pageParams: [],
           pages: [
             {
-              data: [response.run],
+              data: [data.run],
               hasNextPage: false,
-              lastId: response.run.id,
+              lastId: data.run.id,
             },
           ],
         }
@@ -32,7 +43,7 @@ export const onSuccess = ({
           {
             ...latestPage,
             data: [
-              response.run,
+              data.run,
               ...latestPage.data,
             ],
           },

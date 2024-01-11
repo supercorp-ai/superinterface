@@ -3,7 +3,7 @@ import { MessagesPage } from '@/types'
 import { queryKey } from './queryKey'
 
 export const queryOptions = {
-  queryKey: queryKey(),
+  queryKey,
   // queryFn: ({
   //   pageParam,
   // }: { pageParam?: string }) => (

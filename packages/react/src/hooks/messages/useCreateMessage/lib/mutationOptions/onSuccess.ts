@@ -1,28 +1,35 @@
-import { queryKey as messagesQueryKey } from '@/hooks/messages/useMessages/lib/queryOptions/queryKey'
 import { Response } from './mutationFn'
+import { fillOption } from '@/lib/core/fillOption'
 
-type Args = {
-  queryClient: any
-  passedOnSuccess?: () => void
+type Variables = {
+  assistantConversationId: string
 }
 
-export const onSuccess = ({
-  queryClient,
-  passedOnSuccess,
-}: Args) => (response: Response) => {
-  passedOnSuccess?.()
+type Context = {
+  meta: any
+}
 
-  queryClient.setQueryData(
-    messagesQueryKey(),
+export const onSuccess = async (
+  data: Response,
+  variables: Variables,
+  context: Context,
+) => (
+  context.meta.queryClient.setQueryData(
+    fillOption({
+      value: context.meta.superinterfaceContext.queryOptions.messages.queryKey,
+      key: 'queryKey',
+      meta: context.meta,
+      args: variables,
+    }),
     (prevData: any) => {
       if (!prevData) {
         return {
           pageParams: [],
           pages: [
             {
-              data: [response.message],
+              data: [data.message],
               hasNextPage: false,
-              lastId: response.message.id,
+              lastId: data.message.id,
             },
           ],
         }
@@ -36,7 +43,7 @@ export const onSuccess = ({
           {
             ...latestPage,
             data: [
-              response.message,
+              data.message,
               ...latestPage.data,
             ],
           },
@@ -45,4 +52,4 @@ export const onSuccess = ({
       }
     }
   )
-}
+)

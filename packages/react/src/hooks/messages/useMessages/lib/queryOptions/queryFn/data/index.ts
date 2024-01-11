@@ -5,11 +5,11 @@ import { runMessages } from './runMessages'
 
 export const data = async ({
   messagesResponse,
-  cursor,
+  pageParam,
   threadId,
 }: {
   messagesResponse: OpenAI.CursorPage<OpenAI.Beta.Threads.Messages.ThreadMessage>
-  cursor?: string
+  pageParam?: string
   threadId: string
 }) => {
   const messages = await pMap(messagesResponse.data, (message) => (
@@ -18,7 +18,7 @@ export const data = async ({
     })
   ))
 
-  if (cursor) {
+  if (pageParam) {
     return messages
   }
 

@@ -1,16 +1,34 @@
-import { queryKey as messagesQueryKey } from '@/hooks/messages/useMessages/lib/queryOptions/queryKey'
 import { Response } from './mutationFn'
+import { fillOption } from '@/lib/core/fillOption'
 
-type Args = {
-  queryClient: any
+type Variables = {
+  assistantConversationId: string
 }
 
-export const onSettled = ({
-  queryClient,
-}: Args) => async (response: Response | undefined) => {
-  if (!response) return
+type Context = {
+  meta: any
+}
 
-  await queryClient.invalidateQueries({
-    queryKey: messagesQueryKey(),
+export const onSettled = async (
+  _data: Response,
+  _error: any,
+  variables: Variables,
+  context: Context,
+) => {
+  await context.meta.queryClient.invalidateQueries({
+    queryKey: fillOption({
+      value: context.meta.superinterfaceContext.queryOptions.messages.queryKey,
+      key: 'queryKey',
+      meta: context.meta,
+      args: variables,
+    }),
+  })
+  await context.meta.queryClient.invalidateQueries({
+    queryKey: fillOption({
+      value: context.meta.superinterfaceContext.queryOptions.runs.queryKey,
+      key: 'queryKey',
+      meta: context.meta,
+      args: variables,
+    }),
   })
 }
