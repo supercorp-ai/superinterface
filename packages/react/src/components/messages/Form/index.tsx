@@ -56,6 +56,7 @@ export const Form = (args: Args = {}) => {
     // @ts-ignore-next-line
     await createMessage({
       content: data.content,
+      ...args,
     })
   }
 

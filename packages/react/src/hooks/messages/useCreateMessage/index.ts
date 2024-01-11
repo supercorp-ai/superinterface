@@ -12,7 +12,6 @@ type Args = (args: any) => UseMutationOptions<{ message: Message }>
 // @ts-ignore-next-line
 export const useCreateMessage = (args: Args = () => {}) => {
   const superinterfaceContext = useSuperinterfaceContext()
-
   const queryClient = useQueryClient()
 
   const props = useMutation(extendOptions({

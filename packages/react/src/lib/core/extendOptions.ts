@@ -15,14 +15,21 @@ type FillArgs = {
 }
 
 const fill = ({ options, meta, args }: FillArgs) => (
-  mapValues(options, (value, key: string) => (
-    fillOption({
+  mapValues(options, (value, key: string) => {
+    if (key === 'onMutate') {
+      return async (...args: any) => {
+        return value(...args, { meta })
+      }
+    }
+
+
+    return fillOption({
       value,
       key,
       meta,
       args,
     })
-  ))
+  })
 )
 
 export const extendOptions = ({
