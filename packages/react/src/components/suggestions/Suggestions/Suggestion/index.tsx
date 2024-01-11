@@ -9,17 +9,20 @@ import { useCreateMessage } from '@/hooks/messages/useCreateMessage'
 import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 
 type Args = {
-  example: string
+  suggestion: string
+  [key: string]: any
 }
 
-export const Example = ({
-  example,
+export const Suggestion = ({
+  suggestion,
+  ...args
 }: Args) => {
   const {
     createMessage,
-  } = useCreateMessage()
+    // @ts-ignore-next-line
+  } = useCreateMessage(args)
 
-  const { isRunActive } = useIsRunActive()
+  const { isRunActive } = useIsRunActive(args)
 
   return (
     <Button
@@ -30,7 +33,8 @@ export const Example = ({
       onClick={() => {
         // @ts-ignore-next-line
         createMessage({
-          content: example,
+          content: suggestion,
+          ...args,
         })
       }}
       disabled={isRunActive}
@@ -39,7 +43,7 @@ export const Example = ({
         size="1"
         weight="regular"
       >
-        {example}
+        {suggestion}
       </Text>
 
       <ArrowUpIcon />

@@ -25,9 +25,14 @@ type Inputs = {
 
 type Args = {
   [key: string]: any
-} | {}
+} | {
+  children?: React.ReactNode
+}
 
-export const Form = (args: Args = {}) => {
+export const Form = ({
+  children,
+  ...args
+}: Args = {}) => {
   const {
     register,
     handleSubmit,
@@ -92,6 +97,8 @@ export const Form = (args: Args = {}) => {
       px="2"
       grow="0"
     >
+      {children}
+
       <Flex
         direction="column"
         shrink="0"
