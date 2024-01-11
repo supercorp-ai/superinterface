@@ -15,7 +15,6 @@ export const onSettled = async (
   variables: Variables,
   context: Context,
 ) => {
-  console.log('handle action onSettled', { context })
   await context.meta.queryClient.invalidateQueries({
     queryKey: fillOption({
       value: context.meta.superinterfaceContext.queryOptions.messages.queryKey,

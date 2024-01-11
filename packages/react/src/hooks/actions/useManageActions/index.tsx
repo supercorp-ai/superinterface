@@ -22,7 +22,10 @@ export const useManageActions = (args: Args) => {
     })
 
     // @ts-ignore-next-line
-    handleActionProps.handleAction({ latestRun: latestRunProps.latestRun })
+    handleActionProps.handleAction({
+      latestRun: latestRunProps.latestRun,
+      ...args,
+    })
   }, [handleActionProps, latestRunProps])
 
   return null
