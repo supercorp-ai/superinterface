@@ -8,8 +8,10 @@ type Args = {
 
 export const onMutate = ({
   queryClient,
-}: Args) => async (newMessage: NewMessageArgs) => {
-  await queryClient.cancelQueries(messagesQueryKey())
+  ...args
+}: Args) => async (newMessage: NewMessageArgs, a, b) => {
+  console.log({args, newMessage, a, b})
+  await queryClient.cancelQueries(messagesQueryKey(args))
 
   const prevMessages = queryClient.getQueryData(messagesQueryKey())
 

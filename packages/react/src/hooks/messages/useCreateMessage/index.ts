@@ -16,11 +16,21 @@ export const useCreateMessage = (mutationOptions: Args = () => {}) => {
 
   const queryClient = useQueryClient()
 
-  const props = useMutation(mergeOptions(
-    defaultMutationOptions,
-    superinterfaceContext.mutationOptions.createMessage({ queryClient }),
+  const options = mergeOptions(
+    defaultMutationOptions({ queryClient, ...mutationOptions }),
+    superinterfaceContext.mutationOptions.createMessage({ queryClient, ...mutationOptions }),
     typeof mutationOptions === 'function' ? mutationOptions({ queryClient }) : mutationOptions,
-  ))
+  )
+  console.log({ options })
+
+  const props = useMutation(options)
+  // console.log({
+  //   props,
+  //   options,
+  //   defaultMutationOptions,
+  //   sup: superinterfaceContext.mutationOptions.createMessage({ queryClient }),
+  //   mutationOptions
+  // })
 
   return {
     ...props,

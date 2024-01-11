@@ -10,15 +10,19 @@ type Args = {
 
 export const mutationOptions = ({
   queryClient,
+  ...args
 }: Args) => ({
   // mutationFn,
   onMutate: onMutate({
     queryClient,
+    ...args,
   }),
   onError: onError({
     queryClient,
+    ...args,
   }),
   onSettled: onSettled({
     queryClient,
+    ...args,
   }),
 })

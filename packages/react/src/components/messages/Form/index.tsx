@@ -53,7 +53,6 @@ export const Form = (args: Args = {}) => {
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     reset()
-    // @ts-ignore-next-line
     await createMessage({
       content: data.content,
     })

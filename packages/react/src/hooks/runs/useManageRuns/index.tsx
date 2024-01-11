@@ -11,6 +11,7 @@ type Args = {
 export const useManageRuns = (args: Args) => {
   const latestRunProps = useLatestRun(args)
   const latestMessageProps = useLatestMessage(args)
+// @ts-ignore-next-line
   const createRunProps = useCreateRun(args)
 
   useEffect(() => {
@@ -23,7 +24,7 @@ export const useManageRuns = (args: Args) => {
     if (isOptimistic({ id: latestMessageProps.latestMessage.id })) return
 
     if (!latestRunProps.latestRun || (latestMessageProps.latestMessage.created_at > latestRunProps.latestRun.created_at)) {
-      createRunProps.createRun()
+      // createRunProps.createRun()
     }
   }, [
     createRunProps,
