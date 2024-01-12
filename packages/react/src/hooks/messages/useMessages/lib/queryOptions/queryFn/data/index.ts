@@ -7,13 +7,16 @@ export const data = async ({
   messagesResponse,
   pageParam,
   threadId,
+  client,
 }: {
   messagesResponse: OpenAI.CursorPage<OpenAI.Beta.Threads.Messages.ThreadMessage>
   pageParam?: string
   threadId: string
+  client: OpenAI
 }) => {
   const messages = await pMap(messagesResponse.data, (message) => (
     extendMessage({
+      client,
       message,
     })
   ))
@@ -26,6 +29,7 @@ export const data = async ({
     ...await runMessages({
       messages,
       threadId,
+      client,
     }),
     ...messages,
   ]

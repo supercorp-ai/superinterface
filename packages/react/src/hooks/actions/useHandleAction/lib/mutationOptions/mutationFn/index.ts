@@ -1,9 +1,10 @@
 import { Run, Functions } from '@/types'
 import pMap from 'p-map'
-import { client } from '@/lib/ai'
+import { defaultClient } from '@/lib/ai'
 import { toolOutput } from './toolOutput'
 
 export type Args = {
+  client?: typeof defaultClient
   latestRun: Run
   functions?: Functions
 }
@@ -13,6 +14,7 @@ export type Response = {
 }
 
 export const mutationFn = async ({
+  client = defaultClient,
   latestRun,
   functions = {},
 }: Args): Promise<Response> => {

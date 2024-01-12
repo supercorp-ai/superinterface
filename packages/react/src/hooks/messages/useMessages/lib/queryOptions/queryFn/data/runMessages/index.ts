@@ -7,13 +7,15 @@ import { optimisticId } from '@/lib/optimistic/optimisticId'
 type Args = {
   messages: Message[]
   threadId: string
+  client: OpenAI
 }
 
 export const runMessages = async ({
   messages,
   threadId,
+  client,
 }: Args) => {
-  const latestRun = await getLatestRun({ threadId })
+  const latestRun = await getLatestRun({ threadId, client })
 
   if (!latestRun) {
     return []
@@ -39,6 +41,7 @@ export const runMessages = async ({
         file_ids: [],
         metadata: {},
       },
+      client,
     }),
   ]
 }

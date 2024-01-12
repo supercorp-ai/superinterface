@@ -1,16 +1,18 @@
 import _ from 'lodash'
-import { client } from '@/lib/ai'
+import { defaultClient } from '@/lib/ai'
 import { MessagesPage } from '@/types'
 import { data } from './data'
 import { messagesLimit } from './messagesLimit'
 import { hasNextPage } from './hasNextPage'
 
 type Args = {
+  client?: typeof defaultClient
   threadId: string
   pageParam?: string
 }
 
 export const queryFn = async ({
+  client = defaultClient,
   threadId,
   pageParam,
 }: Args): Promise<MessagesPage> => {
@@ -21,6 +23,7 @@ export const queryFn = async ({
 
   return {
     data: await data({
+      client,
       messagesResponse,
       pageParam,
       threadId,
