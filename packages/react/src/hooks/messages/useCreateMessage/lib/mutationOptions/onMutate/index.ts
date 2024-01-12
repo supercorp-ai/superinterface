@@ -1,25 +1,42 @@
-import { queryKey as messagesQueryKey } from '@/hooks/messages/useMessages/lib/queryOptions/queryKey'
-import { Args as NewMessageArgs } from '../mutationFn'
+import { fillOption } from '@/lib/core/fillOption'
+import { Args } from '../mutationFn'
 import { data } from './data'
 
-type Args = {
-  queryClient: any
-}
+export const onMutate = async (
+  newMessage: Args,
+  context: any,
+) => {
+  await context.meta.queryClient.cancelQueries(
+    fillOption({
+      value: context.meta.superinterfaceContext.queryOptions.messages.queryKey,
+      key: 'queryKey',
+      meta: context.meta,
+      args: newMessage,
+    })
+  )
 
-export const onMutate = ({
-  queryClient,
-}: Args) => async (newMessage: NewMessageArgs) => {
-  await queryClient.cancelQueries(messagesQueryKey())
+  const prevMessages = context.meta.queryClient.getQueryData(
+    fillOption({
+      value: context.meta.superinterfaceContext.queryOptions.messages.queryKey,
+      key: 'queryKey',
+      meta: context.meta,
+      args: newMessage,
+    })
+  )
 
-  const prevMessages = queryClient.getQueryData(messagesQueryKey())
-
-  queryClient.setQueryData(
-    messagesQueryKey(),
+  context.meta.queryClient.setQueryData(
+    fillOption({
+      value: context.meta.superinterfaceContext.queryOptions.messages.queryKey,
+      key: 'queryKey',
+      meta: context.meta,
+      args: newMessage,
+    }),
     data({ newMessage })
   )
 
   return {
     prevMessages,
     newMessage,
+    meta: context.meta,
   }
 }

@@ -5,20 +5,23 @@ import { runMessages } from './runMessages'
 
 export const data = async ({
   messagesResponse,
-  cursor,
+  pageParam,
   threadId,
+  client,
 }: {
   messagesResponse: OpenAI.CursorPage<OpenAI.Beta.Threads.Messages.ThreadMessage>
-  cursor?: string
+  pageParam?: string
   threadId: string
+  client: OpenAI
 }) => {
   const messages = await pMap(messagesResponse.data, (message) => (
     extendMessage({
+      client,
       message,
     })
   ))
 
-  if (cursor) {
+  if (pageParam) {
     return messages
   }
 
@@ -26,6 +29,7 @@ export const data = async ({
     ...await runMessages({
       messages,
       threadId,
+      client,
     }),
     ...messages,
   ]

@@ -1,30 +1,27 @@
 import {
-  useMutation,
-  useQueryClient,
   UseMutationOptions,
+  useMutation,
 } from '@tanstack/react-query'
-import { mutationOptions } from './lib/mutationOptions'
+import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { Run } from '@/types'
+import { extendOptions } from '@/lib/core/extendOptions'
+import { useMeta } from '@/hooks/metas/useMeta'
 
-type Args = {
-  createRunMutationOptions: UseMutationOptions<{ run: Run }>
-}
+type Args = (args: any) => UseMutationOptions<{ run: Run }>
 
-export const useCreateRun = ({
-  createRunMutationOptions,
-}: Args) => {
-  const queryClient = useQueryClient()
+// @ts-ignore-next-line
+export const useCreateRun = (args: Args = () => {}) => {
+  const superinterfaceContext = useSuperinterfaceContext()
+  const { meta } = useMeta()
 
-  // @ts-ignore-next-line
-  const mutationProps = useMutation({
-    ...mutationOptions({
-      queryClient,
-    }),
-    ...createRunMutationOptions,
-  })
+  const props = useMutation(extendOptions({
+    defaultOptions: superinterfaceContext.mutationOptions.createRun,
+    args,
+    meta,
+  }))
 
   return {
-    ...mutationProps,
-    createRun: mutationProps.mutate,
+    ...props,
+    createRun: props.mutate,
   }
 }

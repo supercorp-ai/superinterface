@@ -11,13 +11,11 @@ export default defineConfig({
     'src/types/*.ts',
     'src/lib/*.ts',
   ],
-  format: ['cjs', 'esm'],
+  external: [
+    // '@tanstack/react-query',
+    'react',
+  ],
+  format: ['cjs'],
   minify: isProduction,
   sourcemap: true,
 })
-  // "exports": {
-  //   ".": "./dist/index.js",
-  //   "./*": "./dist/*.js",
-  //   "./types": "./dist/types/index.js",
-  //   "./lib": "./dist/lib/index.js"
-  // },

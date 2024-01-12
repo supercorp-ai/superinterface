@@ -1,9 +1,4 @@
 import {
-  UseInfiniteQueryOptions,
-  UseMutationOptions,
-  InfiniteData,
-} from '@tanstack/react-query'
-import {
   Container,
   Flex,
   Text,
@@ -18,28 +13,26 @@ import { TextareaBase } from '@/components/textareas/TextareaBase'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useCreateMessage } from '@/hooks/messages/useCreateMessage'
 import { AssistantNameContext } from '@/contexts/assistants/AssistantNameContext'
-import { MessagesPage, RunsPage, Message } from '@/types'
 import { Submit } from './Submit'
 
 export const schema = z.object({
   content: z.string().min(1).max(300),
 })
 
-type Args = {
-  messagesQueryOptions: UseInfiniteQueryOptions<InfiniteData<MessagesPage>>
-  runsQueryOptions: UseInfiniteQueryOptions<InfiniteData<RunsPage>>
-  createMessageMutationOptions: UseMutationOptions<{ message: Message }>
-}
-
 type Inputs = {
   content: string
 }
 
+type Args = {
+  [key: string]: any
+} | {
+  children?: React.ReactNode
+}
+
 export const Form = ({
-  messagesQueryOptions,
-  runsQueryOptions,
-  createMessageMutationOptions,
-}: Args) => {
+  children,
+  ...args
+}: Args = {}) => {
   const {
     register,
     handleSubmit,
@@ -49,10 +42,7 @@ export const Form = ({
     resolver: zodResolver(schema),
   })
 
-  const { isRunActive } = useIsRunActive({
-    messagesQueryOptions,
-    runsQueryOptions,
-  })
+  const { isRunActive } = useIsRunActive(args)
 
   const isLoading = useMemo(() => (
     isRunActive || isSubmitting
@@ -63,21 +53,19 @@ export const Form = ({
 
   const {
     createMessage,
-  } = useCreateMessage({
-    createMessageMutationOptions,
-  })
+    // @ts-ignore-next-line
+  } = useCreateMessage(args)
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     reset()
     // @ts-ignore-next-line
     await createMessage({
       content: data.content,
+      ...args,
     })
   }
 
-  const { latestMessage } = useLatestMessage({
-    messagesQueryOptions,
-  })
+  const { latestMessage } = useLatestMessage(args)
 
   const isDisabled = useMemo(() => (
     // @ts-ignore-next-line
@@ -109,6 +97,8 @@ export const Form = ({
       px="2"
       grow="0"
     >
+      {children}
+
       <Flex
         direction="column"
         shrink="0"

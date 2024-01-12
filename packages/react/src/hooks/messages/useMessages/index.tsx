@@ -1,15 +1,15 @@
 import { useMemo } from 'react'
 import {
-  useInfiniteQuery,
   InfiniteData,
   UseInfiniteQueryOptions,
+  useInfiniteQuery,
 } from '@tanstack/react-query'
 import { Message, MessagesPage } from '@/types'
-import { queryOptions as defaultQueryOptions } from './lib/queryOptions'
+import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
+import { useMeta } from '@/hooks/metas/useMeta'
+import { extendOptions } from '@/lib/core/extendOptions'
 
-type Args = {
-  messagesQueryOptions: UseInfiniteQueryOptions<InfiniteData<MessagesPage>>
-}
+type Args = UseInfiniteQueryOptions<InfiniteData<MessagesPage>> | {}
 
 const messages = ({
   props,
@@ -25,17 +25,20 @@ const messages = ({
   ), [])
 }
 
+export const useMessages = (args: Args = {}) => {
+  const { meta } = useMeta()
+  const superinterfaceContext = useSuperinterfaceContext()
 
-export const useMessages = ({
-  messagesQueryOptions,
-}: Args) => {
-  const props = useInfiniteQuery({
-    ...defaultQueryOptions,
-    ...messagesQueryOptions,
-  })
+  // @ts-ignore-next-line
+  const props = useInfiniteQuery(extendOptions({
+    defaultOptions: superinterfaceContext.queryOptions.messages,
+    args,
+    meta,
+  }))
 
   return useMemo(() => ({
     ...props,
+    // @ts-ignore-next-line
     messages: messages({ props }),
   }), [props])
 }

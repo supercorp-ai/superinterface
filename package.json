@@ -5,8 +5,8 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run build -- --watch"
+    "build": "turbo run build --force",
+    "dev": "turbo run build --force -- --watch"
   },
   "dependencies": {
     "typescript": "^5.3.3"

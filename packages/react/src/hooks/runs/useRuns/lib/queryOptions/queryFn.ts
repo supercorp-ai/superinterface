@@ -1,11 +1,13 @@
 import { RunsPage } from '@/types'
-import { client } from '@/lib/ai'
+import { defaultClient } from '@/lib/ai'
 
 type Args = {
+  client?: typeof defaultClient
   threadId: string
 }
 
 export const queryFn = async ({
+  client = defaultClient,
   threadId,
 }: Args): Promise<RunsPage> => {
   const response = await client.beta.threads.runs.list(threadId, {

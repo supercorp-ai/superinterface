@@ -1,3 +1,1 @@
-export const queryKey = () => (
-  ['runs']
-)
+export const queryKey = ['runs']

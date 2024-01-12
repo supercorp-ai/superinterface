@@ -1,17 +1,10 @@
-import { queryKey as messagesQueryKey } from '@/hooks/messages/useMessages/lib/queryOptions/queryKey'
 import { Args as NewMessageArgs } from './mutationFn'
-
-type Args = {
-  queryClient: any
-}
 
 type Context = {
   prevMessages: any
 } | undefined
 
-export const onError = ({
-  queryClient,
-}: Args) => async (
+export const onError = async (
   _error: any,
   newMessage: NewMessageArgs,
   context: Context
@@ -20,8 +13,5 @@ export const onError = ({
     return
   }
 
-  queryClient.setQueryData(
-    messagesQueryKey(),
-    context.prevMessages,
-  )
+  // TODO
 }

@@ -1,29 +1,15 @@
-import {
-  UseInfiniteQueryOptions,
-  InfiniteData,
-  UseMutationOptions,
-} from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useLatestRun } from '@/hooks/runs/useLatestRun'
 import { useHandleAction } from '@/hooks/actions/useHandleAction'
-import { RunsPage, Run } from '@/types'
 
 type Args = {
-  runsQueryOptions: UseInfiniteQueryOptions<InfiniteData<RunsPage>>
-  handleActionMutationOptions: UseMutationOptions<{ run: Run }>
+  [key: string]: any
 }
 
-export const useManageActions = ({
-  runsQueryOptions,
-  handleActionMutationOptions,
-}: Args) => {
-  const latestRunProps = useLatestRun({
-    runsQueryOptions,
-  })
-
-  const handleActionProps = useHandleAction({
-    handleActionMutationOptions,
-  })
+export const useManageActions = (args: Args) => {
+  const latestRunProps = useLatestRun(args)
+  // @ts-ignore-next-line
+  const handleActionProps = useHandleAction(args)
 
   useEffect(() => {
     if (handleActionProps.isPending) return
@@ -36,7 +22,10 @@ export const useManageActions = ({
     })
 
     // @ts-ignore-next-line
-    handleActionProps.handleAction({ latestRun: latestRunProps.latestRun })
+    handleActionProps.handleAction({
+      latestRun: latestRunProps.latestRun,
+      ...args,
+    })
   }, [handleActionProps, latestRunProps])
 
   return null

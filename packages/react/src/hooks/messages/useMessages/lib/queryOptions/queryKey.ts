@@ -1,3 +1,1 @@
-export const queryKey = () => (
-  ['messages']
-)
+export const queryKey = ['messages']

@@ -1,8 +1,9 @@
+'use client'
 import { useContext } from 'react'
 import {
   Flex,
 } from '@radix-ui/themes'
-import { AssistantAvatarContext } from '@/contexts/avatars/AssistantAvatarContext'
+import { AssistantAvatarContext } from '@/contexts/assistants/AssistantAvatarContext'
 
 export const AssistantAvatar = () => {
   const AssistantAvatarContextValue = useContext(AssistantAvatarContext)

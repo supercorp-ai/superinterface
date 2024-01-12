@@ -6,11 +6,9 @@ import { useMemo } from 'react'
 import { useMessages } from '@/hooks/messages/useMessages'
 import { MessagesPage } from '@/types'
 
-type Args = {
-  messagesQueryOptions: UseInfiniteQueryOptions<InfiniteData<MessagesPage>>
-}
+type Args = UseInfiniteQueryOptions<InfiniteData<MessagesPage>> | {}
 
-export const useLatestMessage = (args: Args) => {
+export const useLatestMessage = (args: Args = {}) => {
   const props = useMessages(args)
 
   return useMemo(() => ({
