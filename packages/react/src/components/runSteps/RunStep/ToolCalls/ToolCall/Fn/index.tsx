@@ -1,6 +1,9 @@
+import { useContext } from 'react'
 import OpenAI from 'openai'
-import { Availabilities } from './Availabilities'
-import { Scores } from './Scores'
+// import { Availabilities } from './Availabilities'
+// import { Scores } from './Scores'
+import { FunctionComponentsContext } from '@/contexts/functions/FunctionComponentsContext'
+import { DefaultFunction } from './DefaultFunction'
 
 type Args = {
   fn: OpenAI.Beta.Threads.Runs.FunctionToolCall.Function
@@ -11,21 +14,13 @@ export const Fn = ({
   fn,
   runStep,
 }: Args) => {
-  if (fn.name === 'getAvailabilities') {
-    return (
-      <Availabilities
-        fn={fn}
-        runStep={runStep}
-      />
-    )
-  } else if (fn.name === 'getScores') {
-    return (
-      <Scores
-        fn={fn}
-        runStep={runStep}
-      />
-    )
-  }
+  const functionComponentsContext = useContext(FunctionComponentsContext)
+  const Component = functionComponentsContext[fn.name] || DefaultFunction
 
-  return null
+  return (
+    <Component
+      fn={fn}
+      runStep={runStep}
+    />
+  )
 }
