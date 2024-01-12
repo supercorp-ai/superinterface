@@ -106,7 +106,6 @@ export const Form = ({
         <Flex
           direction="column"
           shrink="0"
-          className="bg-gray-1"
           pb="4"
         >
           <form
