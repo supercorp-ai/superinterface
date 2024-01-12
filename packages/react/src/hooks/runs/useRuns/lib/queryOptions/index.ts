@@ -4,13 +4,6 @@ import { queryKey } from './queryKey'
 
 export const queryOptions = {
   queryKey,
-  // queryFn: ({
-  //   pageParam,
-  // }: { pageParam?: string }) => (
-  //   queryFn({
-  //     assistantConversationId,
-  //   })
-  // ),
   initialPageParam: undefined,
   getNextPageParam: (lastPage: RunsPage) => {
     if (!lastPage.hasNextPage) return null

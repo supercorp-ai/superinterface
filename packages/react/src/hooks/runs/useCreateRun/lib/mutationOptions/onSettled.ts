@@ -1,9 +1,7 @@
 import { Response } from './mutationFn'
 import { fillOption } from '@/lib/core/fillOption'
 
-type Variables = {
-  assistantConversationId: string
-}
+type Variables = any
 
 type Context = {
   meta: any
