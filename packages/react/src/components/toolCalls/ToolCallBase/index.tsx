@@ -1,4 +1,3 @@
-import { forwardRef } from 'react'
 import {
   Flex,
   Button,
@@ -9,26 +8,24 @@ type Args = {
   children: React.ReactNode
 }
 
-export const ToolCallBase = forwardRef(function ToolCallBase({
+export const ToolCallBase = ({
   children,
-}: Args, ref) {
-  return (
-    <Flex
-      py="1"
-      ml="-2"
-    >
-      <PopoverTrigger>
-        <Button
-          size="1"
-          color="gold"
-          variant="outline"
-          style={{
-            boxShadow: 'none',
-          }}
-        >
-          {children}
-        </Button>
-      </PopoverTrigger>
-    </Flex>
-  )
-})
+}: Args) => (
+  <Flex
+    py="1"
+    ml="-2"
+  >
+    <PopoverTrigger>
+      <Button
+        size="1"
+        color="gold"
+        variant="outline"
+        style={{
+          boxShadow: 'none',
+        }}
+      >
+        {children}
+      </Button>
+    </PopoverTrigger>
+  </Flex>
+)

@@ -6,7 +6,6 @@ import { isRunEditingMessage } from '@/lib/runs/isRunEditingMessage'
 
 const statuses = [
   'queued',
-  // 'completed',
   'in_progress',
   'cancelling',
   'requires_action',

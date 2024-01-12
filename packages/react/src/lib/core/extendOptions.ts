@@ -18,6 +18,7 @@ const fill = ({ options, meta, args }: FillArgs) => (
   mapValues(options, (value, key: string) => {
     if (key === 'onMutate') {
       return async (...args: any) => {
+        // @ts-ignore-next-line
         return value(...args, { meta })
       }
     }

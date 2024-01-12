@@ -18,6 +18,7 @@ export const Fn = ({
   const Component = functionComponentsContext[fn.name] || DefaultFunction
 
   return (
+    // @ts-ignore-next-line
     <Component
       fn={fn}
       runStep={runStep}
