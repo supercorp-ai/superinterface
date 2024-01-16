@@ -1,4 +1,5 @@
 export { Messages } from '@/components/messages/Messages'
+export { Message } from '@/components/messages/Message'
 export { Suggestions } from '@/components/suggestions/Suggestions'
 export { Form } from '@/components/messages/Form'
 export { useThreadLifecycles } from '@/hooks/threads/useThreadLifecycles'
