@@ -6,7 +6,7 @@ export type Args = {
   client?: typeof defaultClient
   threadId: string
   assistantId: string
-} & OpenAI.Beta.Threads.Runs.RunCreateParams
+} & (OpenAI.Beta.Threads.Runs.RunCreateParams | {})
 
 export type Response = {
   run: Run
@@ -14,7 +14,6 @@ export type Response = {
 
 export const mutationFn = async ({
   client = defaultClient,
-  model,
   threadId,
   assistantId,
   ...rest
