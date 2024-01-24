@@ -19,8 +19,6 @@ export const Submit = ({
 }: Args) => (
   <Button
     type="submit"
-    color="gray"
-    highContrast
     radius="large"
     disabled={isLoading || isDisabled}
   >
