@@ -1,10 +1,10 @@
 import { useMemo } from 'react'
 import {
-  Grid,
+  Flex,
 } from '@radix-ui/themes'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
-import { Suggestion } from './Suggestion'
+import { Suggestion } from '@/components/suggestions/Suggestion'
 
 type Args = {
   emptyStateSuggestions?: string[]
@@ -31,11 +31,7 @@ export const Suggestions = ({
 
   if (!latestMessageProps.latestMessage && emptyStateSuggestions.length > 0) {
     return (
-      <Grid
-        columns={{
-          initial: "1",
-          md: "2",
-        }}
+      <Flex
         gap="2"
         py="2"
       >
@@ -46,17 +42,13 @@ export const Suggestions = ({
             {...args}
           />
         ))}
-      </Grid>
+      </Flex>
     )
   }
 
   if (latestMessageProps.latestMessage.role === 'assistant') {
     return (
-      <Grid
-        columns={{
-          initial: "3",
-          md: "4",
-        }}
+      <Flex
         gap="2"
         py="2"
       >
@@ -67,7 +59,7 @@ export const Suggestions = ({
             {...args}
           />
         ))}
-      </Grid>
+      </Flex>
     )
   }
 

@@ -1,6 +1,7 @@
 export { Messages } from '@/components/messages/Messages'
 export { Message } from '@/components/messages/Message'
 export { Suggestions } from '@/components/suggestions/Suggestions'
+export { Suggestion } from '@/components/suggestions/Suggestion'
 export { Form } from '@/components/messages/Form'
 export { useThreadLifecycles } from '@/hooks/threads/useThreadLifecycles'
 export { useMessages } from '@/hooks/messages/useMessages'
