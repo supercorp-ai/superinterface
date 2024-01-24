@@ -11,11 +11,6 @@ export default defineConfig({
     'src/types/*.ts',
     'src/lib/*.ts',
   ],
-  external: [
-    // '@tanstack/react-query',
-    'react',
-  ],
-  format: ['cjs'],
   minify: isProduction,
   sourcemap: true,
 })

@@ -4,7 +4,7 @@ import {
   Text,
 } from '@radix-ui/themes'
 import { useRef, useEffect, useMemo, useContext } from 'react'
-import { useForm, SubmitHandler } from 'react-hook-form'
+import { useForm, SubmitHandler, UseFormProps } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { usePrevious } from 'react-use'
@@ -14,10 +14,7 @@ import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useCreateMessage } from '@/hooks/messages/useCreateMessage'
 import { AssistantNameContext } from '@/contexts/assistants/AssistantNameContext'
 import { Submit } from './Submit'
-
-export const schema = z.object({
-  content: z.string().min(1).max(300),
-})
+import { useFormProps as defaultUseFormProps } from './lib/useFormProps'
 
 type Inputs = {
   content: string
@@ -27,10 +24,12 @@ type Args = {
   [key: string]: any
 } | {
   children?: React.ReactNode
+  useFormProps: UseFormProps
 }
 
 export const Form = ({
   children,
+  useFormProps = defaultUseFormProps,
   ...args
 }: Args = {}) => {
   const {
@@ -38,9 +37,7 @@ export const Form = ({
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<Inputs>({
-    resolver: zodResolver(schema),
-  })
+  } = useForm<Inputs>(useFormProps)
 
   const { isRunActive } = useIsRunActive(args)
 
