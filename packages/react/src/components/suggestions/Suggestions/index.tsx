@@ -34,6 +34,7 @@ export const Suggestions = ({
       <Flex
         gap="2"
         py="2"
+        wrap="wrap"
       >
         {emptyStateSuggestions.map((suggestion) => (
           <Suggestion
@@ -51,6 +52,7 @@ export const Suggestions = ({
       <Flex
         gap="2"
         py="2"
+        wrap="wrap"
       >
         {suggestions.map((suggestion) => (
           <Suggestion
