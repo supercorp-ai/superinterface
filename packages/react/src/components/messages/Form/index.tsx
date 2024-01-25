@@ -5,8 +5,6 @@ import {
 } from '@radix-ui/themes'
 import { useRef, useEffect, useMemo, useContext } from 'react'
 import { useForm, SubmitHandler, UseFormProps } from 'react-hook-form'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { usePrevious } from 'react-use'
 import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 import { TextareaBase } from '@/components/textareas/TextareaBase'
@@ -69,22 +67,22 @@ export const Form = ({
     latestMessage?.metadata?.isBlocking
   ), [latestMessage, isLoading])
 
-  const isInputDisabled = useMemo(() => (
-    isLoading || isDisabled || false
-  ), [isLoading, isDisabled])
+  const isSubmitDisabled = useMemo(() => (
+    isDisabled || isLoading
+  ), [isDisabled, isLoading])
 
-  const isInputDisabledPrevious = usePrevious(isInputDisabled)
+  const isDisabledPrevious = usePrevious(isDisabled)
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const textareaProps = register('content')
 
   useEffect(() => {
-    if (isInputDisabled) return
-    if (!isInputDisabledPrevious) return
+    if (isDisabled) return
+    if (!isDisabledPrevious) return
     if (!textareaRef.current) return
 
     textareaRef.current.focus()
-  }, [isInputDisabled, isInputDisabledPrevious, textareaProps])
+  }, [isDisabled, isDisabledPrevious, textareaProps])
 
   const assistantNameContext = useContext(AssistantNameContext)
 
@@ -124,10 +122,12 @@ export const Form = ({
                   <TextareaBase
                     minRows={1}
                     placeholder={`Message ${assistantNameContext}...`}
-                    disabled={isLoading || isDisabled}
+                    disabled={isDisabled}
                     onKeyDown={(e: any) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault()
+
+                        if (isSubmitDisabled) return
                         handleSubmit(onSubmit)()
                       }
                     }}
@@ -148,7 +148,7 @@ export const Form = ({
               >
                 <Submit
                   isLoading={isLoading}
-                  isDisabled={isDisabled}
+                  isDisabled={isSubmitDisabled}
                 />
               </Flex>
             </Flex>

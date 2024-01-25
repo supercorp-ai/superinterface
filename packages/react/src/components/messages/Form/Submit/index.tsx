@@ -20,7 +20,7 @@ export const Submit = ({
   <Button
     type="submit"
     radius="large"
-    disabled={isLoading || isDisabled}
+    disabled={isDisabled}
   >
     {isLoading ? <Spinner /> : <ArrowUpIcon />}
   </Button>
