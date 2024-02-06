@@ -1,3 +1,11 @@
+import {
+  Messages,
+} from '@superinterface/react'
+import { Provider } from '@/components/Provider'
+
 export const App = () => (
-  'This is Superinterface'
+  <Provider>
+    This is Superinterface
+    <Messages />
+  </Provider>
 )

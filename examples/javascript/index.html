@@ -5,15 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script type="text/javascript">
       (function() {
-        window.superinterface = window.superinterface || function() { window.superinterface.actions.push(arguments); };
-        window.superinterface.actions = window.superinterface.actions || [];
-        window.superinterface.WRITE_KEY = "3bb140f9-e9dc-4a7c-aad6-21ec5427fd71";
-        window.superinterface.VERSION = "1.0.0";
+        window.superinterface = window.superinterface || {};
+        window.superinterface.ASSISTANT_ID = "723eb755-1a98-4ac9-91d6-62821b191bfc";
 
         const d = document;
         const e = d.createElement("script");
         // e.src = "https://javascript.superinterface.ai/superinterface.js";
-        e.src = "http://localhost:3000/index.global.js";
+        e.src = "http://localhost:3000/index.js";
         e.async = 1;
         d.getElementsByTagName("head")[0].appendChild(e);
       })();

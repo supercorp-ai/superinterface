@@ -1,24 +1,20 @@
 import { defineConfig } from 'tsup'
 
-const isProduction = process.env.NODE_ENV === 'production'
-
 export default defineConfig({
   splitting: false,
   clean: true,
-  dts: true,
-  format: ['iife'],
+  platform: 'browser',
+  format: ['cjs'],
+  noExternal: [
+    '@superinterface/react',
+    'react',
+    'react-dom',
+    '@radix-ui/themes',
+  ],
+  injectStyle: true,
   entry: [
     'src/index.tsx',
   ],
-  minify: isProduction,
+  minify: true,
   sourcemap: true,
-  esbuildOptions(options) {
-    options.define = {
-      "process.env.NODE_ENV": JSON.stringify("production"),
-    }
-
-    options.banner = {
-      js: '"use client"',
-    }
-  },
 })
