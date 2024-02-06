@@ -107,13 +107,21 @@ export const Form = ({
             onSubmit={handleSubmit(onSubmit)}
           >
             <Flex
-              className={`rounded-3 border-gray-5 border border-solid ${errors.content ? 'border-red-9 bg-red-2' : ''}`}
+              style={{
+                borderRadius: 'var(--radius-3)',
+                borderWidth: '1px',
+                borderStyle: 'solid',
+                borderColor: errors.content ? 'var(--red-9)' : 'var(--gray-5)',
+                ...(errors.content ? { backgroundColor: 'var(--red-2)' } : {}),
+              }}
               p="2"
               pl="4"
             >
               <Text
                 size="2"
-                className="grow"
+                style={{
+                  flexGrow: 1,
+                }}
               >
                 <Flex
                   grow="1"

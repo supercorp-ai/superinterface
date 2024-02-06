@@ -17,7 +17,9 @@ export const MessagesSkeleton = forwardRef(function MessagesSkeleton(_props, ref
       <Avatar
         fallback={<Flex />}
         size="1"
-        className="animate-pulse"
+        style={{
+          animation: 'pulse 2s cubic-bezier(.4,0,.6,1) infinite',
+        }}
       />
 
       <Box
@@ -26,23 +28,33 @@ export const MessagesSkeleton = forwardRef(function MessagesSkeleton(_props, ref
         <Name>
           <Skeleton
             height="1"
-            className="w-[128px]"
+            style={{
+              width: '128px',
+            }}
           />
         </Name>
 
         <Skeleton
           height="2"
-          className="w-[256px]"
+          style={{
+            width: '256px',
+          }}
         />
 
         <Skeleton
           height="2"
-          className="w-[256px] mt-2"
+          style={{
+            width: '256px',
+            marginTop: 'var(--space-2)',
+          }}
         />
 
         <Skeleton
           height="2"
-          className="w-[256px] mt-2"
+          style={{
+            width: '256px',
+            marginTop: 'var(--space-2)',
+          }}
         />
       </Box>
     </MessagesGroupBase>

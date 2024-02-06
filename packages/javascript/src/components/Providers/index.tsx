@@ -1,6 +1,7 @@
 import {
   SuperinterfaceProvider,
 } from '@superinterface/react'
+import { Theme } from '@radix-ui/themes'
 
 type Args = {
   children: React.ReactNode
@@ -53,32 +54,37 @@ const url = ({
   `http://localhost:3001${path}`
 )
 
-export const Provider = ({
+export const Providers = ({
   children,
 }: Args) => (
-  <SuperinterfaceProvider
-    queryOptions={{
-      // @ts-ignore-next-line
-      messages: endpointQueryOptions({
-        url: url({ path: '/api/messages' }),
-      }),
-      // @ts-ignore-next-line
-      runs: endpointQueryOptions({
-        url: url({ path: '/api/runs' }),
-      }),
-    }}
-    mutationOptions={{
-      createMessage: endpointMutationOptions({
-        url: url({ path: '/api/messages' }),
-      }),
-      createRun: endpointMutationOptions({
-        url: url({ path: '/api/runs' }),
-      }),
-      handleAction: endpointMutationOptions({
-        url: url({ path: '/api/actions' }),
-      }),
-    }}
+  <Theme
+    accentColor="mint"
+    radius="large"
   >
-    {children}
-  </SuperinterfaceProvider>
+    <SuperinterfaceProvider
+      queryOptions={{
+        // @ts-ignore-next-line
+        messages: endpointQueryOptions({
+          url: url({ path: '/api/messages' }),
+        }),
+        // @ts-ignore-next-line
+        runs: endpointQueryOptions({
+          url: url({ path: '/api/runs' }),
+        }),
+      }}
+      mutationOptions={{
+        createMessage: endpointMutationOptions({
+          url: url({ path: '/api/messages' }),
+        }),
+        createRun: endpointMutationOptions({
+          url: url({ path: '/api/runs' }),
+        }),
+        handleAction: endpointMutationOptions({
+          url: url({ path: '/api/actions' }),
+        }),
+      }}
+    >
+      {children}
+    </SuperinterfaceProvider>
+  </Theme>
 )

@@ -43,9 +43,11 @@ export const Messages = ({
     <Flex
       ref={containerRef}
       direction="column-reverse"
-      className="overflow-auto"
       grow="1"
       p="2"
+      style={{
+        overflow: 'auto',
+      }}
     >
       <Flex
         shrink="0"

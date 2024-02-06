@@ -8,7 +8,9 @@ export const UnorderedList = ({ children }: JSX.IntrinsicElements['ul']) => (
     asChild
   >
     <ul
-      className="list-inside"
+      style={{
+        listStylePosition: 'inside',
+      }}
     >
       {children}
     </ul>

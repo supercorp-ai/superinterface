@@ -1,11 +1,16 @@
 import {
   Messages,
+  Form,
 } from '@superinterface/react'
-import { Provider } from '@/components/Provider'
+import { Providers } from '@/components/Providers'
+import { Dialog } from './Dialog'
+import './styles.css'
 
 export const App = () => (
-  <Provider>
-    This is Superinterface
-    <Messages />
-  </Provider>
+  <Providers>
+    <Dialog>
+      <Messages />
+      <Form />
+    </Dialog>
+  </Providers>
 )

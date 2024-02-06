@@ -2,16 +2,21 @@ import { Flex } from '@radix-ui/themes'
 
 type Props = {
   height: string
-  className: string
+  style: React.CSSProperties
 }
 
 export const Skeleton = ({
-  className,
+  style,
   ...rest
 }: Props) => (
   // @ts-ignore-next-line
   <Flex
-    className={`animate-pulse rounded-3 bg-gray-5 ${className}`}
+    style={{
+      animation: 'pulse 2s cubic-bezier(.4,0,.6,1) infinite',
+      borderRadius: 'var(--radius-3)',
+      backgroundColor: 'var(--gray-5)',
+      ...style,
+    }}
     {...rest}
   />
 )

@@ -10,6 +10,7 @@ export default defineConfig({
     'react',
     'react-dom',
     '@radix-ui/themes',
+    '@radix-ui/react-icons',
   ],
   injectStyle: true,
   entry: [

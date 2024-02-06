@@ -45,7 +45,10 @@ export const Content = ({
     <Code
       variant="ghost"
       color="gold"
-      className="whitespace-pre break-words"
+      style={{
+        whiteSpace: 'pre',
+        wordBreak: 'break-word',
+      }}
     >
       <Box>
         {args && JSON.stringify(args, null, 2)}
