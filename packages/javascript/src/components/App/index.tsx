@@ -1,4 +1,7 @@
 import {
+  Box,
+} from '@radix-ui/themes'
+import {
   Messages,
   Form,
 } from '@superinterface/react'
@@ -7,10 +10,12 @@ import { Dialog } from './Dialog'
 import './styles.css'
 
 export const App = () => (
-  <Providers>
-    <Dialog>
-      <Messages />
-      <Form />
-    </Dialog>
-  </Providers>
+  <Box className="superinterface">
+    <Providers>
+      <Dialog>
+        <Messages />
+        <Form />
+      </Dialog>
+    </Providers>
+  </Box>
 )

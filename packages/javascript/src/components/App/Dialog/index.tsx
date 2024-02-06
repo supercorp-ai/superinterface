@@ -47,6 +47,7 @@ export const Dialog = ({
           </IconButton>
         </DialogTrigger>
         <DialogContent
+          className="superinterface"
           onWheel={(e) => {
             e.stopPropagation()
             const isScrollingDown = e.deltaY > 0
