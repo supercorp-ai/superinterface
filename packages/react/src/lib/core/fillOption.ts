@@ -1,6 +1,7 @@
 const extended = [
   'enabled',
   'queryKey',
+  'mutationKey',
 ]
 
 export const fillOption = ({
