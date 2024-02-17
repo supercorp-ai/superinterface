@@ -1,5 +1,7 @@
 import { defineConfig } from 'tsup'
 
+const isProduction = process.env.NODE_ENV === 'production'
+
 export default defineConfig({
   splitting: false,
   clean: true,
@@ -16,6 +18,6 @@ export default defineConfig({
   entry: [
     'src/index.tsx',
   ],
-  minify: true,
+  minify: isProduction,
   sourcemap: true,
 })

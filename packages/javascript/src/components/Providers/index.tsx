@@ -58,7 +58,7 @@ export const Providers = ({
   children,
 }: Args) => (
   <Theme
-    accentColor="mint"
+    accentColor="gray"
     radius="large"
   >
     <SuperinterfaceProvider
