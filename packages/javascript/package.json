@@ -15,7 +15,8 @@
   "keywords": [],
   "license": "ISC",
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "serve": "npx serve dist -p 3005"
   },
   "dependencies": {
     "@radix-ui/react-icons": "^1.3.0",

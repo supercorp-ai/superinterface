@@ -12,6 +12,6 @@
     "typescript": "^5.3.3"
   },
   "devDependencies": {
-    "turbo": "^1.12.2"
+    "turbo": "^1.12.4"
   }
 }
