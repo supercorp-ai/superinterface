@@ -1,0 +1,9 @@
+{
+  "name": "@superinterface/javacript-example",
+  "version": "1.0.0",
+  "keywords": [],
+  "license": "ISC",
+  "scripts": {
+    "serve": "npx serve . -p 3006"
+  }
+}

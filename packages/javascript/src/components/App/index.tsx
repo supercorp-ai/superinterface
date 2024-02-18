@@ -6,16 +6,29 @@ import {
   Form,
 } from '@superinterface/react'
 import { Providers } from '@/components/Providers'
+import { useCurrentConversationId } from '@/hooks/conversations/useCurrentConversationId'
 import { Dialog } from './Dialog'
 import './styles.css'
 
-export const App = () => (
-  <Box className="superinterface">
-    <Providers>
-      <Dialog>
-        <Messages />
-        <Form />
-      </Dialog>
-    </Providers>
-  </Box>
-)
+const assistantId = 'ea811802-7914-4740-930c-fb820c6900e8'
+
+export const App = () => {
+  const { currentConversationId } = useCurrentConversationId()
+
+  return (
+    <Box className="superinterface">
+      <Providers>
+        <Dialog>
+          <Messages
+            conversationId={currentConversationId}
+            assistantId={assistantId}
+          />
+          <Form
+            conversationId={currentConversationId}
+            assistantId={assistantId}
+          />
+        </Dialog>
+      </Providers>
+    </Box>
+  )
+}

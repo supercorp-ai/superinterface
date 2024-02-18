@@ -1,3 +1,4 @@
+import { useCurrentConversationId } from '@/hooks/conversations/useCurrentConversationId'
 import {
   SuperinterfaceProvider,
 } from '@superinterface/react'
@@ -8,7 +9,11 @@ type Args = {
 }
 
 type QueryFnArgs = {
-  queryKey: [string]
+  queryKey: [string, {
+    url: string
+    assistantId: string
+    conversationId: string
+  }]
   pageParam?: string
 }
 
@@ -17,13 +22,31 @@ const endpointQueryOptions = ({
 }: {
   url: string
 }) => ({
-  queryKey: () => [url],
+  enabled: ({ conversationId }: { conversationId?: string }) => (
+    !!conversationId
+  ),
+  queryKey: ({
+    assistantId,
+    conversationId,
+  }: {
+    assistantId: string,
+    conversationId?: string,
+  }) => (
+    ['endpoint', {
+      url,
+      assistantId,
+      conversationId,
+    }]
+  ),
   queryFn: async ({
     pageParam,
     queryKey: queryFnQueryKey,
   }: QueryFnArgs) => {
+    const [_key, { url, assistantId, conversationId }] = queryFnQueryKey
     const params = new URLSearchParams({
       pageParam: pageParam || '',
+      assistantId,
+      conversationId,
     })
 
     return fetch(`${url}?${params}`).then(res => res.json())
@@ -35,12 +58,9 @@ const endpointMutationOptions = ({
 }: {
   url: string
 }) => ({
-  mutationFn: async (data: any) => (
+  mutationFn: (data: any) => (
     fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(data),
     }).then(res => res.json())
   ),
@@ -56,35 +76,45 @@ const url = ({
 
 export const Providers = ({
   children,
-}: Args) => (
-  <Theme
-    accentColor="gray"
-    radius="large"
-  >
-    <SuperinterfaceProvider
-      queryOptions={{
-        // @ts-ignore-next-line
-        messages: endpointQueryOptions({
-          url: url({ path: '/api/messages' }),
-        }),
-        // @ts-ignore-next-line
-        runs: endpointQueryOptions({
-          url: url({ path: '/api/runs' }),
-        }),
-      }}
-      mutationOptions={{
-        createMessage: endpointMutationOptions({
-          url: url({ path: '/api/messages' }),
-        }),
-        createRun: endpointMutationOptions({
-          url: url({ path: '/api/runs' }),
-        }),
-        handleAction: endpointMutationOptions({
-          url: url({ path: '/api/actions' }),
-        }),
-      }}
+}: Args) => {
+  const { updateCurrentConversationId } = useCurrentConversationId()
+
+  return (
+    <Theme
+      accentColor="gray"
+      radius="large"
     >
-      {children}
-    </SuperinterfaceProvider>
-  </Theme>
-)
+      <SuperinterfaceProvider
+        queryOptions={{
+          messages: endpointQueryOptions({
+            url: url({ path: '/api/cloud/messages' }),
+          }),
+          runs: endpointQueryOptions({
+            url: url({ path: '/api/cloud/runs' }),
+          }),
+        }}
+        mutationOptions={{
+          createMessage: {
+            ...endpointMutationOptions({
+              url: url({ path: '/api/cloud/messages' }),
+            }),
+            onSuccess: (data: any, variables: any) => {
+              if (variables.conversationId) return
+              if (!data.conversationId) return
+
+              updateCurrentConversationId(data.conversationId)
+            },
+          },
+          createRun: endpointMutationOptions({
+            url: url({ path: '/api/cloud/runs' }),
+          }),
+          handleAction: endpointMutationOptions({
+            url: url({ path: '/api/cloud/actions' }),
+          }),
+        }}
+      >
+        {children}
+      </SuperinterfaceProvider>
+    </Theme>
+  )
+}
