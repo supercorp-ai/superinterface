@@ -10,19 +10,13 @@ import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 
 type Args = {
   suggestion: string
-  [key: string]: any
 }
 
 export const Suggestion = ({
   suggestion,
-  ...args
 }: Args) => {
-  const {
-    createThreadMessage,
-    // @ts-ignore-next-line
-  } = useCreateThreadMessage(args)
-
-  const { isRunActive } = useIsRunActive(args)
+  const { createThreadMessage } = useCreateThreadMessage()
+  const { isRunActive } = useIsRunActive()
 
   return (
     <Button
@@ -31,11 +25,7 @@ export const Suggestion = ({
         justifyContent: 'space-between',
       }}
       onClick={() => {
-        // @ts-ignore-next-line
-        createThreadMessage({
-          content: suggestion,
-          ...args,
-        })
+        createThreadMessage({ content: suggestion })
       }}
       disabled={isRunActive}
     >

@@ -1,29 +1,22 @@
-import { fillOption } from '@/lib/core/fillOption'
+import {
+  QueryClient,
+} from '@tanstack/react-query'
+import { useThreadContext } from '@/hooks/threads/useThreadContext'
 
 type Args = {
-  meta: any
-  args: any
+  queryClient: QueryClient
+  threadContext: ReturnType<typeof useThreadContext>,
 }
 
 export const refetch = async ({
-  meta,
-  args,
+  queryClient,
+  threadContext,
 }: Args) => {
-  await meta.queryClient.invalidateQueries({
-    queryKey: fillOption({
-      value: meta.superinterfaceContext.queryOptions.threadMessages.queryKey,
-      key: 'queryKey',
-      meta,
-      args,
-    }),
+  await queryClient.invalidateQueries({
+    queryKey: threadContext.defaultOptions.queries.queryKey ?? ['threadMessages', threadContext.variables],
   })
 
-  await meta.queryClient.invalidateQueries({
-    queryKey: fillOption({
-      value: meta.superinterfaceContext.queryOptions.runs.queryKey,
-      key: 'queryKey',
-      meta,
-      args,
-    }),
+  await queryClient.invalidateQueries({
+    queryKey: threadContext.defaultOptions.queries.queryKey ?? ['runs', threadContext.variables],
   })
 }

@@ -1,15 +1,13 @@
 import { useMemo } from 'react'
 import {
   InfiniteData,
-  UseInfiniteQueryOptions,
   useInfiniteQuery,
+  useQueryClient,
 } from '@tanstack/react-query'
 import { ThreadMessage, ThreadMessagesPage } from '@/types'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
-import { useMeta } from '@/hooks/metas/useMeta'
-import { extendOptions } from '@/lib/core/extendOptions'
-
-type Args = UseInfiniteQueryOptions<InfiniteData<ThreadMessagesPage>> | {}
+import { useThreadContext } from '@/hooks/threads/useThreadContext'
+import { queryOptions } from '@/lib/threads/queryOptions'
 
 const threadMessages = ({
   props,
@@ -25,15 +23,18 @@ const threadMessages = ({
   ), [])
 }
 
-export const useThreadMessages = (args: Args = {}) => {
-  const { meta } = useMeta()
+
+export const useThreadMessages = () => {
+  const queryClient = useQueryClient()
+  const threadContext = useThreadContext()
   const superinterfaceContext = useSuperinterfaceContext()
 
-  // @ts-ignore-next-line
-  const props = useInfiniteQuery(extendOptions({
-    defaultOptions: superinterfaceContext.queryOptions.threadMessages,
-    args,
-    meta,
+  const props = useInfiniteQuery(queryOptions({
+    queryKeyBase: ['threadMessages'],
+    path: '/thread-messages',
+    queryClient,
+    threadContext,
+    superinterfaceContext,
   }))
 
   return useMemo(() => ({

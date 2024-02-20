@@ -2,14 +2,9 @@ import { useEffect } from 'react'
 import { useLatestRun } from '@/hooks/runs/useLatestRun'
 import { useHandleAction } from '@/hooks/actions/useHandleAction'
 
-type Args = {
-  [key: string]: any
-}
-
-export const useManageActions = (args: Args) => {
-  const latestRunProps = useLatestRun(args)
-  // @ts-ignore-next-line
-  const handleActionProps = useHandleAction(args)
+export const useManageActions = () => {
+  const latestRunProps = useLatestRun()
+  const handleActionProps = useHandleAction()
 
   useEffect(() => {
     if (handleActionProps.isPending) return
@@ -21,10 +16,8 @@ export const useManageActions = (args: Args) => {
       latestRunProps,
     })
 
-    // @ts-ignore-next-line
     handleActionProps.handleAction({
       latestRun: latestRunProps.latestRun,
-      ...args,
     })
   }, [handleActionProps, latestRunProps])
 

@@ -19,16 +19,13 @@ type Inputs = {
 }
 
 type Args = {
-  [key: string]: any
-} | {
   children?: React.ReactNode
-  useFormProps: UseFormProps
+  useFormProps?: UseFormProps<Inputs>
 }
 
 export const ThreadMessageForm = ({
   children,
   useFormProps = defaultUseFormProps,
-  ...args
 }: Args = {}) => {
   const {
     register,
@@ -37,7 +34,7 @@ export const ThreadMessageForm = ({
     reset,
   } = useForm<Inputs>(useFormProps)
 
-  const { isRunActive } = useIsRunActive(args)
+  const { isRunActive } = useIsRunActive()
 
   const isLoading = useMemo(() => (
     isRunActive || isSubmitting
@@ -46,21 +43,14 @@ export const ThreadMessageForm = ({
     isSubmitting,
   ])
 
-  const {
-    createThreadMessage,
-    // @ts-ignore-next-line
-  } = useCreateThreadMessage(args)
+  const { createThreadMessage } = useCreateThreadMessage()
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     reset()
-    // @ts-ignore-next-line
-    await createThreadMessage({
-      content: data.content,
-      ...args,
-    })
+    await createThreadMessage({ content: data.content })
   }
 
-  const { latestThreadMessage } = useLatestThreadMessage(args)
+  const { latestThreadMessage } = useLatestThreadMessage()
 
   const isDisabled = useMemo(() => (
     // @ts-ignore-next-line

@@ -1,27 +1,27 @@
+import { partob } from 'radash'
 import {
-  UseMutationOptions,
   useMutation,
+  useQueryClient,
 } from '@tanstack/react-query'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
-import { ThreadMessage } from '@/types'
-import { extendOptions } from '@/lib/core/extendOptions'
-import { useMeta } from '@/hooks/metas/useMeta'
+import { useThreadContext } from '@/hooks/threads/useThreadContext'
+import { mutationOptions } from '@/lib/threads/mutationOptions'
 
-type Args = (args: any) => UseMutationOptions<{ threadMessage: ThreadMessage }>
-
-// @ts-ignore-next-line
-export const useCreateThreadMessage = (args: Args = () => {}) => {
+export const useCreateThreadMessage = () => {
+  const queryClient = useQueryClient()
   const superinterfaceContext = useSuperinterfaceContext()
-  const { meta } = useMeta()
+  const threadContext = useThreadContext()
 
-  const props = useMutation(extendOptions({
-    defaultOptions: superinterfaceContext.mutationOptions.createThreadMessage,
-    args,
-    meta,
+  const props = useMutation(mutationOptions({
+    mutationKeyBase: ['createThreadMessage'],
+    path: '/messages',
+    queryClient,
+    threadContext,
+    superinterfaceContext,
   }))
 
   return {
     ...props,
-    createThreadMessage: props.mutateAsync,
+    createThreadMessage: partob(props.mutateAsync, threadContext.variables),
   }
 }

@@ -38,6 +38,8 @@ export const extendOptions = ({
   args,
   meta,
 }: Args) => {
+  // return merge(context.defaultOptions,
+  // )
   const options = merge(defaultOptions, args)
 
   return {

@@ -29,13 +29,9 @@ const isRunActive = ({
   return isRunEditingThreadMessage({ threadMessage: latestThreadMessageProps.latestThreadMessage })
 }
 
-type Args = {
-  [key: string]: any
-}
-
-export const useIsRunActive = (args: Args) => {
-  const latestRunProps = useLatestRun(args)
-  const latestThreadMessageProps = useLatestThreadMessage(args)
+export const useIsRunActive = () => {
+  const latestRunProps = useLatestRun()
+  const latestThreadMessageProps = useLatestThreadMessage()
   const isMutating = useIsMutating()
 
   return useMemo(() => ({

@@ -14,21 +14,19 @@ import { Progress } from './Progress'
 
 type Args = {
   children?: React.ReactNode
-  [key: string]: any
 }
 
 export const ThreadMessages = ({
   children,
-  ...args
 }: Args) => {
   const {
     threadMessages,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-  } = useThreadMessages(args)
+  } = useThreadMessages()
 
-  useThreadLifecycles(args)
+  useThreadLifecycles()
 
   const { containerRef, loaderRef } = useInfiniteScroll({
     isFetchingNextPage,
@@ -36,8 +34,8 @@ export const ThreadMessages = ({
     fetchNextPage,
   })
 
-  const { isRunActive } = useIsRunActive(args)
-  const { latestThreadMessage } = useLatestThreadMessage(args)
+  const { isRunActive } = useIsRunActive()
+  const { latestThreadMessage } = useLatestThreadMessage()
 
   return (
     <Flex

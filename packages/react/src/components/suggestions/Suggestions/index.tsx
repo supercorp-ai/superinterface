@@ -9,16 +9,14 @@ import { Suggestion } from '@/components/suggestions/Suggestion'
 type Args = {
   emptyStateSuggestions?: string[]
   suggestions?: string[]
-  [key: string]: any
 }
 
 export const Suggestions = ({
   emptyStateSuggestions = [],
   suggestions = [],
-  ...args
 }: Args) => {
-  const latestThreadMessageProps = useLatestThreadMessage(args)
-  const isRunActiveProps = useIsRunActive(args)
+  const latestThreadMessageProps = useLatestThreadMessage()
+  const isRunActiveProps = useIsRunActive()
 
   const isDisabled = useMemo(() => (
     // @ts-ignore-next-line
@@ -40,7 +38,6 @@ export const Suggestions = ({
           <Suggestion
             key={suggestion}
             suggestion={suggestion}
-            {...args}
           />
         ))}
       </Flex>
@@ -58,7 +55,6 @@ export const Suggestions = ({
           <Suggestion
             key={suggestion}
             suggestion={suggestion}
-            {...args}
           />
         ))}
       </Flex>

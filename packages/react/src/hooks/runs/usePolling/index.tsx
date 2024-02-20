@@ -1,21 +1,21 @@
-import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
+import {
+  useQueryClient,
+} from '@tanstack/react-query'
 import { useInterval } from 'react-use'
-import { useMeta } from '@/hooks/metas/useMeta'
+import { useThreadContext } from '@/hooks/threads/useThreadContext'
+import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 import { refetch } from './lib/refetch'
 
-type Args = {
-  [key: string]: any
-} | {}
+export const usePolling = () => {
+  const threadContext = useThreadContext()
+  const queryClient = useQueryClient()
 
-export const usePolling = (args: Args = {}) => {
-  const { meta } = useMeta()
-
-  const isRunActiveProps = useIsRunActive(args)
+  const isRunActiveProps = useIsRunActive()
 
   useInterval(() => {
     refetch({
-      args,
-      meta,
+      queryClient,
+      threadContext,
     })
 
     console.log('poll refetched')
