@@ -22,7 +22,7 @@ export const Suggestions = ({
 
   const isDisabled = useMemo(() => (
     // @ts-ignore-next-line
-    latestMessageProps.latestMessage?.metadata?.isBlocking ||
+    latestThreadMessageProps.latestThreadMessage?.metadata?.isBlocking ||
       isRunActiveProps.isRunActive
   ), [latestThreadMessageProps, isRunActiveProps])
 

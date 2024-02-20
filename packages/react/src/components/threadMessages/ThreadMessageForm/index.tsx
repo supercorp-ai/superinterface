@@ -64,7 +64,7 @@ export const ThreadMessageForm = ({
 
   const isDisabled = useMemo(() => (
     // @ts-ignore-next-line
-    latestMessage?.metadata?.isBlocking
+    latestThreadMessage?.metadata?.isBlocking
   ), [latestThreadMessage, isLoading])
 
   const isSubmitDisabled = useMemo(() => (

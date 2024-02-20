@@ -94,7 +94,7 @@ export const Providers = ({
           }),
         }}
         mutationOptions={{
-          createMessage: {
+          createThreadMessage: {
             ...endpointMutationOptions({
               url: url({ path: '/api/cloud/thread-messages' }),
             }),

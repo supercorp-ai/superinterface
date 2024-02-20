@@ -21,7 +21,7 @@ const isRunActive = ({
   isMutating: number,
 }) => {
   // @ts-ignore-next-line
-  if (latestMessageProps.latestMessage?.metadata?.isBlocking) return false
+  if (latestThreadMessageProps.latestThreadMessage?.metadata?.isBlocking) return false
   if (isMutating > 0) return true
   if (!latestRunProps.latestRun) return false
   if (statuses.includes(latestRunProps.latestRun.status)) return true

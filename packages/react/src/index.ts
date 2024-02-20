@@ -1,5 +1,4 @@
 export { ThreadMessages } from '@/components/threadMessages/ThreadMessages'
-export { ThreadMessage } from '@/components/threadMessages/ThreadMessage'
 export { Suggestions } from '@/components/suggestions/Suggestions'
 export { Suggestion } from '@/components/suggestions/Suggestion'
 export { ThreadMessageForm } from '@/components/threadMessages/ThreadMessageForm'
