@@ -8,11 +8,13 @@ export default defineConfig({
   platform: 'browser',
   format: ['cjs'],
   noExternal: [
-    '@superinterface/react',
-    'react',
-    'react-dom',
-    '@radix-ui/themes',
-    '@radix-ui/react-icons',
+     /(.*)/
+    // '@superinterface/react',
+    // 'react',
+    // 'react-dom',
+    // '@radix-ui/themes',
+    // '@radix-ui/react-icons',
+    // '@tanstack/react-query',
   ],
   injectStyle: true,
   entry: [

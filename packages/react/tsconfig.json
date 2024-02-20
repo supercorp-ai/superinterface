@@ -7,10 +7,12 @@
     "outDir": "dist",
     "paths": {
       "@/*": ["./src/*"]
-    }
-  },
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+    },
+    "jsx": "react-jsx"
+    // "declaration": false
+  }
+  // "exclude": [
+  //   "node_modules",
+  //   "dist"
+  // ]
 }
