@@ -11,7 +11,7 @@ export const refetch = async ({
 }: Args) => {
   await meta.queryClient.invalidateQueries({
     queryKey: fillOption({
-      value: meta.superinterfaceContext.queryOptions.messages.queryKey,
+      value: meta.superinterfaceContext.queryOptions.threadMessages.queryKey,
       key: 'queryKey',
       meta,
       args,

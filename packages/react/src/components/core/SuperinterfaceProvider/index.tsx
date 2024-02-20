@@ -5,7 +5,7 @@ import {
   UseMutationOptions,
 } from '@tanstack/react-query'
 import { merge } from '@/lib/misc/merge'
-import { Message, Run, MessagesPage, RunsPage } from '@/types'
+import { ThreadMessage, Run, ThreadMessagesPage, RunsPage } from '@/types'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { SuperinterfaceContext } from '@/contexts/core/SuperinterfaceContext'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
@@ -13,11 +13,11 @@ import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 type Args = {
   children: React.ReactNode
   queryOptions: {
-    messages: UseInfiniteQueryOptions<InfiniteData<MessagesPage>>
+    threadMessages: UseInfiniteQueryOptions<InfiniteData<ThreadMessagesPage>>
     runs: UseInfiniteQueryOptions<InfiniteData<RunsPage>>
   },
   mutationOptions: {
-    createMessage: UseMutationOptions<{ message: Message }>
+    createThreadMessage: UseMutationOptions<{ threadMessage: ThreadMessage }>
     createRun: UseMutationOptions<{ run: Run }>
     handleAction: UseMutationOptions<{ run: Run }>
   },

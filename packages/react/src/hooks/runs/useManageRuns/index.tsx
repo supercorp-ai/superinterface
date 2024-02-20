@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
+import { useLatestThreadMessage } from '@/hooks/threadMessages/useLatestThreadMessage'
 import { useLatestRun } from '@/hooks/runs/useLatestRun'
 import { useCreateRun } from '@/hooks/runs/useCreateRun'
 import { isOptimistic } from '@/lib/optimistic/isOptimistic'
@@ -10,27 +10,27 @@ type Args = {
 
 export const useManageRuns = (args: Args) => {
   const latestRunProps = useLatestRun(args)
-  const latestMessageProps = useLatestMessage(args)
+  const latestThreadMessageProps = useLatestThreadMessage(args)
   // @ts-ignore-next-line
   const createRunProps = useCreateRun(args)
 
   useEffect(() => {
     if (createRunProps.isPending) return
     if (latestRunProps.isFetching) return
-    if (latestMessageProps.isFetching) return
+    if (latestThreadMessageProps.isFetching) return
 
-    if (!latestMessageProps.latestMessage) return
-    if (latestMessageProps.latestMessage.role !== 'user') return
-    if (isOptimistic({ id: latestMessageProps.latestMessage.id })) return
+    if (!latestThreadMessageProps.latestThreadMessage) return
+    if (latestThreadMessageProps.latestThreadMessage.role !== 'user') return
+    if (isOptimistic({ id: latestThreadMessageProps.latestThreadMessage.id })) return
 
-    if (!latestRunProps.latestRun || (latestMessageProps.latestMessage.created_at > latestRunProps.latestRun.created_at)) {
+    if (!latestRunProps.latestRun || (latestThreadMessageProps.latestThreadMessage.created_at > latestRunProps.latestRun.created_at)) {
       // @ts-ignore-next-line
       createRunProps.createRun(args)
     }
   }, [
     createRunProps,
     latestRunProps,
-    latestMessageProps,
+    latestThreadMessageProps,
   ])
 
   return null

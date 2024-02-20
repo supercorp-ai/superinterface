@@ -86,8 +86,8 @@ export const Providers = ({
     >
       <SuperinterfaceProvider
         queryOptions={{
-          messages: endpointQueryOptions({
-            url: url({ path: '/api/cloud/messages' }),
+          threadMessages: endpointQueryOptions({
+            url: url({ path: '/api/cloud/thread-messages' }),
           }),
           runs: endpointQueryOptions({
             url: url({ path: '/api/cloud/runs' }),
@@ -96,7 +96,7 @@ export const Providers = ({
         mutationOptions={{
           createMessage: {
             ...endpointMutationOptions({
-              url: url({ path: '/api/cloud/messages' }),
+              url: url({ path: '/api/cloud/thread-messages' }),
             }),
             onSuccess: (data: any, variables: any) => {
               if (variables.conversationId) return

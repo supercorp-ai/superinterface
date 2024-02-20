@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 import { useIsMutating } from '@tanstack/react-query'
 import { useLatestRun } from '@/hooks/runs/useLatestRun'
-import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
-import { isRunEditingMessage } from '@/lib/runs/isRunEditingMessage'
+import { useLatestThreadMessage } from '@/hooks/threadMessages/useLatestThreadMessage'
+import { isRunEditingThreadMessage } from '@/lib/runs/isRunEditingThreadMessage'
 
 const statuses = [
   'queued',
@@ -13,11 +13,11 @@ const statuses = [
 
 const isRunActive = ({
   latestRunProps,
-  latestMessageProps,
+  latestThreadMessageProps,
   isMutating,
 }: {
   latestRunProps: ReturnType<typeof useLatestRun>,
-  latestMessageProps: ReturnType<typeof useLatestMessage>,
+  latestThreadMessageProps: ReturnType<typeof useLatestThreadMessage>,
   isMutating: number,
 }) => {
   // @ts-ignore-next-line
@@ -26,7 +26,7 @@ const isRunActive = ({
   if (!latestRunProps.latestRun) return false
   if (statuses.includes(latestRunProps.latestRun.status)) return true
 
-  return isRunEditingMessage({ message: latestMessageProps.latestMessage })
+  return isRunEditingThreadMessage({ threadMessage: latestThreadMessageProps.latestThreadMessage })
 }
 
 type Args = {
@@ -35,15 +35,15 @@ type Args = {
 
 export const useIsRunActive = (args: Args) => {
   const latestRunProps = useLatestRun(args)
-  const latestMessageProps = useLatestMessage(args)
+  const latestThreadMessageProps = useLatestThreadMessage(args)
   const isMutating = useIsMutating()
 
   return useMemo(() => ({
     ...latestRunProps,
     isRunActive: isRunActive({
       latestRunProps,
-      latestMessageProps,
+      latestThreadMessageProps,
       isMutating,
     }),
-  }), [latestRunProps, latestMessageProps, isMutating])
+  }), [latestRunProps, latestThreadMessageProps, isMutating])
 }

@@ -3,5 +3,5 @@ export {
   HydrationBoundary,
   dehydrate,
 } from '@tanstack/react-query'
-export { extendMessage } from '@/lib/messages/extendMessage'
+export { extendThreadMessage } from '@/lib/threadMessages/extendThreadMessage'
 export { optimisticId } from '@/lib/optimistic/optimisticId'

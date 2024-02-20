@@ -2,8 +2,8 @@ import {
   Box,
 } from '@radix-ui/themes'
 import {
-  Messages,
-  Form,
+  ThreadMessages,
+  ThreadMessageForm,
 } from '@superinterface/react'
 import { Providers } from '@/components/Providers'
 import { useCurrentConversationId } from '@/hooks/conversations/useCurrentConversationId'
@@ -19,11 +19,11 @@ export const App = () => {
     <Box className="superinterface">
       <Providers>
         <Dialog>
-          <Messages
+          <ThreadMessages
             conversationId={currentConversationId}
             assistantId={assistantId}
           />
-          <Form
+          <ThreadMessageForm
             conversationId={currentConversationId}
             assistantId={assistantId}
           />
