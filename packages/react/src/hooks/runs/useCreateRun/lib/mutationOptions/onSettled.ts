@@ -21,22 +21,4 @@ export const onSettled = ({
   await queryClient.invalidateQueries({
     queryKey: ['runs', variables],
   })
-  //
-  // await queryClient.invalidateQueries({
-  //   queryKey: fillOption({
-  //     value: context.meta.superinterfaceContext.queryOptions.threadMessages.queryKey,
-  //     key: 'queryKey',
-  //     meta: context.meta,
-  //     args: variables,
-  //   }),
-  // })
-  //
-  // await context.meta.queryClient.invalidateQueries({
-  //   queryKey: fillOption({
-  //     value: context.meta.superinterfaceContext.queryOptions.runs.queryKey,
-  //     key: 'queryKey',
-  //     meta: context.meta,
-  //     args: variables,
-  //   }),
-  // })
 }
