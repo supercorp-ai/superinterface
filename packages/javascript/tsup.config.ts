@@ -20,7 +20,6 @@ import { defineConfig } from 'tsup'
 //   entry: [
 //     'src/index.tsx',
 //   ],
-//   minify: isProduction,
 //   sourcemap: true,
 // })
 export default defineConfig({
@@ -32,10 +31,11 @@ export default defineConfig({
   clean: true,
   shims: true,
   platform: 'browser',
+  minify: true,
   format: [
-    // 'iife',
+    'iife',
     'cjs',
-    // 'esm'
+    'esm'
   ],
   injectStyle: true,
   // globalName: 'Superinterface',
