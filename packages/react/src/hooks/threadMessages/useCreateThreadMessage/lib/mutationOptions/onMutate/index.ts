@@ -1,42 +1,53 @@
-import { fillOption } from '@/lib/core/fillOption'
-import { Args } from '../mutationFn'
+import { omit } from 'radash'
+import { QueryClient } from '@tanstack/react-query'
+// import { fillOption } from '@/lib/core/fillOption'
+// import { Args } from '../mutationFn'
 import { data } from './data'
 
-export const onMutate = async (
-  newThreadMessage: Args,
-  context: any,
+type Variables = {
+  [key: string]: any
+}
+
+export const onMutate = ({
+  queryClient,
+}: {
+  queryClient: QueryClient,
+}) => async (
+  newThreadMessage: Variables,
 ) => {
-  await context.meta.queryClient.cancelQueries(
-    fillOption({
-      value: context.meta.superinterfaceContext.queryOptions.threadMessages.queryKey,
-      key: 'queryKey',
-      meta: context.meta,
-      args: newThreadMessage,
-    })
-  )
+  const queryKey = ['threadMessages', omit(newThreadMessage, ['content'])]
+  await queryClient.cancelQueries({ queryKey })
+  //   fillOption({
+  //     value: context.meta.superinterfaceContext.queryOptions.threadMessages.queryKey,
+  //     key: 'queryKey',
+  //     meta: context.meta,
+  //     args: newThreadMessage,
+  //   })
+  // )
 
-  const prevThreadMessages = context.meta.queryClient.getQueryData(
-    fillOption({
-      value: context.meta.superinterfaceContext.queryOptions.threadMessages.queryKey,
-      key: 'queryKey',
-      meta: context.meta,
-      args: newThreadMessage,
-    })
-  )
+  const prevThreadMessages = queryClient.getQueryData(queryKey)
+  //   fillOption({
+  //     value: context.meta.superinterfaceContext.queryOptions.threadMessages.queryKey,
+  //     key: 'queryKey',
+  //     meta: context.meta,
+  //     args: newThreadMessage,
+  //   })
+  // )
 
-  context.meta.queryClient.setQueryData(
-    fillOption({
-      value: context.meta.superinterfaceContext.queryOptions.threadMessages.queryKey,
-      key: 'queryKey',
-      meta: context.meta,
-      args: newThreadMessage,
-    }),
+  queryClient.setQueryData(
+    queryKey,
+    // fillOption({
+    //   value: context.meta.superinterfaceContext.queryOptions.threadMessages.queryKey,
+    //   key: 'queryKey',
+    //   meta: context.meta,
+    //   args: newThreadMessage,
+    // }),
     data({ newThreadMessage })
   )
 
   return {
     prevThreadMessages,
     newThreadMessage,
-    meta: context.meta,
+    // meta: context.meta,
   }
 }

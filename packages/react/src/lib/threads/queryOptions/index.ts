@@ -6,10 +6,8 @@ import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
 import { ThreadMessagesPage } from '@/types'
 
-type QueryFnArgs = {
-  queryKey: [string, {
-    [key: string]: any
-  }]
+type QueryFunctionArgs = {
+  queryKey: Readonly<[string, { [key: string]: any }]>
   pageParam?: string
 }
 
@@ -29,15 +27,16 @@ export const queryOptions = ({
   // @ts-ignore-next-line
   queryFn: async ({
     pageParam,
-    queryKey: queryFnQueryKey,
-  }: QueryFnArgs) => {
-    const [_key, variables] = queryFnQueryKey
+    queryKey,
+  }: QueryFunctionArgs) => {
+    const [_key, variables] = queryKey
     const params = new URLSearchParams({
       pageParam: pageParam || '',
       ...variables,
     })
 
-    return fetch(`${superinterfaceContext.baseUrl}${path}?${params}`).then(res => res.json())
+    return fetch(`${superinterfaceContext.baseUrl}${path}?${params}`)
+      .then(res => res.json() as Promise<ThreadMessagesPage>)
   },
   initialPageParam: undefined,
   getNextPageParam: (lastPage: ThreadMessagesPage) => {
