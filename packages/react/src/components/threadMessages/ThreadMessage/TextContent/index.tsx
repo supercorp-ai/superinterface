@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 import OpenAI from 'openai'
-import Markdown from 'react-markdown'
+import { useRemarkSync } from 'react-remark'
 import { MarkdownContext } from '@/contexts/markdown/MarkdownContext'
 
 type Args = {
@@ -12,11 +12,5 @@ export const TextContent = ({
 }: Args) => {
   const markdownContext = useContext(MarkdownContext)
 
-  return (
-    <Markdown
-      {...markdownContext}
-    >
-      {content.text.value}
-    </Markdown>
-  )
+  return useRemarkSync(content.text.value, markdownContext)
 }

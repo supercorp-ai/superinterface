@@ -17,7 +17,6 @@ const queryClient = new QueryClient()
 export const Providers = ({
   children,
 }: Args) => {
-
   return (
     <Theme
       accentColor="gray"

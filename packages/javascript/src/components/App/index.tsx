@@ -34,7 +34,3 @@ export const App = () => {
     </Box>
   )
 }
-            // conversationId={currentConversationId}
-            // assistantId={assistantId}
-            // conversationId={currentConversationId}
-            // assistantId={assistantId}

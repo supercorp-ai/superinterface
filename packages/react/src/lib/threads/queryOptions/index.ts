@@ -39,6 +39,13 @@ export const queryOptions = ({
 
     return fetch(`${superinterfaceContext.baseUrl}${path}?${params}`).then(res => res.json())
   },
+  initialPageParam: undefined,
+  getNextPageParam: (lastPage: ThreadMessagesPage) => {
+    if (!lastPage.hasNextPage) return null
+
+    return lastPage.lastId
+  },
+  limit: 10,
   ...queryClient.getQueryDefaults(queryKeyBase),
   queryKey: [...queryKeyBase, threadContext.variables],
   ...threadContext.defaultOptions.queries,

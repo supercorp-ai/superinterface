@@ -28,24 +28,19 @@ export default defineConfig({
     'process.env.NODE_ENV': JSON.stringify('production'),
   },
   entry: ['src/index.tsx'],
-  sourcemap: true, // Enable source maps
-  clean: true, // Clean the `dist` folder before building
+  sourcemap: true,
+  clean: true,
+  shims: true,
+  platform: 'browser',
   format: [
-    'iife',
-    // 'cjs',
+    // 'iife',
+    'cjs',
     // 'esm'
-  ], // Bundle as an IIFE for direct use in browsers
+  ],
   injectStyle: true,
-  globalName: 'MyLibrary', // Global variable name to access your library
-  dts: false, // No need for declaration files here
+  // globalName: 'Superinterface',
+  dts: false,
   noExternal: [
     /(.*)/
   ],
-  // external: [
-  //   'react',
-  //   'react-dom',
-  //   '@tanstack/react-query',
-  // ], // Externalize peer dependencies
-  // external: ['react', 'react-dom'], // Assume React is loaded separately in the consumer environment
-  // Optionally, configure tsup to inline any assets or styles your library might use
 })
