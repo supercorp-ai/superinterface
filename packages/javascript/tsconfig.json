@@ -1,27 +1,9 @@
-// {
-//   "extends": "../../tsconfig.json",
-//   "compilerOptions": {
-//     "composite": false,
-//     "baseUrl": ".",
-//     "rootDir": "src",
-//     "outDir": "dist",
-//     "paths": {
-//       "@/*": ["./src/*"]
-//     }
-//   },
-//   "exclude": [
-//     "node_modules",
-//     "dist"
-//   ]
-// }
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "module": "System",
     "declaration": false,
     "noEmit": false,
-    "outFile": "./dist/bundle.js",
     "paths": {
       "@/*": ["./src/*"]
     }

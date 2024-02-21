@@ -23,7 +23,7 @@ export const useCreateThreadMessage = () => {
       queryClient,
       threadContext,
       superinterfaceContext,
-    })
+    }),
   })
 
   return {

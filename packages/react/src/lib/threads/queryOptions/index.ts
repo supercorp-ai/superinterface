@@ -31,11 +31,13 @@ export const queryOptions = ({
   }: QueryFunctionArgs) => {
     const [_key, variables] = queryKey
     const params = new URLSearchParams({
-      pageParam: pageParam || '',
+      ...(pageParam ? { pageParam } : {}),
       ...variables,
     })
 
-    return fetch(`${superinterfaceContext.baseUrl}${path}?${params}`)
+    return fetch(`${superinterfaceContext.baseUrl}${path}?${params}`, {
+      credentials: 'include',
+    })
       .then(res => res.json() as Promise<ThreadMessagesPage>)
   },
   initialPageParam: undefined,

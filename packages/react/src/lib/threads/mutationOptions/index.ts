@@ -26,6 +26,7 @@ export const mutationOptions = ({
     fetch(`${superinterfaceContext.baseUrl}${path}`, {
       method: 'POST',
       body: JSON.stringify(variables),
+      credentials: 'include',
     }).then(res => res.json())
   ),
   ...queryClient.getMutationDefaults(mutationKeyBase),
