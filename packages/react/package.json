@@ -6,10 +6,7 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.cts",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
+    ".": "./dist/index.js",
     "./*": "./dist/*.js",
     "./types": "./dist/types/index.js"
   },

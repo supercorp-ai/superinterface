@@ -29,7 +29,6 @@ export const queryFn = async ({
       threadId,
     }),
     hasNextPage: hasNextPage({ threadMessagesResponse }),
-    // @ts-ignore-next-line
-    lastId: messagesResponse.body.last_id,
+    lastId: threadMessagesResponse.body.last_id,
   }
 }
