@@ -27,7 +27,18 @@ export const mutationOptions = ({
       method: 'POST',
       body: JSON.stringify(variables),
       credentials: 'include',
-    }).then(res => res.json())
+    }).then(async (response) => {
+      if (response.status !== 200) {
+        try {
+          const errorResponse = await response.json() as { error: string }
+          throw new Error(errorResponse.error)
+        } catch (error) {
+          throw new Error('Failed to fetch')
+        }
+      }
+
+      return response.json()
+    })
   ),
   ...queryClient.getMutationDefaults(mutationKeyBase),
   mutationKey: [...mutationKeyBase, threadContext.variables],

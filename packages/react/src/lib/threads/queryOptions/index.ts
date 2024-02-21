@@ -38,7 +38,18 @@ export const queryOptions = ({
     return fetch(`${superinterfaceContext.baseUrl}${path}?${params}`, {
       credentials: 'include',
     })
-      .then(res => res.json() as Promise<ThreadMessagesPage>)
+      .then(async (response) => {
+        if (response.status !== 200) {
+          try {
+            const errorResponse = await response.json() as { error: string }
+            throw new Error(errorResponse.error)
+          } catch (error) {
+            throw new Error('Failed to fetch')
+          }
+        }
+
+        return response.json() as Promise<ThreadMessagesPage>
+      })
   },
   initialPageParam: undefined,
   getNextPageParam: (lastPage: ThreadMessagesPage) => {
