@@ -1,7 +1,9 @@
 import { QueryClient } from '@tanstack/react-query'
 import { Response } from './mutationFn'
 
-type Variables = any
+type Variables = {
+  [key: string]: any
+}
 
 export const onSettled = ({
   queryClient,
