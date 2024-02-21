@@ -1,18 +1,31 @@
+// {
+//   "extends": "../../tsconfig.json",
+//   "compilerOptions": {
+//     "composite": false,
+//     "baseUrl": ".",
+//     "rootDir": "src",
+//     "outDir": "dist",
+//     "paths": {
+//       "@/*": ["./src/*"]
+//     },
+//     "jsx": "react-jsx"
+//     // "declaration": false
+//   }
+//   // "exclude": [
+//   //   "node_modules",
+//   //   "dist"
+//   // ]
+// }
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "composite": false,
-    "baseUrl": ".",
-    "rootDir": "src",
-    "outDir": "dist",
+    "outDir": "./dist",
+    "declaration": true,
+    "noEmit": false,
     "paths": {
       "@/*": ["./src/*"]
-    },
-    "jsx": "react-jsx"
-    // "declaration": false
-  }
-  // "exclude": [
-  //   "node_modules",
-  //   "dist"
-  // ]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }

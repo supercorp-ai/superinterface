@@ -20,11 +20,14 @@ export const App = () => {
     <Box className="superinterface">
       <Providers>
         <Dialog>
-          <ThreadProvider>
-            <ThreadMessages
-            />
-            <ThreadMessageForm
-            />
+          <ThreadProvider
+            variables={{
+              assistantId: 'ea811802-7914-4740-930c-fb820c6900e8',
+              conversationId: '310a2cde-ed4e-49b2-8efc-7fc912f48f91',
+            }}
+          >
+            <ThreadMessages />
+            <ThreadMessageForm />
           </ThreadProvider>
         </Dialog>
       </Providers>

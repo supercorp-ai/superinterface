@@ -75,21 +75,41 @@
 //     "jsx": "react-jsx"
 //   }
 // }
+// {
+//   "compilerOptions": {
+//     // "target": "es2019",
+//     // "lib": ["es2023", "dom"],
+//     "esModuleInterop": true,
+//     "forceConsistentCasingInFileNames": true,
+//     // "isolatedModules": true,
+//     "module": "node16",
+//     // "moduleResolution": "Bundler",
+//     "moduleResolution": "node16",
+//     "preserveWatchOutput": true,
+//     "skipLibCheck": true,
+//     "noEmit": true,
+//     "strict": true,
+//     "jsx": "react-jsx"
+//   }
+//   // "exclude": ["node_modules"]
+// }
 {
   "compilerOptions": {
-    // "target": "es2019",
-    // "lib": ["es2023", "dom"],
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    // "isolatedModules": true,
-    "module": "ESNext",
-    // "moduleResolution": "Bundler",
-    "moduleResolution": "node",
-    "preserveWatchOutput": true,
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
     "skipLibCheck": true,
-    "noEmit": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
     "jsx": "react-jsx"
-  }
-  // "exclude": ["node_modules"]
+  },
+  "include": ["packages/*/src"],
+  "exclude": ["node_modules"]
 }
