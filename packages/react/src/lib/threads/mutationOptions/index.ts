@@ -5,6 +5,7 @@ import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
 
 type VariablesArgs = {
+  content: string
   [key: string]: any
 }
 

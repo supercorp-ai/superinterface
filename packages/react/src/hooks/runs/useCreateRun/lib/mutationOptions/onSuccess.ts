@@ -1,24 +1,32 @@
+import { QueryClient } from '@tanstack/react-query'
 import { Response } from './mutationFn'
-import { fillOption } from '@/lib/core/fillOption'
+// import { fillOption } from '@/lib/core/fillOption'
 
-type Variables = any
-
-type Context = {
-  meta: any
+type Variables = {
+  [key: string]: any
 }
 
-export const onSuccess = async (
+// type Context = {
+//   meta: any
+// }
+
+export const onSuccess = ({
+  queryClient,
+}: {
+  queryClient: QueryClient,
+}) => async (
   data: Response,
   variables: Variables,
-  context: Context,
+  // context: Context,
 ) => (
-  context.meta.queryClient.setQueryData(
-    fillOption({
-      value: context.meta.superinterfaceContext.queryOptions.runs.queryKey,
-      key: 'queryKey',
-      meta: context.meta,
-      args: variables,
-    }),
+  queryClient.setQueryData(
+    ['runs', variables],
+    // fillOption({
+    //   value: context.meta.superinterfaceContext.queryOptions.runs.queryKey,
+    //   key: 'queryKey',
+    //   meta: context.meta,
+    //   args: variables,
+    // }),
     (prevData: any) => {
       if (!prevData) {
         return {

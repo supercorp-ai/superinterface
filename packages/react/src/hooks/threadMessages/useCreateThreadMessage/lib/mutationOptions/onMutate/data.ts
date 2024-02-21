@@ -1,9 +1,10 @@
 import OpenAI from 'openai'
 import { optimisticId } from '@/lib/optimistic/optimisticId'
-import { Args as NewThreadMessageArgs } from '../mutationFn'
 
 type Args = {
-  newThreadMessage: NewThreadMessageArgs
+  newThreadMessage: {
+    content: string
+  }
 }
 
 export const data = ({
