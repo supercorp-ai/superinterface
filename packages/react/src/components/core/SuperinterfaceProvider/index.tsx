@@ -10,16 +10,16 @@ type Args = {
 
 export const SuperinterfaceProvider = ({
   children,
-  baseUrl = 'http://localhost:3000/api/cloud',
-  publicApiKey
+  baseUrl,
+  publicApiKey,
 }: Args) => {
   const superinterfaceContext = useSuperinterfaceContext()
 
   const value = merge(
     superinterfaceContext,
     {
-      baseUrl,
-      publicApiKey
+      ...(baseUrl ? { baseUrl } : {}),
+      ...(publicApiKey ? { publicApiKey } : {}),
     }
   )
 

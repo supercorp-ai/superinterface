@@ -13,9 +13,9 @@ type Args = {
   variables: {
     [key: string]: any
   }
-  defaultOptions: {
-    queries: UseInfiniteQueryOptions<InfiniteData<ThreadMessagesPage>>
-    mutations: UseMutationOptions
+  defaultOptions?: {
+    queries?: UseInfiniteQueryOptions<InfiniteData<ThreadMessagesPage>>
+    mutations?: UseMutationOptions
   }
 }
 

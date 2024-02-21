@@ -14,7 +14,7 @@ export const useCreateThreadMessage = () => {
 
   const props = useMutation(mutationOptions({
     mutationKeyBase: ['createThreadMessage'],
-    path: '/messages',
+    path: '/thread-messages',
     queryClient,
     threadContext,
     superinterfaceContext,
