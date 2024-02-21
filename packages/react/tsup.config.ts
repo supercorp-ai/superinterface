@@ -1,9 +1,7 @@
 import { defineConfig } from 'tsup'
 
 export default defineConfig({
-  // minify: isProduction,
   entry: [
-    // 'src/index.ts',
     'src/*.ts',
     'src/types/*.ts',
   ],
