@@ -16,6 +16,7 @@
   "license": "ISC",
   "scripts": {
     "build": "tsup",
+    "metafile": "tsup --metafile",
     "serve": "npx serve dist -p 3005 --cors"
   },
   "dependencies": {
