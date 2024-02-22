@@ -91,7 +91,6 @@ export const ThreadMessageForm = ({
         <Flex
           direction="column"
           shrink="0"
-          pb="4"
         >
           <form
             onSubmit={handleSubmit(onSubmit)}

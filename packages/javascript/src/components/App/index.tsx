@@ -1,10 +1,6 @@
 import {
-  Box,
-} from '@radix-ui/themes'
-import {
   ThreadProvider,
-  ThreadMessages,
-  ThreadMessageForm,
+  Thread,
 } from '@superinterface/react'
 import { Providers } from '@/components/Providers'
 import { ThemeProvider } from '@/components/ThemeProvider'
@@ -19,12 +15,9 @@ export const App = () => (
       }}
     >
       <ThemeProvider>
-        <Box className="superinterface">
-          <Dialog>
-            <ThreadMessages />
-            <ThreadMessageForm />
-          </Dialog>
-        </Box>
+        <Dialog>
+          <Thread />
+        </Dialog>
       </ThemeProvider>
     </ThreadProvider>
   </Providers>

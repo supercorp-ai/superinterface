@@ -1,6 +1,7 @@
 export { SuperinterfaceProvider } from '@/components/core/SuperinterfaceProvider'
 export { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 
+export { Thread } from '@/components/threads/Thread'
 export { ThreadProvider } from '@/components/threads/ThreadProvider'
 export { useThreadContext } from '@/hooks/threads/useThreadContext'
 export { useThreadLifecycles } from '@/hooks/threads/useThreadLifecycles'

@@ -8,7 +8,7 @@ import { ThreadMessagesPage } from '@/types'
 import { ThreadContext } from '@/contexts/threads/ThreadContext'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
 
-type Args = {
+export type Args = {
   children: React.ReactNode
   variables: {
     [key: string]: any

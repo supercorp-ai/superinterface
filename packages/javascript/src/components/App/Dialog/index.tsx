@@ -48,6 +48,11 @@ export const Dialog = ({
         </DialogTrigger>
         <DialogContent
           className="superinterface"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+          }}
           onInteractOutside={() => setIsOpen(false)}
           onWheel={(e) => {
             e.stopPropagation()
@@ -62,16 +67,9 @@ export const Dialog = ({
         >
           <Flex
             direction="column"
-            position="relative"
+            grow="1"
           >
-            <Flex
-              direction="column"
-              style={{
-                height: '85dvh',
-              }}
-            >
-              {children}
-            </Flex>
+            {children}
           </Flex>
         </DialogContent>
       </DialogRoot>
