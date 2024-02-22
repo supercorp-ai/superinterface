@@ -44,14 +44,13 @@ export const ThreadMessages = ({
       ref={containerRef}
       direction="column-reverse"
       grow="1"
-      p="2"
       style={{
         overflow: 'auto',
       }}
     >
       <Flex
         shrink="0"
-        height="1"
+        height="3"
       />
 
       <Progress

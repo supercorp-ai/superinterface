@@ -79,7 +79,6 @@ export const ThreadMessageForm = ({
   return (
     <Container
       size="2"
-      px="2"
       grow="0"
     >
       {children}
@@ -97,7 +96,7 @@ export const ThreadMessageForm = ({
           >
             <Flex
               style={{
-                borderRadius: 'var(--radius-3)',
+                borderRadius: 'var(--radius-2)',
                 borderWidth: '1px',
                 borderStyle: 'solid',
                 borderColor: errors.content ? 'var(--red-9)' : 'var(--gray-5)',

@@ -39,7 +39,6 @@ export const Dialog = ({
       >
         <DialogTrigger>
           <IconButton
-            // highContrast
             size="4"
             radius="full"
           >
