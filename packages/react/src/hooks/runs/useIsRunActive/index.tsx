@@ -4,11 +4,17 @@ import { useLatestRun } from '@/hooks/runs/useLatestRun'
 import { useLatestThreadMessage } from '@/hooks/threadMessages/useLatestThreadMessage'
 import { isRunEditingThreadMessage } from '@/lib/runs/isRunEditingThreadMessage'
 
-const statuses = [
+const progressStatuses = [
   'queued',
   'in_progress',
   'cancelling',
   'requires_action',
+]
+
+const stoppedStatuses = [
+  'expired',
+  'cancelled',
+  'failed',
 ]
 
 const isRunActive = ({
@@ -24,7 +30,8 @@ const isRunActive = ({
   if (latestThreadMessageProps.latestThreadMessage?.metadata?.isBlocking) return false
   if (isMutating > 0) return true
   if (!latestRunProps.latestRun) return false
-  if (statuses.includes(latestRunProps.latestRun.status)) return true
+  if (progressStatuses.includes(latestRunProps.latestRun.status)) return true
+  if (stoppedStatuses.includes(latestRunProps.latestRun.status)) return false
 
   return isRunEditingThreadMessage({ threadMessage: latestThreadMessageProps.latestThreadMessage })
 }

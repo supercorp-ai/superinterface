@@ -23,42 +23,46 @@ export const queryOptions = ({
   queryClient: ReturnType<typeof useQueryClient>,
   threadContext: ReturnType<typeof useThreadContext>,
   superinterfaceContext: ReturnType<typeof useSuperinterfaceContext>,
-}) => infiniteQueryOptions<ThreadMessagesPage>({
-  // @ts-ignore-next-line
-  queryFn: async ({
-    pageParam,
-    queryKey,
-  }: QueryFunctionArgs) => {
-    const [_key, variables] = queryKey
-    const params = new URLSearchParams({
-      ...(pageParam ? { pageParam } : {}),
-      ...variables,
-    })
+}) => {
+  const queryKey = [...queryKeyBase, threadContext.variables]
 
-    return fetch(`${superinterfaceContext.baseUrl}${path}?${params}`, {
-      credentials: 'include',
-    })
-      .then(async (response) => {
-        if (response.status !== 200) {
-          try {
-            const errorResponse = await response.json() as { error: string }
-            throw new Error(errorResponse.error)
-          } catch (error) {
-            throw new Error('Failed to fetch')
-          }
-        }
-
-        return response.json() as Promise<ThreadMessagesPage>
+  return infiniteQueryOptions<ThreadMessagesPage>({
+    // @ts-ignore-next-line
+    queryFn: async ({
+      pageParam,
+      queryKey,
+    }: QueryFunctionArgs) => {
+      const [_key, variables] = queryKey
+      const params = new URLSearchParams({
+        ...(pageParam ? { pageParam } : {}),
+        ...variables,
       })
-  },
-  initialPageParam: undefined,
-  getNextPageParam: (lastPage: ThreadMessagesPage) => {
-    if (!lastPage.hasNextPage) return null
 
-    return lastPage.lastId
-  },
-  limit: 10,
-  ...queryClient.getQueryDefaults(queryKeyBase),
-  queryKey: [...queryKeyBase, threadContext.variables],
-  ...threadContext.defaultOptions.queries,
-})
+      return fetch(`${superinterfaceContext.baseUrl}${path}?${params}`, {
+        credentials: 'include',
+      })
+        .then(async (response) => {
+          if (response.status !== 200) {
+            try {
+              const errorResponse = await response.json() as { error: string }
+              throw new Error(errorResponse.error)
+            } catch (error) {
+              throw new Error('Failed to fetch')
+            }
+          }
+
+          return response.json() as Promise<ThreadMessagesPage>
+        })
+    },
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage: ThreadMessagesPage) => {
+      if (!lastPage.hasNextPage) return null
+
+      return lastPage.lastId
+    },
+    limit: 10,
+    ...queryClient.getQueryDefaults(queryKey),
+    queryKey,
+    ...threadContext.defaultOptions.queries,
+  })
+}
