@@ -5,7 +5,6 @@ import {
 import {
   SuperinterfaceProvider,
 } from '@superinterface/react'
-import { Theme } from '@radix-ui/themes'
 
 type Args = {
   children: React.ReactNode
@@ -17,17 +16,12 @@ export const Providers = ({
   children,
 }: Args) => {
   return (
-    <Theme
-      accentColor="gray"
-      radius="large"
+    <SuperinterfaceProvider
+      baseUrl="http://localhost:3000/api/cloud"
     >
-      <SuperinterfaceProvider
-        baseUrl="http://localhost:3000/api/cloud"
-      >
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
-      </SuperinterfaceProvider>
-    </Theme>
+      <QueryClientProvider client={queryClient}>
+        {children}
+      </QueryClientProvider>
+    </SuperinterfaceProvider>
   )
 }

@@ -23,6 +23,7 @@ export const useRuns = () => {
 
   return useMemo(() => ({
     ...props,
+    // @ts-ignore-next-line
     runs: getRuns({ data: props.data }),
   }), [props])
 }
