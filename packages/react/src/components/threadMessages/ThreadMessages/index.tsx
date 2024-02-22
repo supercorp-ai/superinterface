@@ -24,6 +24,8 @@ export const ThreadMessages = ({
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
+    isLoading,
+    isLoadingError,
   } = useThreadMessages()
 
   useThreadLifecycles()
@@ -61,6 +63,8 @@ export const ThreadMessages = ({
 
       <Content
         threadMessages={threadMessages}
+        isLoading={isLoading}
+        isLoadingError={isLoadingError}
       />
 
       {hasNextPage && (
