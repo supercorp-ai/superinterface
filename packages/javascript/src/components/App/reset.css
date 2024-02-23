@@ -14,4 +14,5 @@
   box-sizing: border-box;
   /* Safari 12 calc + vw resize fix */
   min-height: 0vw;
+  white-space: normal;
 }

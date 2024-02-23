@@ -14,8 +14,18 @@ export const Thread = (props: Args) => (
       direction="column"
       grow="1"
     >
-      <ThreadMessages />
-      <ThreadMessageForm />
+      <ThreadMessages
+        style={{
+          padding: 'var(--space-5)',
+        }}
+      />
+      <ThreadMessageForm
+        style={{
+          paddingLeft: 'var(--space-5)',
+          paddingRight: 'var(--space-5)',
+          paddingBottom: 'var(--space-5)',
+        }}
+      />
     </Flex>
   </ThreadProvider>
 )

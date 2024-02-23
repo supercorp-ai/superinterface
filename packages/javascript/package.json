@@ -20,6 +20,7 @@
     "serve": "npx serve dist -p 3005 --cors"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-icons": "^1.3.0",
     "@radix-ui/themes": "^2.0.3",
     "@superinterface/react": "*",

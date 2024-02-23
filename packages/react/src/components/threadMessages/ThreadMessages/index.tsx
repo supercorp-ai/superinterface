@@ -14,10 +14,12 @@ import { Progress } from './Progress'
 
 type Args = {
   children?: React.ReactNode
+  style?: React.CSSProperties
 }
 
 export const ThreadMessages = ({
   children,
+  style = {},
 }: Args) => {
   const {
     threadMessages,
@@ -45,6 +47,7 @@ export const ThreadMessages = ({
       direction="column-reverse"
       grow="1"
       style={{
+        ...style,
         overflow: 'auto',
       }}
     >

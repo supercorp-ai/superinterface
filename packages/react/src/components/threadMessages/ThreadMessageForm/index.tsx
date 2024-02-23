@@ -21,11 +21,13 @@ type Inputs = {
 type Args = {
   children?: React.ReactNode
   useFormProps?: UseFormProps<Inputs>
+  style?: React.CSSProperties
 }
 
 export const ThreadMessageForm = ({
   children,
   useFormProps = defaultUseFormProps,
+  style = {},
 }: Args = {}) => {
   const {
     register,
@@ -80,6 +82,7 @@ export const ThreadMessageForm = ({
     <Container
       size="2"
       grow="0"
+      style={style}
     >
       {children}
 

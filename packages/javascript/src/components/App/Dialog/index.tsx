@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import {
   Flex,
-  DialogRoot,
-  DialogTrigger,
-  DialogContent,
+  // Dialog as DialogPrimitive,
+  // DialogRoot,
+  // DialogTrigger,
+  // DialogContent,
   IconButton,
 } from '@radix-ui/themes'
 import {
@@ -19,59 +20,49 @@ export const Dialog = ({
 }: Args) => {
   const [isOpen, setIsOpen] = useState(false)
 
-  const onOpenChange = (open: boolean) => {
-    if (!open) return
-
-    setIsOpen(true)
-  }
-
   return (
     <Flex
+      direction="column"
+      justify="end"
+      align="end"
+      position="fixed"
       style={{
-        position: 'fixed',
-        bottom: '32px',
-        right: '32px',
+        bottom: '24px',
+        right: '24px',
+        top: '24px',
+        zIndex: 9999999999,
       }}
     >
-      <DialogRoot
-        open={isOpen}
-        onOpenChange={onOpenChange}
-      >
-        <DialogTrigger>
-          <IconButton
-            size="4"
-            radius="full"
-          >
-            <ChatBubbleIcon />
-          </IconButton>
-        </DialogTrigger>
-        <DialogContent
-          className="superinterface"
+      {isOpen && (
+        <Flex
+          direction="column"
+          position="relative"
+          grow="1"
+          // boxShadow='light'
+          mb="2"
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100%',
+            boxShadow: 'var(--shadow-6)',
+            borderRadius: 'var(--radius-5)',
+            width: '100vw',
+            maxWidth: '400px',
+            maxHeight: '720px',
           }}
-          onInteractOutside={() => setIsOpen(false)}
-          onWheel={(e) => {
-            e.stopPropagation()
-            const isScrollingDown = e.deltaY > 0
-
-            if (isScrollingDown) {
-              e.currentTarget.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }))
-            } else {
-              e.currentTarget.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }))
-            }
-          }}
+          // borderRadius={{ xs: undefined, sm: 'rounded' }}
+          // width={{ xs: '100vw', sm: 'calc(100vw - 32px)' }}
+          // maxWidth={{ xs: undefined, sm: 47 }}
+          // maxHeight={{ xs: undefined, sm: 90 }}
+          // marginBottom={{ xs: 0, sm: 2 }}
         >
-          <Flex
-            direction="column"
-            grow="1"
-          >
-            {children}
-          </Flex>
-        </DialogContent>
-      </DialogRoot>
+          {children}
+        </Flex>
+      )}
+      <IconButton
+        onClick={() => setIsOpen((prev) => !prev)}
+        size="4"
+        radius="full"
+      >
+        <ChatBubbleIcon />
+      </IconButton>
     </Flex>
   )
 }
