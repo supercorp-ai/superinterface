@@ -12,7 +12,7 @@ export type Response = {
   threadMessage: ThreadMessage
 }
 
-export const mutationFn = async ({
+export const createThreadMessageMutationFn = async ({
   client = defaultClient,
   content,
   threadId,

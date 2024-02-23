@@ -12,7 +12,7 @@ export type Response = {
   run: Run
 }
 
-export const mutationFn = async ({
+export const createRunMutationFn = async ({
   client = defaultClient,
   threadId,
   assistantId,

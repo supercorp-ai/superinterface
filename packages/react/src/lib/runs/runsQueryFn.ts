@@ -6,7 +6,7 @@ type Args = {
   threadId: string
 }
 
-export const queryFn = async ({
+export const runsQueryFn = async ({
   client = defaultClient,
   threadId,
 }: Args): Promise<RunsPage> => {

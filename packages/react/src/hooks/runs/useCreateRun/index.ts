@@ -6,9 +6,9 @@ import {
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
 import { mutationOptions } from '@/lib/threads/mutationOptions'
-import { onSuccess } from './lib/mutationOptions/onSuccess'
-import { onSettled } from './lib/mutationOptions/onSettled'
-import { onMutate } from './lib/mutationOptions/onMutate'
+import { onSuccess } from './lib/onSuccess'
+import { onSettled } from './lib/onSettled'
+import { onMutate } from './lib/onMutate'
 
 export const useCreateRun = () => {
   const queryClient = useQueryClient()

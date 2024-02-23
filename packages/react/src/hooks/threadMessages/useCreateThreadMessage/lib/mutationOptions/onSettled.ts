@@ -1,6 +1,6 @@
 import { omit } from 'radash'
 import { QueryClient } from '@tanstack/react-query'
-import { Response } from './mutationFn'
+import { Response } from '@/lib/threadMessages/createThreadMessageMutationFn'
 
 type Variables = {
   content: string

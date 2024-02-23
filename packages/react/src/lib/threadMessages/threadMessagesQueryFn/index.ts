@@ -11,7 +11,7 @@ type Args = {
   pageParam?: string
 }
 
-export const queryFn = async ({
+export const threadMessagesQueryFn = async ({
   client = defaultClient,
   threadId,
   pageParam,

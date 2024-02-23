@@ -1,15 +1,7 @@
 import OpenAI from 'openai'
 import { optimisticId } from '@/lib/optimistic/optimisticId'
 
-type Args = {
-  variables: {
-    [key: string]: any
-  }
-}
-
-export const data = ({
-  variables,
-}: Args) => (prevData: any) => {
+export const data = (prevData: any) => {
   const run = {
     id: optimisticId(),
     object: 'thread.run' as OpenAI.Beta.Threads.Runs.Run['object'],

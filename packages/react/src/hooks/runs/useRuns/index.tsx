@@ -3,10 +3,10 @@ import {
   useInfiniteQuery,
   useQueryClient,
 } from '@tanstack/react-query'
-import { getRuns } from './lib/getRuns'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
 import { queryOptions } from '@/lib/threads/queryOptions'
+import { getRuns } from './lib/getRuns'
 
 export const useRuns = () => {
   const queryClient = useQueryClient()

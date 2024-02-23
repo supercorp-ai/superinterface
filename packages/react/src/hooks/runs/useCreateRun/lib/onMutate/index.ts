@@ -17,7 +17,7 @@ export const onMutate = ({
 
   queryClient.setQueryData(
     queryKey,
-    data({ variables })
+    data,
   )
 
   return {

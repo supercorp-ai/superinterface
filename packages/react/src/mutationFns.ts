@@ -1,3 +1,3 @@
-export { mutationFn as createThreadMessageMutationFn } from '@/hooks/threadMessages/useCreateThreadMessage/lib/mutationOptions/mutationFn'
-export { mutationFn as handleActionMutationFn } from '@/hooks/actions/useHandleAction/lib/mutationOptions/mutationFn'
-export { mutationFn as createRunMutationFn } from '@/hooks/runs/useCreateRun/lib/mutationOptions/mutationFn'
+export { createThreadMessageMutationFn } from '@/lib/threadMessages/createThreadMessageMutationFn'
+export { createRunMutationFn } from '@/lib/runs/createRunMutationFn'
+export { handleActionMutationFn } from '@/lib/actions/handleActionMutationFn'

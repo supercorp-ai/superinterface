@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query'
-import { Response } from './mutationFn'
+import { Response } from '@/lib/actions/handleActionMutationFn'
 
 type Variables = {
   [key: string]: any

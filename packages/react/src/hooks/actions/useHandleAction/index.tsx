@@ -6,7 +6,7 @@ import {
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
 import { mutationOptions } from '@/lib/threads/mutationOptions'
-import { onSettled } from './lib/mutationOptions/onSettled'
+import { onSettled } from './lib/onSettled'
 
 export const useHandleAction = () => {
   const queryClient = useQueryClient()

@@ -13,7 +13,7 @@ export type Response = {
   run: Run
 }
 
-export const mutationFn = async ({
+export const handleActionMutationFn = async ({
   client = defaultClient,
   latestRun,
   functions = {},
