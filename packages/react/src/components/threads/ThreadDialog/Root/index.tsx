@@ -5,10 +5,12 @@ import { Provider } from '@/components/threads/ThreadDialog/Provider'
 
 type Args = {
   children: React.ReactNode
+  style?: React.CSSProperties
 }
 
 export const Root = ({
   children,
+  style = {},
 }: Args) => (
   <Provider>
     <Flex
@@ -21,6 +23,7 @@ export const Root = ({
         right: '24px',
         top: '24px',
         zIndex: 9999999999,
+        ...style,
       }}
     >
       {children}
