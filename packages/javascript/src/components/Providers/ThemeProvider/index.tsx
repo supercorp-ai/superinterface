@@ -27,6 +27,7 @@ export const ThemeProvider = ({
       radius={assistant.theme.radius}
       appearance={assistant.theme.appearance}
       scaling={assistant.theme.scaling}
+      panelBackground="solid"
     >
       {children}
     </Theme>

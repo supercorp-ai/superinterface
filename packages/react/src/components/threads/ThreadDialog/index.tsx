@@ -14,3 +14,8 @@ export const ThreadDialog = () => (
     </Trigger>
   </Root>
 )
+
+ThreadDialog.Root = Root
+ThreadDialog.Trigger = Trigger
+ThreadDialog.Button = Button
+ThreadDialog.Content = Content

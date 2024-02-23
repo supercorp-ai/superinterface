@@ -53,7 +53,9 @@ export const ThreadMessages = ({
     >
       <Flex
         shrink="0"
-        height="3"
+        style={{
+          height: 'var(--space-3)',
+        }}
       />
 
       <Progress

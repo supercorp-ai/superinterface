@@ -6,6 +6,7 @@ type Props = {
 }
 
 export const Skeleton = ({
+  height,
   style,
   ...rest
 }: Props) => (
@@ -15,6 +16,7 @@ export const Skeleton = ({
       animation: 'pulse 2s cubic-bezier(.4,0,.6,1) infinite',
       borderRadius: 'var(--radius-3)',
       backgroundColor: 'var(--gray-5)',
+      height: `var(--space-${height})`,
       ...style,
     }}
     {...rest}
