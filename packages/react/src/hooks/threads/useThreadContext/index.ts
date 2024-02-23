@@ -1,6 +1,1 @@
-import { useContext } from 'react'
-import { ThreadContext } from '@/contexts/threads/ThreadContext'
-
-export const useThreadContext = () => (
-  useContext(ThreadContext)
-)
+export { useSuperinterfaceContext as useThreadContext } from '@/hooks/core/useSuperinterfaceContext'

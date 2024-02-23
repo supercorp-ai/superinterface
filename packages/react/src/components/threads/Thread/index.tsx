@@ -6,7 +6,7 @@ import {
   Args as ThreadProviderArgs,
 } from '@/components/threads/ThreadProvider'
 
-type Args = ThreadProviderArgs
+type Args = Omit<ThreadProviderArgs, 'children'>
 
 export const Thread = (props: Args) => (
   <ThreadProvider {...props}>

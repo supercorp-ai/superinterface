@@ -1,5 +1,5 @@
 import {
-  useThreadContext,
+  useSuperinterfaceContext,
 } from '@superinterface/react'
 import { Theme } from '@radix-ui/themes'
 import { useAssistant } from '@/hooks/assistants/useAssistant'
@@ -11,11 +11,10 @@ type Args = {
 export const ThemeProvider = ({
   children,
 }: Args) => {
-  const threadContext = useThreadContext()
+  const superinterfaceContext = useSuperinterfaceContext()
   const { assistant } = useAssistant({
-    assistantId: threadContext.variables.assistantId,
+    assistantId: superinterfaceContext.variables.assistantId,
   })
-  console.log({ assistant })
 
   if (!assistant) {
     return null

@@ -1,17 +1,32 @@
+import { ThreadMessagesPage } from '@/types'
+import {
+  InfiniteData,
+  UseInfiniteQueryOptions,
+  UseMutationOptions,
+} from '@tanstack/react-query'
 import { merge } from '@/lib/misc/merge'
 import { SuperinterfaceContext } from '@/contexts/core/SuperinterfaceContext'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 
-type Args = {
+export type Args = {
   children: React.ReactNode
   baseUrl?: string
   publicApiKey?: string
+  variables?: {
+    [key: string]: any
+  }
+  defaultOptions?: {
+    queries?: UseInfiniteQueryOptions<InfiniteData<ThreadMessagesPage>>
+    mutations?: UseMutationOptions
+  }
 }
 
 export const SuperinterfaceProvider = ({
   children,
   baseUrl,
   publicApiKey,
+  variables,
+  defaultOptions,
 }: Args) => {
   const superinterfaceContext = useSuperinterfaceContext()
 
@@ -20,6 +35,8 @@ export const SuperinterfaceProvider = ({
     {
       ...(baseUrl ? { baseUrl } : {}),
       ...(publicApiKey ? { publicApiKey } : {}),
+      ...(variables ? { variables } : {}),
+      ...(defaultOptions ? { defaultOptions } : {}),
     }
   )
 
