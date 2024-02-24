@@ -36,3 +36,8 @@ type Fn = (args: any) => Promise<string>
 export type Functions = {
   [key: string]: Fn
 }
+
+export type AudioEngine = {
+  source: MediaStreamAudioSourceNode | GainNode
+  audioContext: AudioContext
+}

@@ -20,7 +20,7 @@ export const Providers = ({
     <SuperinterfaceProvider
       baseUrl="http://localhost:3000/api/cloud"
       variables={{
-        assistantId: '8a8f7bec-3f51-498e-98d0-98db7697d889',
+        assistantId: 'cfb7e582-3c57-4e4d-b691-98ebcd421ec8',
       }}
     >
       <QueryClientProvider client={queryClient}>

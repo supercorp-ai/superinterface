@@ -8,6 +8,9 @@ export { useThreadLifecycles } from '@/hooks/threads/useThreadLifecycles'
 
 export { ThreadDialog } from '@/components/threads/ThreadDialog'
 
+export { AudioThread } from '@/components/threads/AudioThread'
+export { AudioThreadDialog } from '@/components/threads/AudioThreadDialog'
+
 export { ThreadMessages } from '@/components/threadMessages/ThreadMessages'
 export { useThreadMessages } from '@/hooks/threadMessages/useThreadMessages'
 export { useLatestThreadMessage } from '@/hooks/threadMessages/useLatestThreadMessage'
