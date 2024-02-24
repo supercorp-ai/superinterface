@@ -43,7 +43,9 @@ export const ActionButton = () => {
             highContrast
             radius="full"
             size="4"
-            className="border-2 border-solid border-gray-8"
+            style={{
+              border: '2px solid var(--gray-8)',
+            }}
           >
             <ArrowUpIcon />
           </IconButton>
@@ -59,7 +61,9 @@ export const ActionButton = () => {
         color="red"
         radius="full"
         size="4"
-        className="border-2 border-solid border-gray-8"
+        style={{
+          border: '2px solid var(--gray-8)',
+        }}
       >
         <ResumeIcon />
       </IconButton>
@@ -73,7 +77,9 @@ export const ActionButton = () => {
         size="4"
         color="red"
         radius="full"
-        className="border-2 border-solid border-gray-8"
+        style={{
+          border: '2px solid var(--gray-8)',
+        }}
       />
     )
   }
@@ -85,7 +91,9 @@ export const ActionButton = () => {
         size="4"
         color="gray"
         radius="full"
-        className="border-2 border-solid border-gray-8"
+        style={{
+          border: '2px solid var(--gray-8)',
+        }}
       >
         <PauseIcon />
       </IconButton>
@@ -99,7 +107,9 @@ export const ActionButton = () => {
         size="4"
         color="gray"
         radius="full"
-        className="border-2 border-solid border-gray-8"
+        style={{
+          border: '2px solid var(--gray-8)',
+        }}
       >
         <ResumeIcon />
       </IconButton>
@@ -111,8 +121,10 @@ export const ActionButton = () => {
       size="4"
       color="red"
       radius="full"
-      className="border-2 border-solid border-gray-8"
       disabled
+      style={{
+        border: '2px solid var(--gray-8)',
+      }}
     />
   )
 }

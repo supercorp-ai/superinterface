@@ -24,14 +24,19 @@ export const Form = () => {
           align="center"
         >
           <SpeakerModerateIcon
-            className={`${audioThreadContext.status === 'recording' ? 'text-mint-12' : 'text-gray-11'}`}
+            style={{
+              color: `var(--${audioThreadContext.status === 'recording' ? 'mint' : 'gray'}-12)`,
+            }}
           />
         </Flex>
 
         <Flex
-          className={`${audioThreadContext.status === 'recording' ? 'bg-mint-4' : 'bg-gray-4'} rounded-6`}
           px="2"
           py="1"
+          style= {{
+            backgroundColor: `var(--${audioThreadContext.status === 'recording' ? 'mint' : 'gray'}-4)`,
+            borderRadius: 'var(--radius-6)',
+          }}
         >
           <Visualizer />
         </Flex>

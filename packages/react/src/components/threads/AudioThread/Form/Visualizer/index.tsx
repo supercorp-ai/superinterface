@@ -40,6 +40,10 @@ export const Visualizer = () => {
       columns={`${barCount}`}
       gap="1"
       width="auto"
+      style={{
+        // TODO not sure why we need this
+        gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+      }}
     >
       {barHeights.map((barHeight, index) => (
         <Flex
@@ -52,9 +56,9 @@ export const Visualizer = () => {
           }}
         >
           <Flex
-            className={`${audioThreadContext.status === 'recording' ? 'bg-mint-12' : 'bg-gray-11'} rounded-6 transition duration-300`}
-            // @ts-ignore-next-line
             style={{
+              backgroundColor: `var(--${audioThreadContext.status === 'recording' ? 'mint' : 'gray'}-11)`,
+              borderRadius: 'var(--radius-6)',
               height: `${barHeight + 20}%`,
               minHeight: '50%',
               maxHeight: '100%',
@@ -66,3 +70,4 @@ export const Visualizer = () => {
     </Grid>
   )
 }
+            // className={`${audioThreadContext.status === 'recording' ? 'bg-mint-12' : 'bg-gray-11'} rounded-6 transition duration-300`}

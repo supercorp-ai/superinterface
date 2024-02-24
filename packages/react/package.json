@@ -32,9 +32,11 @@
     "react-hook-form": "^7.50.1",
     "react-intersection-observer": "^9.8.0",
     "react-remark": "^2.1.0",
+    "react-speech-recognition": "^3.10.0",
     "react-textarea-autosize": "^8.5.3",
     "react-use": "^17.5.0",
     "react-use-audio-player": "^2.2.0",
+    "regenerator-runtime": "^0.14.1",
     "use-audio-capture": "^0.0.7",
     "zod": "^3.22.4"
   },
@@ -49,6 +51,7 @@
     "@tanstack/react-query": ">=5.0.0",
     "@types/lodash": "^4.14.202",
     "@types/react": "^18.2.57",
+    "@types/react-speech-recognition": "^3.9.5",
     "react": ">=18.0.0",
     "tsup": "^8.0.2"
   }

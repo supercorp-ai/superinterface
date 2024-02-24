@@ -9,12 +9,15 @@ export const Visualization = () => {
     <Flex
       direction="column"
       align="center"
+      justify="center"
+      mb="3"
+      grow="1"
     >
       <Flex
-        className={`transition duration-300 ${audioThreadContext.status === 'playing' ? 'bg-mint-4' : 'bg-gray-4'}`}
         align="center"
         justify="center"
         style={{
+          backgroundColor: `var(--${audioThreadContext.status === 'playing' ? 'mint' : 'gray'}-4)`,
           height: '200px',
           width: '200px',
           borderRadius: '9999px',
@@ -24,6 +27,7 @@ export const Visualization = () => {
     </Flex>
   )
 }
+        // className={`transition duration-300 ${audioThreadContext.status === 'playing' ? 'bg-mint-4' : 'bg-gray-4'}`}
 // import { Visualizer } from '@/components/audio/Visualizer'
 //         <Visualizer
 //           visualizationAnalyser={visualizationAnalyser}
