@@ -16,7 +16,7 @@ export const Icon = ({
     return (
       <CheckCircledIcon />
     )
-  } else if (runStep.cancelled_at) {
+  } else if (runStep.cancelled_at || runStep.failed_at || runStep.status === 'expired') {
     return (
       <CircleBackslashIcon />
     )

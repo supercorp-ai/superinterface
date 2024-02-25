@@ -1,16 +1,20 @@
 {
   "compilerOptions": {
-    "target": "es2019",
-    "lib": ["es2023", "dom"],
-    "module": "commonjs",
-    "declaration": true,
-    "sourceMap": true,
-    "composite": true,
-    "strict": true,
-    "moduleResolution": "node",
-    "esModuleInterop": true,
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
     "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
     "jsx": "react-jsx"
-  }
+  },
+  "include": ["packages/*/src"],
+  "exclude": ["node_modules"]
 }

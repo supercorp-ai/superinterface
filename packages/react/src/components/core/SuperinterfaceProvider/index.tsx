@@ -1,64 +1,50 @@
-import { useState } from 'react'
+import { ThreadMessagesPage } from '@/types'
 import {
   InfiniteData,
   UseInfiniteQueryOptions,
   UseMutationOptions,
 } from '@tanstack/react-query'
 import { merge } from '@/lib/misc/merge'
-import { Message, Run, MessagesPage, RunsPage } from '@/types'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { SuperinterfaceContext } from '@/contexts/core/SuperinterfaceContext'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 
-type Args = {
+export type Args = {
   children: React.ReactNode
-  queryOptions: {
-    messages: UseInfiniteQueryOptions<InfiniteData<MessagesPage>>
-    runs: UseInfiniteQueryOptions<InfiniteData<RunsPage>>
-  },
-  mutationOptions: {
-    createMessage: UseMutationOptions<{ message: Message }>
-    createRun: UseMutationOptions<{ run: Run }>
-    handleAction: UseMutationOptions<{ run: Run }>
-  },
+  baseUrl?: string
+  publicApiKey?: string
+  variables?: {
+    [key: string]: any
+  }
+  defaultOptions?: {
+    queries?: UseInfiniteQueryOptions<InfiniteData<ThreadMessagesPage>>
+    mutations?: UseMutationOptions
+  }
 }
 
 export const SuperinterfaceProvider = ({
   children,
-  ...rest
+  baseUrl,
+  publicApiKey,
+  variables,
+  defaultOptions,
 }: Args) => {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            retry: false,
-            // With SSR, we usually want to set some default staleTime
-            // above 0 to avoid refetching immediately on the client
-            staleTime: 10000,
-          },
-          mutations: {
-            retry: false,
-          },
-        },
-      }),
-  )
-
   const superinterfaceContext = useSuperinterfaceContext()
 
   const value = merge(
     superinterfaceContext,
-    // @ts-ignore-next-line
-    rest
+    {
+      ...(baseUrl ? { baseUrl } : {}),
+      ...(publicApiKey ? { publicApiKey } : {}),
+      ...(variables ? { variables } : {}),
+      ...(defaultOptions ? { defaultOptions } : {}),
+    }
   )
 
   return (
     <SuperinterfaceContext.Provider
       value={value}
     >
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
+      {children}
     </SuperinterfaceContext.Provider>
   )
 }

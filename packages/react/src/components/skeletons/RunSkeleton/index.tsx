@@ -22,12 +22,17 @@ export const RunSkeleton = () => (
       }}
     >
       <CircleIcon
-        className="animate-pulse"
+        style={{
+          animation: 'pulse 2s cubic-bezier(.4,0,.6,1) infinite',
+        }}
       />
 
       <Skeleton
         height="1"
-        className="w-[128px] bg-gold-5"
+        style={{
+          width: '128px',
+          backgroundColor: 'var(--gold-5)',
+        }}
       />
     </Button>
   </Flex>

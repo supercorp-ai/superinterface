@@ -1,27 +1,35 @@
+import { partob } from 'radash'
 import {
-  UseMutationOptions,
   useMutation,
+  useQueryClient,
 } from '@tanstack/react-query'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
-import { Run } from '@/types'
-import { extendOptions } from '@/lib/core/extendOptions'
-import { useMeta } from '@/hooks/metas/useMeta'
+import { useThreadContext } from '@/hooks/threads/useThreadContext'
+import { mutationOptions } from '@/lib/threads/mutationOptions'
+import { onSuccess } from './lib/onSuccess'
+import { onSettled } from './lib/onSettled'
+import { onMutate } from './lib/onMutate'
 
-type Args = (args: any) => UseMutationOptions<{ run: Run }>
-
-// @ts-ignore-next-line
-export const useCreateRun = (args: Args = () => {}) => {
+export const useCreateRun = () => {
+  const queryClient = useQueryClient()
   const superinterfaceContext = useSuperinterfaceContext()
-  const { meta } = useMeta()
+  const threadContext = useThreadContext()
 
-  const props = useMutation(extendOptions({
-    defaultOptions: superinterfaceContext.mutationOptions.createRun,
-    args,
-    meta,
-  }))
+  const props = useMutation({
+    onSuccess: onSuccess({ queryClient }),
+    onSettled: onSettled({ queryClient }),
+    onMutate: onMutate({ queryClient }),
+    ...mutationOptions({
+      mutationKeyBase: ['createRun'],
+      path: '/runs',
+      queryClient,
+      threadContext,
+      superinterfaceContext,
+    }),
+  })
 
   return {
     ...props,
-    createRun: props.mutate,
+    createRun: partob(props.mutate, threadContext.variables),
   }
 }

@@ -18,7 +18,9 @@ export const Starting = () => (
       </ToolCallTitle>
     </ToolCallBase>
     <PopoverContent
-      className="max-h-[500px]"
+      style={{
+        maxHeight: '500px',
+      }}
     >
       <Text>
         Getting ready to connect to domain API

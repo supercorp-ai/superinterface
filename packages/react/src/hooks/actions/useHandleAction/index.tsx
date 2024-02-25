@@ -1,27 +1,31 @@
+import { partob } from 'radash'
 import {
-  UseMutationOptions,
   useMutation,
+  useQueryClient,
 } from '@tanstack/react-query'
-import { extendOptions } from '@/lib/core/extendOptions'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
-import { Run } from '@/types'
-import { useMeta } from '@/hooks/metas/useMeta'
+import { useThreadContext } from '@/hooks/threads/useThreadContext'
+import { mutationOptions } from '@/lib/threads/mutationOptions'
+import { onSettled } from './lib/onSettled'
 
-type Args = (args: any) => UseMutationOptions<{ run: Run }>
-
-// @ts-ignore-next-line
-export const useHandleAction = (args: Args = () => {}) => {
+export const useHandleAction = () => {
+  const queryClient = useQueryClient()
   const superinterfaceContext = useSuperinterfaceContext()
-  const { meta } = useMeta()
+  const threadContext = useThreadContext()
 
-  const props = useMutation(extendOptions({
-    defaultOptions: superinterfaceContext.mutationOptions.handleAction,
-    args,
-    meta,
-  }))
+  const props = useMutation({
+    onSettled: onSettled({ queryClient }),
+    ...mutationOptions({
+      mutationKeyBase: ['handleAction'],
+      path: '/actions',
+      queryClient,
+      threadContext,
+      superinterfaceContext,
+    }),
+  })
 
   return {
     ...props,
-    handleAction: props.mutate,
+    handleAction: partob(props.mutate, threadContext.variables),
   }
 }

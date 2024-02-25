@@ -8,7 +8,9 @@ export const OrderedList = ({ children }: JSX.IntrinsicElements['ul']) => (
     asChild
   >
     <ol
-      className="list-inside"
+      style={{
+        listStylePosition: 'inside',
+      }}
     >
       {children}
     </ol>

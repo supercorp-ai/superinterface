@@ -5,24 +5,18 @@ import {
   Text,
   Button,
 } from '@radix-ui/themes'
-import { useCreateMessage } from '@/hooks/messages/useCreateMessage'
+import { useCreateThreadMessage } from '@/hooks/threadMessages/useCreateThreadMessage'
 import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 
 type Args = {
   suggestion: string
-  [key: string]: any
 }
 
 export const Suggestion = ({
   suggestion,
-  ...args
 }: Args) => {
-  const {
-    createMessage,
-    // @ts-ignore-next-line
-  } = useCreateMessage(args)
-
-  const { isRunActive } = useIsRunActive(args)
+  const { createThreadMessage } = useCreateThreadMessage()
+  const { isRunActive } = useIsRunActive()
 
   return (
     <Button
@@ -31,11 +25,7 @@ export const Suggestion = ({
         justifyContent: 'space-between',
       }}
       onClick={() => {
-        // @ts-ignore-next-line
-        createMessage({
-          content: suggestion,
-          ...args,
-        })
+        createThreadMessage({ content: suggestion })
       }}
       disabled={isRunActive}
     >

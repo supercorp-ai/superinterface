@@ -1,15 +1,14 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useLatestRun } from '@/hooks/runs/useLatestRun'
 import { useHandleAction } from '@/hooks/actions/useHandleAction'
+import { useThreadContext } from '@/hooks/threads/useThreadContext'
 
-type Args = {
-  [key: string]: any
-}
-
-export const useManageActions = (args: Args) => {
-  const latestRunProps = useLatestRun(args)
-  // @ts-ignore-next-line
-  const handleActionProps = useHandleAction(args)
+export const useManageActions = () => {
+  const queryClient = useQueryClient()
+  const threadContext = useThreadContext()
+  const latestRunProps = useLatestRun()
+  const handleActionProps = useHandleAction()
 
   useEffect(() => {
     if (handleActionProps.isPending) return
@@ -17,16 +16,23 @@ export const useManageActions = (args: Args) => {
     if (!latestRunProps.latestRun) return
     if (latestRunProps.latestRun.status !== 'requires_action') return
 
+    const isMutating = queryClient.isMutating({
+      mutationKey: ['handleAction', threadContext.variables],
+    })
+
+    if (isMutating) return
+
     console.log('requires action', {
       latestRunProps,
     })
 
-    // @ts-ignore-next-line
     handleActionProps.handleAction({
       latestRun: latestRunProps.latestRun,
-      ...args,
     })
-  }, [handleActionProps, latestRunProps])
+  }, [
+    handleActionProps,
+    latestRunProps,
+  ])
 
   return null
 }

@@ -4,10 +4,14 @@ import {
 
 export const StartingContentSkeleton = () => (
   <Box
-    height="4"
-    width="4"
     shrink="0"
     mt="1"
-    className="animate-pulse bg-gray-12 rounded-3"
+    style={{
+      animation: 'pulse 2s cubic-bezier(.4,0,.6,1) infinite',
+      borderRadius: 'var(--radius-3)',
+      backgroundColor: 'var(--gray-12)',
+      height: 'var(--space-4)',
+      width: 'var(--space-4)',
+    }}
   />
 )

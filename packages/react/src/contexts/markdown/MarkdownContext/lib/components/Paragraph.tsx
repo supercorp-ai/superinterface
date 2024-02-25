@@ -9,7 +9,10 @@ export const Paragraph = ({ children }: JSX.IntrinsicElements['p']) => (
   >
     <Text
       size="3"
-      className="whitespace-pre-line break-words"
+      style={{
+        whiteSpace: 'pre-line',
+        wordBreak: 'break-word',
+      }}
     >
       {children}
     </Text>

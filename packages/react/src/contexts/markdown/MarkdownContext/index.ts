@@ -4,5 +4,7 @@ import { components } from './lib/components'
 
 export const MarkdownContext = createContext({
   remarkPlugins: [] as any[],
-  components,
+  rehypeReactOptions: {
+    components,
+  }
 })

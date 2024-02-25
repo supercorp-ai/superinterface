@@ -2,34 +2,32 @@ import { useMemo } from 'react'
 import {
   Flex,
 } from '@radix-ui/themes'
-import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
+import { useLatestThreadMessage } from '@/hooks/threadMessages/useLatestThreadMessage'
 import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 import { Suggestion } from '@/components/suggestions/Suggestion'
 
 type Args = {
   emptyStateSuggestions?: string[]
   suggestions?: string[]
-  [key: string]: any
 }
 
 export const Suggestions = ({
   emptyStateSuggestions = [],
   suggestions = [],
-  ...args
 }: Args) => {
-  const latestMessageProps = useLatestMessage(args)
-  const isRunActiveProps = useIsRunActive(args)
+  const latestThreadMessageProps = useLatestThreadMessage()
+  const isRunActiveProps = useIsRunActive()
 
   const isDisabled = useMemo(() => (
     // @ts-ignore-next-line
-    latestMessageProps.latestMessage?.metadata?.isBlocking ||
+    latestThreadMessageProps.latestThreadMessage?.metadata?.isBlocking ||
       isRunActiveProps.isRunActive
-  ), [latestMessageProps, isRunActiveProps])
+  ), [latestThreadMessageProps, isRunActiveProps])
 
-  if (latestMessageProps.isLoading) return null
+  if (latestThreadMessageProps.isLoading) return null
   if (isDisabled) return null
 
-  if (!latestMessageProps.latestMessage && emptyStateSuggestions.length > 0) {
+  if (!latestThreadMessageProps.latestThreadMessage && emptyStateSuggestions.length > 0) {
     return (
       <Flex
         gap="2"
@@ -40,14 +38,13 @@ export const Suggestions = ({
           <Suggestion
             key={suggestion}
             suggestion={suggestion}
-            {...args}
           />
         ))}
       </Flex>
     )
   }
 
-  if (latestMessageProps.latestMessage.role === 'assistant') {
+  if (latestThreadMessageProps.latestThreadMessage.role === 'assistant') {
     return (
       <Flex
         gap="2"
@@ -58,7 +55,6 @@ export const Suggestions = ({
           <Suggestion
             key={suggestion}
             suggestion={suggestion}
-            {...args}
           />
         ))}
       </Flex>
