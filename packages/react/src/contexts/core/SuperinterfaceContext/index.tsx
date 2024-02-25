@@ -2,7 +2,7 @@
 import { createContext } from 'react'
 
 export const SuperinterfaceContext = createContext({
-  baseUrl: 'http://localhost:3000/api/cloud',
+  baseUrl: 'https://superinterface.ai/api/cloud',
   variables: {},
   defaultOptions: {
     queries: {},
