@@ -1,6 +1,6 @@
 {
   "name": "@superinterface/react",
-  "version": "1.1.8",
+  "version": "2.0.0",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
