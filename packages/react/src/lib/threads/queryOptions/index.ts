@@ -40,6 +40,11 @@ export const queryOptions = ({
 
       return fetch(`${superinterfaceContext.baseUrl}${path}?${params}`, {
         credentials: 'include',
+        ...(superinterfaceContext.publicApiKey ? {
+          headers: {
+            Authorization: `Bearer ${superinterfaceContext.publicApiKey}`,
+          },
+        } : {}),
       })
         .then(async (response) => {
           if (response.status !== 200) {

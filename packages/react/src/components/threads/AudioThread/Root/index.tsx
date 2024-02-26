@@ -47,6 +47,7 @@ export const Root = ({
     onStop: async (_event: any, _chunks: BlobPart[]) => {
       console.log({ transcript: transcriptRef.current })
       return createMessageProps.createMessage({
+        // @ts-ignore-next-line
         content: transcriptRef.current,
       })
       // // @ts-ignore-next-line

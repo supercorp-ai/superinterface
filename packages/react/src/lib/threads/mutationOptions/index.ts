@@ -30,6 +30,11 @@ export const mutationOptions = ({
         method: 'POST',
         body: JSON.stringify(variables),
         credentials: 'include',
+        ...(superinterfaceContext.publicApiKey ? {
+          headers: {
+            Authorization: `Bearer ${superinterfaceContext.publicApiKey}`,
+          },
+        } : {}),
       }).then(async (response) => {
         if (response.status !== 200) {
           try {

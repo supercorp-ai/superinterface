@@ -25,7 +25,10 @@ export const Suggestion = ({
         justifyContent: 'space-between',
       }}
       onClick={() => {
-        createMessage({ content: suggestion })
+        createMessage({
+          // @ts-ignore-next-line
+          content: suggestion,
+        })
       }}
       disabled={isRunActive}
     >
