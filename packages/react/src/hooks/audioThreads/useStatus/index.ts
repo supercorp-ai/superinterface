@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useCreateThreadMessage } from '@/hooks/threadMessages/useCreateThreadMessage'
+import { useCreateMessage } from '@/hooks/messages/useCreateMessage'
 import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 import { useRecorder } from '@/hooks/audioThreads/useRecorder'
 import { useMessageAudio } from '@/hooks/audioThreads/useMessageAudio'
@@ -8,19 +8,19 @@ import { statusMessages } from './lib/statusMessages'
 type Args = {
   messageAudioProps: ReturnType<typeof useMessageAudio>
   recorderProps: ReturnType<typeof useRecorder>
-  createThreadMessageProps: ReturnType<typeof useCreateThreadMessage>
+  createMessageProps: ReturnType<typeof useCreateMessage>
 }
 
 export const useStatus = ({
   messageAudioProps,
   recorderProps,
-  createThreadMessageProps,
+  createMessageProps,
 }: Args) => {
   const isRunActiveProps = useIsRunActive()
 
   const status = useMemo((): keyof typeof statusMessages => {
     if (recorderProps.status === 'recording') return 'recording'
-    if (createThreadMessageProps.isPending) return 'creatingMessage'
+    if (createMessageProps.isPending) return 'creatingMessage'
     if (isRunActiveProps.isRunActive) return 'runActive'
 
     if (messageAudioProps.playing) return 'playing'
@@ -33,7 +33,7 @@ export const useStatus = ({
   }, [
     messageAudioProps,
     recorderProps,
-    createThreadMessageProps,
+    createMessageProps,
     isRunActiveProps,
   ])
 

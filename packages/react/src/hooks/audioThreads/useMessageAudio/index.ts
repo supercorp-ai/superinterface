@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState, useEffect } from 'react'
 import { Howler } from 'howler'
 import { useAudioPlayer } from 'react-use-audio-player'
-import { useLatestThreadMessage } from '@/hooks/threadMessages/useLatestThreadMessage'
+import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { AudioEngine } from '@/types'
 import { input as getInput } from './lib/input'
@@ -18,21 +18,21 @@ export const useMessageAudio = ({
   const audioPlayer = useAudioPlayer()
   const superinterfaceContext = useSuperinterfaceContext()
 
-  const latestThreadMessageProps = useLatestThreadMessage()
+  const latestMessageProps = useLatestMessage()
 
   useEffect(() => {
     if (audioPlayer.playing) return
-    if (!latestThreadMessageProps.latestThreadMessage) return
-    if (latestThreadMessageProps.latestThreadMessage.role !== 'assistant') return
-    if (playedMessageIds.includes(latestThreadMessageProps.latestThreadMessage.id)) return
+    if (!latestMessageProps.latestMessage) return
+    if (latestMessageProps.latestMessage.role !== 'assistant') return
+    if (playedMessageIds.includes(latestMessageProps.latestMessage.id)) return
 
     const input = getInput({
-      threadMessage: latestThreadMessageProps.latestThreadMessage,
+      message: latestMessageProps.latestMessage,
     })
 
     if (!input) return
 
-    setPlayedMessageIds((prev) => [...prev, latestThreadMessageProps.latestThreadMessage.id])
+    setPlayedMessageIds((prev) => [...prev, latestMessageProps.latestMessage.id])
 
     audioPlayer.load(`${superinterfaceContext.baseUrl}/tts?input=${input}`, {
       format: 'mp3',
@@ -42,7 +42,7 @@ export const useMessageAudio = ({
     })
   }, [
     superinterfaceContext,
-    latestThreadMessageProps,
+    latestMessageProps,
     audioPlayer,
     playedMessageIds,
     onEnd,

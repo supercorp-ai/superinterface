@@ -1,2 +1,2 @@
-export { threadMessagesQueryFn } from '@/lib/threadMessages/threadMessagesQueryFn'
+export { messagesQueryFn } from '@/lib/messages/messagesQueryFn'
 export { runsQueryFn } from '@/lib/runs/runsQueryFn'

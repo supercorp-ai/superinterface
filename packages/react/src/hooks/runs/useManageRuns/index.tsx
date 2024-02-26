@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
-import { useLatestThreadMessage } from '@/hooks/threadMessages/useLatestThreadMessage'
+import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useLatestRun } from '@/hooks/runs/useLatestRun'
 import { useCreateRun } from '@/hooks/runs/useCreateRun'
 import { isOptimistic } from '@/lib/optimistic/isOptimistic'
@@ -9,19 +9,19 @@ import { useThreadContext } from '@/hooks/threads/useThreadContext'
 export const useManageRuns = () => {
   const queryClient = useQueryClient()
   const latestRunProps = useLatestRun()
-  const latestThreadMessageProps = useLatestThreadMessage()
+  const latestMessageProps = useLatestMessage()
   const createRunProps = useCreateRun()
   const threadContext = useThreadContext()
 
   useEffect(() => {
     if (createRunProps.isPending) return
     if (latestRunProps.isFetching) return
-    if (latestThreadMessageProps.isFetching) return
+    if (latestMessageProps.isFetching) return
 
-    if (!latestThreadMessageProps.latestThreadMessage) return
-    if (latestThreadMessageProps.latestThreadMessage.role !== 'user') return
-    if (isOptimistic({ id: latestThreadMessageProps.latestThreadMessage.id })) return
-    if (latestRunProps.latestRun && latestRunProps.latestRun.created_at > latestThreadMessageProps.latestThreadMessage.created_at) {
+    if (!latestMessageProps.latestMessage) return
+    if (latestMessageProps.latestMessage.role !== 'user') return
+    if (isOptimistic({ id: latestMessageProps.latestMessage.id })) return
+    if (latestRunProps.latestRun && latestRunProps.latestRun.created_at > latestMessageProps.latestMessage.created_at) {
       return
     }
 
@@ -31,13 +31,14 @@ export const useManageRuns = () => {
 
     if (isMutating) return
 
+    // @ts-ignore-next-line
     createRunProps.createRun()
   }, [
     threadContext,
     queryClient,
     createRunProps,
     latestRunProps,
-    latestThreadMessageProps,
+    latestMessageProps,
   ])
 
   return null

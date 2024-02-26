@@ -15,7 +15,7 @@ export const onSettled = ({
   variables: Variables,
 ) => {
   await queryClient.invalidateQueries({
-    queryKey: ['threadMessages', variables],
+    queryKey: ['messages', variables],
   })
 
   await queryClient.invalidateQueries({

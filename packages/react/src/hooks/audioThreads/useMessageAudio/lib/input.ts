@@ -1,15 +1,15 @@
 import OpenAI from 'openai'
 import { isEmpty } from 'radash'
-import { ThreadMessage } from '@/types'
+import { Message } from '@/types'
 
 type Args = {
-  threadMessage: ThreadMessage
+  message: Message
 }
 
 export const input = ({
-  threadMessage,
+  message,
 }: Args) => {
-  const textContents = threadMessage.content.filter((c) => c.type === 'text') as OpenAI.Beta.Threads.Messages.MessageContentText[]
+  const textContents = message.content.filter((c) => c.type === 'text') as OpenAI.Beta.Threads.Messages.MessageContentText[]
   const result = textContents.map((c) => c.text.value).join(' ')
 
   if (isEmpty(result)) return null

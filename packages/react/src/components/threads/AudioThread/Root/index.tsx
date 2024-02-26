@@ -1,15 +1,15 @@
 'use client'
 
 import 'regenerator-runtime/runtime'
-import { useCallback, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { Flex } from '@radix-ui/themes'
 import _ from 'lodash'
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
 import { AudioThreadContext } from '@/contexts/threads/AudioThreadContext'
-import { useThreadLifecycles } from '@/hooks/threads/useThreadLifecycles'
-import { useCreateThreadMessage } from '@/hooks/threadMessages/useCreateThreadMessage'
+import { useLifecycle } from '@/hooks/threads/useLifecycle'
+import { useCreateMessage } from '@/hooks/messages/useCreateMessage'
 import { usePermission } from 'react-use'
-import { blobToData } from './lib/blobToData'
+// import { blobToData } from './lib/blobToData'
 import { useStatus } from '@/hooks/audioThreads/useStatus'
 import { useRecorder } from '@/hooks/audioThreads/useRecorder'
 import { useMessageAudio } from '@/hooks/audioThreads/useMessageAudio'
@@ -21,16 +21,13 @@ export type Args = {
 export const Root = ({
   children,
 }: Args) => {
-  useThreadLifecycles()
+  useLifecycle()
 
-  const createThreadMessageProps = useCreateThreadMessage()
+  const createMessageProps = useCreateMessage()
 
   const {
     transcript,
-    listening,
     resetTranscript,
-    browserSupportsSpeechRecognition,
-    ...rest
   } = useSpeechRecognition()
 
   const transcriptRef = useRef(transcript)
@@ -47,9 +44,9 @@ export const Root = ({
       // @ts-ignore-next-line
       SpeechRecognition.default.startListening({ continuous: true })
     },
-    onStop: async (_event: any, chunks: BlobPart[]) => {
+    onStop: async (_event: any, _chunks: BlobPart[]) => {
       console.log({ transcript: transcriptRef.current })
-      return createThreadMessageProps.createThreadMessage({
+      return createMessageProps.createMessage({
         content: transcriptRef.current,
       })
       // // @ts-ignore-next-line
@@ -74,7 +71,7 @@ export const Root = ({
 
   const { status } = useStatus({
     recorderProps,
-    createThreadMessageProps,
+    createMessageProps,
     messageAudioProps,
   })
 

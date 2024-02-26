@@ -1,11 +1,11 @@
 import OpenAI from 'openai'
 
-export type ThreadMessage = OpenAI.Beta.Threads.Messages.ThreadMessage & {
+export type Message = OpenAI.Beta.Threads.Messages.ThreadMessage & {
   runSteps: OpenAI.Beta.Threads.Runs.RunStep[]
 }
 
-export type ThreadMessagesPage = {
-  data: ThreadMessage[]
+export type MessagesPage = {
+  data: Message[]
   hasNextPage: boolean
   lastId: string
 }
@@ -16,10 +16,10 @@ export type RunStepsPage = {
   lastId: string
 }
 
-export type ThreadMessageGroup = {
+export type MessageGroup = {
   id: string
   role: "user" | "assistant"
-  threadMessages: ThreadMessage[]
+  messages: Message[]
   createdAt: number
 }
 

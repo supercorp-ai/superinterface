@@ -1,4 +1,4 @@
-import { ThreadMessagesPage } from '@/types'
+import { MessagesPage } from '@/types'
 import {
   InfiniteData,
   UseInfiniteQueryOptions,
@@ -16,7 +16,7 @@ export type Args = {
     [key: string]: any
   }
   defaultOptions?: {
-    queries?: UseInfiniteQueryOptions<InfiniteData<ThreadMessagesPage>>
+    queries?: UseInfiniteQueryOptions<InfiniteData<MessagesPage>>
     mutations?: UseMutationOptions
   }
 }

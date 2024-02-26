@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 import { useIsMutating } from '@tanstack/react-query'
 import { useLatestRun } from '@/hooks/runs/useLatestRun'
-import { useLatestThreadMessage } from '@/hooks/threadMessages/useLatestThreadMessage'
-import { isRunEditingThreadMessage } from '@/lib/runs/isRunEditingThreadMessage'
+import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
+import { isRunEditingMessage } from '@/lib/runs/isRunEditingMessage'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
 
 const progressStatuses = [
@@ -20,32 +20,32 @@ const stoppedStatuses = [
 
 const isRunActive = ({
   latestRunProps,
-  latestThreadMessageProps,
+  latestMessageProps,
   isMutating,
 }: {
   latestRunProps: ReturnType<typeof useLatestRun>,
-  latestThreadMessageProps: ReturnType<typeof useLatestThreadMessage>,
+  latestMessageProps: ReturnType<typeof useLatestMessage>,
   isMutating: boolean,
 }) => {
   // @ts-ignore-next-line
-  if (latestThreadMessageProps.latestThreadMessage?.metadata?.isBlocking) return false
+  if (latestMessageProps.latestMessage?.metadata?.isBlocking) return false
   if (isMutating) return true
   if (!latestRunProps.latestRun) return false
   if (progressStatuses.includes(latestRunProps.latestRun.status)) return true
   if (stoppedStatuses.includes(latestRunProps.latestRun.status)) return false
 
-  return isRunEditingThreadMessage({ threadMessage: latestThreadMessageProps.latestThreadMessage })
+  return isRunEditingMessage({ message: latestMessageProps.latestMessage })
 }
 
 export const useIsRunActive = () => {
   const latestRunProps = useLatestRun()
-  const latestThreadMessageProps = useLatestThreadMessage()
+  const latestMessageProps = useLatestMessage()
   const threadContext = useThreadContext()
   const isMutatingCreateRun = useIsMutating({
     mutationKey: ['createRun', threadContext.variables],
   })
-  const isMutatingCreateThreadMessage = useIsMutating({
-    mutationKey: ['createThreadMessage', threadContext.variables],
+  const isMutatingCreateMessage = useIsMutating({
+    mutationKey: ['createMessage', threadContext.variables],
   })
   const isMutatingCreateHandleAction = useIsMutating({
     mutationKey: ['handleAction', threadContext.variables],
@@ -55,14 +55,14 @@ export const useIsRunActive = () => {
     ...latestRunProps,
     isRunActive: isRunActive({
       latestRunProps,
-      latestThreadMessageProps,
-      isMutating: isMutatingCreateRun > 0 || isMutatingCreateThreadMessage > 0 || isMutatingCreateHandleAction > 0,
+      latestMessageProps,
+      isMutating: isMutatingCreateRun > 0 || isMutatingCreateMessage > 0 || isMutatingCreateHandleAction > 0,
     }),
   }), [
     latestRunProps,
-    latestThreadMessageProps,
+    latestMessageProps,
     isMutatingCreateRun,
-    isMutatingCreateThreadMessage,
+    isMutatingCreateMessage,
     isMutatingCreateHandleAction,
   ])
 }

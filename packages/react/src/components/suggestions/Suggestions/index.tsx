@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import {
   Flex,
 } from '@radix-ui/themes'
-import { useLatestThreadMessage } from '@/hooks/threadMessages/useLatestThreadMessage'
+import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 import { Suggestion } from '@/components/suggestions/Suggestion'
 
@@ -15,19 +15,19 @@ export const Suggestions = ({
   emptyStateSuggestions = [],
   suggestions = [],
 }: Args) => {
-  const latestThreadMessageProps = useLatestThreadMessage()
+  const latestMessageProps = useLatestMessage()
   const isRunActiveProps = useIsRunActive()
 
   const isDisabled = useMemo(() => (
     // @ts-ignore-next-line
-    latestThreadMessageProps.latestThreadMessage?.metadata?.isBlocking ||
+    latestMessageProps.latestMessage?.metadata?.isBlocking ||
       isRunActiveProps.isRunActive
-  ), [latestThreadMessageProps, isRunActiveProps])
+  ), [latestMessageProps, isRunActiveProps])
 
-  if (latestThreadMessageProps.isLoading) return null
+  if (latestMessageProps.isLoading) return null
   if (isDisabled) return null
 
-  if (!latestThreadMessageProps.latestThreadMessage && emptyStateSuggestions.length > 0) {
+  if (!latestMessageProps.latestMessage && emptyStateSuggestions.length > 0) {
     return (
       <Flex
         gap="2"
@@ -44,7 +44,7 @@ export const Suggestions = ({
     )
   }
 
-  if (latestThreadMessageProps.latestThreadMessage.role === 'assistant') {
+  if (latestMessageProps.latestMessage.role === 'assistant') {
     return (
       <Flex
         gap="2"

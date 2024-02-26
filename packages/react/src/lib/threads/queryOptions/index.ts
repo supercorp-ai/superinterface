@@ -4,7 +4,7 @@ import {
 } from '@tanstack/react-query'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
-import { ThreadMessagesPage } from '@/types'
+import { MessagesPage } from '@/types'
 
 type QueryFunctionArgs = {
   queryKey: Readonly<[string, { [key: string]: any }]>
@@ -26,7 +26,7 @@ export const queryOptions = ({
 }) => {
   const queryKey = [...queryKeyBase, threadContext.variables]
 
-  return infiniteQueryOptions<ThreadMessagesPage>({
+  return infiniteQueryOptions<MessagesPage>({
     // @ts-ignore-next-line
     queryFn: async ({
       pageParam,
@@ -51,11 +51,11 @@ export const queryOptions = ({
             }
           }
 
-          return response.json() as Promise<ThreadMessagesPage>
+          return response.json() as Promise<MessagesPage>
         })
     },
     initialPageParam: undefined,
-    getNextPageParam: (lastPage: ThreadMessagesPage) => {
+    getNextPageParam: (lastPage: MessagesPage) => {
       if (!lastPage.hasNextPage) return null
 
       return lastPage.lastId

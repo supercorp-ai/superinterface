@@ -1,9 +1,9 @@
 import { useContext } from 'react'
 import { Box } from '@radix-ui/themes'
 import { StartingContentSkeleton } from '@/components/skeletons/StartingContentSkeleton'
-import { ThreadMessagesGroupBase } from '@/components/threadMessageGroups/ThreadMessagesGroupBase'
-import { Name } from '@/components/threadMessageGroups/ThreadMessagesGroupBase/Name'
-import { AssistantAvatar } from '@/components/threadMessageGroups/ThreadMessagesGroupBase/AssistantAvatar'
+import { MessageGroupBase } from '@/components/messageGroups/MessageGroupBase'
+import { Name } from '@/components/messageGroups/MessageGroupBase/Name'
+import { AssistantAvatar } from '@/components/messageGroups/MessageGroupBase/AssistantAvatar'
 import { AssistantNameContext } from '@/contexts/assistants/AssistantNameContext'
 
 type Args = {
@@ -16,7 +16,7 @@ export const StartingSkeleton = ({
   const assistantNameContext = useContext(AssistantNameContext)
 
   return (
-    <ThreadMessagesGroupBase>
+    <MessageGroupBase>
       <AssistantAvatar />
 
       <Box>
@@ -28,6 +28,6 @@ export const StartingSkeleton = ({
 
         <StartingContentSkeleton />
       </Box>
-    </ThreadMessagesGroupBase>
+    </MessageGroupBase>
   )
 }

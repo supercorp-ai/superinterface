@@ -2,21 +2,15 @@ export { SuperinterfaceProvider } from '@/components/core/SuperinterfaceProvider
 export { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 
 export { Thread } from '@/components/threads/Thread'
-export { ThreadProvider } from '@/components/threads/ThreadProvider'
 export { useThreadContext } from '@/hooks/threads/useThreadContext'
-export { useThreadLifecycles } from '@/hooks/threads/useThreadLifecycles'
+export { useLifecycle } from '@/hooks/threads/useLifecycle'
+export { useMessages } from '@/hooks/messages/useMessages'
+export { useLatestMessage } from '@/hooks/messages/useLatestMessage'
+export { useCreateMessage } from '@/hooks/messages/useCreateMessage'
 
 export { ThreadDialog } from '@/components/threads/ThreadDialog'
-
-export { AudioThread } from '@/components/threads/AudioThread'
 export { AudioThreadDialog } from '@/components/threads/AudioThreadDialog'
-
-export { ThreadMessages } from '@/components/threadMessages/ThreadMessages'
-export { useThreadMessages } from '@/hooks/threadMessages/useThreadMessages'
-export { useLatestThreadMessage } from '@/hooks/threadMessages/useLatestThreadMessage'
-
-export { ThreadMessageForm } from '@/components/threadMessages/ThreadMessageForm'
-export { useCreateThreadMessage } from '@/hooks/threadMessages/useCreateThreadMessage'
+export { AudioThread } from '@/components/threads/AudioThread'
 
 export { useCreateRun } from '@/hooks/runs/useCreateRun'
 export { useRuns } from '@/hooks/runs/useRuns'
