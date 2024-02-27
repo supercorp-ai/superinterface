@@ -12,9 +12,7 @@ export const Name = ({
 }: Args) => (
   <Flex
     align="center"
-    style={{
-      height: 'var(--space-5)',
-    }}
+    height="var(--space-5)"
   >
     <Text
       size="2"

@@ -33,7 +33,7 @@ export const MessageGroup = ({
         <AssistantAvatar />
       )}
 
-      <Box grow="1">
+      <Box flexGrow="1">
         <Name>
           {messageGroup.role === 'user' ? 'You' : assistantNameContext}
         </Name>

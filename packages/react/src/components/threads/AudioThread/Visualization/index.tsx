@@ -11,15 +11,15 @@ export const Visualization = () => {
       align="center"
       justify="center"
       mb="3"
-      grow="1"
+      flexGrow="1"
     >
       <Flex
         align="center"
         justify="center"
+        height="200px"
+        width="200px"
         style={{
           backgroundColor: `var(--${audioThreadContext.status === 'playing' ? 'mint' : 'gray'}-4)`,
-          height: '200px',
-          width: '200px',
           borderRadius: '9999px',
         }}
       >

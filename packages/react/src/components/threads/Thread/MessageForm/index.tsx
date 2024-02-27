@@ -81,18 +81,18 @@ export const MessageForm = ({
   return (
     <Container
       size="2"
-      grow="0"
+      flexGrow="0"
       style={style}
     >
       {children}
 
       <Flex
         direction="column"
-        shrink="0"
+        flexShrink="0"
       >
         <Flex
           direction="column"
-          shrink="0"
+          flexShrink="0"
         >
           <form
             onSubmit={handleSubmit(onSubmit)}
@@ -115,7 +115,7 @@ export const MessageForm = ({
                 }}
               >
                 <Flex
-                  grow="1"
+                  flexGrow="1"
                   direction="column"
                 >
                   <TextareaBase
@@ -142,7 +142,7 @@ export const MessageForm = ({
               </Text>
 
               <Flex
-                shrink="0"
+                flexShrink="0"
                 align="end"
               >
                 <Submit

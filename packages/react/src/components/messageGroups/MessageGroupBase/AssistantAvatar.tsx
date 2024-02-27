@@ -10,12 +10,12 @@ export const AssistantAvatar = () => {
 
   return (
     <Flex
-      shrink="0"
+      flexShrink="0"
+      height="24px"
+      width="24px"
       style={{
         borderRadius: 'var(--radius-3)',
         overflow: 'hidden',
-        height: '24px',
-        width: '24px',
       }}
     >
       {AssistantAvatarContextValue}

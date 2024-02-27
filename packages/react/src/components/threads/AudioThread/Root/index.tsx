@@ -86,7 +86,7 @@ export const Root = ({
     >
       <Flex
         direction="column"
-        grow="1"
+        flexGrow="1"
         p="5"
       >
         {children}

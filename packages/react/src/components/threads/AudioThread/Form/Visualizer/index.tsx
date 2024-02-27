@@ -51,18 +51,16 @@ export const Visualizer = () => {
           direction="column"
           align="center"
           justify="center"
-          style={{
-            height: '20px',
-          }}
+          height="20px"
         >
           <Flex
+            minHeight="50%"
+            maxHeight="100%"
+            height={`${barHeight + 20}%`}
+            width="12px"
             style={{
               backgroundColor: `var(--${audioThreadContext.status === 'recording' ? 'mint' : 'gray'}-11)`,
               borderRadius: 'var(--radius-6)',
-              height: `${barHeight + 20}%`,
-              minHeight: '50%',
-              maxHeight: '100%',
-              width: '12px',
             }}
           />
         </Flex>

@@ -45,17 +45,15 @@ export const Messages = ({
     <Flex
       ref={containerRef}
       direction="column-reverse"
-      grow="1"
+      flexGrow="1"
       style={{
         ...style,
         overflow: 'auto',
       }}
     >
       <Flex
-        shrink="0"
-        style={{
-          height: 'var(--space-3)',
-        }}
+        flexShrink="0"
+        height="var(--space-3)"
       />
 
       <Progress
@@ -78,8 +76,8 @@ export const Messages = ({
       )}
 
       <Flex
-        shrink="0"
-        grow="1"
+        flexShrink="0"
+        flexGrow="1"
       />
     </Flex>
   )

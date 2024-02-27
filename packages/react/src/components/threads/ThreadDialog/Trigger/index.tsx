@@ -16,7 +16,7 @@ export const Trigger = ({
     <Flex
       onClick={() => setIsOpen((prev) => !prev)}
       direction="column"
-      shrink="0"
+      flexShrink="0"
     >
       {children}
     </Flex>

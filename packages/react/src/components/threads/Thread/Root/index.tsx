@@ -13,7 +13,7 @@ export const Root = ({
   <Provider {...rest}>
     <Flex
       direction="column"
-      grow="1"
+      flexGrow="1"
     >
       {children}
     </Flex>

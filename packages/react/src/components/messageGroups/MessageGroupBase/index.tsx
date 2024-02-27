@@ -16,10 +16,10 @@ export const MessageGroupBase = forwardRef(function MessageGroupBase({
       // @ts-ignore-next-line
       ref={ref}
       size="2"
-      grow="0"
+      flexGrow="0"
     >
       <Flex
-        shrink="0"
+        flexShrink="0"
         gap="3"
       >
         {children}

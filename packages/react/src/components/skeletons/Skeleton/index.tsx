@@ -10,13 +10,12 @@ export const Skeleton = ({
   style,
   ...rest
 }: Props) => (
-  // @ts-ignore-next-line
   <Flex
+    height={`var(--space-${height})`}
     style={{
       animation: 'pulse 2s cubic-bezier(.4,0,.6,1) infinite',
       borderRadius: 'var(--radius-3)',
       backgroundColor: 'var(--gray-5)',
-      height: `var(--space-${height})`,
       ...style,
     }}
     {...rest}
