@@ -7,21 +7,18 @@ import {
 import {
   Spinner,
 } from '@/components/spinners/Spinner'
+import { useMessageFormContext } from '@/hooks/messages/useMessageFormContext'
 
-type Args = {
-  isLoading: boolean
-  isDisabled: boolean
+export const Submit = () => {
+  const { isDisabled, isLoading } = useMessageFormContext()
+
+  return (
+    <Button
+      type="submit"
+      radius="large"
+      disabled={isDisabled}
+    >
+      {isLoading ? <Spinner /> : <ArrowUpIcon />}
+    </Button>
+  )
 }
-
-export const Submit = ({
-  isLoading,
-  isDisabled
-}: Args) => (
-  <Button
-    type="submit"
-    radius="large"
-    disabled={isDisabled}
-  >
-    {isLoading ? <Spinner /> : <ArrowUpIcon />}
-  </Button>
-)

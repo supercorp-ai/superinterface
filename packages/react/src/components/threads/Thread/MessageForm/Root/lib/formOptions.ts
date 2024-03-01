@@ -5,6 +5,6 @@ const schema = z.object({
   content: z.string().min(1),
 })
 
-export const useFormProps = {
+export const formOptions = {
   resolver: zodResolver(schema),
 }
