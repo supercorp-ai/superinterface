@@ -1,19 +1,16 @@
+import { useMessages } from '@/hooks/messages/useMessages'
 import { useMessageGroups } from '@/hooks/messageGroups/useMessageGroups'
-import { Message, MessageGroup as MessageGroupType } from '@/types'
+import { MessageGroup as MessageGroupType } from '@/types'
 import { MessagesSkeleton } from '@/components/skeletons/MessagesSkeleton'
 import { MessageGroup } from './MessageGroup'
 
-type Args = {
-  messages: Message[]
-  isLoading: boolean
-  isLoadingError: boolean
-}
+export const Content = () => {
+  const {
+    messages,
+    isLoading,
+    isLoadingError,
+  } = useMessages()
 
-export const Content = ({
-  messages,
-  isLoading,
-  isLoadingError,
-}: Args) => {
   const { messageGroups } = useMessageGroups({
     messages,
   })

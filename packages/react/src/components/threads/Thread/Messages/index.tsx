@@ -1,16 +1,11 @@
-'use client'
-
 import {
   Flex,
 } from '@radix-ui/themes'
-import { useInfiniteScroll } from '@/hooks/misc/useInfiniteScroll'
-import { MessagesSkeleton } from '@/components/skeletons/MessagesSkeleton'
-import { useMessages } from '@/hooks/messages/useMessages'
-import { useLifecycle } from '@/hooks/threads/useLifecycle'
-import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
-import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 import { Content } from './Content'
 import { Progress } from './Progress'
+import { Root } from './Root'
+import { NextPageSkeleton } from './NextPageSkeleton'
+import { Message } from '@/components/threads/Thread/Message'
 
 type Args = {
   children?: React.ReactNode
@@ -20,65 +15,28 @@ type Args = {
 export const Messages = ({
   children,
   style = {},
-}: Args) => {
-  const {
-    messages,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-    isLoading,
-    isLoadingError,
-  } = useMessages()
-
-  useLifecycle()
-
-  const { containerRef, loaderRef } = useInfiniteScroll({
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-  })
-
-  const { isRunActive } = useIsRunActive()
-  const { latestMessage } = useLatestMessage()
-
-  return (
+}: Args) => (
+  <Root style={style}>
     <Flex
-      ref={containerRef}
-      direction="column-reverse"
+      flexShrink="0"
+      height="var(--space-3)"
+    />
+
+    <Progress />
+
+    {children}
+
+    <Content />
+
+    <NextPageSkeleton />
+
+    <Flex
+      flexShrink="0"
       flexGrow="1"
-      style={{
-        ...style,
-        overflow: 'auto',
-      }}
-    >
-      <Flex
-        flexShrink="0"
-        height="var(--space-3)"
-      />
+    />
+  </Root>
+)
 
-      <Progress
-        latestMessage={latestMessage}
-        isRunActive={isRunActive}
-      />
-
-      {children}
-
-      <Content
-        messages={messages}
-        isLoading={isLoading}
-        isLoadingError={isLoadingError}
-      />
-
-      {hasNextPage && (
-        <MessagesSkeleton
-          ref={loaderRef}
-        />
-      )}
-
-      <Flex
-        flexShrink="0"
-        flexGrow="1"
-      />
-    </Flex>
-  )
-}
+Messages.Root = Root
+Messages.Message = Message
+Messages.NextPageSkeleton = NextPageSkeleton
