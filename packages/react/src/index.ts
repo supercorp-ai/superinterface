@@ -9,6 +9,7 @@ export { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 export { useCreateMessage } from '@/hooks/messages/useCreateMessage'
 
 export { ThreadDialog } from '@/components/threads/ThreadDialog'
+export { ThreadDialogContext } from '@/contexts/threads/ThreadDialogContext'
 export { AudioThreadDialog } from '@/components/threads/AudioThreadDialog'
 export { AudioThread } from '@/components/threads/AudioThread'
 

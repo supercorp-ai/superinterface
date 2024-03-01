@@ -20,3 +20,7 @@ export const Thread = (props: Args) => (
     />
   </Root>
 )
+
+Thread.Root = Root
+Thread.Messages = Messages
+Thread.MessageForm = MessageForm
