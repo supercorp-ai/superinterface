@@ -48,7 +48,7 @@ export const Root = ({
   ), [latestMessage, isLoading])
 
   return (
-    <MessageFormContext.Provider value={{ isDisabled, isLoading, submit: handleSubmit(onSubmit) }}>
+    <MessageFormContext.Provider value={{ isDisabled, isLoading }}>
       <FormProvider {...formProps}>
         <form
           onSubmit={handleSubmit(onSubmit)}

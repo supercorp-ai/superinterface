@@ -58,7 +58,7 @@ const Control = () => {
     register,
   } = useFormContext()
 
-  const { isDisabled, isLoading, submit } = useMessageFormContext()
+  const { isDisabled, isLoading } = useMessageFormContext()
 
   const isSubmitDisabled = useMemo(() => (
     isDisabled || isLoading
@@ -87,11 +87,9 @@ const Control = () => {
           e.preventDefault()
 
           if (isSubmitDisabled) return
-          submit()
-          // handleSubmit(onSubmit)()
+          e.currentTarget.form?.requestSubmit()
         }
       }}
-      autoFocus
       {...textareaProps}
       ref={(e: any) => {
         textareaProps.ref(e)
