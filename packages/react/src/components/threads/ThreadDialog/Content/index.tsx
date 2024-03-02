@@ -1,14 +1,16 @@
 import {
   Card,
   Inset,
+  Flex,
 } from '@radix-ui/themes'
 import { useThreadDialogContext } from '@/hooks/threads/useThreadDialogContext'
+import { Thread } from '@/components/threads/Thread'
 
 type Args = {
   children: React.ReactNode
 }
 
-export const Content = ({
+const Root = ({
   children,
 }: Args) => {
   const { isOpen } = useThreadDialogContext()
@@ -39,3 +41,26 @@ export const Content = ({
     </Card>
   )
 }
+
+export const Content = () => (
+  <Root>
+    <Thread.Root>
+      <Thread.Messages
+        style={{
+          padding: 'var(--space-5)',
+        }}
+      />
+      <Flex
+        direction="column"
+        pl="5"
+        pr="5"
+        pb="3"
+        flexShrink="0"
+      >
+        <Thread.MessageForm />
+      </Flex>
+    </Thread.Root>
+  </Root>
+)
+
+Content.Root = Root

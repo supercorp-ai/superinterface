@@ -6,9 +6,9 @@ import { Content } from '@/components/threads/ThreadDialog/Content'
 
 export const AudioThreadDialog = () => (
   <Root>
-    <Content>
+    <Content.Root>
       <AudioThread />
-    </Content>
+    </Content.Root>
     <Trigger>
       <Button />
     </Trigger>
