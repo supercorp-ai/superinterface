@@ -7,7 +7,7 @@ import {
 import { Message, MessagesPage } from '@/types'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
-import { queryOptions } from '@/lib/threads/queryOptions'
+import { messagesQueryOptions } from '@/lib/messages/messagesQueryOptions'
 
 const messages = ({
   props,
@@ -29,9 +29,7 @@ export const useMessages = () => {
   const threadContext = useThreadContext()
   const superinterfaceContext = useSuperinterfaceContext()
 
-  const props = useInfiniteQuery(queryOptions({
-    queryKeyBase: ['messages'],
-    path: '/messages',
+  const props = useInfiniteQuery(messagesQueryOptions({
     queryClient,
     threadContext,
     superinterfaceContext,

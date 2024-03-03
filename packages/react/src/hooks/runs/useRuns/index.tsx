@@ -5,7 +5,7 @@ import {
 } from '@tanstack/react-query'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
-import { queryOptions } from '@/lib/threads/queryOptions'
+import { runsQueryOptions } from '@/lib/runs/runsQueryOptions'
 import { getRuns } from './lib/getRuns'
 
 export const useRuns = () => {
@@ -13,9 +13,7 @@ export const useRuns = () => {
   const superinterfaceContext = useSuperinterfaceContext()
   const threadContext = useThreadContext()
 
-  const props = useInfiniteQuery(queryOptions({
-    queryKeyBase: ['runs'],
-    path: '/runs',
+  const props = useInfiniteQuery(runsQueryOptions({
     queryClient,
     threadContext,
     superinterfaceContext,
