@@ -17,8 +17,6 @@ export const usePolling = () => {
       queryClient,
       threadContext,
     })
-
-    console.log('poll refetched')
   },
     isRunActiveProps.isRunActive ? 3000 : null
   )

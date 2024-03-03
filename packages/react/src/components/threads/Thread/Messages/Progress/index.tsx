@@ -2,7 +2,6 @@ import { Box } from '@radix-ui/themes'
 import { MessageGroupBase } from '@/components/messageGroups/MessageGroupBase'
 import { StartingContentSkeleton } from '@/components/skeletons/StartingContentSkeleton'
 import { StartingSkeleton } from '@/components/skeletons/StartingSkeleton'
-import { Message } from '@/types'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 

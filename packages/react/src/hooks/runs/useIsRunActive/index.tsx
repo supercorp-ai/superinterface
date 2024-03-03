@@ -30,6 +30,7 @@ const isRunActive = ({
   // @ts-ignore-next-line
   if (latestMessageProps.latestMessage?.metadata?.isBlocking) return false
   if (isMutating) return true
+  if (latestMessageProps.isRefetching) return true
   if (!latestRunProps.latestRun) return false
   if (progressStatuses.includes(latestRunProps.latestRun.status)) return true
   if (stoppedStatuses.includes(latestRunProps.latestRun.status)) return false
