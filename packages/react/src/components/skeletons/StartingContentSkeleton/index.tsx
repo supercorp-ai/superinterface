@@ -1,17 +1,16 @@
 import {
-  Box,
+  Skeleton,
 } from '@radix-ui/themes'
 
 export const StartingContentSkeleton = () => (
-  <Box
-    flexShrink="0"
+  <Skeleton
+    loading
     mt="1"
     height="var(--space-4)"
     width="var(--space-4)"
     style={{
-      animation: 'pulse 2s cubic-bezier(.4,0,.6,1) infinite',
-      borderRadius: 'var(--radius-3)',
-      backgroundColor: 'var(--gray-12)',
+      borderRadius: 'var(--radius-6)',
+      flexShrink: 0,
     }}
   />
 )
