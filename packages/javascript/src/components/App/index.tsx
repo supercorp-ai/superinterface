@@ -8,6 +8,6 @@ import './styles.css'
 export const App = () => (
   <Providers>
     {false && <ThreadDialog />}
-    <AudioThreadDialog />
+    {true && <AudioThreadDialog />}
   </Providers>
 )

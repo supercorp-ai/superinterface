@@ -18,9 +18,10 @@ export const Providers = ({
 }: Args) => {
   return (
     <SuperinterfaceProvider
-      baseUrl="http://localhost:3000/api/cloud"
+      baseUrl={window.superinterface?.BASE_URL ?? 'https://superinterface.ai/api/cloud'}
+      publicApiKey={window.superinterface?.PUBLIC_API_KEY}
       variables={{
-        assistantId: 'cfb7e582-3c57-4e4d-b691-98ebcd421ec8',
+        assistantId: window.superinterface?.ASSISTANT_ID,
       }}
     >
       <QueryClientProvider client={queryClient}>

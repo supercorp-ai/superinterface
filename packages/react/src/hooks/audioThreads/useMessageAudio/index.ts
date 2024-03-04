@@ -39,6 +39,14 @@ export const useMessageAudio = ({
       autoplay: true,
       html5: isHtmlAudioSupported,
       onend: onEnd,
+      xhr: {
+        ...(superinterfaceContext.publicApiKey ? {
+          headers: {
+            Authorization: `Bearer ${superinterfaceContext.publicApiKey}`,
+          },
+        } : {}),
+        withCredentials: true,
+      }
     })
   }, [
     superinterfaceContext,

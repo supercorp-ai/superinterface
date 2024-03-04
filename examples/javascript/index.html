@@ -3,19 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- <script type="module" src="http://localhost:3005/index.mjs"></script> -->
     <script type="text/javascript">
       (function() {
         window.superinterface = window.superinterface || {};
-        window.superinterface.ASSISTANT_ID = "723eb755-1a98-4ac9-91d6-62821b191bfc";
+        window.superinterface.PUBLIC_API_KEY = "8d39f991-a687-48e6-a054-8cd82fdca85e";
+        window.superinterface.ASSISTANT_ID = "c5330404-b088-4f96-8c5d-66b6a7069ce5";
+        window.superinterface.BASE_URL = "http://localhost:3000/api/cloud";
 
-        const d = document;
-        const e = d.createElement("script");
-        // e.src = "https://javascript.superinterface.ai/superinterface.js";
+        const e = document.createElement("script");
+        // e.src = "https://superinterface.ai/superinterface.js";
         e.src = "http://localhost:3005/index.global.js";
-        // e.src = "http://localhost:3005/index.js";
         e.async = 1;
-        d.getElementsByTagName("head")[0].appendChild(e);
+        document.getElementsByTagName("head")[0].appendChild(e);
       })();
     </script>
   </head>
