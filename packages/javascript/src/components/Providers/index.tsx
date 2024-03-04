@@ -5,7 +5,7 @@ import {
 import {
   SuperinterfaceProvider,
 } from '@superinterface/react'
-import { ThemeProvider } from './ThemeProvider'
+import { AssistantProvider } from './AssistantProvider'
 
 type Args = {
   children: React.ReactNode
@@ -27,9 +27,9 @@ export const Providers = ({
       }}
     >
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
+        <AssistantProvider>
           {children}
-        </ThemeProvider>
+        </AssistantProvider>
       </QueryClientProvider>
     </SuperinterfaceProvider>
   )
