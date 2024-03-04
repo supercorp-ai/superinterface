@@ -4,6 +4,7 @@ import { useLatestRun } from '@/hooks/runs/useLatestRun'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { isRunEditingMessage } from '@/lib/runs/isRunEditingMessage'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
+import { usePollingContext } from '@/hooks/runs/usePollingContext'
 
 const progressStatuses = [
   'queued',
@@ -19,18 +20,20 @@ const stoppedStatuses = [
 ]
 
 const isRunActive = ({
+  pollingContext,
   latestRunProps,
   latestMessageProps,
   isMutating,
 }: {
+  pollingContext: ReturnType<typeof usePollingContext>,
   latestRunProps: ReturnType<typeof useLatestRun>,
   latestMessageProps: ReturnType<typeof useLatestMessage>,
   isMutating: boolean,
 }) => {
+  if (pollingContext.isPollRefetching) return true
   // @ts-ignore-next-line
   if (latestMessageProps.latestMessage?.metadata?.isBlocking) return false
   if (isMutating) return true
-  if (latestMessageProps.isRefetching) return true
   if (!latestRunProps.latestRun) return false
   if (progressStatuses.includes(latestRunProps.latestRun.status)) return true
   if (stoppedStatuses.includes(latestRunProps.latestRun.status)) return false
@@ -42,6 +45,7 @@ export const useIsRunActive = () => {
   const latestRunProps = useLatestRun()
   const latestMessageProps = useLatestMessage()
   const threadContext = useThreadContext()
+  const pollingContext = usePollingContext()
   const isMutatingCreateRun = useIsMutating({
     mutationKey: ['createRun', threadContext.variables],
   })
@@ -55,6 +59,7 @@ export const useIsRunActive = () => {
   return useMemo(() => ({
     ...latestRunProps,
     isRunActive: isRunActive({
+      pollingContext,
       latestRunProps,
       latestMessageProps,
       isMutating: isMutatingCreateRun > 0 || isMutatingCreateMessage > 0 || isMutatingCreateHandleAction > 0,
@@ -62,6 +67,7 @@ export const useIsRunActive = () => {
   }), [
     latestRunProps,
     latestMessageProps,
+    pollingContext,
     isMutatingCreateRun,
     isMutatingCreateMessage,
     isMutatingCreateHandleAction,

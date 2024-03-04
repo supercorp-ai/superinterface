@@ -3,10 +3,8 @@ import {
 } from '@radix-ui/react-icons'
 import {
   Button,
-} from '@radix-ui/themes'
-import {
   Spinner,
-} from '@/components/spinners/Spinner'
+} from '@radix-ui/themes'
 import { useMessageFormContext } from '@/hooks/messages/useMessageFormContext'
 
 export const Submit = () => {
@@ -16,9 +14,11 @@ export const Submit = () => {
     <Button
       type="submit"
       radius="large"
-      disabled={isDisabled}
+      disabled={isDisabled || isLoading}
     >
-      {isLoading ? <Spinner /> : <ArrowUpIcon />}
+      <Spinner loading={isLoading}>
+        <ArrowUpIcon />
+      </Spinner>
     </Button>
   )
 }
