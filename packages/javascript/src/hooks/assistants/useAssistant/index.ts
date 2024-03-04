@@ -20,8 +20,6 @@ export const useAssistant = ({
     superinterfaceContext,
   }))
 
-  console.log({ props })
-
   return useMemo(() => ({
     ...props,
     assistant: props.data ? props.data.assistant : null,

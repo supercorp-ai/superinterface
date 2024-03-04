@@ -26,17 +26,17 @@ export const useRecorder = ({
     if (isLoaded) return
     setIsLoaded(true)
 
-    startAudioPlayer.load('/sounds/warning.wav', {
-      html5: true,
-    })
-    endAudioPlayer.load('/sounds/success.wav', {
-      html5: true,
-    })
+    // startAudioPlayer.load('/sounds/warning.wav', {
+    //   html5: true,
+    // })
+    // endAudioPlayer.load('/sounds/success.wav', {
+    //   html5: true,
+    // })
   }, [isLoaded, startAudioPlayer, endAudioPlayer])
 
   const audioCaptureProps = useAudioCapture({
     onStart: (event, opts) => {
-      startAudioPlayer.play()
+      // startAudioPlayer.play()
       setStatus('recording')
       setMediaStream(opts.mediaStream)
       isInited.current = false
@@ -46,7 +46,7 @@ export const useRecorder = ({
       setNoiseStart(null)
     },
     onStop: async (...args) => {
-      endAudioPlayer.play()
+      // endAudioPlayer.play()
       setStatus('stopped')
       if (onStop) await onStop(...args)
       setSilenceStart(null)

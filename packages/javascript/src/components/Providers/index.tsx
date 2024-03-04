@@ -16,12 +16,14 @@ const queryClient = new QueryClient()
 export const Providers = ({
   children,
 }: Args) => {
+  const superinterfaceContext = (window as any).superinterface
+
   return (
     <SuperinterfaceProvider
-      baseUrl={window.superinterface?.BASE_URL ?? 'https://superinterface.ai/api/cloud'}
-      publicApiKey={window.superinterface?.PUBLIC_API_KEY}
+      baseUrl={superinterfaceContext.baseUrl ?? 'https://superinterface.ai/api/cloud'}
+      publicApiKey={superinterfaceContext.publicApiKey}
       variables={{
-        assistantId: window.superinterface?.ASSISTANT_ID,
+        assistantId: superinterfaceContext.assistantId,
       }}
     >
       <QueryClientProvider client={queryClient}>
