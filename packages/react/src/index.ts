@@ -5,6 +5,7 @@ export { Thread } from '@/components/threads/Thread'
 export { useThreadContext } from '@/hooks/threads/useThreadContext'
 export { useLifecycle } from '@/hooks/threads/useLifecycle'
 export { useMessages } from '@/hooks/messages/useMessages'
+export { useMessageContext } from '@/hooks/messages/useMessageContext'
 export { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 export { useCreateMessage } from '@/hooks/messages/useCreateMessage'
 
@@ -19,9 +20,9 @@ export { useLatestRun } from '@/hooks/runs/useLatestRun'
 export { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 
 export { Suggestions } from '@/components/suggestions/Suggestions'
-export { Suggestion } from '@/components/suggestions/Suggestion'
 
 export { MarkdownContext } from '@/contexts/markdown/MarkdownContext'
+export { MarkdownProvider } from '@/components/markdown/MarkdownProvider'
 export { useMarkdownContext } from '@/hooks/markdown/useMarkdownContext'
 
 export { AssistantAvatarContext } from '@/contexts/assistants/AssistantAvatarContext'

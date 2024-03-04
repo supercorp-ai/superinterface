@@ -5,6 +5,7 @@ import { OrderedList } from './OrderedList'
 import { ListItem } from './ListItem'
 import { Strong } from './Strong'
 import { Pre } from './Pre'
+import { Code } from './Code'
 
 export const components = {
   p: Paragraph,
@@ -14,4 +15,5 @@ export const components = {
   ol: OrderedList,
   li: ListItem,
   pre: Pre,
+  code: Code,
 }

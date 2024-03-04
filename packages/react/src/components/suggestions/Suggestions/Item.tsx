@@ -4,19 +4,18 @@ import {
 import {
   Text,
   Button,
+  Spinner,
 } from '@radix-ui/themes'
 import { useCreateMessage } from '@/hooks/messages/useCreateMessage'
-import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 
-type Args = {
-  suggestion: string
-}
-
-export const Suggestion = ({
+export const Item = ({
   suggestion,
-}: Args) => {
-  const { createMessage } = useCreateMessage()
-  const { isRunActive } = useIsRunActive()
+  isDisabled,
+}: {
+  suggestion: string
+  isDisabled: boolean
+}) => {
+  const { createMessage, isPending } = useCreateMessage()
 
   return (
     <Button
@@ -30,7 +29,7 @@ export const Suggestion = ({
           content: suggestion,
         })
       }}
-      disabled={isRunActive}
+      disabled={isDisabled}
     >
       <Text
         size="1"
@@ -39,7 +38,9 @@ export const Suggestion = ({
         {suggestion}
       </Text>
 
-      <ArrowUpIcon />
+      <Spinner loading={isPending}>
+        <ArrowUpIcon />
+      </Spinner>
     </Button>
   )
 }

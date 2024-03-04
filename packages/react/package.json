@@ -28,6 +28,7 @@
     "openai": "^4.28.0",
     "p-map": "^7.0.1",
     "radash": "^12.0.0",
+    "react-children-utilities": "^2.10.0",
     "react-hook-form": "^7.50.1",
     "react-intersection-observer": "^9.8.0",
     "react-remark": "^2.1.0",

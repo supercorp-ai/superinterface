@@ -47,7 +47,9 @@ export const Content = () => (
     <Thread.Root>
       <Thread.Messages
         style={{
-          padding: 'var(--space-5)',
+          paddingTop: 'var(--space-5)',
+          paddingRight: 'var(--space-5)',
+          paddingLeft: 'var(--space-5)',
         }}
       />
       <Flex

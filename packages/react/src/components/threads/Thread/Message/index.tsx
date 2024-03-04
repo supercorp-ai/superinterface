@@ -5,6 +5,7 @@ import {
 } from '@radix-ui/themes'
 import { Message as MessageType } from '@/types'
 import { RunSteps } from '@/components/runSteps/RunSteps'
+import { Provider } from './Provider'
 import { TextContent } from './TextContent'
 
 type Args = {
@@ -47,24 +48,26 @@ export const Message = ({
   }, [message])
 
   return (
-    <Box>
-      <RunSteps
-        runSteps={olderRunSteps}
-      />
+    <Provider value={{ message }}>
+      <Box>
+        <RunSteps
+          runSteps={olderRunSteps}
+        />
 
-      {message.content.map((content, index) => (
-        <Box
-          key={index}
-        >
-          {content.type === 'text' && (
-            <TextContent content={content} />
-          )}
-        </Box>
-      ))}
+        {message.content.map((content, index) => (
+          <Box
+            key={index}
+          >
+            {content.type === 'text' && (
+              <TextContent content={content} />
+            )}
+          </Box>
+        ))}
 
-      <RunSteps
-        runSteps={laterRunSteps}
-      />
-    </Box>
+        <RunSteps
+          runSteps={laterRunSteps}
+        />
+      </Box>
+    </Provider>
   )
 }
