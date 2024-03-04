@@ -66,8 +66,8 @@ export const queryOptions = ({
       return lastPage.lastId
     },
     limit: 10,
+    ...threadContext.defaultOptions.queries,
     ...queryClient.getQueryDefaults(queryKey),
     queryKey,
-    ...threadContext.defaultOptions.queries,
   })
 }

@@ -1,5 +1,6 @@
+import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useLatestRun } from '@/hooks/runs/useLatestRun'
 import { useCreateRun } from '@/hooks/runs/useCreateRun'
@@ -12,6 +13,17 @@ export const useManageRuns = () => {
   const latestMessageProps = useLatestMessage()
   const createRunProps = useCreateRun()
   const threadContext = useThreadContext()
+
+  const [toastedErrorRunIds, setToastedErrorRunIds] = useState<string[]>([])
+
+  useEffect(() => {
+    if (latestRunProps.latestRun?.status !== 'failed') return
+    if (toastedErrorRunIds.includes(latestRunProps.latestRun.id)) return
+
+    setToastedErrorRunIds((prev) => [...prev, latestRunProps.latestRun.id])
+
+    toast.error('AI run failed. Please try again.')
+  }, [latestRunProps, toastedErrorRunIds])
 
   useEffect(() => {
     if (createRunProps.isPending) return

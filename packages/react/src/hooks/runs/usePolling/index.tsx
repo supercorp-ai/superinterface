@@ -21,6 +21,7 @@ export const usePolling = () => {
       threadContext,
     })
     setIsPollRefetching(false)
+    console.log('Polling...')
   },
     isRunActiveProps.isRunActive ? 3000 : null
   )

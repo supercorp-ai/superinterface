@@ -9,6 +9,7 @@ export const SuperinterfaceContext = createContext<{
     mutations: Record<string, any>
   }
   publicApiKey?: string
+  isToasterRendered?: boolean
 }>({
   baseUrl: 'https://superinterface.ai/api/cloud',
   variables: {},
@@ -16,4 +17,5 @@ export const SuperinterfaceContext = createContext<{
     queries: {},
     mutations: {},
   },
+  isToasterRendered: false,
 })

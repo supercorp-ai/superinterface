@@ -36,16 +36,17 @@
     "react-use": "^17.5.0",
     "react-use-audio-player": "^2.2.0",
     "regenerator-runtime": "^0.14.1",
+    "sonner": "^1.4.3",
     "use-audio-capture": "^0.0.7",
     "zod": "^3.22.4"
   },
   "peerDependencies": {
+    "@radix-ui/themes": "3.0.0-rc.13-patch.1",
     "@tanstack/query-core": ">=5.0.0",
     "@tanstack/react-query": ">=5.0.0",
     "@types/react": "*",
     "@types/react-dom": "*",
-    "react": ">=18.0.0",
-    "@radix-ui/themes": "3.0.0-rc.13-patch.1"
+    "react": ">=18.0.0"
   },
   "devDependencies": {
     "@tanstack/react-query": ">=5.0.0",

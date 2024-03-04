@@ -10,6 +10,13 @@ type Args = {
   client: OpenAI
 }
 
+const progressStatuses = [
+  'queued',
+  'in_progress',
+  'requires_action',
+  'cancelling',
+]
+
 export const runMessages = async ({
   messages,
   threadId,
@@ -24,6 +31,10 @@ export const runMessages = async ({
   const messageFromLatestRun = messages.find(m => m.run_id === latestRun.id)
 
   if (messageFromLatestRun) {
+    return []
+  }
+
+  if (!progressStatuses.includes(latestRun.status)) {
     return []
   }
 

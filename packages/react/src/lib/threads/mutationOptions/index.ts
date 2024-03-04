@@ -37,19 +37,23 @@ export const mutationOptions = ({
         } : {}),
       }).then(async (response) => {
         if (response.status !== 200) {
+          let errorResponse
+
           try {
-            const errorResponse = await response.json() as { error: string }
-            throw new Error(errorResponse.error)
+            console.log('response', response)
+            errorResponse = await response.json() as { error: string }
           } catch (error) {
             throw new Error('Failed to fetch')
           }
+
+          throw new Error(errorResponse.error)
         }
 
         return response.json()
       })
     ),
+    ...threadContext.defaultOptions.mutations,
     ...queryClient.getMutationDefaults(mutationKey),
     mutationKey,
-    ...threadContext.defaultOptions.mutations,
   }
 }
