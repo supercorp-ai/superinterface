@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+import { toast } from 'sonner'
 import { useMessages } from '@/hooks/messages/useMessages'
 import { useMessageGroups } from '@/hooks/messageGroups/useMessageGroups'
 import { MessageGroup as MessageGroupType } from '@/types'
@@ -14,6 +16,12 @@ export const Content = () => {
   const { messageGroups } = useMessageGroups({
     messages,
   })
+
+  useEffect(() => {
+    if (isLoadingError) {
+      toast.error('Could not load messages. Please try again.')
+    }
+  }, [isLoadingError])
 
   if (isLoading || isLoadingError) {
     return (
