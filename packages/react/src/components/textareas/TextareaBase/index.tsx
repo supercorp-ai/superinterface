@@ -9,7 +9,8 @@ export const TextareaBase = forwardRef(function TextareaBase(props: Props, ref) 
   return (
     <>
       <style>
-        {`.superinterface-textarea { min-height: inherit; height: 30px; }`}
+        {`.superinterface-textarea { min-height: inherit; height: 30px; }
+.superinterface-textarea::placeholder { color: var(--gray-a10); }`}
       </style>
 
       <TextareaAutosize
@@ -21,6 +22,7 @@ export const TextareaBase = forwardRef(function TextareaBase(props: Props, ref) 
           outline: 0,
           boxSizing: 'border-box',
           resize: 'none',
+          color: 'var(--gray-12)',
           fontSize: `${14 * UPSCALE_RATIO}px`,
           lineHeight: `${24 * UPSCALE_RATIO}px`,
           transform: `scale(${1 / UPSCALE_RATIO})`,
