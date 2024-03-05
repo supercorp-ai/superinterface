@@ -15,7 +15,7 @@ export const TextareaBase = forwardRef(function TextareaBase(props: Props, ref) 
       <TextareaAutosize
         // @ts-ignore-next-line
         ref={ref}
-        className="superinterface-textarea"
+        className="rt-reset superinterface-textarea"
         style={{
           border: 0,
           outline: 0,
