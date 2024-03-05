@@ -39,6 +39,7 @@ export const AssistantProvider = ({
       appearance={assistant.theme.appearance}
       scaling={assistant.theme.scaling}
       panelBackground="solid"
+      hasBackground={false}
     >
       <AssistantNameContext.Provider value={assistant.name}>
         <MarkdownProvider rehypeReactOptions={{ components }}>

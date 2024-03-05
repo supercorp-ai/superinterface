@@ -18,29 +18,48 @@ export const Item = ({
   const { createMessage, isPending } = useCreateMessage()
 
   return (
-    <Button
-      variant="soft"
-      style={{
-        justifyContent: 'space-between',
-      }}
+    <Content
       onClick={() => {
         createMessage({
           // @ts-ignore-next-line
           content: suggestion,
         })
       }}
-      disabled={isDisabled}
+      isDisabled={isDisabled}
+      isPending={isPending}
     >
-      <Text
-        size="1"
-        weight="regular"
-      >
-        {suggestion}
-      </Text>
-
-      <Spinner loading={isPending}>
-        <ArrowUpIcon />
-      </Spinner>
-    </Button>
+      {suggestion}
+    </Content>
   )
 }
+
+const Content = ({
+  onClick,
+  isDisabled,
+  isPending,
+  children,
+}: {
+  onClick: () => void
+  isDisabled: boolean
+  isPending: boolean
+  children: React.ReactNode
+}) => (
+  <Button
+    variant="soft"
+    onClick={onClick}
+    disabled={isDisabled}
+  >
+    <Text
+      size="1"
+      weight="regular"
+    >
+      {children}
+    </Text>
+
+    <Spinner loading={isPending}>
+      <ArrowUpIcon />
+    </Spinner>
+  </Button>
+)
+
+Item.Content = Content
