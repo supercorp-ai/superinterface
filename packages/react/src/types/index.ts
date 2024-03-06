@@ -41,3 +41,8 @@ export type AudioEngine = {
   source: MediaStreamAudioSourceNode | GainNode
   audioContext: AudioContext
 }
+
+export type Toast = {
+  type: 'success' | 'error'
+  message: string
+}

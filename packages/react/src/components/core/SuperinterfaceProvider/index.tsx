@@ -1,5 +1,4 @@
 import { MessagesPage } from '@/types'
-import { Toaster, toast } from 'sonner'
 import {
   InfiniteData,
   UseInfiniteQueryOptions,
@@ -37,16 +36,7 @@ export const SuperinterfaceProvider = ({
       ...(baseUrl ? { baseUrl } : {}),
       ...(publicApiKey ? { publicApiKey } : {}),
       ...(variables ? { variables } : {}),
-      ...(merge({
-        defaultOptions: {
-          mutations: {
-            onError: (error: any) => (
-              toast.error(error.message)
-            ),
-          },
-        },
-      }, defaultOptions ?? { defaultOptions })),
-      isToasterRendered: true,
+      ...(defaultOptions ? { defaultOptions } : {}),
     }
   )
 
@@ -55,8 +45,6 @@ export const SuperinterfaceProvider = ({
       value={value}
     >
       {children}
-
-      {!superinterfaceContext.isToasterRendered && <Toaster />}
     </SuperinterfaceContext.Provider>
   )
 }

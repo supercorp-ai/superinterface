@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
-import { toast } from 'sonner'
+import { Flex } from '@radix-ui/themes'
 import { useMessages } from '@/hooks/messages/useMessages'
 import { useMessageGroups } from '@/hooks/messageGroups/useMessageGroups'
 import { MessageGroup as MessageGroupType } from '@/types'
 import { MessagesSkeleton } from '@/components/skeletons/MessagesSkeleton'
+import { useToasts } from '@/hooks/toasts/useToasts'
 import { MessageGroup } from './MessageGroup'
 
 export const Content = () => {
@@ -13,15 +14,17 @@ export const Content = () => {
     isLoadingError,
   } = useMessages()
 
+  const { addToast } = useToasts()
+
   const { messageGroups } = useMessageGroups({
     messages,
   })
 
   useEffect(() => {
     if (isLoadingError) {
-      toast.error('Could not load messages. Please try again.')
+      addToast({ type: 'error', message: 'Could not load messages. Please try again.' })
     }
-  }, [isLoadingError])
+  }, [isLoadingError, addToast])
 
   if (isLoading || isLoadingError) {
     return (
