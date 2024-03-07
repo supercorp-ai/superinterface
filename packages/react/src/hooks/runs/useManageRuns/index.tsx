@@ -8,14 +8,18 @@ import { isOptimistic } from '@/lib/optimistic/isOptimistic'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
 
 export const useManageRuns = () => {
+  const { addToast } = useToasts()
   const queryClient = useQueryClient()
   const latestRunProps = useLatestRun()
   const latestMessageProps = useLatestMessage()
-  const createRunProps = useCreateRun()
+  const createRunProps = useCreateRun({
+    onError: (error: any) => (
+      addToast({ type: 'error', message: error.message })
+    ),
+  })
   const threadContext = useThreadContext()
 
   const [toastedErrorRunIds, setToastedErrorRunIds] = useState<string[]>([])
-  const { addToast } = useToasts()
 
   useEffect(() => {
     if (latestRunProps.latestRun?.status !== 'failed') return

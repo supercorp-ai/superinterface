@@ -10,7 +10,13 @@ import { onSuccess } from './lib/onSuccess'
 import { onSettled } from './lib/onSettled'
 import { onMutate } from './lib/onMutate'
 
-export const useCreateRun = () => {
+export const useCreateRun = ({
+  onError = () => {},
+}: {
+  onError?: (error: unknown) => void
+} = {
+  onError: () => {},
+}) => {
   const queryClient = useQueryClient()
   const superinterfaceContext = useSuperinterfaceContext()
   const threadContext = useThreadContext()
@@ -19,6 +25,7 @@ export const useCreateRun = () => {
     onSuccess: onSuccess({ queryClient }),
     onSettled: onSettled({ queryClient }),
     onMutate: onMutate({ queryClient }),
+    onError,
     ...mutationOptions({
       mutationKeyBase: ['createRun'],
       path: '/runs',

@@ -5,6 +5,7 @@ import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useCreateMessage } from '@/hooks/messages/useCreateMessage'
 import { formOptions } from './lib/formOptions'
 import { MessageFormContext } from '@/contexts/messages/MessageFormContext'
+import { useToasts } from '@/hooks/toasts/useToasts'
 
 type Inputs = {
   content: string
@@ -32,7 +33,13 @@ export const Root = ({
     isSubmitting,
   ])
 
-  const { createMessage } = useCreateMessage()
+  const { addToast } = useToasts()
+
+  const { createMessage } = useCreateMessage({
+    onError: (error: any) => (
+      addToast({ type: 'error', message: error.message })
+    ),
+  })
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     reset()

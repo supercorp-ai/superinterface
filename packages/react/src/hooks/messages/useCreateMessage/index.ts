@@ -9,7 +9,13 @@ import { mutationOptions } from '@/lib/threads/mutationOptions'
 import { onMutate } from './lib/mutationOptions/onMutate'
 import { onSettled } from './lib/mutationOptions/onSettled'
 
-export const useCreateMessage = () => {
+export const useCreateMessage = ({
+  onError = () => {},
+}: {
+  onError?: (error: unknown) => void
+} = {
+  onError: () => {},
+}) => {
   const queryClient = useQueryClient()
   const superinterfaceContext = useSuperinterfaceContext()
   const threadContext = useThreadContext()
@@ -17,6 +23,7 @@ export const useCreateMessage = () => {
   const props = useMutation({
     onMutate: onMutate({ queryClient }),
     onSettled: onSettled({ queryClient }),
+    onError,
     ...mutationOptions({
       mutationKeyBase: ['createMessage'],
       path: '/messages',

@@ -1,5 +1,4 @@
 import { useEffect } from 'react'
-import { Flex } from '@radix-ui/themes'
 import { useMessages } from '@/hooks/messages/useMessages'
 import { useMessageGroups } from '@/hooks/messageGroups/useMessageGroups'
 import { MessageGroup as MessageGroupType } from '@/types'
