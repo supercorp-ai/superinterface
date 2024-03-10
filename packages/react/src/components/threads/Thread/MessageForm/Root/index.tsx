@@ -1,3 +1,4 @@
+'use client'
 import { useMemo } from 'react'
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form'
 import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
