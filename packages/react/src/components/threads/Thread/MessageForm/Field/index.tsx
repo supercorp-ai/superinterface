@@ -1,3 +1,4 @@
+'use client'
 import { usePrevious } from 'react-use'
 import { useContext, useMemo, useRef, useEffect } from 'react'
 import { AssistantNameContext } from '@/contexts/assistants/AssistantNameContext'

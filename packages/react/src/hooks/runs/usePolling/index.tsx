@@ -1,7 +1,8 @@
+import { useEffect } from 'react'
 import {
   useQueryClient,
 } from '@tanstack/react-query'
-import { useInterval } from 'react-use'
+import { useInterval, usePrevious } from 'react-use'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
 import { usePollingContext } from '@/hooks/runs/usePollingContext'
 import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
@@ -25,6 +26,17 @@ export const usePolling = () => {
   },
     isRunActiveProps.isRunActive ? 3000 : null
   )
+
+  const prevIsRunActive = usePrevious(isRunActiveProps.isRunActive)
+
+  useEffect(() => {
+    if (prevIsRunActive && !isRunActiveProps.isRunActive) {
+      refetch({
+        queryClient,
+        threadContext,
+      })
+    }
+  }, [queryClient, threadContext, isRunActiveProps, prevIsRunActive])
 
   return null
 }

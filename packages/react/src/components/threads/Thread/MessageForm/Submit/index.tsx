@@ -1,3 +1,4 @@
+'use client'
 import {
   ArrowUpIcon,
 } from '@radix-ui/react-icons'
