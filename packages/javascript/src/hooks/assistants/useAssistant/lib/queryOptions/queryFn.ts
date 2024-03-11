@@ -17,6 +17,11 @@ export const queryFn = ({
 
   return fetch(`${superinterfaceContext.baseUrl}/assistants/${assistantId}`, {
     credentials: 'include',
+    ...(superinterfaceContext.publicApiKey ? {
+      headers: {
+        Authorization: `Bearer ${superinterfaceContext.publicApiKey}`,
+      },
+    } : {}),
   })
     .then(async (response) => {
       if (response.status !== 200) {

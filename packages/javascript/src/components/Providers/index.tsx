@@ -2,6 +2,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
+import { useState } from 'react'
 import {
   SuperinterfaceProvider,
 } from '@superinterface/react'
@@ -11,12 +12,22 @@ type Args = {
   children: React.ReactNode
 }
 
-const queryClient = new QueryClient()
-
 export const Providers = ({
   children,
 }: Args) => {
   const superinterfaceContext = (window as any).superinterface
+
+  const [queryClient] = useState(() => (
+    new QueryClient({
+      defaultOptions: {
+        queries: {
+          // With SSR, we usually want to set some default staleTime
+          // above 0 to avoid refetching immediately on the client
+          staleTime: 10000,
+        },
+      },
+    })
+  ))
 
   return (
     <SuperinterfaceProvider
