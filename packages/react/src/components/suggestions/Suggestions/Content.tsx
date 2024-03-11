@@ -1,8 +1,6 @@
 import { useMemo } from 'react'
 import { isEmpty } from 'radash'
 import { onlyText } from 'react-children-utilities'
-import { useMessageContext } from '@/hooks/messages/useMessageContext'
-import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 import {
   Flex,
@@ -14,9 +12,6 @@ export const Content = ({
 }: {
   children: React.ReactNode
 }) => {
-  const messageContext = useMessageContext()
-  const latestMessageProps = useLatestMessage()
-
   const isRunActiveProps = useIsRunActive()
 
   const suggestions = useMemo(() => (
@@ -24,8 +19,8 @@ export const Content = ({
   ), [children])
 
   const isDisabled = useMemo(() => (
-    messageContext.message?.id !== latestMessageProps.latestMessage.id || isRunActiveProps.isRunActive
-  ), [messageContext, latestMessageProps, isRunActiveProps])
+    isRunActiveProps.isRunActive
+  ), [isRunActiveProps])
 
   if (isEmpty(suggestions)) return null
 
