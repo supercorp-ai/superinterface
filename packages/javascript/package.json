@@ -1,13 +1,13 @@
 {
   "name": "@superinterface/javascript",
-  "version": "1.0.3",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "version": "1.0.4",
+  "main": "./dist/ThreadDialog.js",
+  "module": "./dist/ThreadDialog.mjs",
+  "types": "./dist/ThreadDialog.d.ts",
   "exports": {
-    ".": "./dist/index.js",
+    ".": "./dist/ThreadDialog.js",
     "./*": "./dist/*.js",
-    "./types": "./dist/types/index.js"
+    "./types": "./dist/types/ThreadDialog.js"
   },
   "files": [
     "dist"
