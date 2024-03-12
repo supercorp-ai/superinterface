@@ -6,6 +6,7 @@ import { ListItem } from './ListItem'
 import { Strong } from './Strong'
 import { Pre } from './Pre'
 import { Code } from './Code'
+import { Img } from './Img'
 
 export const components = {
   p: Paragraph,
@@ -16,4 +17,5 @@ export const components = {
   li: ListItem,
   pre: Pre,
   code: Code,
+  img: Img,
 }

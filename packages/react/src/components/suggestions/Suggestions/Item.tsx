@@ -48,6 +48,11 @@ const Content = ({
     variant="soft"
     onClick={onClick}
     disabled={isDisabled}
+    style={{
+      minHeight: 'var(--base-button-height)',
+      height: 'inherit',
+      flexShrink: 1,
+    }}
   >
     <Text
       size="1"
@@ -57,7 +62,11 @@ const Content = ({
     </Text>
 
     <Spinner loading={isPending}>
-      <ArrowUpIcon />
+      <ArrowUpIcon
+        style={{
+          flexShrink: 0,
+        }}
+      />
     </Spinner>
   </Button>
 )
