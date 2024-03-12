@@ -3,7 +3,8 @@ import { Howler } from 'howler'
 import { useAudioPlayer } from 'react-use-audio-player'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
-import { AudioEngine } from '@/types'
+import { AudioEngine, Message } from '@/types'
+import { isOptimistic } from '@/lib/optimistic/isOptimistic'
 import { input as getInput } from './lib/input'
 import { isHtmlAudioSupported } from './lib/isHtmlAudioSupported'
 
@@ -14,7 +15,7 @@ type Args = {
 export const useMessageAudio = ({
   onEnd,
 }: Args) => {
-  const [playedMessageIds, setPlayedMessageIds] = useState<string[]>([])
+  const [playedMessages, setPlayedMessages] = useState<Message[]>([])
   const audioPlayer = useAudioPlayer()
   const superinterfaceContext = useSuperinterfaceContext()
 
@@ -24,7 +25,9 @@ export const useMessageAudio = ({
     if (audioPlayer.playing) return
     if (!latestMessageProps.latestMessage) return
     if (latestMessageProps.latestMessage.role !== 'assistant') return
-    if (playedMessageIds.includes(latestMessageProps.latestMessage.id)) return
+    if (playedMessages.find((pm) => pm.id === latestMessageProps.latestMessage.id ||
+      (isOptimistic({ id: pm.id }) && pm.content === latestMessageProps.latestMessage.content))) return
+    if (playedMessages.includes(latestMessageProps.latestMessage)) return
 
     const input = getInput({
       message: latestMessageProps.latestMessage,
@@ -32,7 +35,7 @@ export const useMessageAudio = ({
 
     if (!input) return
 
-    setPlayedMessageIds((prev) => [...prev, latestMessageProps.latestMessage.id])
+    setPlayedMessages((prev) => [...prev, latestMessageProps.latestMessage])
 
     audioPlayer.load(`${superinterfaceContext.baseUrl}/tts?input=${input}`, {
       format: 'mp3',
@@ -52,7 +55,7 @@ export const useMessageAudio = ({
     superinterfaceContext,
     latestMessageProps,
     audioPlayer,
-    playedMessageIds,
+    playedMessages,
     onEnd,
   ])
 

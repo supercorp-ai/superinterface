@@ -2,7 +2,7 @@ import { SpeakerModerateIcon } from '@radix-ui/react-icons'
 import {
   Flex,
 } from '@radix-ui/themes'
-import { Visualizer } from './Visualizer'
+import { BarsVisualizer } from '@/components/threads/AudioThread/BarsVisualizer'
 import { useAudioThreadContext } from '@/hooks/threads/useAudioThreadContext'
 import { ActionButton } from './ActionButton'
 
@@ -38,7 +38,12 @@ export const Form = () => {
             borderRadius: 'var(--radius-6)',
           }}
         >
-          <Visualizer />
+          <BarsVisualizer
+            visualizationAnalyser={audioThreadContext.recorderProps.visualizationAnalyser}
+            color={audioThreadContext.status === 'recording' ? 'mint' : 'gray'}
+            height="20px"
+            barWidth="12px"
+          />
         </Flex>
       </Flex>
 

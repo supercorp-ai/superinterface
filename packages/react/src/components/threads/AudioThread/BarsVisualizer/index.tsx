@@ -5,13 +5,20 @@ import {
 } from '@radix-ui/themes'
 import { useState, useEffect, useCallback } from 'react'
 import { cluster } from 'radash'
-import { useAudioThreadContext } from '@/hooks/threads/useAudioThreadContext'
 
 const barCount = 4
 
-export const Visualizer = () => {
-  const audioThreadContext = useAudioThreadContext()
-  const visualizationAnalyser = audioThreadContext.recorderProps.visualizationAnalyser
+export const BarsVisualizer = ({
+  visualizationAnalyser,
+  color,
+  height,
+  barWidth,
+}: {
+  visualizationAnalyser: AnalyserNode | null
+  color: string
+  height: string
+  barWidth: string
+}) => {
   const [emptyVisualizer] = useState(() => new AudioContext().createAnalyser())
   const [barHeights, setBarHeights] = useState<number[]>([])
 
@@ -51,15 +58,15 @@ export const Visualizer = () => {
           direction="column"
           align="center"
           justify="center"
-          height="20px"
+          height={height}
         >
           <Flex
             minHeight="50%"
             maxHeight="100%"
             height={`${barHeight + 20}%`}
-            width="12px"
+            width={barWidth}
             style={{
-              backgroundColor: `var(--${audioThreadContext.status === 'recording' ? 'mint' : 'gray'}-11)`,
+              backgroundColor: `var(--${color}-11)`,
               borderRadius: 'var(--radius-6)',
             }}
           />

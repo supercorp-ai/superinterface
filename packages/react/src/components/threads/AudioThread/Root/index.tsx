@@ -51,6 +51,7 @@ export const Root = ({
       //   content: transcriptRef.current,
       // })
 
+      console.log('creaing', chunks)
       // @ts-ignore-next-line
       const blob = new Blob(chunks, { type: chunks[0].type })
       const audioContent = await blobToData(blob)
@@ -89,7 +90,7 @@ export const Root = ({
       <Flex
         direction="column"
         flexGrow="1"
-        p="5"
+        p="9"
       >
         {children}
       </Flex>

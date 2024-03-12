@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import { Flex } from '@radix-ui/themes'
 import { useAudioThreadContext } from '@/hooks/threads/useAudioThreadContext'
+import { BarsVisualizer } from '@/components/threads/AudioThread/BarsVisualizer'
 
 export const Visualization = () => {
   const audioThreadContext = useAudioThreadContext()
@@ -23,6 +24,12 @@ export const Visualization = () => {
           borderRadius: '9999px',
         }}
       >
+        <BarsVisualizer
+          visualizationAnalyser={audioThreadContext.messageAudioProps.visualizationAnalyser}
+          color={audioThreadContext.status === 'playing' ? 'mint' : 'gray'}
+          height="40px"
+          barWidth="24px"
+        />
       </Flex>
     </Flex>
   )

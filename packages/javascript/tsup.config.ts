@@ -4,7 +4,10 @@ export default defineConfig({
   define: {
     'process.env.NODE_ENV': JSON.stringify('production'),
   },
-  entry: ['src/index.tsx'],
+  entry: [
+    'src/ThreadDialog.tsx',
+    'src/AudioThreadDialog.tsx',
+  ],
   sourcemap: true,
   clean: true,
   shims: true,
