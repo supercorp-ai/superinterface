@@ -8,37 +8,53 @@ import { Thread } from '@/components/threads/Thread'
 
 type Args = {
   children: React.ReactNode
+  style?: React.CSSProperties
 }
 
 const Root = ({
   children,
+  style = {},
 }: Args) => {
   const { isOpen } = useThreadDialogContext()
   if (!isOpen) return null
 
   return (
-    <Card
-      mb="3"
+    <Flex
+      direction="column"
+      justify="end"
+      position="fixed"
       style={{
-        display: 'flex',
-        flexGrow: 1,
-        width: '100vw',
-        maxWidth: '400px',
+        bottom: '72px',
+        right: '24px',
+        top: '24px',
+        height: 'calc(100vh - 72px - 24px)',
+        zIndex: 9999999999,
         maxHeight: '720px',
+        maxWidth: '400px',
+        width: '100vw',
+        ...style,
       }}
     >
-      <Inset
-        clip="padding-box"
-        side="all"
-        pb="current"
+      <Card
+        mb="3"
         style={{
           display: 'flex',
           flexGrow: 1,
         }}
       >
-        {children}
-      </Inset>
-    </Card>
+        <Inset
+          clip="padding-box"
+          side="all"
+          pb="current"
+          style={{
+            display: 'flex',
+            flexGrow: 1,
+          }}
+        >
+          {children}
+        </Inset>
+      </Card>
+    </Flex>
   )
 }
 

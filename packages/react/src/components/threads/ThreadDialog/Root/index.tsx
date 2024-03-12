@@ -15,21 +15,7 @@ export const Root = ({
 }: Args) => (
   <ToastsProvider>
     <Provider>
-      <Flex
-        direction="column"
-        justify="end"
-        align="end"
-        position="fixed"
-        style={{
-          bottom: '24px',
-          right: '24px',
-          top: '24px',
-          zIndex: 9999999999,
-          ...style,
-        }}
-      >
-        {children}
-      </Flex>
+      {children}
     </Provider>
   </ToastsProvider>
 )
