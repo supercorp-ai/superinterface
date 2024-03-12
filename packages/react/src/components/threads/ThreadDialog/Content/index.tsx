@@ -5,6 +5,7 @@ import {
 } from '@radix-ui/themes'
 import { useThreadDialogContext } from '@/hooks/threads/useThreadDialogContext'
 import { Thread } from '@/components/threads/Thread'
+import { Close } from '@/components/threads/ThreadDialog/Close'
 
 type Args = {
   children: React.ReactNode
@@ -23,21 +24,43 @@ const Root = ({
       direction="column"
       justify="end"
       position="fixed"
+      bottom={{
+        initial: '0',
+        sm: '72px',
+      }}
+      right={{
+        initial: '0',
+        sm: '24px',
+      }}
+      height={{
+        initial: '100vh',
+        sm: 'calc(100vh - 72px - 24px)',
+      }}
+      top={{
+        initial: '0',
+        sm: 'inherit',
+      }}
+      maxHeight={{
+        initial: undefined,
+        sm: '720px',
+      }}
+      maxWidth={{
+        initial: undefined,
+          sm: '400px',
+      }}
+      width='100vw'
       style={{
-        bottom: '72px',
-        right: '24px',
-        top: '24px',
-        height: 'calc(100vh - 72px - 24px)',
         zIndex: 9999999999,
-        maxHeight: '720px',
-        maxWidth: '400px',
-        width: '100vw',
         ...style,
       }}
     >
       <Card
-        mb="3"
+        mb={{
+          initial: undefined,
+          sm: '3',
+        }}
         style={{
+          position: 'relative',
           display: 'flex',
           flexGrow: 1,
         }}
@@ -53,6 +76,7 @@ const Root = ({
         >
           {children}
         </Inset>
+        <Close />
       </Card>
     </Flex>
   )
