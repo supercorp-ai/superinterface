@@ -32,13 +32,9 @@ const Root = ({
         initial: '0',
         sm: '24px',
       }}
-      height={{
-        initial: '100vh',
-        sm: 'calc(100vh - 72px - 24px)',
-      }}
       top={{
         initial: '0',
-        sm: 'inherit',
+        sm: '24px',
       }}
       maxHeight={{
         initial: undefined,
@@ -46,9 +42,9 @@ const Root = ({
       }}
       maxWidth={{
         initial: undefined,
-          sm: '400px',
+        sm: '400px',
       }}
-      width='100vw'
+      width='100%'
       style={{
         zIndex: 9999999999,
         ...style,
@@ -82,8 +78,12 @@ const Root = ({
   )
 }
 
-export const Content = () => (
-  <Root>
+export const Content = ({
+  style = {},
+}: {
+  style?: React.CSSProperties
+}) => (
+  <Root style={style}>
     <Thread.Root>
       <Thread.Messages
         style={{
