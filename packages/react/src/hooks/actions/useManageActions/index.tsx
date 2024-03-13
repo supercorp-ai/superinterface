@@ -1,35 +1,32 @@
-import { useQueryClient } from '@tanstack/react-query'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useLatestRun } from '@/hooks/runs/useLatestRun'
 import { useHandleAction } from '@/hooks/actions/useHandleAction'
-import { useThreadContext } from '@/hooks/threads/useThreadContext'
+// import { usePollingContext } from '@/hooks/runs/usePollingContext'
 
 export const useManageActions = () => {
-  const queryClient = useQueryClient()
-  const threadContext = useThreadContext()
   const latestRunProps = useLatestRun()
   const handleActionProps = useHandleAction()
+  const [handledRunIds, setHandledRunIds] = useState<string[]>([])
 
   useEffect(() => {
     if (handleActionProps.isPending) return
     if (latestRunProps.isFetching) return
     if (!latestRunProps.latestRun) return
     if (latestRunProps.latestRun.status !== 'requires_action') return
+    if (handledRunIds.includes(latestRunProps.latestRun.id)) return
 
-    const isMutating = queryClient.isMutating({
-      mutationKey: ['handleAction', threadContext.variables],
-    })
+    setHandledRunIds((prev) => [...prev, latestRunProps.latestRun.id])
 
-    if (isMutating) return
-
-    console.log('requires action', {
+    console.log('Requires action', {
       latestRunProps,
+      handleActionProps,
     })
 
     handleActionProps.handleAction({
       latestRun: latestRunProps.latestRun,
     })
   }, [
+    handledRunIds,
     handleActionProps,
     latestRunProps,
   ])

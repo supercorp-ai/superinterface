@@ -11,11 +11,13 @@ import { refetch } from './lib/refetch'
 export const usePolling = () => {
   const threadContext = useThreadContext()
   const queryClient = useQueryClient()
-  const { setIsPollRefetching } = usePollingContext()
+  const { isPollRefetching, setIsPollRefetching } = usePollingContext()
 
   const isRunActiveProps = useIsRunActive()
 
   useInterval(async () => {
+    if (isPollRefetching) return
+
     setIsPollRefetching(true)
     await refetch({
       queryClient,

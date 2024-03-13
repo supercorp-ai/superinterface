@@ -51,7 +51,6 @@ export const Root = ({
       //   content: transcriptRef.current,
       // })
 
-      console.log('creaing', chunks)
       // @ts-ignore-next-line
       const blob = new Blob(chunks, { type: chunks[0].type })
       const audioContent = await blobToData(blob)

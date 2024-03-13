@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useIsMutating } from '@tanstack/react-query'
 import { useLatestRun } from '@/hooks/runs/useLatestRun'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
-import { isRunEditingMessage } from '@/lib/runs/isRunEditingMessage'
+// import { isRunEditingMessage } from '@/lib/runs/isRunEditingMessage'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
 import { usePollingContext } from '@/hooks/runs/usePollingContext'
 
@@ -38,7 +38,8 @@ const isRunActive = ({
   if (progressStatuses.includes(latestRunProps.latestRun.status)) return true
   if (stoppedStatuses.includes(latestRunProps.latestRun.status)) return false
 
-  return isRunEditingMessage({ message: latestMessageProps.latestMessage })
+  return false
+  // return isRunEditingMessage({ message: latestMessageProps.latestMessage })
 }
 
 export const useIsRunActive = () => {

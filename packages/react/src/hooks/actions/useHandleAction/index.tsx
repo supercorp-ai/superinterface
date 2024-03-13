@@ -26,6 +26,6 @@ export const useHandleAction = () => {
 
   return {
     ...props,
-    handleAction: partob(props.mutate, threadContext.variables),
+    handleAction: partob(props.mutateAsync, threadContext.variables),
   }
 }

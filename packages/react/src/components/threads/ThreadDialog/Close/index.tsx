@@ -30,7 +30,6 @@ export const Close = () => {
     >
       <IconButton
         size="2"
-        radius="full"
         variant="soft"
       >
         <Cross1Icon />

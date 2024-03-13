@@ -12,11 +12,11 @@ export const refetch = async ({
   queryClient,
   threadContext,
 }: Args) => {
-  await queryClient.invalidateQueries({
+  await queryClient.refetchQueries({
     queryKey: threadContext.defaultOptions.queries.queryKey ?? ['messages', threadContext.variables],
   })
 
-  await queryClient.invalidateQueries({
+  await queryClient.refetchQueries({
     queryKey: threadContext.defaultOptions.queries.queryKey ?? ['runs', threadContext.variables],
   })
 }
