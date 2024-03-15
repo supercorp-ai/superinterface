@@ -1,7 +1,6 @@
 import {
   Flex,
   IconButton,
-  Tooltip,
 } from '@radix-ui/themes'
 import {
   PauseIcon,
@@ -32,24 +31,18 @@ export const ActionButton = () => {
           </IconButton>
         </Flex>
 
-        <Tooltip
-          open
-          content="Send your message"
-          side="bottom"
+        <IconButton
+          onClick={audioThreadContext.recorderProps.stop}
+          color="gray"
+          highContrast
+          radius="full"
+          size="4"
+          style={{
+            border: '2px solid var(--gray-8)',
+          }}
         >
-          <IconButton
-            onClick={audioThreadContext.recorderProps.stop}
-            color="gray"
-            highContrast
-            radius="full"
-            size="4"
-            style={{
-              border: '2px solid var(--gray-8)',
-            }}
-          >
-            <ArrowUpIcon />
-          </IconButton>
-        </Tooltip>
+          <ArrowUpIcon />
+        </IconButton>
       </Flex>
     )
   }

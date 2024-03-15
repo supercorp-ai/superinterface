@@ -1,9 +1,10 @@
+'use client'
 import _ from 'lodash'
 import {
   Flex,
   Grid,
 } from '@radix-ui/themes'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { cluster } from 'radash'
 
 const barCount = 4
@@ -19,7 +20,14 @@ export const BarsVisualizer = ({
   height: string
   barWidth: string
 }) => {
-  const [emptyVisualizer] = useState(() => new AudioContext().createAnalyser())
+  const [cachedEmptyVisualizer, setCachedEmptyVisualizer] = useState<AnalyserNode | null>(null)
+
+  const getEmptyVisualizer = useCallback(() => {
+    const result = new AudioContext().createAnalyser()
+    setCachedEmptyVisualizer(result)
+    return result
+  }, [cachedEmptyVisualizer])
+
   const [barHeights, setBarHeights] = useState<number[]>([])
 
   const draw = useCallback(({ visualizationAnalyser }: { visualizationAnalyser: AnalyserNode }) => {
@@ -39,8 +47,8 @@ export const BarsVisualizer = ({
   }, [])
 
   useEffect(() => {
-    draw({ visualizationAnalyser: visualizationAnalyser || emptyVisualizer })
-  }, [draw, visualizationAnalyser, emptyVisualizer])
+    draw({ visualizationAnalyser: visualizationAnalyser || cachedEmptyVisualizer || getEmptyVisualizer() })
+  }, [draw, visualizationAnalyser, cachedEmptyVisualizer, getEmptyVisualizer])
 
   return (
     <Grid
