@@ -1,3 +1,4 @@
+'use client'
 import { useEffect } from 'react'
 import { useMessages } from '@/hooks/messages/useMessages'
 import { useMessageGroups } from '@/hooks/messageGroups/useMessageGroups'

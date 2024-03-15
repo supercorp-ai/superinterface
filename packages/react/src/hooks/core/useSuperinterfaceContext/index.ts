@@ -1,3 +1,4 @@
+'use client'
 import { useContext } from 'react'
 import { SuperinterfaceContext } from '@/contexts/core/SuperinterfaceContext'
 

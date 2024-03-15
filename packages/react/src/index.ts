@@ -14,6 +14,9 @@ export { ThreadDialogContext } from '@/contexts/threads/ThreadDialogContext'
 export { AudioThreadDialog } from '@/components/threads/AudioThreadDialog'
 export { AudioThread } from '@/components/threads/AudioThread'
 
+export { AiThread } from '@/components/threads/AiThread'
+// export { AI } from '@/components/threads/AiThread/action'
+
 export { useCreateRun } from '@/hooks/runs/useCreateRun'
 export { useRuns } from '@/hooks/runs/useRuns'
 export { useLatestRun } from '@/hooks/runs/useLatestRun'

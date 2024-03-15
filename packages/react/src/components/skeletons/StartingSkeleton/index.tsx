@@ -1,3 +1,4 @@
+'use client'
 import { useContext } from 'react'
 import { Box } from '@radix-ui/themes'
 import { StartingContentSkeleton } from '@/components/skeletons/StartingContentSkeleton'
