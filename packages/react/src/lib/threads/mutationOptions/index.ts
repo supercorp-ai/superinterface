@@ -2,9 +2,11 @@ import _ from 'lodash'
 import {
   useQueryClient,
 } from '@tanstack/react-query'
+import { optimisticId } from '@/lib/optimistic/optimisticId'
+import { Run, RunStep, Message } from '@/types'
 // import { JSONParser } from '@streamparser/json'
 import { JSONParser } from '@streamparser/json-whatwg'
-import { omit } from 'radash'
+import { replace, omit, mapEntries } from 'radash'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
 
@@ -14,9 +16,9 @@ type VariablesArgs = {
 }
 
 const messageCreatedData = ({
-  newMessage,
+  message: newMessage,
 }: {
-  newMessage: any
+  message: any
 }) => (prevData: any) => {
   const message = {
     ...newMessage,
@@ -64,27 +66,7 @@ const updatedContentPart = ({
     return omit(delta, ['index'])
   }
 
-  console.log('here', { prevContentPart, delta })
-
-  const part= {
-    ...prevContentPart,
-    text: {
-      ...prevContentPart.text,
-    }
-  }
-  console.log({ part })
-
-  console.log({ prevContentPart })
-  console.log({t: prevContentPart.text })
-  console.log({v: prevContentPart.text.value })
-  console.log({an: prevContentPart.text.annotations })
-
-  console.log({delta})
-  console.log({dt: delta.text })
-  console.log({dv: delta.text.value })
-  console.log({dan: delta.text.annotations })
-
-  const r= {
+  return {
     ...prevContentPart,
     text: {
       ...prevContentPart.text,
@@ -95,9 +77,6 @@ const updatedContentPart = ({
       ]
     },
   }
-
-  console.log({ r })
-  return r
 }
 
 const updatedContent = ({
@@ -160,6 +139,202 @@ const messageDeltaData = ({
   }
 }
 
+const messageCompletedData = ({
+  message,
+}: {
+  message: any
+}) => (prevData: any) => {
+  if (!prevData) {
+    return {
+      pageParams: [],
+      pages: [
+        {
+          data: [],
+          hasNextPage: false,
+          lastId: null,
+        },
+      ],
+    }
+  }
+
+  const [latestPage, ...pagesRest] = prevData.pages
+
+  return {
+    ...prevData,
+    pages: [
+      {
+        ...latestPage,
+        data: replace(latestPage.data, message, (m) => m.id === message.id),
+      },
+      ...pagesRest,
+    ],
+  }
+}
+
+const runCreatedData = ({
+  run,
+}: {
+  run: Run
+}) => (prevData: any) => {
+  if (!prevData) return prevData
+
+  const [latestPage, ...pagesRest] = prevData.pages
+
+  return {
+    ...prevData,
+    pages: [
+      {
+        ...latestPage,
+        data: [
+          {
+            id: optimisticId(),
+            assistant_id: run.assistant_id,
+            content: [],
+            created_at: run.created_at,
+            file_ids: [],
+            metadata: {},
+            status: 'in_progress',
+            role: 'assistant',
+            runSteps: [],
+            run_id: run.id,
+            thread_id: run.thread_id,
+          },
+          ...latestPage.data,
+        ]
+      },
+      ...pagesRest,
+    ],
+  }
+}
+
+const runStepCreatedData = ({
+  runStep,
+}: {
+  runStep: RunStep
+}) => (prevData: any) => {
+  if (!prevData) return prevData
+
+  const [latestPage, ...pagesRest] = prevData.pages
+  const message = latestPage.data.findLast((m: Message) => m.run_id === runStep.run_id)
+
+  if (!message) {
+    return prevData
+  }
+
+  const newMessage = {
+    ...message,
+    runSteps: [
+      runStep,
+      ...message.runSteps,
+    ],
+  }
+
+  return {
+    ...prevData,
+    pages: [
+      {
+        ...latestPage,
+        data: replace(latestPage.data, newMessage, (m) => m.id === newMessage.id),
+      },
+      ...pagesRest,
+    ],
+  }
+}
+
+const updatedToolCall = ({
+  toolCall,
+  delta,
+}: {
+  toolCall: any
+  delta: any
+}) => {
+  if (!toolCall) {
+    return omit(delta, ['index'])
+  }
+
+  if (delta.type !== 'function') return toolCall
+
+  const result = _.cloneDeep(toolCall)
+
+  console.log('before map', { delta, result })
+
+  for (const [key, value] of Object.entries(delta.function)) {
+    result.function[key] = `${result.function[key] ?? ''}${value}`
+  }
+
+  console.log('after map', { result })
+
+  return result
+}
+
+const updatedRunStep = ({
+  runStep,
+  delta,
+}: {
+  runStep: RunStep
+  delta: any
+}) => {
+  if (!runStep?.step_details?.tool_calls) return runStep
+
+  const newToolCalls = _.cloneDeep(runStep.step_details.tool_calls)
+
+  console.log({ delta, newToolCalls, runStep })
+  delta.step_details.tool_calls.forEach((delta: any) => (
+    newToolCalls[delta.index] = updatedToolCall({
+      toolCall: newToolCalls[delta.index],
+      delta,
+    })
+  ))
+
+  return {
+    ...runStep,
+    step_details: {
+      ...runStep.step_details,
+      ...delta.step_details,
+      tool_calls: newToolCalls,
+    },
+  }
+}
+
+const runStepDeltaData = ({
+  runStepDelta,
+}: {
+  runStepDelta: any
+}) => (prevData: any) => {
+  if (!prevData) return prevData
+
+  const [latestPage, ...pagesRest] = prevData.pages
+
+  const message = latestPage.data.findLast((m: Message) => (
+    m.runSteps.some((rs: RunStep) => (
+      rs.id === runStepDelta.id
+    ))
+  ))
+
+  if (!message) return prevData
+
+  const runStep = message.runSteps.findLast((rs: RunStep) => (
+    rs.id === runStepDelta.id
+  ))
+
+  if (!runStep) return prevData
+
+  const newMessage = {
+    ...message,
+    runSteps: replace(message.runSteps, updatedRunStep({ runStep, delta: runStepDelta.delta }), (rs: RunStep) => rs.id === runStep.id),
+  }
+
+  return {
+    ...prevData,
+    pages: [
+      {
+        ...latestPage,
+        data: replace(latestPage.data, newMessage, (m: Message) => m.id === newMessage.id),
+      },
+      ...pagesRest,
+    ],
+  }
+}
 
 export const mutationOptions = ({
   mutationKeyBase,
@@ -194,83 +369,48 @@ export const mutationOptions = ({
         throw new Error('The response body is empty.');
       }
 
-      // const reader = response.body.getReader()
-
       const parser = new JSONParser({ stringBufferSize: undefined, paths: ['$'], separator: '' })
-      // parser.onValue = (value, key, parent, stack) => {
-      //   console.log({ value, key, parent, stack })
-      //
-      //   if (stack > 0) return; // ignore inner values
-      //   // TODO process element
-      // };
-      // const reader = response.body.pipeThrough(new TextDecoderStream()).getReader()
-
       const reader = response.body.pipeThrough(parser).getReader()
-      // const decoder = new TextDecoder()
 
       while (true) {
         const { done, value } = await reader.read()
 
         if (done) break
-        // if (value.stack.length) continue
 
-        console.log({ value })
         if (value.value.event === 'thread.message.created') {
           queryClient.setQueryData(
             messagesQueryKey,
-            messageCreatedData({ newMessage: value.value.data })
+            messageCreatedData({ message: value.value.data })
           )
         } else if (value.value.event === 'thread.message.delta') {
           queryClient.setQueryData(
             messagesQueryKey,
             messageDeltaData({ messageDelta: value.value.data })
           )
+        } else if (value.value.event === 'thread.message.completed') {
+          queryClient.setQueryData(
+            messagesQueryKey,
+            messageCompletedData({ message: value.value.data })
+          )
+        } else if (value.value.event === 'thread.run.created') {
+          queryClient.setQueryData(
+            messagesQueryKey,
+            runCreatedData({ run: value.value.data })
+          )
+        } else if (value.value.event === 'thread.run.step.created') {
+          queryClient.setQueryData(
+            messagesQueryKey,
+            runStepCreatedData({ runStep: value.value.data })
+          )
+        } else if (value.value.event === 'thread.run.step.delta') {
+          queryClient.setQueryData(
+            messagesQueryKey,
+            runStepDeltaData({ runStepDelta: value.value.data })
+          )
+        } else {
+          console.log({ value })
         }
-
-        // try {
-        //   parser.write(value)
-        // } catch (error) {
-        //   console.error({ error, value })
-        //   // throw new Error('Failed to parse')
-        // }
-
-        // console.log({ value })
-        //
-        // // const decoded = decoder.decode(value)
-        // let parsed
-        // //
-        // try {
-        //   parsed = JSON.parse(value)
-        //   console.log({ parsed })
-        // } catch (error) {
-        //   console.error({ error, value })
-        //   throw new Error('Failed to parse')
-        // }
-
-        // // result += decoded
-        //
-        // console.dir({ value, decoded, parsed }, { depth: null })
       }
-
-      // result += decoder.decode()
-      // console.log({ result })
-
-      //   .then(async (response) => {
-      //   if (response.status !== 200) {
-      //     let errorResponse
-      //
-      //     try {
-      //       console.log('response', response)
-      //       errorResponse = await response.json() as { error: string }
-      //     } catch (error) {
-      //       throw new Error('Failed to fetch')
-      //     }
-      //
-      //     throw new Error(errorResponse.error)
-      //   }
-      //
-      //   return response.json()
-      // })
     },
     ...threadContext.defaultOptions.mutations,
     ...queryClient.getMutationDefaults(mutationKey),
