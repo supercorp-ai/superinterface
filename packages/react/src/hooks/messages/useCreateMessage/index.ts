@@ -22,7 +22,7 @@ export const useCreateMessage = ({
 
   const props = useMutation({
     onMutate: onMutate({ queryClient }),
-    onSettled: onSettled({ queryClient }),
+    // onSettled: onSettled({ queryClient }),
     onError,
     ...mutationOptions({
       mutationKeyBase: ['createMessage'],

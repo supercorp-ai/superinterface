@@ -16,6 +16,7 @@ export const usePolling = () => {
   const isRunActiveProps = useIsRunActive()
 
   useInterval(async () => {
+    return
     if (isPollRefetching) return
 
     setIsPollRefetching(true)

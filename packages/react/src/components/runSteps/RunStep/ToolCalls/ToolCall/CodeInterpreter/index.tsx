@@ -4,7 +4,7 @@ import {
 } from '@radix-ui/themes'
 
 type Args = {
-  codeInterpreter: OpenAI.Beta.Threads.Runs.CodeToolCall.CodeInterpreter
+  codeInterpreter: OpenAI.Beta.Threads.Runs.CodeInterpreterToolCall.CodeInterpreter
   runStep: OpenAI.Beta.Threads.Runs.RunStep
 }
 

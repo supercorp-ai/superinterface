@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import OpenAI from 'openai'
 import { Message } from '@/types'
 import { getLatestRun } from './getLatestRun'
@@ -42,9 +43,13 @@ export const runMessages = async ({
     await extendMessage({
       message: {
         id: optimisticId(),
-        role: 'assistant' as OpenAI.Beta.Threads.Messages.ThreadMessage['role'],
-        created_at: +new Date(),
-        object: 'thread.message' as OpenAI.Beta.Threads.Messages.ThreadMessage['object'],
+        role: 'assistant' as OpenAI.Beta.Threads.Messages.Message['role'],
+        created_at: dayjs().unix(),
+        object: 'thread.message' as OpenAI.Beta.Threads.Messages.Message['object'],
+        incomplete_details: null,
+        completed_at: dayjs().unix(),
+        incomplete_at: null,
+        status: 'completed',
         content: [],
         run_id: latestRun.id,
         assistant_id: latestRun.assistant_id,

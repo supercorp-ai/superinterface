@@ -5,7 +5,7 @@ import {
 import { Fn } from './Fn'
 import { CodeInterpreter } from './CodeInterpreter'
 
-type ToolCall = OpenAI.Beta.Threads.Runs.CodeToolCall
+type ToolCall = OpenAI.Beta.Threads.Runs.CodeInterpreterToolCall
   | OpenAI.Beta.Threads.Runs.RetrievalToolCall
   | OpenAI.Beta.Threads.Runs.FunctionToolCall
 

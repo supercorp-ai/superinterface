@@ -9,7 +9,7 @@ export const data = async ({
   threadId,
   client,
 }: {
-  messagesResponse: OpenAI.CursorPage<OpenAI.Beta.Threads.Messages.ThreadMessage>
+  messagesResponse: OpenAI.CursorPage<OpenAI.Beta.Threads.Messages.Message>
   pageParam?: string
   threadId: string
   client: OpenAI

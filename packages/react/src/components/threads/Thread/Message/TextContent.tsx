@@ -3,7 +3,7 @@ import { useRemarkSync } from 'react-remark'
 import { useMarkdownContext } from '@/hooks/markdown/useMarkdownContext'
 
 type Args = {
-  content: OpenAI.Beta.Threads.Messages.MessageContentText
+  content: OpenAI.Beta.Threads.Messages.TextContentBlock
 }
 
 export const TextContent = ({

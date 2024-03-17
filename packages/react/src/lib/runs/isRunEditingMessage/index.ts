@@ -2,7 +2,7 @@ import OpenAI from 'openai'
 import _ from 'lodash'
 
 type Args = {
-  message: OpenAI.Beta.Threads.ThreadMessage
+  message: OpenAI.Beta.Threads.Message
 }
 
 export const isRunEditingMessage = ({

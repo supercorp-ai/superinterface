@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import OpenAI from 'openai'
 import { optimisticId } from '@/lib/optimistic/optimisticId'
 
@@ -5,11 +6,11 @@ export const data = (prevData: any) => {
   const run = {
     id: optimisticId(),
     object: 'thread.run' as OpenAI.Beta.Threads.Runs.Run['object'],
-    created_at: +new Date(),
+    created_at: dayjs().unix(),
     assistant_id: null,
     thread_id: null,
     status: 'in_progress' as OpenAI.Beta.Threads.Runs.Run['status'],
-    expires_at: +new Date() + 1000 * 60 * 60 * 24,
+    expires_at: dayjs().unix() + 1000 * 60 * 60 * 24,
     cancelled_at: null,
     failed_at: null,
     completed_at: null,
