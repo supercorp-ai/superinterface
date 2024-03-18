@@ -1,14 +1,13 @@
 import { useMemo } from 'react'
-// import { Box } from '@radix-ui/themes'
 // import { MessageGroupBase } from '@/components/messageGroups/MessageGroupBase'
 // import { StartingContentSkeleton } from '@/components/skeletons/StartingContentSkeleton'
 import { StartingSkeleton } from '@/components/skeletons/StartingSkeleton'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { isOptimistic } from '@/lib/optimistic/isOptimistic'
-// import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
+import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 
 export const Progress = () => {
-  // const { isRunActive } = useIsRunActive()
+  const { isRunActive } = useIsRunActive()
   const { latestMessage } = useLatestMessage()
 
   const isVisible = useMemo(() => {
@@ -21,6 +20,7 @@ export const Progress = () => {
   }, [latestMessage])
 
   if (!isVisible) return null
+  if (!isRunActive) return null
 
   return (
     <StartingSkeleton />

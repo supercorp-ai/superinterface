@@ -32,7 +32,6 @@ export const data = ({
     metadata: {},
     runSteps: [],
   }
-  console.log({ message, prevData })
 
   if (!prevData) {
     return {
@@ -48,7 +47,6 @@ export const data = ({
   }
 
   const [latestPage, ...pagesRest] = prevData.pages
-  console.log({ latestPage, pagesRest, prevData })
 
   return {
     ...prevData,

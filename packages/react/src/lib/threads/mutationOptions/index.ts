@@ -443,7 +443,6 @@ export const mutationOptions = ({
 
         if (done) break
 
-        console.log({ value })
         if (value.value.event === 'thread.message.created') {
           queryClient.setQueryData(
             messagesQueryKey,
