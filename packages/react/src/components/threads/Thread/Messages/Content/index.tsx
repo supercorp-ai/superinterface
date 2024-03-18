@@ -13,7 +13,6 @@ export const Content = () => {
     isLoading,
     isLoadingError,
   } = useMessages()
-  console.log({ messages })
 
   const { addToast } = useToasts()
 
