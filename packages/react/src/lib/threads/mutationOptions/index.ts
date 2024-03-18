@@ -6,31 +6,67 @@ import { optimisticId } from '@/lib/optimistic/optimisticId'
 import { Run, RunStep, Message } from '@/types'
 // import { JSONParser } from '@streamparser/json'
 import { JSONParser } from '@streamparser/json-whatwg'
-import { replace, omit, mapEntries } from 'radash'
+import { replace, omit, mapEntries, fork, last } from 'radash'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
+import { isOptimistic } from '@/lib/optimistic/isOptimistic'
 
 type VariablesArgs = {
   content: string
   [key: string]: any
 }
 
+const extendMessage = ({
+  message,
+  messages,
+}: {
+  message: Message
+  messages: Message[]
+}) => {
+  const prevRunMessages = messages.filter((m: Message) => (
+    m.run_id === message.run_id
+  ))
+
+  const prevOptimitisticRunMessages = prevRunMessages.filter((m: Message) => (
+    isOptimistic({ id: m.id })
+  ))
+
+  const runSteps = last(prevOptimitisticRunMessages)?.runSteps ?? last(prevRunMessages)?.runSteps ?? []
+
+  return {
+    ...message,
+    runSteps,
+  }
+}
+
+const appendMessage = ({
+  message,
+  messages,
+}: {
+  message: Message
+  messages: Message[]
+}) => {
+  const prevMessages = messages.filter((m: Message) => (
+    m.run_id != message.run_id || !isOptimistic({ id: m.id })
+  ))
+
+  return [
+    extendMessage({ message, messages }),
+    ...prevMessages,
+  ]
+}
+
 const messageCreatedData = ({
-  message: newMessage,
+  message,
 }: {
   message: any
 }) => (prevData: any) => {
-  const message = {
-    ...newMessage,
-    runSteps: [],
-  }
-
   if (!prevData) {
     return {
       pageParams: [],
       pages: [
         {
-          data: [message],
+          data: appendMessage({ message, messages: [] }),
           hasNextPage: false,
           lastId: message.id,
         },
@@ -45,10 +81,7 @@ const messageCreatedData = ({
     pages: [
       {
         ...latestPage,
-        data: [
-          message,
-          ...latestPage.data,
-        ],
+        data: appendMessage({ message, messages: latestPage.data }),
       },
       ...pagesRest,
     ],
@@ -162,7 +195,7 @@ const messageCompletedData = ({
     pages: [
       {
         ...latestPage,
-        data: replace(latestPage.data, message, (m) => m.id === message.id),
+        data: replace(latestPage.data, extendMessage({ message, messages: latestPage.data }), (m) => m.id === message.id),
       },
       ...pagesRest,
     ],
@@ -329,6 +362,46 @@ const runStepDeltaData = ({
   }
 }
 
+const runStepCompletedData = ({
+  runStep,
+}: {
+  runStep: RunStep
+}) => (prevData: any) => {
+  if (!prevData) return prevData
+
+  const [latestPage, ...pagesRest] = prevData.pages
+
+  const message = latestPage.data.findLast((m: Message) => (
+    m.runSteps.some((rs: RunStep) => (
+      rs.id === runStep.id
+    ))
+  ))
+
+  if (!message) return prevData
+
+  const existingRunStep = message.runSteps.findLast((rs: RunStep) => (
+    rs.id === runStep.id
+  ))
+
+  if (!existingRunStep) return prevData
+
+  const newMessage = {
+    ...message,
+    runSteps: replace(message.runSteps, runStep, (rs: RunStep) => rs.id === runStep.id),
+  }
+
+  return {
+    ...prevData,
+    pages: [
+      {
+        ...latestPage,
+        data: replace(latestPage.data, newMessage, (m: Message) => m.id === newMessage.id),
+      },
+      ...pagesRest,
+    ],
+  }
+}
+
 export const mutationOptions = ({
   mutationKeyBase,
   path,
@@ -400,6 +473,11 @@ export const mutationOptions = ({
           queryClient.setQueryData(
             messagesQueryKey,
             runStepDeltaData({ runStepDelta: value.value.data })
+          )
+        } else if (value.value.event === 'thread.run.step.completed') {
+          queryClient.setQueryData(
+            messagesQueryKey,
+            runStepCompletedData({ runStep: value.value.data })
           )
         } else {
           console.log({ value })
