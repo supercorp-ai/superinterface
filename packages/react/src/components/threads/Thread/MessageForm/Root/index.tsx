@@ -1,12 +1,12 @@
 'use client'
 import { useMemo } from 'react'
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form'
-import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useCreateMessage } from '@/hooks/messages/useCreateMessage'
 import { formOptions } from './lib/formOptions'
 import { MessageFormContext } from '@/contexts/messages/MessageFormContext'
 import { useToasts } from '@/hooks/toasts/useToasts'
+import { useIsMutatingMessage } from '@/hooks/messages/useIsMutatingMessage'
 
 type Inputs = {
   content: string
@@ -25,15 +25,6 @@ export const Root = ({
     reset,
   } = formProps
 
-  const { isRunActive } = useIsRunActive()
-
-  const isLoading = useMemo(() => (
-    isRunActive || isSubmitting
-  ), [
-    isRunActive,
-    isSubmitting,
-  ])
-
   const { addToast } = useToasts()
 
   const { createMessage } = useCreateMessage({
@@ -41,6 +32,15 @@ export const Root = ({
       addToast({ type: 'error', message: error.message })
     ),
   })
+
+  const isMutatingMessage = useIsMutatingMessage()
+
+  const isLoading = useMemo(() => (
+    isMutatingMessage || isSubmitting
+  ), [
+    isMutatingMessage,
+    isSubmitting,
+  ])
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     reset()
