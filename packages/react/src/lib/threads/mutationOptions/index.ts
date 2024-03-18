@@ -246,26 +246,25 @@ const runStepCreatedData = ({
   if (!prevData) return prevData
 
   const [latestPage, ...pagesRest] = prevData.pages
-  const message = latestPage.data.findLast((m: Message) => m.run_id === runStep.run_id)
-
-  if (!message) {
-    return prevData
-  }
-
-  const newMessage = {
-    ...message,
-    runSteps: [
-      runStep,
-      ...message.runSteps,
-    ],
-  }
 
   return {
     ...prevData,
     pages: [
       {
         ...latestPage,
-        data: replace(latestPage.data, newMessage, (m) => m.id === newMessage.id),
+        data: latestPage.data.map((m: Message) => {
+          if (m.run_id === runStep.run_id) {
+            return {
+              ...m,
+              runSteps: [
+                runStep,
+                ...m.runSteps,
+              ],
+            }
+          }
+
+          return m
+        }),
       },
       ...pagesRest,
     ],
@@ -331,31 +330,27 @@ const runStepDeltaData = ({
 
   const [latestPage, ...pagesRest] = prevData.pages
 
-  const message = latestPage.data.findLast((m: Message) => (
-    m.runSteps.some((rs: RunStep) => (
-      rs.id === runStepDelta.id
-    ))
-  ))
-
-  if (!message) return prevData
-
-  const runStep = message.runSteps.findLast((rs: RunStep) => (
-    rs.id === runStepDelta.id
-  ))
-
-  if (!runStep) return prevData
-
-  const newMessage = {
-    ...message,
-    runSteps: replace(message.runSteps, updatedRunStep({ runStep, delta: runStepDelta.delta }), (rs: RunStep) => rs.id === runStep.id),
-  }
-
   return {
     ...prevData,
     pages: [
       {
         ...latestPage,
-        data: replace(latestPage.data, newMessage, (m: Message) => m.id === newMessage.id),
+        data: latestPage.data.map((m: Message) => {
+          if (m.run_id === runStepDelta.run_id) {
+            return {
+              ...m,
+              runSteps: m.runSteps.map((rs: RunStep) => {
+                if (rs.id === runStepDelta.id) {
+                  return updatedRunStep({ runStep: rs, delta: runStepDelta.delta })
+                }
+
+                return rs
+              }),
+            }
+          }
+
+          return m
+        }),
       },
       ...pagesRest,
     ],
@@ -371,31 +366,21 @@ const runStepCompletedData = ({
 
   const [latestPage, ...pagesRest] = prevData.pages
 
-  const message = latestPage.data.findLast((m: Message) => (
-    m.runSteps.some((rs: RunStep) => (
-      rs.id === runStep.id
-    ))
-  ))
-
-  if (!message) return prevData
-
-  const existingRunStep = message.runSteps.findLast((rs: RunStep) => (
-    rs.id === runStep.id
-  ))
-
-  if (!existingRunStep) return prevData
-
-  const newMessage = {
-    ...message,
-    runSteps: replace(message.runSteps, runStep, (rs: RunStep) => rs.id === runStep.id),
-  }
-
   return {
     ...prevData,
     pages: [
       {
         ...latestPage,
-        data: replace(latestPage.data, newMessage, (m: Message) => m.id === newMessage.id),
+        data: latestPage.data.map((m: Message) => {
+          if (m.run_id === runStep.run_id) {
+            return {
+              ...m,
+              runSteps: replace(m.runSteps, runStep, (rs: RunStep) => rs.id === runStep.id),
+            }
+          }
+
+          return m
+        }),
       },
       ...pagesRest,
     ],

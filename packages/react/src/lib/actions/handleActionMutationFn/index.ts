@@ -1,5 +1,6 @@
-import OpenAI from 'openai'
-import { Stream } from 'openai/streaming'
+// import OpenAI from 'openai'
+// import { Stream } from 'openai/streaming'
+import { AssistantStream } from 'openai/lib/AssistantStream'
 import { Run, Functions } from '@/types'
 import pMap from 'p-map'
 import { defaultClient } from '@/lib/ai'
@@ -11,7 +12,7 @@ export type Args = {
   functions?: Functions
 }
 
-export type Response = Run | Stream<OpenAI.Beta.Assistants.AssistantStreamEvent>
+export type Response = AssistantStream
 
 export const handleActionMutationFn = async ({
   client = defaultClient,
@@ -26,11 +27,10 @@ export const handleActionMutationFn = async ({
 
   const toolCalls = latestRun.required_action.submit_tool_outputs.tool_calls
 
-  return client.beta.threads.runs.submitToolOutputs(
+  return client.beta.threads.runs.submitToolOutputsStream(
     latestRun.thread_id,
     latestRun.id,
     {
-      stream: true,
       tool_outputs: await pMap(toolCalls, (toolCall) => toolOutput({ toolCall, latestRun, functions })),
     },
   )
