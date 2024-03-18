@@ -95,8 +95,6 @@ const updatedContent = ({
     })
   })
 
-  console.log({ result, messageDelta })
-
   return result
 }
 
@@ -256,13 +254,9 @@ const updatedToolCall = ({
 
   const result = _.cloneDeep(toolCall)
 
-  console.log('before map', { delta, result })
-
   for (const [key, value] of Object.entries(delta.function)) {
     result.function[key] = `${result.function[key] ?? ''}${value}`
   }
-
-  console.log('after map', { result })
 
   return result
 }
@@ -278,7 +272,6 @@ const updatedRunStep = ({
 
   const newToolCalls = _.cloneDeep(runStep.step_details.tool_calls)
 
-  console.log({ delta, newToolCalls, runStep })
   delta.step_details.tool_calls.forEach((delta: any) => (
     newToolCalls[delta.index] = updatedToolCall({
       toolCall: newToolCalls[delta.index],
@@ -377,6 +370,7 @@ export const mutationOptions = ({
 
         if (done) break
 
+        console.log({ value })
         if (value.value.event === 'thread.message.created') {
           queryClient.setQueryData(
             messagesQueryKey,
