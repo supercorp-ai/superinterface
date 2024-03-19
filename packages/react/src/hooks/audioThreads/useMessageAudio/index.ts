@@ -3,31 +3,51 @@ import { Howler } from 'howler'
 import { useAudioPlayer } from 'react-use-audio-player'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
-import { AudioEngine, Message } from '@/types'
-import { isOptimistic } from '@/lib/optimistic/isOptimistic'
+import { AudioEngine } from '@/types'
 import { input as getInput } from './lib/input'
 import { isHtmlAudioSupported } from './lib/isHtmlAudioSupported'
 
-type Args = {
-  onEnd: () => void
+type MessageSentence = {
+  messageId: string
+  sentence: string
+}
+
+
+const SPLIT_SENTENCE_REGEX = /[^\.\?!]+[\.\?!]/g
+const FULL_SENTENCE_REGEX = /^\s*[A-Z].*[.?!]$/
+
+const getMessageSentences = ({
+  messageId,
+  input,
+}: {
+  messageId: string
+  input: string
+}) => {
+  const sentences = input.match(SPLIT_SENTENCE_REGEX) || []
+
+  return sentences.map((sentence) => ({
+    messageId,
+    sentence,
+  }))
 }
 
 export const useMessageAudio = ({
   onEnd,
-}: Args) => {
-  const [playedMessages, setPlayedMessages] = useState<Message[]>([])
+}: {
+  onEnd: () => void
+}) => {
+  const [playedMessageSentences, setPlayedMessageSentences] = useState<MessageSentence[]>([])
   const audioPlayer = useAudioPlayer()
   const superinterfaceContext = useSuperinterfaceContext()
+  const [isPlaying, setIsPlaying] = useState(false)
 
   const latestMessageProps = useLatestMessage()
 
   useEffect(() => {
+    if (isPlaying) return
     if (audioPlayer.playing) return
     if (!latestMessageProps.latestMessage) return
     if (latestMessageProps.latestMessage.role !== 'assistant') return
-    if (playedMessages.find((pm) => pm.id === latestMessageProps.latestMessage.id ||
-      (isOptimistic({ id: pm.id }) && pm.content === latestMessageProps.latestMessage.content))) return
-    if (playedMessages.includes(latestMessageProps.latestMessage)) return
 
     const input = getInput({
       message: latestMessageProps.latestMessage,
@@ -35,10 +55,29 @@ export const useMessageAudio = ({
 
     if (!input) return
 
-    setPlayedMessages((prev) => [...prev, latestMessageProps.latestMessage])
+    const messageSentences = getMessageSentences({
+      messageId: latestMessageProps.latestMessage.id,
+      input,
+    })
+
+    const unplayedMessageSentences = messageSentences.filter((ms) => (
+      !playedMessageSentences.find((pms) => pms.messageId === ms.messageId && pms.sentence === ms.sentence)
+    ))
+
+    const firstUnplayedMessageSentence = unplayedMessageSentences[0]
+    if (!firstUnplayedMessageSentence) {
+      return
+    }
+
+    const isFullSentence = FULL_SENTENCE_REGEX.test(firstUnplayedMessageSentence.sentence)
+
+    if (!isFullSentence) return
+    setIsPlaying(true)
+
+    setPlayedMessageSentences((prev) => [...prev, firstUnplayedMessageSentence])
 
     const searchParams = new URLSearchParams({
-      input,
+      input: firstUnplayedMessageSentence.sentence,
       ...(isHtmlAudioSupported && superinterfaceContext.publicApiKey ? {
         publicApiKey: superinterfaceContext.publicApiKey,
       } : {})
@@ -48,7 +87,13 @@ export const useMessageAudio = ({
       format: 'mp3',
       autoplay: true,
       html5: isHtmlAudioSupported,
-      onend: onEnd,
+      onend: () => {
+        setIsPlaying(false)
+
+        if (unplayedMessageSentences.length === 1 && latestMessageProps.latestMessage.status !== 'in_progress') {
+          onEnd()
+        }
+      },
       ...(isHtmlAudioSupported ? {} : {
         xhr: {
           ...(superinterfaceContext.publicApiKey ? {
@@ -61,13 +106,13 @@ export const useMessageAudio = ({
       }),
     })
   }, [
+    isPlaying,
     superinterfaceContext,
     latestMessageProps,
     audioPlayer,
-    playedMessages,
+    playedMessageSentences,
     onEnd,
   ])
-
 
   const isInited = useRef(false)
   const [audioEngine, setAudioEngine] = useState<AudioEngine | null>(null)
