@@ -37,19 +37,28 @@ export const useMessageAudio = ({
 
     setPlayedMessages((prev) => [...prev, latestMessageProps.latestMessage])
 
-    audioPlayer.load(`${superinterfaceContext.baseUrl}/tts?input=${input}`, {
+    const searchParams = new URLSearchParams({
+      input,
+      ...(isHtmlAudioSupported && superinterfaceContext.publicApiKey ? {
+        publicApiKey: superinterfaceContext.publicApiKey,
+      } : {})
+    })
+
+    audioPlayer.load(`${superinterfaceContext.baseUrl}/tts?${searchParams}`, {
       format: 'mp3',
       autoplay: true,
       html5: isHtmlAudioSupported,
       onend: onEnd,
-      xhr: {
-        ...(superinterfaceContext.publicApiKey ? {
-          headers: {
-            Authorization: `Bearer ${superinterfaceContext.publicApiKey}`,
-          },
-        } : {}),
-        withCredentials: true,
-      }
+      ...(isHtmlAudioSupported ? {} : {
+        xhr: {
+          ...(superinterfaceContext.publicApiKey ? {
+            headers: {
+              Authorization: `Bearer ${superinterfaceContext.publicApiKey}`,
+            },
+          } : {}),
+          withCredentials: true,
+        },
+      }),
     })
   }, [
     superinterfaceContext,
