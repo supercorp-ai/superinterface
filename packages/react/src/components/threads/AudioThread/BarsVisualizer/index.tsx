@@ -4,7 +4,7 @@ import {
   Flex,
   Grid,
 } from '@radix-ui/themes'
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { cluster } from 'radash'
 
 const barCount = 4
