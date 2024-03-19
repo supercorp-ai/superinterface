@@ -12,6 +12,7 @@ export { ThreadDialog } from '@/components/threads/ThreadDialog'
 export { ThreadDialogContext } from '@/contexts/threads/ThreadDialogContext'
 export { AudioThreadDialog } from '@/components/threads/AudioThreadDialog'
 export { AudioThread } from '@/components/threads/AudioThread'
+export { useThreadDialogContext } from '@/hooks/threads/useThreadDialogContext'
 
 export { Suggestions } from '@/components/suggestions/Suggestions'
 
