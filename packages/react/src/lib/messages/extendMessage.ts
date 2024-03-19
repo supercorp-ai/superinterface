@@ -2,7 +2,7 @@ import OpenAI from 'openai'
 import { getRunSteps } from '@/lib/runSteps/getRunSteps'
 
 type Args = {
-  message: OpenAI.Beta.Threads.Messages.ThreadMessage
+  message: OpenAI.Beta.Threads.Messages.Message
   client: OpenAI
 }
 

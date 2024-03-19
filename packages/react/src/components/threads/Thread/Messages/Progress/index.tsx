@@ -1,27 +1,26 @@
-import { Box } from '@radix-ui/themes'
-import { MessageGroupBase } from '@/components/messageGroups/MessageGroupBase'
-import { StartingContentSkeleton } from '@/components/skeletons/StartingContentSkeleton'
+import { useMemo } from 'react'
 import { StartingSkeleton } from '@/components/skeletons/StartingSkeleton'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
-import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
+import { isOptimistic } from '@/lib/optimistic/isOptimistic'
+import { useIsMutatingMessage } from '@/hooks/messages/useIsMutatingMessage'
 
 export const Progress = () => {
-  const { isRunActive } = useIsRunActive()
   const { latestMessage } = useLatestMessage()
+  const isMutatingMessage = useIsMutatingMessage()
 
-  if (!latestMessage) return null
-  if (!isRunActive) return null
+  const isVisible = useMemo(() => {
+    if (!latestMessage) return false
+    if (latestMessage.role !== 'user') return false
+    if (latestMessage.status === 'in_progress') return false
+    if (!isOptimistic({ id: latestMessage.id })) return false
+    if (!isMutatingMessage) return false
 
-  if (latestMessage.role === 'user') {
-    return (
-      <StartingSkeleton />
-    )
-  }
+    return true
+  }, [latestMessage, isMutatingMessage])
+
+  if (!isVisible) return null
 
   return (
-    <MessageGroupBase>
-      <Box pl="5" />
-      <StartingContentSkeleton />
-    </MessageGroupBase>
+    <StartingSkeleton />
   )
 }

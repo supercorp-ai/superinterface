@@ -28,7 +28,7 @@ export const FunctionBase = ({
     </ToolCallBase>
     <PopoverContent
       style={{
-        maxHeight: '500px',
+        maxHeight: '200px',
       }}
     >
       <Content fn={fn} />

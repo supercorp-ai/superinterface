@@ -1,8 +1,9 @@
 import _ from 'lodash'
-import { useMemo } from 'react'
+import { useMemo, Fragment } from 'react'
 import {
   Box,
 } from '@radix-ui/themes'
+import { StartingContentSkeleton } from '@/components/skeletons/StartingContentSkeleton'
 import { Message as MessageType } from '@/types'
 import { RunSteps } from '@/components/runSteps/RunSteps'
 import { Provider } from './Provider'
@@ -54,15 +55,20 @@ export const Message = ({
           runSteps={olderRunSteps}
         />
 
-        {message.content.map((content, index) => (
-          <Box
-            key={index}
-          >
-            {content.type === 'text' && (
-              <TextContent content={content} />
-            )}
-          </Box>
-        ))}
+        <Box>
+          {message.content.map((content, index) => (
+            <Fragment
+              key={index}
+            >
+              {content.type === 'text' && (
+                <TextContent content={content} />
+              )}
+            </Fragment>
+          ))}
+          {message.status === 'in_progress' && (
+            <StartingContentSkeleton />
+          )}
+        </Box>
 
         <RunSteps
           runSteps={laterRunSteps}

@@ -1,3 +1,4 @@
+'use client'
 import { useContext } from 'react'
 import OpenAI from 'openai'
 // import { Availabilities } from './Availabilities'

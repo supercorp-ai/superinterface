@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import OpenAI from 'openai'
 import { optimisticId } from '@/lib/optimistic/optimisticId'
 
@@ -12,9 +13,9 @@ export const data = ({
 }: Args) => (prevData: any) => {
   const message = {
     id: optimisticId(),
-    role: 'user' as OpenAI.Beta.Threads.Messages.ThreadMessage['role'],
-    created_at: +new Date(),
-    object: 'thread.message' as OpenAI.Beta.Threads.Messages.ThreadMessage['object'],
+    role: 'user' as OpenAI.Beta.Threads.Messages.Message['role'],
+    created_at: dayjs().unix(),
+    object: 'thread.message' as OpenAI.Beta.Threads.Messages.Message['object'],
     content: [
       {
         type: 'text',
@@ -22,7 +23,7 @@ export const data = ({
           annotations: [],
           value: newMessage.content,
         },
-      } as OpenAI.Beta.Threads.Messages.MessageContentText,
+      } as OpenAI.Beta.Threads.Messages.TextContentBlock,
     ],
     run_id: null,
     assistant_id: null,

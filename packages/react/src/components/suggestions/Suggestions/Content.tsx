@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { isEmpty } from 'radash'
 import { onlyText } from 'react-children-utilities'
-import { useIsRunActive } from '@/hooks/runs/useIsRunActive'
+import { useIsMutatingMessage } from '@/hooks/messages/useIsMutatingMessage'
 import {
   Flex,
 } from '@radix-ui/themes'
@@ -12,15 +12,11 @@ export const Content = ({
 }: {
   children: React.ReactNode
 }) => {
-  const isRunActiveProps = useIsRunActive()
+  const isMutatingMessage = useIsMutatingMessage()
 
   const suggestions = useMemo(() => (
     onlyText(children).split(/\r?\n/).filter((c) => !isEmpty(c)).map((c) => c.trim())
   ), [children])
-
-  const isDisabled = useMemo(() => (
-    isRunActiveProps.isRunActive
-  ), [isRunActiveProps])
 
   if (isEmpty(suggestions)) return null
 
@@ -34,7 +30,7 @@ export const Content = ({
         <Item
           key={suggestion}
           suggestion={suggestion}
-          isDisabled={isDisabled}
+          isDisabled={isMutatingMessage}
         />
       ))}
     </Flex>

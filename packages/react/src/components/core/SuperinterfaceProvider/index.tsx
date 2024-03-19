@@ -1,3 +1,4 @@
+'use client'
 import { MessagesPage } from '@/types'
 import {
   InfiniteData,

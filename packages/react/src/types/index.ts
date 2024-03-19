@@ -1,7 +1,9 @@
 import OpenAI from 'openai'
 
-export type Message = OpenAI.Beta.Threads.Messages.ThreadMessage & {
-  runSteps: OpenAI.Beta.Threads.Runs.RunStep[]
+export type RunStep = OpenAI.Beta.Threads.Runs.RunStep
+
+export type Message = OpenAI.Beta.Threads.Messages.Message & {
+  runSteps: RunStep[]
 }
 
 export type MessagesPage = {

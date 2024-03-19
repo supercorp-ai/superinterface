@@ -3,7 +3,6 @@
 import { Flex } from '@radix-ui/themes'
 import { useInfiniteScroll } from '@/hooks/misc/useInfiniteScroll'
 import { useMessages } from '@/hooks/messages/useMessages'
-import { useLifecycle } from '@/hooks/threads/useLifecycle'
 
 export const Root = ({
   children,
@@ -17,8 +16,6 @@ export const Root = ({
     hasNextPage,
     fetchNextPage,
   } = useMessages()
-
-  useLifecycle()
 
   const { containerRef, loaderRef } = useInfiniteScroll({
     isFetchingNextPage,

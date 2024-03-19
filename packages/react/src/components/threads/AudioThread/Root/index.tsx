@@ -6,7 +6,6 @@ import { Flex } from '@radix-ui/themes'
 import _ from 'lodash'
 // import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
 import { AudioThreadContext } from '@/contexts/threads/AudioThreadContext'
-import { useLifecycle } from '@/hooks/threads/useLifecycle'
 import { useCreateMessage } from '@/hooks/messages/useCreateMessage'
 import { usePermission } from 'react-use'
 import { blobToData } from './lib/blobToData'
@@ -21,8 +20,6 @@ export type Args = {
 export const Root = ({
   children,
 }: Args) => {
-  useLifecycle()
-
   const createMessageProps = useCreateMessage()
 
   // const {
