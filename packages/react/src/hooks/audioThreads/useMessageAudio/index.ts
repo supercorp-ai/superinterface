@@ -124,6 +124,7 @@ export const useMessageAudio = ({
 
     if (isHtmlAudioSupported) {
       const audioContext = new AudioContext()
+      Howler._howls[0]._sounds[0]._node.crossOrigin = "anonymous"
       setAudioEngine({
         // @ts-ignore-next-line
         source: audioContext.createMediaElementSource(Howler._howls[0]._sounds[0]._node),
