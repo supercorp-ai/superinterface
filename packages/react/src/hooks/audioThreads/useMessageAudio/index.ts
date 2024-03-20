@@ -125,7 +125,8 @@ export const useMessageAudio = ({
 
   useEffect(() => {
     if (isHtmlAudioSupported) {
-      if (!Howler?._howls?[0]?._sounds?[0]?._node?.crossOrigin) return
+      if (!Howler?._howls[0]?._sounds[0]?._node) return
+      if (!Howler._howls[0]._sounds[0]._node.crossOrigin) return
 
       Howler._howls[0]._sounds[0]._node.crossOrigin = 'anonymous'
     }
