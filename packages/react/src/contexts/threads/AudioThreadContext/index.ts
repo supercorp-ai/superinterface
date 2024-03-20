@@ -1,14 +1,19 @@
 'use client'
 import { createContext } from 'react'
+import { AudioStreamEvent } from '@/types'
 import { statusMessages } from '@/hooks/audioThreads/useStatus/lib/statusMessages'
 import { useRecorder } from '@/hooks/audioThreads/useRecorder'
 import { useMessageAudio } from '@/hooks/audioThreads/useMessageAudio'
 
 export const AudioThreadContext = createContext<{
+  audioStreamEvents: AudioStreamEvent[]
+  setAudioStreamEvents: (events: AudioStreamEvent[]) => void
   status: keyof typeof statusMessages
   recorderProps: ReturnType<typeof useRecorder>
   messageAudioProps: ReturnType<typeof useMessageAudio>
 }>({
+  setAudioStreamEvents: () => {},
+  audioStreamEvents: [],
   status: 'idle',
   recorderProps: {
     status: 'idle',

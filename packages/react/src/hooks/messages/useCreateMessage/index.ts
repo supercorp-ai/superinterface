@@ -5,6 +5,7 @@ import {
 } from '@tanstack/react-query'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
+import { useAudioThreadContext } from '@/hooks/threads/useAudioThreadContext'
 import { mutationOptions } from './lib/mutationOptions'
 
 export const useCreateMessage = ({
@@ -17,10 +18,12 @@ export const useCreateMessage = ({
   const queryClient = useQueryClient()
   const superinterfaceContext = useSuperinterfaceContext()
   const threadContext = useThreadContext()
+  const audioThreadContext = useAudioThreadContext()
 
   const props = useMutation(mutationOptions({
     queryClient,
     threadContext,
+    audioThreadContext,
     superinterfaceContext,
     onError,
   }))

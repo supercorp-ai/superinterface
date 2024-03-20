@@ -48,3 +48,8 @@ export type Toast = {
   type: 'success' | 'error'
   message: string
 }
+
+export type AudioStreamEvent = {
+  event: 'audio.delta' | 'audio.completed'
+  data: string
+}

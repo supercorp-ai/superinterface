@@ -3,6 +3,7 @@ import { Howler } from 'howler'
 import { useAudioPlayer } from 'react-use-audio-player'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
+import { useAudioThreadContext } from '@/hooks/threads/useAudioThreadContext'
 import { AudioEngine } from '@/types'
 import { input as getInput } from './lib/input'
 import { isHtmlAudioSupported } from './lib/isHtmlAudioSupported'
@@ -36,14 +37,50 @@ export const useMessageAudio = ({
 }: {
   onEnd: () => void
 }) => {
+  const { audioStreamEvents, setAudioStreamEvents } = useAudioThreadContext()
+
   const [playedMessageSentences, setPlayedMessageSentences] = useState<MessageSentence[]>([])
   const audioPlayer = useAudioPlayer()
   const superinterfaceContext = useSuperinterfaceContext()
   const [isPlaying, setIsPlaying] = useState(false)
+  const [isFirstMessageDone, setIsFirstMessageDone] = useState(false)
+  const [isStreaming, setIsStreaming] = useState(false)
 
+  useEffect(() => {
+    console.log({ isStreaming, isPlaying: audioPlayer.playing, first: audioStreamEvents[0] })
+    if (isStreaming) return
+    if (audioPlayer.playing) return
+    const firstAudioStreamEvent = audioStreamEvents[0]
+
+    console.log('firstAudioStreamEvent', firstAudioStreamEvent)
+    if (!firstAudioStreamEvent) return
+    setIsStreaming(true)
+
+    // @ts-ignore-next-line
+
+    // const binaryChunk = Uint8Array.from(atob(firstAudioStreamEvent.data), c => c.charCodeAt(0))
+    // const audioBlob = new Blob([new Uint8Array(binaryChunk)], { type: 'audio/mp3' })
+    // const audioUrl = URL.createObjectURL(audioBlob)
+
+    const sound = new Howl({
+      src: [`data:audio/mp3;base64,${firstAudioStreamEvent.data}`],
+      onend: () => {
+        console.log('ended')
+        setAudioStreamEvents((prev) => prev.slice(1))
+        setIsStreaming(false)
+      },
+    })
+
+    sound.play()
+
+    console.log('playing')
+  }, [isStreaming, audioStreamEvents, setAudioStreamEvents])
+
+  //
   const latestMessageProps = useLatestMessage()
 
   useEffect(() => {
+    if (isFirstMessageDone) return
     if (isPlaying) return
     if (audioPlayer.playing) return
     if (!latestMessageProps.latestMessage) return
@@ -91,6 +128,7 @@ export const useMessageAudio = ({
         setIsPlaying(false)
 
         if (unplayedMessageSentences.length === 1 && latestMessageProps.latestMessage.status !== 'in_progress') {
+          setIsFirstMessageDone(true)
           onEnd()
         }
       },
@@ -106,6 +144,7 @@ export const useMessageAudio = ({
       }),
     })
   }, [
+    isFirstMessageDone,
     isPlaying,
     superinterfaceContext,
     latestMessageProps,
@@ -153,3 +192,20 @@ export const useMessageAudio = ({
     visualizationAnalyser,
   }
 }
+    // const binaryChunk = Uint8Array.from(atob(value.value.data), c => c.charCodeAt(0))
+    // // const audioBlob = new Blob([new Uint8Array(binaryChunk)], { type: 'audio/mp3' })
+    // // const audioUrl = URL.createObjectURL(audioBlob)
+    // // const audio = new Audio(audioUrl);
+    // // audio.play()
+    // //   .catch(e => console.error('Error playing audio:', e));
+    // // console.log('played')
+    // binaryData = binaryData.concat(Array.from(binaryChunk))
+    // return
+    // const audioBlob = new Blob([new Uint8Array(binaryData)], { type: 'audio/mp3' })
+    // const audioUrl = URL.createObjectURL(audioBlob)
+    // const audio = new Audio(audioUrl);
+    // audio.play()
+    //   .catch(e => console.error('Error playing audio:', e));
+    // console.log('played')
+    //  binaryData = [];
+    // return
