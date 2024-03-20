@@ -43,26 +43,31 @@ export const useMessageAudio = ({
 
   const latestMessageProps = useLatestMessage()
 
-  useEffect(() => {
-    if (isPlaying) return
-    if (audioPlayer.playing) return
-    if (!latestMessageProps.latestMessage) return
-    if (latestMessageProps.latestMessage.role !== 'assistant') return
+  const unplayedMessageSentences = useMemo(() => {
+    if (!latestMessageProps.latestMessage) return []
+    if (latestMessageProps.latestMessage.role !== 'assistant') return []
 
     const input = getInput({
       message: latestMessageProps.latestMessage,
     })
 
-    if (!input) return
+    if (!input) return []
 
     const messageSentences = getMessageSentences({
       messageId: latestMessageProps.latestMessage.id,
       input,
     })
 
-    const unplayedMessageSentences = messageSentences.filter((ms) => (
+    return messageSentences.filter((ms) => (
       !playedMessageSentences.find((pms) => pms.messageId === ms.messageId && pms.sentence === ms.sentence)
     ))
+  }, [latestMessageProps, playedMessageSentences])
+
+  useEffect(() => {
+    if (isPlaying) return
+    if (audioPlayer.playing) return
+    if (!latestMessageProps.latestMessage) return
+    if (latestMessageProps.latestMessage.role !== 'assistant') return
 
     const firstUnplayedMessageSentence = unplayedMessageSentences[0]
     if (!firstUnplayedMessageSentence) {
@@ -106,6 +111,7 @@ export const useMessageAudio = ({
       }),
     })
   }, [
+    unplayedMessageSentences,
     isPlaying,
     superinterfaceContext,
     latestMessageProps,
@@ -148,7 +154,10 @@ export const useMessageAudio = ({
     return result
   }, [audioEngine])
 
+  const isPending = useMemo(() => isPlaying || unplayedMessageSentences.length > 0, [isPlaying, unplayedMessageSentences])
+
   return {
+    isPending,
     ...audioPlayer,
     visualizationAnalyser,
   }
