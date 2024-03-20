@@ -124,13 +124,20 @@ export const useMessageAudio = ({
   const [audioEngine, setAudioEngine] = useState<AudioEngine | null>(null)
 
   useEffect(() => {
+    if (isHtmlAudioSupported) {
+      if (!Howler?._howls?[0]?._sounds?[0]?._node?.crossOrigin) return
+
+      Howler._howls[0]._sounds[0]._node.crossOrigin = 'anonymous'
+    }
+  }, [audioPlayer])
+
+  useEffect(() => {
     if (!audioPlayer.playing) return
     if (isInited.current) return
     isInited.current = true
 
     if (isHtmlAudioSupported) {
       const audioContext = new AudioContext()
-      Howler._howls[0]._sounds[0]._node.crossOrigin = "anonymous"
       setAudioEngine({
         // @ts-ignore-next-line
         source: audioContext.createMediaElementSource(Howler._howls[0]._sounds[0]._node),
