@@ -3,7 +3,7 @@ import pMap from 'p-map'
 import { extendMessage } from '@/lib/messages/extendMessage'
 import { runMessages } from './runMessages'
 
-export const data = async ({
+export const messages = async ({
   messagesResponse,
   pageParam,
   threadId,
@@ -14,7 +14,7 @@ export const data = async ({
   threadId: string
   client: OpenAI
 }) => {
-  const messages = await pMap(messagesResponse.data, (message) => (
+  const result = await pMap(messagesResponse.data, (message) => (
     extendMessage({
       client,
       message,
@@ -22,15 +22,15 @@ export const data = async ({
   ))
 
   if (pageParam) {
-    return messages
+    return result
   }
 
   return [
     ...await runMessages({
-      messages,
+      result,
       threadId,
       client,
     }),
-    ...messages,
+    ...result,
   ]
 }

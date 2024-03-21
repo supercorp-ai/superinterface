@@ -1,24 +1,24 @@
 import _ from 'lodash'
-import { defaultClient } from '@/lib/ai'
+import OpenAI from 'openai'
 import { MessagesPage } from '@/types'
 import { data } from './data'
-import { messagesLimit } from './messagesLimit'
+import { limit } from './limit'
 import { hasNextPage } from './hasNextPage'
 
 type Args = {
-  client?: typeof defaultClient
+  client: OpenAI
   threadId: string
   pageParam?: string
 }
 
-export const messagesQueryFn = async ({
-  client = defaultClient,
+export const messagesResponse = async ({
+  client,
   threadId,
   pageParam,
 }: Args): Promise<MessagesPage> => {
   const messagesResponse = await client.beta.threads.messages.list(threadId, {
     ...(pageParam ? { after: pageParam } : {}),
-    limit: messagesLimit,
+    limit,
   })
 
   return {

@@ -1,5 +1,4 @@
-import OpenAI from 'openai'
-import { Message } from '@superinterface/react/types'
+import { SerializedMessage, ThreadMessageCreatedEvent } from '@/types'
 import { isOptimistic } from '@/lib/optimistic/isOptimistic'
 import { extendMessage } from './extendMessage'
 
@@ -7,10 +6,10 @@ const appendMessage = ({
   message,
   messages,
 }: {
-  message: Message
-  messages: Message[]
+  message: SerializedMessage
+  messages: SerializedMessage[]
 }) => {
-  const prevMessages = messages.filter((m: Message) => (
+  const prevMessages = messages.filter((m: SerializedMessage) => (
     m.run_id != message.run_id || !isOptimistic({ id: m.id })
   ))
 
@@ -23,7 +22,7 @@ const appendMessage = ({
 export const threadMessageCreated = ({
   value,
 }: {
-  value: OpenAI.Beta.Assistants.AssistantStreamEvent.ThreadMessageCreated
+  value: ThreadMessageCreatedEvent
 }) => (prevData: any) => {
   if (!prevData) {
     return {

@@ -4,7 +4,7 @@ import {
   useInfiniteQuery,
   useQueryClient,
 } from '@tanstack/react-query'
-import { Message, MessagesPage } from '@/types'
+import { SerializedMessage, MessagesPage } from '@/types'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
 import { messagesQueryOptions } from '@/lib/messages/messagesQueryOptions'
@@ -18,7 +18,7 @@ const messages = ({
 }) => {
   if (!props.data) return []
 
-  return props.data.pages.reduce<Message[]>((acc, page) => (
+  return props.data.pages.reduce<SerializedMessage[]>((acc, page) => (
     acc.concat(page.data)
   ), [])
 }

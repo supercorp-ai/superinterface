@@ -1,19 +1,19 @@
 import { last } from 'radash'
-import { Message } from '@superinterface/react/types'
+import { SerializedMessage } from '@/types'
 import { isOptimistic } from '@/lib/optimistic/isOptimistic'
 
 export const extendMessage = ({
   message,
   messages,
 }: {
-  message: Message
-  messages: Message[]
+  message: SerializedMessage
+  messages: SerializedMessage[]
 }) => {
-  const prevRunMessages = messages.filter((m: Message) => (
+  const prevRunMessages = messages.filter((m: SerializedMessage) => (
     m.run_id === message.run_id
   ))
 
-  const prevOptimitisticRunMessages = prevRunMessages.filter((m: Message) => (
+  const prevOptimitisticRunMessages = prevRunMessages.filter((m: SerializedMessage) => (
     isOptimistic({ id: m.id })
   ))
 

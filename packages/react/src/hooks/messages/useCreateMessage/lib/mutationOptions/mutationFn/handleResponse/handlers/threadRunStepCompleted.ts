@@ -1,5 +1,5 @@
 import OpenAI from 'openai'
-import { RunStep, Message } from '@superinterface/react/types'
+import { SerializedRunStep, SerializedMessage } from '@/types'
 import { replace } from 'radash'
 
 export const threadRunStepCompleted = ({
@@ -16,11 +16,11 @@ export const threadRunStepCompleted = ({
     pages: [
       {
         ...latestPage,
-        data: latestPage.data.map((m: Message) => {
+        data: latestPage.data.map((m: SerializedMessage) => {
           if (m.run_id === value.data.run_id) {
             return {
               ...m,
-              runSteps: replace(m.runSteps, value.data, (rs: RunStep) => rs.id === value.data.id),
+              runSteps: replace(m.runSteps, value.data, (rs: SerializedRunStep) => rs.id === value.data.id),
             }
           }
 

@@ -1,11 +1,11 @@
 import _ from 'lodash'
 import { last } from 'radash'
-import { Message, MessageGroup } from '@/types'
+import { SerializedMessage, MessageGroup } from '@/types'
 import { order } from '@/lib/messages/order'
 import { newGroup } from './newGroup'
 
 type Args = {
-  messages: Message[]
+  messages: SerializedMessage[]
 }
 
 export const messageGroups = ({
@@ -13,7 +13,7 @@ export const messageGroups = ({
 }: Args) =>
   _.reduce(
     order({ messages }),
-    (groups: MessageGroup[], message: Message) => {
+    (groups: MessageGroup[], message: SerializedMessage) => {
       const group = last(groups)
 
       if (!group) return newGroup({ groups, message })

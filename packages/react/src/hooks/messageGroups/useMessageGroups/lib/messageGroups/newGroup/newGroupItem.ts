@@ -1,7 +1,7 @@
-import { Message } from '@/types'
+import { SerializedMessage } from '@/types'
 
 type Args = {
-  message: Message
+  message: SerializedMessage
 }
 
 export const newGroupItem = ({ message }: Args) => ({

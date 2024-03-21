@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import { messageGroups as getMessageGroups } from './lib/messageGroups'
-import { Message } from '@/types'
+import { SerializedMessage } from '@/types'
 
 type Args = {
-  messages: Message[]
+  messages: SerializedMessage[]
 }
 
 export const useMessageGroups = ({

@@ -1,11 +1,11 @@
-import OpenAI from 'openai'
 import { replace } from 'radash'
+import { ThreadMessageCompletedEvent } from '@/types'
 import { extendMessage } from './extendMessage'
 
 export const threadMessageCompleted = ({
   value,
 }: {
-  value: OpenAI.Beta.Assistants.AssistantStreamEvent.ThreadMessageCompleted
+  value: ThreadMessageCompletedEvent
 }) => (prevData: any) => {
   if (!prevData) {
     return {

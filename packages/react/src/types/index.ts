@@ -1,19 +1,13 @@
 import OpenAI from 'openai'
 
-export type RunStep = OpenAI.Beta.Threads.Runs.RunStep
+export type SerializedRunStep = Pick<OpenAI.Beta.Threads.Runs.RunStep, 'id' | 'run_id' | 'step_details' | 'completed_at' | 'cancelled_at' | 'failed_at' | 'status'>
 
-export type Message = OpenAI.Beta.Threads.Messages.Message & {
-  runSteps: RunStep[]
+export type SerializedMessage = Pick<OpenAI.Beta.Threads.Messages.Message, 'id' | 'role' | 'created_at' | 'content' | 'run_id' | 'assistant_id' | 'thread_id' | 'file_ids' | 'metadata' | 'status'> & {
+  runSteps: SerializedRunStep[]
 }
 
 export type MessagesPage = {
-  data: Message[]
-  hasNextPage: boolean
-  lastId: string
-}
-
-export type RunStepsPage = {
-  data: OpenAI.Beta.Threads.Runs.RunStep[]
+  data: SerializedMessage[]
   hasNextPage: boolean
   lastId: string
 }
@@ -21,22 +15,8 @@ export type RunStepsPage = {
 export type MessageGroup = {
   id: string
   role: "user" | "assistant"
-  messages: Message[]
+  messages: SerializedMessage[]
   createdAt: number
-}
-
-export type Run = OpenAI.Beta.Threads.Runs.Run
-
-export type RunsPage = {
-  data: Run[]
-  hasNextPage: boolean
-  lastId: string
-}
-
-type Fn = (args: any) => Promise<string>
-
-export type Functions = {
-  [key: string]: Fn
 }
 
 export type AudioEngine = {
@@ -47,4 +27,18 @@ export type AudioEngine = {
 export type Toast = {
   type: 'success' | 'error'
   message: string
+}
+
+export type ThreadMessageCreatedEvent = OpenAI.Beta.Assistants.AssistantStreamEvent.ThreadMessageCreated & {
+  data: SerializedMessage
+}
+
+export type ThreadMessageCompletedEvent = OpenAI.Beta.Assistants.AssistantStreamEvent.ThreadMessageCompleted & {
+  data: SerializedMessage
+}
+
+export type ThreadRunStepDeltaEvent = OpenAI.Beta.Assistants.AssistantStreamEvent.ThreadRunStepDelta & {
+  data: {
+    run_id: string
+  }
 }

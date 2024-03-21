@@ -1,8 +1,8 @@
 import { sort } from 'radash'
-import { Message } from '@/types'
+import { SerializedMessage } from '@/types'
 
 type Args = {
-  messages: Message[]
+  messages: SerializedMessage[]
 }
 
 export const order = ({ messages }: Args) =>

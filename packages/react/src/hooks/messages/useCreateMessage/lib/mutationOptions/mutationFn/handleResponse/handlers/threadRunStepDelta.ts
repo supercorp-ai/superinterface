@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import { omit } from 'radash'
 import OpenAI from 'openai'
-import { Message, RunStep } from '@superinterface/react/types'
+import { SerializedMessage, SerializedRunStep, ThreadRunStepDeltaEvent } from '@/types'
 
 const updatedToolCall = ({
   toolCall,
@@ -32,8 +32,8 @@ const updatedRunStep = ({
   runStep,
   value,
 }: {
-  runStep: RunStep
-  value: OpenAI.Beta.Assistants.AssistantStreamEvent.ThreadRunStepDelta
+  runStep: SerializedRunStep
+  value: ThreadRunStepDeltaEvent
 }) => {
   if (!runStep?.step_details?.tool_calls) return runStep
 
@@ -66,11 +66,7 @@ const updatedRunStep = ({
 export const threadRunStepDelta = ({
   value,
 }: {
-  value: OpenAI.Beta.Assistants.AssistantStreamEvent.ThreadRunStepDelta & {
-    data: {
-      run_id: string
-    }
-  }
+  value: ThreadRunStepDeltaEvent
 }) => (prevData: any) => {
   if (!prevData) return prevData
 
@@ -81,11 +77,11 @@ export const threadRunStepDelta = ({
     pages: [
       {
         ...latestPage,
-        data: latestPage.data.map((m: Message) => {
+        data: latestPage.data.map((m: SerializedMessage) => {
           if (m.run_id === value.data.run_id) {
             return {
               ...m,
-              runSteps: m.runSteps.map((rs: RunStep) => {
+              runSteps: m.runSteps.map((rs: SerializedRunStep) => {
                 if (rs.id === value.data.id) {
                   return updatedRunStep({ runStep: rs, value })
                 }

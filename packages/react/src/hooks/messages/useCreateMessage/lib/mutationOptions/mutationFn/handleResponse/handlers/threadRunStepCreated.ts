@@ -1,5 +1,5 @@
 import OpenAI from 'openai'
-import { Message } from '@superinterface/react/types'
+import { SerializedMessage } from '@/types'
 
 export const threadRunStepCreated = ({
   value,
@@ -15,7 +15,7 @@ export const threadRunStepCreated = ({
     pages: [
       {
         ...latestPage,
-        data: latestPage.data.map((m: Message) => {
+        data: latestPage.data.map((m: SerializedMessage) => {
           if (m.run_id === value.data.run_id) {
             return {
               ...m,
