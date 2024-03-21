@@ -48,6 +48,12 @@ export const Message = ({
     return [olderRunSteps, laterRunSteps]
   }, [message])
 
+  const isInProgress = useMemo(() => {
+    if (message.status === 'in_progress') return true
+
+    return message.runSteps.some((rs) => rs.status === 'in_progress')
+  }, [message])
+
   return (
     <Provider value={{ message }}>
       <Box>
@@ -65,7 +71,7 @@ export const Message = ({
               )}
             </Fragment>
           ))}
-          {message.status === 'in_progress' && (
+          {isInProgress && (
             <StartingContentSkeleton />
           )}
         </Box>
