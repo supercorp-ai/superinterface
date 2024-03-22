@@ -106,7 +106,6 @@ export const useMessageAudio = ({
               Authorization: `Bearer ${superinterfaceContext.publicApiKey}`,
             },
           } : {}),
-          withCredentials: true,
         },
       }),
     })

@@ -16,7 +16,6 @@ export const queryFn = ({
   const [_key, { assistantId }] = queryKey
 
   return fetch(`${superinterfaceContext.baseUrl}/assistants/${assistantId}`, {
-    credentials: 'include',
     ...(superinterfaceContext.publicApiKey ? {
       headers: {
         Authorization: `Bearer ${superinterfaceContext.publicApiKey}`,

@@ -8,6 +8,7 @@ import {
 import { merge } from '@/lib/misc/merge'
 import { SuperinterfaceContext } from '@/contexts/core/SuperinterfaceContext'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
+import { options } from '@/lib/threadIdCookies/options'
 
 export type Args = {
   children: React.ReactNode
@@ -20,6 +21,7 @@ export type Args = {
     queries?: UseInfiniteQueryOptions<InfiniteData<MessagesPage>>
     mutations?: UseMutationOptions
   }
+  threadIdCookieOptions?: typeof options | null
 }
 
 export const SuperinterfaceProvider = ({
@@ -28,6 +30,7 @@ export const SuperinterfaceProvider = ({
   publicApiKey,
   variables,
   defaultOptions,
+  threadIdCookieOptions,
 }: Args) => {
   const superinterfaceContext = useSuperinterfaceContext()
 
@@ -38,6 +41,7 @@ export const SuperinterfaceProvider = ({
       ...(publicApiKey ? { publicApiKey } : {}),
       ...(variables ? { variables } : {}),
       ...(defaultOptions ? { defaultOptions } : {}),
+      ...(threadIdCookieOptions ? { threadIdCookieOptions } : {}),
     }
   )
 

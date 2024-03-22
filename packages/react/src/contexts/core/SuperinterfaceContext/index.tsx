@@ -1,5 +1,7 @@
 'use client'
 import { createContext } from 'react'
+import { baseUrl } from '@/lib/superinterfaceCloud/baseUrl'
+import { options } from '@/lib/threadIdCookies/options'
 
 export const SuperinterfaceContext = createContext<{
   baseUrl: string | null
@@ -9,11 +11,13 @@ export const SuperinterfaceContext = createContext<{
     mutations: Record<string, any>
   }
   publicApiKey?: string
+  threadIdCookieOptions: typeof options | null
 }>({
-  baseUrl: 'https://superinterface.ai/api/cloud',
+  baseUrl,
   variables: {},
   defaultOptions: {
     queries: {},
     mutations: {},
   },
+  threadIdCookieOptions: options,
 })

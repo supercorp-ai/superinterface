@@ -5,6 +5,7 @@ import {
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
 import { MessagesPage } from '@/types'
+import { variableParams } from './variableParams'
 
 type QueryFunctionArgs = {
   queryKey: Readonly<[string, { [key: string]: any }]>
@@ -35,11 +36,10 @@ export const queryOptions = ({
       const [_key, variables] = queryKey
       const params = new URLSearchParams({
         ...(pageParam ? { pageParam } : {}),
-        ...variables,
+        ...variableParams({ variables, superinterfaceContext }),
       })
 
       return fetch(`${superinterfaceContext.baseUrl}${path}?${params}`, {
-        credentials: 'include',
         ...(superinterfaceContext.publicApiKey ? {
           headers: {
             Authorization: `Bearer ${superinterfaceContext.publicApiKey}`,

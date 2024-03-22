@@ -4,7 +4,9 @@ import {
 } from '@tanstack/react-query'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
+import { ensure } from '@/lib/threadIdCookies/ensure'
 import { handleResponse } from './handleResponse'
+import { body } from './body'
 
 export const mutationFn = ({
   superinterfaceContext,
@@ -20,8 +22,10 @@ export const mutationFn = ({
 }) => {
   const response = await fetch(`${superinterfaceContext.baseUrl}/messages`, {
     method: 'POST',
-    body: JSON.stringify(variables),
-    credentials: 'include',
+    body: JSON.stringify(body({
+      variables,
+      superinterfaceContext,
+    })),
     ...(superinterfaceContext.publicApiKey ? {
       headers: {
         Authorization: `Bearer ${superinterfaceContext.publicApiKey}`,
@@ -47,6 +51,12 @@ export const mutationFn = ({
       value,
       messagesQueryKey,
       queryClient,
+    })
+
+    ensure({
+      superinterfaceContext,
+      variables,
+      value,
     })
   }
 }
