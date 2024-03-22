@@ -14,13 +14,11 @@ export const ensure = ({
     value: OpenAI.Beta.Assistants.AssistantStreamEvent
   }
 }) => {
-  console.log({ value, variables, superinterfaceContext })
   if (!superinterfaceContext.threadIdCookieOptions?.set) return
   if (value.value.event !== 'thread.run.created') return
   if (variables.threadId) return
   if (!variables.assistantId) return
 
-  console.log('saving')
   superinterfaceContext.threadIdCookieOptions.set({
     assistantId: variables.assistantId,
     threadId: value.value.data.thread_id,

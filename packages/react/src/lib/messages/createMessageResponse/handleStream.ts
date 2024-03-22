@@ -41,8 +41,6 @@ export const handleStream = async ({
     } else if (value.event === 'thread.run.requires_action') {
       controller.enqueue(JSON.stringify(value))
 
-      console.log('starting to handle in handleStream')
-      console.dir({ value }, { depth: null })
       await handleStream({
         client,
         stream: await actionsStream({
