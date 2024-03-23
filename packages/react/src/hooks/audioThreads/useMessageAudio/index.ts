@@ -83,9 +83,7 @@ export const useMessageAudio = ({
 
     const searchParams = new URLSearchParams({
       input: firstUnplayedMessageSentence.sentence,
-      ...(isHtmlAudioSupported && superinterfaceContext.publicApiKey ? {
-        publicApiKey: superinterfaceContext.publicApiKey,
-      } : {})
+      ...superinterfaceContext.variables,
     })
 
     audioPlayer.load(`${superinterfaceContext.baseUrl}/tts?${searchParams}`, {
@@ -99,15 +97,6 @@ export const useMessageAudio = ({
           onEnd()
         }
       },
-      ...(isHtmlAudioSupported ? {} : {
-        xhr: {
-          ...(superinterfaceContext.publicApiKey ? {
-            headers: {
-              Authorization: `Bearer ${superinterfaceContext.publicApiKey}`,
-            },
-          } : {}),
-        },
-      }),
     })
   }, [
     unplayedMessageSentences,

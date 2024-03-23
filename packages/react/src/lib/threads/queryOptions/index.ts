@@ -39,13 +39,7 @@ export const queryOptions = ({
         ...variableParams({ variables, superinterfaceContext }),
       })
 
-      return fetch(`${superinterfaceContext.baseUrl}${path}?${params}`, {
-        ...(superinterfaceContext.publicApiKey ? {
-          headers: {
-            Authorization: `Bearer ${superinterfaceContext.publicApiKey}`,
-          },
-        } : {}),
-      })
+      return fetch(`${superinterfaceContext.baseUrl}${path}?${params}`)
         .then(async (response) => {
           if (response.status !== 200) {
             try {

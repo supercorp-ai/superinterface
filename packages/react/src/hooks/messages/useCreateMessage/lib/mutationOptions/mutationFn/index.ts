@@ -26,11 +26,6 @@ export const mutationFn = ({
       variables,
       superinterfaceContext,
     })),
-    ...(superinterfaceContext.publicApiKey ? {
-      headers: {
-        Authorization: `Bearer ${superinterfaceContext.publicApiKey}`,
-      },
-    } : {}),
   })
 
   if (response.body == null) {

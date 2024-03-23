@@ -37,8 +37,8 @@ export const Providers = ({
   return (
     <SuperinterfaceProvider
       baseUrl={superinterfaceContext.baseUrl ?? 'https://superinterface.ai/api/cloud'}
-      publicApiKey={superinterfaceContext.publicApiKey}
       variables={{
+        publicApiKey: superinterfaceContext.publicApiKey,
         assistantId: superinterfaceContext.assistantId,
       }}
     >

@@ -13,7 +13,6 @@ import { options } from '@/lib/threadIdCookies/options'
 export type Args = {
   children: React.ReactNode
   baseUrl?: string
-  publicApiKey?: string
   variables?: {
     [key: string]: any
   }
@@ -27,7 +26,6 @@ export type Args = {
 export const SuperinterfaceProvider = ({
   children,
   baseUrl,
-  publicApiKey,
   variables,
   defaultOptions,
   threadIdCookieOptions,
@@ -38,7 +36,6 @@ export const SuperinterfaceProvider = ({
     superinterfaceContext,
     {
       ...(baseUrl ? { baseUrl } : {}),
-      ...(publicApiKey ? { publicApiKey } : {}),
       ...(variables ? { variables } : {}),
       ...(defaultOptions ? { defaultOptions } : {}),
       ...(threadIdCookieOptions ? { threadIdCookieOptions } : {}),

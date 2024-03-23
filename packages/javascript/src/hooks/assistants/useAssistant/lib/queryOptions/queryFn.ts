@@ -15,13 +15,11 @@ export const queryFn = ({
 }: QueryFunctionArgs) => {
   const [_key, { assistantId }] = queryKey
 
-  return fetch(`${superinterfaceContext.baseUrl}/assistants/${assistantId}`, {
-    ...(superinterfaceContext.publicApiKey ? {
-      headers: {
-        Authorization: `Bearer ${superinterfaceContext.publicApiKey}`,
-      },
-    } : {}),
+  const params = new URLSearchParams({
+    publicApiKey: superinterfaceContext.publicApiKey,
   })
+
+  return fetch(`${superinterfaceContext.baseUrl}/assistants/${assistantId}?${params}`)
     .then(async (response) => {
       if (response.status !== 200) {
         try {

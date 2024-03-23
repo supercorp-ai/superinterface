@@ -10,7 +10,6 @@ export const SuperinterfaceContext = createContext<{
     queries: Record<string, any>
     mutations: Record<string, any>
   }
-  publicApiKey?: string
   threadIdCookieOptions: typeof options | null
 }>({
   baseUrl,
