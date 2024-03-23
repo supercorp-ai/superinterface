@@ -1,7 +1,8 @@
+import { QueryClient } from '@tanstack/react-query'
 import _ from 'lodash'
 import { omit } from 'radash'
 import OpenAI from 'openai'
-import { SerializedMessage, SerializedRunStep, ThreadRunStepDeltaEvent } from '@/types'
+import { SerializedMessage, SerializedRunStep, ThreadRunStepDeltaEvent, MessagesQueryKey } from '@/types'
 
 const updatedToolCall = ({
   toolCall,
@@ -65,36 +66,45 @@ const updatedRunStep = ({
 
 export const threadRunStepDelta = ({
   value,
+  queryClient,
+  messagesQueryKey,
 }: {
   value: ThreadRunStepDeltaEvent
-}) => (prevData: any) => {
-  if (!prevData) return prevData
+  messagesQueryKey: MessagesQueryKey
+  queryClient: QueryClient
+}) => (
+  queryClient.setQueryData(
+    messagesQueryKey,
+    (prevData: any) => {
+      if (!prevData) return prevData
 
-  const [latestPage, ...pagesRest] = prevData.pages
+      const [latestPage, ...pagesRest] = prevData.pages
 
-  return {
-    ...prevData,
-    pages: [
-      {
-        ...latestPage,
-        data: latestPage.data.map((m: SerializedMessage) => {
-          if (m.run_id === value.data.run_id) {
-            return {
-              ...m,
-              runSteps: m.runSteps.map((rs: SerializedRunStep) => {
-                if (rs.id === value.data.id) {
-                  return updatedRunStep({ runStep: rs, value })
+      return {
+        ...prevData,
+        pages: [
+          {
+            ...latestPage,
+            data: latestPage.data.map((m: SerializedMessage) => {
+              if (m.run_id === value.data.run_id) {
+                return {
+                  ...m,
+                  runSteps: m.runSteps.map((rs: SerializedRunStep) => {
+                    if (rs.id === value.data.id) {
+                      return updatedRunStep({ runStep: rs, value })
+                    }
+
+                    return rs
+                  }),
                 }
+              }
 
-                return rs
-              }),
-            }
-          }
-
-          return m
-        }),
-      },
-      ...pagesRest,
-    ],
-  }
-}
+              return m
+            }),
+          },
+          ...pagesRest,
+        ],
+      }
+    }
+  )
+)

@@ -1,3 +1,4 @@
+import { threadCreated } from './threadCreated'
 import { threadMessageCreated } from './threadMessageCreated'
 import { threadMessageDelta } from './threadMessageDelta'
 import { threadMessageCompleted } from './threadMessageCompleted'
@@ -7,6 +8,7 @@ import { threadRunStepDelta } from './threadRunStepDelta'
 import { threadRunStepCompleted } from './threadRunStepCompleted'
 
 export const handlers = {
+  'thread.created': threadCreated,
   'thread.message.created': threadMessageCreated,
   'thread.message.delta': threadMessageDelta,
   'thread.message.completed': threadMessageCompleted,

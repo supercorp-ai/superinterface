@@ -4,7 +4,6 @@ import {
 } from '@tanstack/react-query'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
-import { ensure } from '@/lib/threadIdCookies/ensure'
 import { handleResponse } from './handleResponse'
 import { body } from './body'
 
@@ -46,12 +45,8 @@ export const mutationFn = ({
       value,
       messagesQueryKey,
       queryClient,
-    })
-
-    ensure({
-      superinterfaceContext,
       variables,
-      value,
+      superinterfaceContext,
     })
   }
 }

@@ -1,6 +1,8 @@
+import { QueryClient } from '@tanstack/react-query'
 import { SerializedMessage, ThreadMessageCreatedEvent } from '@/types'
 import { isOptimistic } from '@/lib/optimistic/isOptimistic'
 import { extendMessage } from './extendMessage'
+import { MessagesQueryKey } from '@/types'
 
 const appendMessage = ({
   message,
@@ -21,32 +23,41 @@ const appendMessage = ({
 
 export const threadMessageCreated = ({
   value,
+  messagesQueryKey,
+  queryClient,
 }: {
   value: ThreadMessageCreatedEvent
-}) => (prevData: any) => {
-  if (!prevData) {
-    return {
-      pageParams: [],
-      pages: [
-        {
-          data: appendMessage({ message: value.data, messages: [] }),
-          hasNextPage: false,
-          lastId: value.data.id,
-        },
-      ],
+  messagesQueryKey: MessagesQueryKey
+  queryClient: QueryClient
+}) => (
+  queryClient.setQueryData(
+    messagesQueryKey,
+    (prevData: any) => {
+      if (!prevData) {
+        return {
+          pageParams: [],
+          pages: [
+            {
+              data: appendMessage({ message: value.data, messages: [] }),
+              hasNextPage: false,
+              lastId: value.data.id,
+            },
+          ],
+        }
+      }
+
+      const [latestPage, ...pagesRest] = prevData.pages
+
+      return {
+        ...prevData,
+        pages: [
+          {
+            ...latestPage,
+            data: appendMessage({ message: value.data, messages: latestPage.data }),
+          },
+          ...pagesRest,
+        ],
+      }
     }
-  }
-
-  const [latestPage, ...pagesRest] = prevData.pages
-
-  return {
-    ...prevData,
-    pages: [
-      {
-        ...latestPage,
-        data: appendMessage({ message: value.data, messages: latestPage.data }),
-      },
-      ...pagesRest,
-    ],
-  }
-}
+  )
+)

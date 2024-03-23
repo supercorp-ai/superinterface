@@ -42,3 +42,5 @@ export type ThreadRunStepDeltaEvent = OpenAI.Beta.Assistants.AssistantStreamEven
     run_id: string
   }
 }
+
+export type MessagesQueryKey = (string | Record<string, any>)[]

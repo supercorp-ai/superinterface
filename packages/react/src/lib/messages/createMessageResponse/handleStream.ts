@@ -1,17 +1,8 @@
 import { serializeMessage } from '@/lib/messages/serializeMessage'
 import { serializeRun } from '@/lib/runs/serializeRun'
 import { serializeRunStep } from '@/lib/runSteps/serializeRunStep'
+import { enqueueJson } from '@/lib/streams/enqueueJson'
 import { actionsStream } from './actionsStream'
-
-const enqueueJson = ({
-  controller,
-  value,
-}: {
-  controller: ReadableStreamDefaultController
-  value: any
-}) => (
-  controller.enqueue(new TextEncoder().encode(JSON.stringify(value)))
-)
 
 export const handleStream = async ({
   client,

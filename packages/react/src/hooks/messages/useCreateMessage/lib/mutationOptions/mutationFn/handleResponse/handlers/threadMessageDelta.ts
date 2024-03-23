@@ -1,6 +1,8 @@
+import { QueryClient } from '@tanstack/react-query'
 import OpenAI from 'openai'
 import _ from 'lodash'
 import { omit } from 'radash'
+import { MessagesQueryKey } from '@/types'
 
 const updatedContentPart = ({
   prevContentPart,
@@ -55,39 +57,48 @@ const updatedContent = ({
 
 export const threadMessageDelta = ({
   value,
+  queryClient,
+  messagesQueryKey,
 }: {
   value: OpenAI.Beta.Assistants.AssistantStreamEvent.ThreadMessageDelta
-}) => (prevData: any) => {
-  if (!prevData) {
-    return {
-      pageParams: [],
-      pages: [
-        {
-          data: [],
-          hasNextPage: false,
-          lastId: null,
-        },
-      ],
-    }
-  }
+  messagesQueryKey: MessagesQueryKey
+  queryClient: QueryClient
+}) => (
+  queryClient.setQueryData(
+    messagesQueryKey,
+    (prevData: any) => {
+      if (!prevData) {
+        return {
+          pageParams: [],
+          pages: [
+            {
+              data: [],
+              hasNextPage: false,
+              lastId: null,
+            },
+          ],
+        }
+      }
 
-  const [latestPage, ...pagesRest] = prevData.pages
-  const [latestMessage, ...messagesRest] = latestPage.data
+      const [latestPage, ...pagesRest] = prevData.pages
+      const [latestMessage, ...messagesRest] = latestPage.data
 
-  return {
-    ...prevData,
-    pages: [
-      {
-        ...latestPage,
-        data: [
+      return {
+        ...prevData,
+        pages: [
           {
-            ...latestMessage,
-            content: updatedContent({ content: latestMessage.content, value }),
+            ...latestPage,
+            data: [
+              {
+                ...latestMessage,
+                content: updatedContent({ content: latestMessage.content, value }),
+              },
+              ...messagesRest,
+            ],
           },
-          ...messagesRest,
+          ...pagesRest,
         ],
-      },
-      ...pagesRest,
-    ],
-  }
-}
+      }
+    }
+  )
+)
