@@ -26,7 +26,7 @@ export const CustomToast = ({
           >
             {toast.type === 'success' ? (
               <CheckCircledIcon
-                color="var(--mint-9)"
+                color="var(--accent-9)"
               />
             ) : (
               <CrossCircledIcon

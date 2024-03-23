@@ -98,9 +98,9 @@ export const ActionButton = () => {
       <IconButton
         onClick={() => audioThreadContext.messageAudioProps.play()}
         size="4"
-        color="gray"
         radius="full"
         style={{
+          backgroundColor: 'var(--accent-11)',
           border: '2px solid var(--gray-8)',
         }}
       >

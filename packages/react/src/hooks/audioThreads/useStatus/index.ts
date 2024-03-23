@@ -22,8 +22,8 @@ export const useStatus = ({
     if (recorderProps.status === 'recording') return 'recording'
     if (createMessageProps.isPending) return 'creatingMessage'
 
+    if (messageAudioProps.paused || !messageAudioProps.isAudioPlayed) return 'playerPaused'
     if (messageAudioProps.playing || messageAudioProps.isPending) return 'playing'
-    if (messageAudioProps.paused) return 'playerPaused'
     if (!messageAudioProps.isReady) return 'loading'
     if (latestMessageProps.latestMessage?.status === 'in_progress') return 'creatingMessage'
     if (recorderProps.status === 'idle') return 'idle'

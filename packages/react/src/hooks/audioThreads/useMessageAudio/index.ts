@@ -36,6 +36,7 @@ export const useMessageAudio = ({
 }: {
   onEnd: () => void
 }) => {
+  const [isAudioPlayed, setIsAudioPlayed] = useState(false)
   const [playedMessageSentences, setPlayedMessageSentences] = useState<MessageSentence[]>([])
   const audioPlayer = useAudioPlayer()
   const superinterfaceContext = useSuperinterfaceContext()
@@ -88,8 +89,11 @@ export const useMessageAudio = ({
 
     audioPlayer.load(`${superinterfaceContext.baseUrl}/tts?${searchParams}`, {
       format: 'mp3',
-      autoplay: true,
+      autoplay: isAudioPlayed,
       html5: isHtmlAudioSupported,
+      onplay: () => {
+        setIsAudioPlayed(true)
+      },
       onend: () => {
         setIsPlaying(false)
 
@@ -108,21 +112,14 @@ export const useMessageAudio = ({
     onEnd,
   ])
 
-  const isInited = useRef(false)
   const [audioEngine, setAudioEngine] = useState<AudioEngine | null>(null)
 
-  useEffect(() => {
-    if (isHtmlAudioSupported) {
-      if (!Howler?._howls[0]?._sounds[0]?._node) return
-
-      Howler._howls[0]._sounds[0]._node.crossOrigin = 'anonymous'
-    }
-  }, [audioPlayer])
+  const isAudioEngineInited = useRef(false)
 
   useEffect(() => {
     if (!audioPlayer.playing) return
-    if (isInited.current) return
-    isInited.current = true
+    if (isAudioEngineInited.current) return
+    isAudioEngineInited.current = true
 
     if (isHtmlAudioSupported) {
       const audioContext = new AudioContext()
@@ -137,7 +134,7 @@ export const useMessageAudio = ({
         audioContext: Howler.ctx,
       })
     }
-  }, [audioPlayer, isInited])
+  }, [audioPlayer, isAudioEngineInited])
 
   const visualizationAnalyser = useMemo(() => {
     if (!audioEngine) return null
@@ -153,6 +150,7 @@ export const useMessageAudio = ({
 
   return {
     isPending,
+    isAudioPlayed,
     ...audioPlayer,
     visualizationAnalyser,
   }

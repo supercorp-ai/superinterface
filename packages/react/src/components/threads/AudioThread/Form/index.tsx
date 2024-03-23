@@ -25,7 +25,7 @@ export const Form = () => {
         >
           <SpeakerModerateIcon
             style={{
-              color: `var(--${audioThreadContext.status === 'recording' ? 'mint' : 'gray'}-12)`,
+              color: audioThreadContext.status === 'recording' ? 'var(--accent-12)' : 'var(--gray-12)',
             }}
           />
         </Flex>
@@ -34,13 +34,13 @@ export const Form = () => {
           px="2"
           py="1"
           style= {{
-            backgroundColor: `var(--${audioThreadContext.status === 'recording' ? 'mint' : 'gray'}-4)`,
+            backgroundColor: audioThreadContext.status === 'recording' ? 'var(--accent-4)' : 'var(--gray-4)',
             borderRadius: 'var(--radius-6)',
           }}
         >
           <BarsVisualizer
             visualizationAnalyser={audioThreadContext.recorderProps.visualizationAnalyser}
-            color={audioThreadContext.status === 'recording' ? 'mint' : 'gray'}
+            backgroundColor={audioThreadContext.status === 'recording' ? 'var(--accent-11)' : 'var(--gray-11)'}
             height="20px"
             barWidth="12px"
           />

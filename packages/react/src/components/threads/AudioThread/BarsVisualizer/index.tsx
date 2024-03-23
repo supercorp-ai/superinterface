@@ -11,26 +11,23 @@ const barCount = 4
 
 export const BarsVisualizer = ({
   visualizationAnalyser,
-  color,
+  backgroundColor,
   height,
   barWidth,
 }: {
   visualizationAnalyser: AnalyserNode | null
-  color: string
+  backgroundColor: string
   height: string
   barWidth: string
 }) => {
-  const [cachedEmptyVisualizer, setCachedEmptyVisualizer] = useState<AnalyserNode | null>(null)
-
-  const getEmptyVisualizer = useCallback(() => {
-    const result = new AudioContext().createAnalyser()
-    setCachedEmptyVisualizer(result)
-    return result
-  }, [cachedEmptyVisualizer])
-
   const [barHeights, setBarHeights] = useState<number[]>([])
 
-  const draw = useCallback(({ visualizationAnalyser }: { visualizationAnalyser: AnalyserNode }) => {
+  const draw = useCallback(({ visualizationAnalyser }: { visualizationAnalyser: AnalyserNode | null }) => {
+    if (!visualizationAnalyser) {
+      setBarHeights(Array(barCount).fill(0))
+      return
+    }
+
     const frequencyData = new Uint8Array(visualizationAnalyser.frequencyBinCount / 15)
     visualizationAnalyser.getByteFrequencyData(frequencyData)
 
@@ -47,8 +44,8 @@ export const BarsVisualizer = ({
   }, [])
 
   useEffect(() => {
-    draw({ visualizationAnalyser: visualizationAnalyser || cachedEmptyVisualizer || getEmptyVisualizer() })
-  }, [draw, visualizationAnalyser, cachedEmptyVisualizer, getEmptyVisualizer])
+    draw({ visualizationAnalyser })
+  }, [draw, visualizationAnalyser])
 
   return (
     <Grid
@@ -74,7 +71,7 @@ export const BarsVisualizer = ({
             height={`${barHeight + 20}%`}
             width={barWidth}
             style={{
-              backgroundColor: `var(--${color}-11)`,
+              backgroundColor,
               borderRadius: 'var(--radius-6)',
             }}
           />
@@ -83,4 +80,3 @@ export const BarsVisualizer = ({
     </Grid>
   )
 }
-            // className={`${audioThreadContext.status === 'recording' ? 'bg-mint-12' : 'bg-gray-11'} rounded-6 transition duration-300`}

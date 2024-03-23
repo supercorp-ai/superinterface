@@ -36,7 +36,7 @@ export const Root = ({
   const recorderProps = useRecorder({
     isStopOnSilence: true,
     onStart: async () => {
-      console.log('start')
+      // console.log('start')
       // resetTranscript()
       // // @ts-ignore-next-line
       // SpeechRecognition.default.startListening({ continuous: true })

@@ -20,13 +20,13 @@ export const Visualization = () => {
         height="200px"
         width="200px"
         style={{
-          backgroundColor: `var(--${audioThreadContext.status === 'playing' ? 'mint' : 'gray'}-4)`,
+          backgroundColor: audioThreadContext.status === 'playing' ? 'var(--accent-4)' : 'var(--gray-4)',
           borderRadius: '9999px',
         }}
       >
         <BarsVisualizer
           visualizationAnalyser={audioThreadContext.messageAudioProps.visualizationAnalyser}
-          color={audioThreadContext.status === 'playing' ? 'mint' : 'gray'}
+          backgroundColor={audioThreadContext.status === 'playing' ? 'var(--accent-11)' : 'var(--gray-11)'}
           height="40px"
           barWidth="24px"
         />
@@ -34,9 +34,3 @@ export const Visualization = () => {
     </Flex>
   )
 }
-        // className={`transition duration-300 ${audioThreadContext.status === 'playing' ? 'bg-mint-4' : 'bg-gray-4'}`}
-// import { Visualizer } from '@/components/audio/Visualizer'
-//         <Visualizer
-//           visualizationAnalyser={visualizationAnalyser}
-//           bgColorClassName={audioThreadContext.status === 'playing' ? 'bg-mint-12' : 'bg-gray-11'}
-//         />
