@@ -9,6 +9,6 @@ export const set = ({
   threadId: string
 }) => (
   Cookies.set(key({ assistantId }), threadId, {
-    expires: 270,
+    expires: 7,
   })
 )

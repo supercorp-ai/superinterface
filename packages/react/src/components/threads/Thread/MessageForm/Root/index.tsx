@@ -1,6 +1,7 @@
 'use client'
 import { useMemo } from 'react'
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form'
+import { Box } from '@radix-ui/themes'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useCreateMessage } from '@/hooks/messages/useCreateMessage'
 import { formOptions } from './lib/formOptions'
@@ -58,11 +59,16 @@ export const Root = ({
   return (
     <MessageFormContext.Provider value={{ isDisabled, isLoading }}>
       <FormProvider {...formProps}>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
+        <Box
+          asChild
+          flexShrink="0"
         >
-          {children}
-        </form>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+          >
+            {children}
+          </form>
+        </Box>
       </FormProvider>
     </MessageFormContext.Provider>
   )
