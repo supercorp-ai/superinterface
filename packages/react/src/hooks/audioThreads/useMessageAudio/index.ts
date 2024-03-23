@@ -116,7 +116,6 @@ export const useMessageAudio = ({
       onend: () => {
         setIsPlaying(false)
 
-
         if (unplayedMessageSentences.length === 1 && latestMessageProps.latestMessage.status !== 'in_progress') {
           onEnd()
         }
