@@ -13,6 +13,6 @@
   },
   "devDependencies": {
     "@swc/core": "^1.4.2",
-    "turbo": "^1.12.4"
+    "turbo": "^1.13.0"
   }
 }
