@@ -3,6 +3,16 @@ import { serializeRun } from '@/lib/runs/serializeRun'
 import { serializeRunStep } from '@/lib/runSteps/serializeRunStep'
 import { actionsStream } from './actionsStream'
 
+const enqueueJson = ({
+  controller,
+  value,
+}: {
+  controller: ReadableStreamDefaultController
+  value: any
+}) => (
+  controller.enqueue(new TextEncoder().encode(JSON.stringify(value)))
+)
+
 export const handleStream = async ({
   client,
   stream,
@@ -16,30 +26,45 @@ export const handleStream = async ({
 }) => {
   for await (const value of stream) {
     if (['thread.message.created', 'thread.message.completed'].includes(value.event)) {
-      controller.enqueue(JSON.stringify({
-        event: value.event,
-        data: serializeMessage({
-          message: value.data,
-        }),
-      }))
+      enqueueJson({
+        controller,
+        value: {
+          event: value.event,
+          data: serializeMessage({
+            message: value.data,
+          }),
+        },
+      })
     } else if (['thread.message.delta', 'thread.run.step.delta'].includes(value.event)) {
-      controller.enqueue(JSON.stringify(value))
+      enqueueJson({
+        controller,
+        value,
+      })
     } else if (value.event === 'thread.run.created') {
-      controller.enqueue(JSON.stringify({
-        event: value.event,
-        data: serializeRun({
-          run: value.data,
-        }),
-      }))
+      enqueueJson({
+        controller,
+        value: {
+          event: value.event,
+          data: serializeRun({
+            run: value.data,
+          }),
+        },
+      })
     } else if (['thread.run.step.created', 'thread.run.step.completed'].includes(value.event)) {
-      controller.enqueue(JSON.stringify({
-        event: value.event,
-        data: serializeRunStep({
-          runStep: value.data,
-        }),
-      }))
+      enqueueJson({
+        controller,
+        value: {
+          event: value.event,
+          data: serializeRunStep({
+            runStep: value.data,
+          }),
+        },
+      })
     } else if (value.event === 'thread.run.requires_action') {
-      controller.enqueue(JSON.stringify(value))
+      enqueueJson({
+        controller,
+        value,
+      })
 
       await handleStream({
         client,
