@@ -39,6 +39,7 @@ export const useMessageAudio = ({
   const [isAudioPlayed, setIsAudioPlayed] = useState(false)
   const [playedMessageSentences, setPlayedMessageSentences] = useState<MessageSentence[]>([])
   const audioPlayer = useAudioPlayer()
+  const nextAudioPlayer = useAudioPlayer()
   const superinterfaceContext = useSuperinterfaceContext()
   const [isPlaying, setIsPlaying] = useState(false)
 
@@ -94,8 +95,27 @@ export const useMessageAudio = ({
       onplay: () => {
         setIsAudioPlayed(true)
       },
+      onload: () => {
+        const nextUnplayedMessageSentence = unplayedMessageSentences[1]
+        if (!nextUnplayedMessageSentence) return
+
+        const isNextFullSentence = FULL_SENTENCE_REGEX.test(nextUnplayedMessageSentence.sentence)
+        if (!isNextFullSentence) return
+
+        const nextSearchParams = new URLSearchParams({
+          input: nextUnplayedMessageSentence.sentence,
+          ...superinterfaceContext.variables,
+        })
+
+        nextAudioPlayer.load(`${superinterfaceContext.baseUrl}/tts?${nextSearchParams}`, {
+          format: 'mp3',
+          autoplay: false,
+          html5: isHtmlAudioSupported,
+        })
+      },
       onend: () => {
         setIsPlaying(false)
+
 
         if (unplayedMessageSentences.length === 1 && latestMessageProps.latestMessage.status !== 'in_progress') {
           onEnd()
@@ -108,6 +128,7 @@ export const useMessageAudio = ({
     superinterfaceContext,
     latestMessageProps,
     audioPlayer,
+    nextAudioPlayer,
     playedMessageSentences,
     onEnd,
   ])
