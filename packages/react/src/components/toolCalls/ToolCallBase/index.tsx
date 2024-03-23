@@ -1,7 +1,7 @@
 import {
   Flex,
   Button,
-  PopoverTrigger
+  Popover,
 } from '@radix-ui/themes'
 
 type Args = {
@@ -15,7 +15,7 @@ export const ToolCallBase = ({
     py="1"
     ml="-2"
   >
-    <PopoverTrigger>
+    <Popover.Trigger>
       <Button
         size="1"
         color="gold"
@@ -26,6 +26,6 @@ export const ToolCallBase = ({
       >
         {children}
       </Button>
-    </PopoverTrigger>
+    </Popover.Trigger>
   </Flex>
 )

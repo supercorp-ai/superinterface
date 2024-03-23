@@ -1,6 +1,6 @@
 {
   "name": "@superinterface/react",
-  "version": "2.8.1",
+  "version": "2.8.2",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -46,7 +46,7 @@
     "zod": "^3.22.4"
   },
   "peerDependencies": {
-    "@radix-ui/themes": "3.0.0-rc.14-patch.1",
+    "@radix-ui/themes": ">=3.0.0",
     "@tanstack/query-core": ">=5.0.0",
     "@tanstack/react-query": ">=5.0.0",
     "@types/react": "*",

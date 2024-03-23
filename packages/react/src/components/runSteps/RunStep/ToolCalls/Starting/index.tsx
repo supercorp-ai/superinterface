@@ -1,6 +1,5 @@
 import {
-  PopoverRoot,
-  PopoverContent,
+  Popover,
   Text,
 } from '@radix-ui/themes'
 import {
@@ -10,14 +9,14 @@ import { ToolCallBase } from '@/components/toolCalls/ToolCallBase'
 import { ToolCallTitle } from '@/components/toolCalls/ToolCallBase/ToolCallTitle'
 
 export const Starting = () => (
-  <PopoverRoot>
+  <Popover.Root>
     <ToolCallBase>
       <CircleIcon />
       <ToolCallTitle>
         Starting actions
       </ToolCallTitle>
     </ToolCallBase>
-    <PopoverContent
+    <Popover.Content
       style={{
         maxHeight: '500px',
       }}
@@ -25,6 +24,6 @@ export const Starting = () => (
       <Text>
         Getting ready to connect to domain API
       </Text>
-    </PopoverContent>
-  </PopoverRoot>
+    </Popover.Content>
+  </Popover.Root>
 )
