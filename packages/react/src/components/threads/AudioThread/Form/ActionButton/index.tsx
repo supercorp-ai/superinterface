@@ -25,6 +25,7 @@ export const ActionButton = () => {
             onClick={audioThreadContext.recorderProps.pause}
             color="gray"
             radius="full"
+            variant="soft"
             size="1"
           >
             <PauseIcon />
@@ -33,9 +34,9 @@ export const ActionButton = () => {
 
         <IconButton
           onClick={audioThreadContext.recorderProps.stop}
-          color="gray"
           highContrast
           radius="full"
+          variant="soft"
           size="4"
           style={{
             border: '2px solid var(--gray-8)',
@@ -84,6 +85,7 @@ export const ActionButton = () => {
         size="4"
         color="gray"
         radius="full"
+        variant="soft"
         style={{
           border: '2px solid var(--gray-8)',
         }}
@@ -100,7 +102,6 @@ export const ActionButton = () => {
         size="4"
         radius="full"
         style={{
-          backgroundColor: 'var(--accent-11)',
           border: '2px solid var(--gray-8)',
         }}
       >
@@ -112,8 +113,8 @@ export const ActionButton = () => {
   return (
     <IconButton
       size="4"
-      color="red"
       radius="full"
+      variant="soft"
       disabled
       style={{
         border: '2px solid var(--gray-8)',

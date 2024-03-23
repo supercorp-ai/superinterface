@@ -14,7 +14,7 @@ type MessageSentence = {
 
 
 const SPLIT_SENTENCE_REGEX = /[^\.\?!]+[\.\?!]/g
-const FULL_SENTENCE_REGEX = /^\s*[A-Z].*[.?!]$/
+const FULL_SENTENCE_REGEX = /[\.?!]$/
 
 const getMessageSentences = ({
   messageId,
@@ -131,6 +131,14 @@ export const useMessageAudio = ({
     playedMessageSentences,
     onEnd,
   ])
+
+  useEffect(() => {
+    if (isHtmlAudioSupported) {
+      if (!Howler?._howls[0]?._sounds[0]?._node) return
+
+      Howler._howls[0]._sounds[0]._node.crossOrigin = 'anonymous'
+    }
+  }, [audioPlayer])
 
   const [audioEngine, setAudioEngine] = useState<AudioEngine | null>(null)
 
