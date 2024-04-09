@@ -29,12 +29,12 @@
     "howler": "^2.2.4",
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",
-    "openai": "^4.29.2",
-    "p-map": "^7.0.1",
+    "openai": "^4.33.0",
+    "p-map": "^7.0.2",
     "radash": "^12.1.0",
     "react-children-utilities": "^2.10.0",
-    "react-hook-form": "^7.51.1",
-    "react-intersection-observer": "^9.8.1",
+    "react-hook-form": "^7.51.2",
+    "react-intersection-observer": "^9.8.2",
     "react-remark": "^2.1.0",
     "react-textarea-autosize": "^8.5.3",
     "react-use": "^17.5.0",
@@ -54,7 +54,7 @@
   "devDependencies": {
     "@tanstack/react-query": ">=5.0.0",
     "@types/lodash": "^4.17.0",
-    "@types/react": "^18.2.69",
+    "@types/react": "^18.2.75",
     "react": ">=18.0.0",
     "tsup": "^8.0.2"
   }
