@@ -1,9 +1,11 @@
 import { useMemo, useRef, useState, useEffect } from 'react'
+import nlp from 'compromise'
 import { Howler } from 'howler'
 import { useAudioPlayer } from 'react-use-audio-player'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { AudioEngine } from '@/types'
+import { isOptimistic } from '@/lib/optimistic/isOptimistic'
 import { input as getInput } from './lib/input'
 import { isHtmlAudioSupported } from './lib/isHtmlAudioSupported'
 
@@ -12,8 +14,6 @@ type MessageSentence = {
   sentence: string
 }
 
-
-const SPLIT_SENTENCE_REGEX = /[^\.\?!]+[\.\?!]/g
 const FULL_SENTENCE_REGEX = /[\.?!]$/
 
 const getMessageSentences = ({
@@ -23,11 +23,11 @@ const getMessageSentences = ({
   messageId: string
   input: string
 }) => {
-  const sentences = input.match(SPLIT_SENTENCE_REGEX) || []
+  const sentences = nlp(input).sentences().json()
 
-  return sentences.map((sentence) => ({
+  return sentences.map((sentence: { text: string }) => ({
     messageId,
-    sentence,
+    sentence: sentence.text,
   }))
 }
 
@@ -60,7 +60,7 @@ export const useMessageAudio = ({
       input,
     })
 
-    return messageSentences.filter((ms) => (
+    return messageSentences.filter((ms: { messageId: string, sentence: string }) => (
       !playedMessageSentences.find((pms) => pms.messageId === ms.messageId && pms.sentence === ms.sentence)
     ))
   }, [latestMessageProps, playedMessageSentences])
@@ -76,7 +76,9 @@ export const useMessageAudio = ({
       return
     }
 
-    const isFullSentence = FULL_SENTENCE_REGEX.test(firstUnplayedMessageSentence.sentence)
+    const isFullSentence = isOptimistic({ id: latestMessageProps.latestMessage.id }) ||
+      latestMessageProps.latestMessage.status !== 'in_progress' ||
+      FULL_SENTENCE_REGEX.test(firstUnplayedMessageSentence.sentence)
 
     if (!isFullSentence) return
     setIsPlaying(true)
