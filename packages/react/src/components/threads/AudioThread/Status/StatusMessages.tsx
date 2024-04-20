@@ -6,7 +6,7 @@ import {
 const html = ({ texts }: { texts: string[] }) => `
   .status-messages-texts:after {
     content: '${texts[0]}';
-    animation: texts ${texts.length * 3}s linear infinite;
+    animation: texts ${texts.length * 5}s linear infinite;
   }
 
   @keyframes texts {

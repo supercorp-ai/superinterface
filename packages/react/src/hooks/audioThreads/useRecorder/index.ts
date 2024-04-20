@@ -96,7 +96,7 @@ export const useRecorder = ({
     if (!audioEngine) return null
 
     const result = audioEngine.audioContext.createAnalyser()
-    result.minDecibels = -45
+    result.minDecibels = -60
 
     audioEngine.source.connect(result)
     return result
