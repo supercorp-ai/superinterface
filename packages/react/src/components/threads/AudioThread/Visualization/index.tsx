@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { useContext, useState, useCallback, useEffect } from 'react'
 import _ from 'lodash'
 import { Flex } from '@radix-ui/themes'
 import { AssistantAvatar } from '@/components/messageGroups/MessageGroupBase/AssistantAvatar'
@@ -10,6 +10,25 @@ import { BarsVisualizer } from '@/components/threads/AudioThread/BarsVisualizer'
 export const Visualization = () => {
   const audioThreadContext = useAudioThreadContext()
   const assistantNameContext = useContext(AssistantNameContext)
+  const [scale, setScale] = useState(0)
+
+  const draw = useCallback(({ visualizationAnalyser }: { visualizationAnalyser: AnalyserNode | null }) => {
+    if (!visualizationAnalyser) {
+      setScale(1)
+      return
+    }
+
+    const frequencyData = new Uint8Array(visualizationAnalyser.frequencyBinCount / 15)
+    visualizationAnalyser.getByteFrequencyData(frequencyData)
+
+    setScale(1 + _.mean(frequencyData) / 255 / 10)
+
+    requestAnimationFrame(() => draw({ visualizationAnalyser }))
+  }, [])
+
+  useEffect(() => {
+    draw({ visualizationAnalyser: audioThreadContext.recorderProps.visualizationAnalyser })
+  }, [draw, audioThreadContext])
 
   return (
     <Flex
@@ -27,6 +46,7 @@ export const Visualization = () => {
         style={{
           backgroundColor: audioThreadContext.status === 'playing' ? 'var(--accent-4)' : 'var(--gray-4)',
           borderRadius: '9999px',
+          scale,
         }}
       >
         <BarsVisualizer
