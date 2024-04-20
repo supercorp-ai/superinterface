@@ -53,7 +53,7 @@ export const runMessages = async ({
         run_id: latestRun.id,
         assistant_id: latestRun.assistant_id,
         thread_id: latestRun.thread_id,
-        file_ids: [],
+        attachments: [],
         metadata: {},
       },
       client,

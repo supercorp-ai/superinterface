@@ -28,7 +28,7 @@ export const data = ({
     run_id: null,
     assistant_id: null,
     thread_id: null,
-    file_ids: [],
+    attachments: [],
     metadata: {},
     runSteps: [],
   }

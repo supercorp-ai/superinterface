@@ -30,7 +30,7 @@ export const threadRunCreated = ({
                 assistant_id: value.data.assistant_id,
                 content: [],
                 created_at: value.data.created_at,
-                file_ids: [],
+                attachments: [],
                 metadata: {},
                 status: 'in_progress',
                 role: 'assistant',

@@ -15,7 +15,7 @@ export const serializeMessage = ({
   run_id: message.run_id,
   assistant_id: message.assistant_id,
   thread_id: message.thread_id,
-  file_ids: message.file_ids,
+  attachments: message.attachments,
   metadata: message.metadata,
   runSteps: (message.runSteps ?? []).map((runStep) => (
     serializeRunStep({ runStep })
