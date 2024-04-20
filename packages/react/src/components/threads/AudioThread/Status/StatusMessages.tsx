@@ -1,38 +1,42 @@
-import { useState } from 'react'
 import {
   Flex,
   Text,
 } from '@radix-ui/themes'
-import { useInterval } from 'react-use'
+
+const html = ({ texts }: { texts: string[] }) => `
+  .status-messages-texts:after {
+    content: '${texts[0]}';
+    animation: texts ${texts.length * 3}s linear infinite;
+  }
+
+  @keyframes texts {
+    ${texts.map((_, i) => `
+      ${i * 100 / texts.length}% {
+        content: "${texts[i]}";
+      }
+    `).join('')}
+  }`
 
 export const StatusMessages = ({
   texts,
 }: {
   texts: string[]
-}) => {
-  const [currentText, setCurrentText] = useState(texts[0])
+}) => (
+  <Flex
+    justify="center"
+    pb="5"
+  >
+    <Text
+      size="2"
+      weight="regular"
+      color="gray"
+      className="status-messages-texts"
+    />
 
-  useInterval(() => {
-    setCurrentText((prev) => {
-      const currentIndex = texts.indexOf(prev)
-      const nextIndex = currentIndex + 1
-
-      return texts[nextIndex] || texts[0]
-    })
-  }, 3000)
-
-  return (
-    <Flex
-      justify="center"
-      pb="5"
-    >
-      <Text
-        size="2"
-        weight="regular"
-        color="gray"
-      >
-        {currentText}
-      </Text>
-    </Flex>
-  )
-}
+    <style
+      dangerouslySetInnerHTML={{
+        __html: html({ texts }),
+      }}
+    />
+  </Flex>
+)
