@@ -136,10 +136,10 @@ export const useRecorder = ({
     if (status !== 'recording') return
     if (!silenceStart) return
     if (!noiseStart) return
-    if (!silenceStart.isBefore(dayjs().subtract(1, 'second'))) return
+    if (!silenceStart.isBefore(dayjs().subtract(1.5, 'second'))) return
 
     audioCaptureProps.stop()
-  }, 100)
+  }, 300)
 
   return {
     ...audioCaptureProps,
