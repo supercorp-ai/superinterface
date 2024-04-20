@@ -1,10 +1,8 @@
 'use client'
 
 import 'regenerator-runtime/runtime'
-// import { useEffect, useRef } from 'react'
 import { Flex } from '@radix-ui/themes'
 import _ from 'lodash'
-// import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
 import { AudioThreadContext } from '@/contexts/threads/AudioThreadContext'
 import { useCreateMessage } from '@/hooks/messages/useCreateMessage'
 import { usePermission } from 'react-use'
@@ -22,32 +20,11 @@ export const Root = ({
 }: Args) => {
   const createMessageProps = useCreateMessage()
 
-  // const {
-  //   transcript,
-  //   resetTranscript,
-  // } = useSpeechRecognition()
-
-  // const transcriptRef = useRef(transcript)
-  //
-  // useEffect(() => {
-  //   transcriptRef.current = transcript
-  // }, [transcript])
-
   const recorderProps = useRecorder({
     isStopOnSilence: true,
     onStart: async () => {
-      // console.log('start')
-      // resetTranscript()
-      // // @ts-ignore-next-line
-      // SpeechRecognition.default.startListening({ continuous: true })
     },
     onStop: async (_event: any, chunks: BlobPart[]) => {
-      // console.log({ transcript: transcriptRef.current })
-      // return createMessageProps.createMessage({
-      //   // @ts-ignore-next-line
-      //   content: transcriptRef.current,
-      // })
-
       // @ts-ignore-next-line
       const blob = new Blob(chunks, { type: chunks[0].type })
       const audioContent = await blobToData(blob)
