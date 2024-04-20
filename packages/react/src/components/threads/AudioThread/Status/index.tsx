@@ -1,36 +1,47 @@
 import { useAudioThreadContext } from '@/hooks/threads/useAudioThreadContext'
-import { StatusMessage } from './StatusMessage'
+import { StatusMessages } from './StatusMessages'
 
 export const Status = () => {
   const audioThreadContext = useAudioThreadContext()
 
   if (audioThreadContext.status === 'recording') {
     return (
-      <StatusMessage>
-        Listening
-      </StatusMessage>
+      <StatusMessages
+        texts={[
+          'Start speaking',
+          'Listening',
+          'Finish speaking to send',
+          'Click the button below to send manually',
+        ]}
+      />
     )
   }
 
   if (['recorderPaused', 'idle', 'playerPaused'].includes(audioThreadContext.status)) {
     return (
-      <StatusMessage>
-        Click to activate
-      </StatusMessage>
+      <StatusMessages
+        texts={[
+          'Click the button below to activate',
+        ]}
+      />
     )
   }
 
   if (audioThreadContext.status === 'playing') {
     return (
-      <StatusMessage>
-        Click to interrupt
-      </StatusMessage>
+      <StatusMessages
+        texts={[
+          'Click the button below to interrupt',
+        ]}
+      />
     )
   }
 
   return (
-    <StatusMessage>
-      Thinking
-    </StatusMessage>
+    <StatusMessages
+      texts={[
+        'Thinking',
+      ]}
+    />
   )
 }
