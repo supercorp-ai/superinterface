@@ -1,4 +1,3 @@
-import { SpeakerModerateIcon } from '@radix-ui/react-icons'
 import {
   Flex,
 } from '@radix-ui/themes'
@@ -18,18 +17,6 @@ export const Form = () => {
         pb="3"
         align="center"
       >
-        <Flex
-          ml="-5"
-          mr="2"
-          align="center"
-        >
-          <SpeakerModerateIcon
-            style={{
-              color: audioThreadContext.status === 'recording' ? 'var(--accent-12)' : 'var(--gray-12)',
-            }}
-          />
-        </Flex>
-
         <Flex
           px="2"
           py="1"
