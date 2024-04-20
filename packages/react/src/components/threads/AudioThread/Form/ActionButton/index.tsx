@@ -27,7 +27,6 @@ export const ActionButton = () => {
           <IconButton
             onClick={audioThreadContext.recorderProps.pause}
             color="gray"
-            radius="full"
             variant="soft"
             size="1"
           >
@@ -38,12 +37,8 @@ export const ActionButton = () => {
         <IconButton
           onClick={audioThreadContext.recorderProps.stop}
           highContrast
-          radius="full"
           variant="soft"
           size="4"
-          style={{
-            border: '2px solid var(--gray-8)',
-          }}
         >
           <ArrowUpIcon />
         </IconButton>
@@ -56,11 +51,7 @@ export const ActionButton = () => {
       <IconButton
         onClick={audioThreadContext.recorderProps.resume}
         color="red"
-        radius="full"
         size="4"
-        style={{
-          border: '2px solid var(--gray-8)',
-        }}
       >
         <ResumeIcon />
       </IconButton>
@@ -73,10 +64,6 @@ export const ActionButton = () => {
         onClick={() => audioThreadContext.recorderProps.start()}
         size="4"
         color="red"
-        radius="full"
-        style={{
-          border: '2px solid var(--gray-8)',
-        }}
       />
     )
   }
@@ -91,11 +78,7 @@ export const ActionButton = () => {
         }}
         size="4"
         color="gray"
-        radius="full"
         variant="soft"
-        style={{
-          border: '2px solid var(--gray-8)',
-        }}
       >
         <StopIcon />
       </IconButton>
@@ -107,10 +90,6 @@ export const ActionButton = () => {
       <IconButton
         onClick={() => audioThreadContext.messageAudioProps.play()}
         size="4"
-        radius="full"
-        style={{
-          border: '2px solid var(--gray-8)',
-        }}
       >
         <ResumeIcon />
       </IconButton>
@@ -120,12 +99,8 @@ export const ActionButton = () => {
   return (
     <IconButton
       size="4"
-      radius="full"
       variant="soft"
       disabled
-      style={{
-        border: '2px solid var(--gray-8)',
-      }}
     />
   )
 }
