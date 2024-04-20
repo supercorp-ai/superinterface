@@ -37,6 +37,7 @@ export const useMessageAudio = ({
   onEnd: () => void
 }) => {
   const [isAudioPlayed, setIsAudioPlayed] = useState(false)
+  const [stoppedMessageIds, setStoppedMessageIds] = useState<string[]>([])
   const [playedMessageSentences, setPlayedMessageSentences] = useState<MessageSentence[]>([])
   const audioPlayer = useAudioPlayer()
   const nextAudioPlayer = useAudioPlayer()
@@ -48,6 +49,7 @@ export const useMessageAudio = ({
   const unplayedMessageSentences = useMemo(() => {
     if (!latestMessageProps.latestMessage) return []
     if (latestMessageProps.latestMessage.role !== 'assistant') return []
+    if (stoppedMessageIds.includes(latestMessageProps.latestMessage.id)) return []
 
     const input = getInput({
       message: latestMessageProps.latestMessage,
@@ -96,6 +98,10 @@ export const useMessageAudio = ({
       html5: isHtmlAudioSupported,
       onplay: () => {
         setIsAudioPlayed(true)
+      },
+      onstop: () => {
+        setStoppedMessageIds((prev) => [...prev, firstUnplayedMessageSentence.messageId])
+        setIsPlaying(false)
       },
       onload: () => {
         const nextUnplayedMessageSentence = unplayedMessageSentences[1]

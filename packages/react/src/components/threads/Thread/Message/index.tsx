@@ -4,13 +4,14 @@ import {
   Box,
 } from '@radix-ui/themes'
 import { StartingContentSkeleton } from '@/components/skeletons/StartingContentSkeleton'
-import { Message as MessageType } from '@/types'
+import { SerializedMessage, SerializedRunStep } from '@/types'
 import { RunSteps } from '@/components/runSteps/RunSteps'
+import { useIsMutatingMessage } from '@/hooks/messages/useIsMutatingMessage'
 import { Provider } from './Provider'
 import { TextContent } from './TextContent'
 
 type Args = {
-  message: MessageType
+  message: SerializedMessage
 }
 
 export const Message = ({
@@ -48,7 +49,10 @@ export const Message = ({
     return [olderRunSteps, laterRunSteps]
   }, [message])
 
+  const isMutatingMessage = useIsMutatingMessage()
+
   const isInProgress = useMemo(() => {
+    if (!isMutatingMessage) return false
     if (message.status === 'in_progress') return true
 
     return message.runSteps.some((rs) => rs.status === 'in_progress')

@@ -2,12 +2,13 @@ import OpenAI from 'openai'
 import {
   Flex,
 } from '@radix-ui/themes'
+import type { SerializedRunStep } from '@/types'
 import { ToolCall } from './ToolCall'
 import { Starting } from './Starting'
 
 type Args = {
   stepDetails: OpenAI.Beta.Threads.Runs.ToolCallsStepDetails
-  runStep: OpenAI.Beta.Threads.Runs.RunStep
+  runStep: SerializedRunStep
 }
 
 export const ToolCalls = ({

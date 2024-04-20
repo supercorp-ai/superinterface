@@ -11,6 +11,7 @@ export const SuperinterfaceContext = createContext<{
     mutations: Record<string, any>
   }
   threadIdCookieOptions: typeof options | null
+  createMessageAbortControllerRef: React.MutableRefObject<AbortController | null>
 }>({
   baseUrl,
   variables: {},
@@ -19,4 +20,5 @@ export const SuperinterfaceContext = createContext<{
     mutations: {},
   },
   threadIdCookieOptions: options,
+  createMessageAbortControllerRef: { current: null },
 })

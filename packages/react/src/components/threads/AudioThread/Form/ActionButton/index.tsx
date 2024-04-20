@@ -3,14 +3,17 @@ import {
   IconButton,
 } from '@radix-ui/themes'
 import {
+  StopIcon,
   PauseIcon,
   ArrowUpIcon,
   ResumeIcon,
 } from '@radix-ui/react-icons'
 import { useAudioThreadContext } from '@/hooks/threads/useAudioThreadContext'
+import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 
 export const ActionButton = () => {
   const audioThreadContext = useAudioThreadContext()
+  const superinterfaceContext = useSuperinterfaceContext()
 
   if (audioThreadContext.status === 'recording') {
     return (
@@ -81,7 +84,11 @@ export const ActionButton = () => {
   if (audioThreadContext.status === 'playing') {
     return (
       <IconButton
-        onClick={() => audioThreadContext.messageAudioProps.pause()}
+        onClick={() => {
+          audioThreadContext.messageAudioProps.stop()
+          superinterfaceContext.createMessageAbortControllerRef.current?.abort()
+          audioThreadContext.recorderProps.start()
+        }}
         size="4"
         color="gray"
         radius="full"
@@ -90,7 +97,7 @@ export const ActionButton = () => {
           border: '2px solid var(--gray-8)',
         }}
       >
-        <PauseIcon />
+        <StopIcon />
       </IconButton>
     )
   }

@@ -1,9 +1,9 @@
-import OpenAI from 'openai'
 import { Flex } from '@radix-ui/themes'
+import type { SerializedRunStep } from '@/types'
 import { RunStep } from '@/components/runSteps/RunStep'
 
 type Args = {
-  runSteps: OpenAI.Beta.Threads.Runs.RunStep[]
+  runSteps: SerializedRunStep[]
 }
 
 export const RunSteps = ({

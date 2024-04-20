@@ -1,8 +1,8 @@
-import OpenAI from 'openai'
+import type { SerializedRunStep } from '@/types'
 import { ToolCalls } from './ToolCalls'
 
 type Args = {
-  runStep: OpenAI.Beta.Threads.Runs.RunStep
+  runStep: SerializedRunStep
 }
 
 export const RunStep = ({

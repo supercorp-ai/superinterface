@@ -1,9 +1,13 @@
 'use client'
+import {
+  useQueryClient,
+} from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form'
 import { Box } from '@radix-ui/themes'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useCreateMessage } from '@/hooks/messages/useCreateMessage'
+import { useThreadContext } from '@/hooks/threads/useThreadContext'
 import { formOptions } from './lib/formOptions'
 import { MessageFormContext } from '@/contexts/messages/MessageFormContext'
 import { useToasts } from '@/hooks/toasts/useToasts'
@@ -27,11 +31,19 @@ export const Root = ({
   } = formProps
 
   const { addToast } = useToasts()
+  const queryClient = useQueryClient()
+  const threadContext = useThreadContext()
 
   const { createMessage } = useCreateMessage({
-    onError: (error: any) => (
+    onError: (error: any) => {
+      if (error.name === 'AbortError') {
+        queryClient.invalidateQueries({ queryKey: ['messages', threadContext.variables] })
+        queryClient.invalidateQueries({ queryKey: ['runs', threadContext.variables] })
+        return
+      }
+
       addToast({ type: 'error', message: error.message })
-    ),
+    },
   })
 
   const isMutatingMessage = useIsMutatingMessage()
@@ -45,8 +57,11 @@ export const Root = ({
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     reset()
-    // @ts-ignore-next-line
-    await createMessage({ content: data.content })
+
+    await createMessage({
+      // @ts-ignore-next-line
+      content: data.content,
+    })
   }
 
   const { latestMessage } = useLatestMessage()

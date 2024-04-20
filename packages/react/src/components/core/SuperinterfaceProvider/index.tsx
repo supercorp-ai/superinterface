@@ -1,4 +1,5 @@
 'use client'
+import { useRef } from 'react'
 import { MessagesPage } from '@/types'
 import {
   InfiniteData,
@@ -31,6 +32,7 @@ export const SuperinterfaceProvider = ({
   threadIdCookieOptions,
 }: Args) => {
   const superinterfaceContext = useSuperinterfaceContext()
+  const createMessageAbortControllerRef = useRef<AbortController | null>(null)
 
   const value = merge(
     superinterfaceContext,
@@ -39,6 +41,7 @@ export const SuperinterfaceProvider = ({
       ...(variables ? { variables } : {}),
       ...(defaultOptions ? { defaultOptions } : {}),
       ...(threadIdCookieOptions ? { threadIdCookieOptions } : {}),
+      createMessageAbortControllerRef,
     }
   )
 

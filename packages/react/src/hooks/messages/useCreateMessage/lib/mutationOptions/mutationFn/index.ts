@@ -19,12 +19,16 @@ export const mutationFn = ({
   content: string
   [key: string]: any
 }) => {
+  const abortController = new AbortController()
+  superinterfaceContext.createMessageAbortControllerRef.current = abortController
+
   const response = await fetch(`${superinterfaceContext.baseUrl}/messages`, {
     method: 'POST',
     body: JSON.stringify(body({
       variables,
       superinterfaceContext,
     })),
+    signal: abortController.signal,
   })
 
   if (response.body == null) {
@@ -45,7 +49,6 @@ export const mutationFn = ({
       value,
       messagesQueryKey,
       queryClient,
-      variables,
       superinterfaceContext,
     })
   }

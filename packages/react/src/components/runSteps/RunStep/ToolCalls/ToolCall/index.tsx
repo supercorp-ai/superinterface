@@ -4,14 +4,15 @@ import {
 } from '@radix-ui/themes'
 import { Fn } from './Fn'
 import { CodeInterpreter } from './CodeInterpreter'
+import type { SerializedRunStep } from '@/types'
 
 type ToolCall = OpenAI.Beta.Threads.Runs.CodeInterpreterToolCall
-  | OpenAI.Beta.Threads.Runs.RetrievalToolCall
+  | OpenAI.Beta.Threads.Runs.FileSearchToolCall
   | OpenAI.Beta.Threads.Runs.FunctionToolCall
 
 type Args = {
   toolCall: ToolCall
-  runStep: OpenAI.Beta.Threads.Runs.RunStep
+  runStep: SerializedRunStep
 }
 
 export const ToolCall = ({
