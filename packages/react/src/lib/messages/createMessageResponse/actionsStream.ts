@@ -5,10 +5,12 @@ export const actionsStream = async ({
   client,
   run,
   handleToolCall,
+  controller,
 }: {
   client: any
   run: OpenAI.Beta.Threads.Runs.Run
   handleToolCall: any
+  controller: ReadableStreamDefaultController
 }) => {
   if (!run.required_action) {
     throw new Error('Run does not have a required action')
@@ -21,7 +23,11 @@ export const actionsStream = async ({
     run.id,
     {
       tool_outputs: await pMap(toolCalls, (toolCall) => (
-        handleToolCall({ toolCall, run }))
+        handleToolCall({
+          toolCall,
+          run,
+          controller,
+        }))
       ),
     },
   )

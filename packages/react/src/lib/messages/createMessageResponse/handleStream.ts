@@ -63,6 +63,7 @@ export const handleStream = async ({
           client,
           run: value.data,
           handleToolCall,
+          controller,
         }),
         controller,
         handleToolCall,
