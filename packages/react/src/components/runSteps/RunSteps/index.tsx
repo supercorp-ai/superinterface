@@ -1,6 +1,7 @@
 import { Flex } from '@radix-ui/themes'
+import { useContext } from 'react'
 import type { SerializedRunStep } from '@/types'
-import { RunStep } from '@/components/runSteps/RunStep'
+import { ComponentsContext } from '@/contexts/components/ComponentsContext'
 
 type Args = {
   runSteps: SerializedRunStep[]
@@ -8,15 +9,20 @@ type Args = {
 
 export const RunSteps = ({
   runSteps,
-}: Args) => (
-  <Flex
-    direction="column-reverse"
-  >
-    {runSteps.map((runStep) => (
-      <RunStep
-        key={runStep.id}
-        runStep={runStep}
-      />
-    ))}
-  </Flex>
-)
+}: Args) => {
+  const componentsContext = useContext(ComponentsContext)
+  const Component = componentsContext.components.RunStep
+
+  return (
+    <Flex
+      direction="column-reverse"
+    >
+      {runSteps.map((runStep) => (
+        <Component
+          key={runStep.id}
+          runStep={runStep}
+        />
+      ))}
+    </Flex>
+  )
+}

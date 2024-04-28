@@ -25,3 +25,8 @@ export { AssistantNameContext } from '@/contexts/assistants/AssistantNameContext
 
 export { FunctionComponentsContext } from '@/contexts/functions/FunctionComponentsContext'
 export { FunctionBase } from '@/components/functions/FunctionBase'
+
+export { ComponentsProvider } from '@/components/components/ComponentsProvider'
+export { useComponents } from '@/hooks/components/useComponents'
+
+export { RunStep } from '@/components/runSteps/RunStep'

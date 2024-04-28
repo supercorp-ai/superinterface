@@ -4,7 +4,7 @@ import {
   Box,
 } from '@radix-ui/themes'
 import { StartingContentSkeleton } from '@/components/skeletons/StartingContentSkeleton'
-import { SerializedMessage, SerializedRunStep } from '@/types'
+import { SerializedMessage } from '@/types'
 import { RunSteps } from '@/components/runSteps/RunSteps'
 import { useIsMutatingMessage } from '@/hooks/messages/useIsMutatingMessage'
 import { Provider } from './Provider'

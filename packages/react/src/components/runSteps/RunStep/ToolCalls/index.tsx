@@ -11,13 +11,23 @@ type Args = {
   runStep: SerializedRunStep
 }
 
+const Root = ({
+  children,
+}: {
+  children: React.ReactNode
+}) => (
+  <Flex
+    direction="column"
+  >
+    {children}
+  </Flex>
+)
+
 export const ToolCalls = ({
   stepDetails,
   runStep,
 }: Args) => (
-  <Flex
-    direction="column"
-  >
+  <Root>
     {!stepDetails.tool_calls.length && (
       <Starting />
     )}
@@ -28,5 +38,9 @@ export const ToolCalls = ({
         runStep={runStep}
       />
     ))}
-  </Flex>
+  </Root>
 )
+
+ToolCalls.Root = Root
+ToolCalls.Starting = Starting
+ToolCalls.ToolCall = ToolCall

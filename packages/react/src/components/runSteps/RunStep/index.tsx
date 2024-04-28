@@ -19,3 +19,5 @@ export const RunStep = ({
 
   return null
 }
+
+RunStep.ToolCalls = ToolCalls
