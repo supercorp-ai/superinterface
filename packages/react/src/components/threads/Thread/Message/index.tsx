@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import { useMemo, Fragment } from 'react'
+import { isEmpty } from 'radash'
 import {
   Box,
 } from '@radix-ui/themes'
@@ -75,7 +76,8 @@ export const Message = ({
               )}
             </Fragment>
           ))}
-          {isInProgress && (
+
+          {isInProgress && isEmpty(laterRunSteps) && (
             <StartingContentSkeleton />
           )}
         </Box>
@@ -83,6 +85,12 @@ export const Message = ({
         <RunSteps
           runSteps={laterRunSteps}
         />
+
+        {isInProgress && !isEmpty(laterRunSteps) && (
+          <Box>
+            <StartingContentSkeleton />
+          </Box>
+        )}
       </Box>
     </Provider>
   )
