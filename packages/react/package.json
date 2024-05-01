@@ -1,6 +1,6 @@
 {
   "name": "@superinterface/react",
-  "version": "2.14.0",
+  "version": "2.15.0",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -35,7 +35,7 @@
     "react-children-utilities": "^2.10.0",
     "react-hook-form": "^7.51.3",
     "react-intersection-observer": "^9.8.2",
-    "react-remark": "^2.1.0",
+    "react-markdown": "^9.0.1",
     "react-textarea-autosize": "^8.5.3",
     "react-use": "^17.5.0",
     "react-use-audio-player": "^2.2.0",
