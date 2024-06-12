@@ -7,6 +7,7 @@ export { useMessages } from '@/hooks/messages/useMessages'
 export { useMessageContext } from '@/hooks/messages/useMessageContext'
 export { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 export { useCreateMessage } from '@/hooks/messages/useCreateMessage'
+export { useMessageFormContext } from '@/hooks/messages/useMessageFormContext'
 
 export { ThreadDialog } from '@/components/threads/ThreadDialog'
 export { ThreadDialogContext } from '@/contexts/threads/ThreadDialogContext'
