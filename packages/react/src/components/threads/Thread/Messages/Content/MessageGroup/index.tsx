@@ -2,15 +2,12 @@
 import { useContext } from 'react'
 import {
   Box,
-  Avatar,
 } from '@radix-ui/themes'
-import {
-  PersonIcon,
-} from '@radix-ui/react-icons'
 import { MessageGroupBase } from '@/components/messageGroups/MessageGroupBase'
 import { Name } from '@/components/messageGroups/MessageGroupBase/Name'
 import { AssistantAvatar } from '@/components/messageGroups/MessageGroupBase/AssistantAvatar'
 import { AssistantNameContext } from '@/contexts/assistants/AssistantNameContext'
+import { UserAvatar } from '@/components/messageGroups/MessageGroupBase/UserAvatar'
 import { MessageGroup as MessageGroupType } from '@/types'
 import { Content } from './Content'
 
@@ -26,10 +23,7 @@ export const MessageGroup = ({
   return (
     <MessageGroupBase>
       {messageGroup.role === 'user' ? (
-        <Avatar
-          fallback={<PersonIcon />}
-          size="1"
-        />
+        <UserAvatar />
       ) : (
         <AssistantAvatar />
       )}

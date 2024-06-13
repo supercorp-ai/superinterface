@@ -24,6 +24,8 @@ export { useMarkdownContext } from '@/hooks/markdown/useMarkdownContext'
 export { AssistantAvatarContext } from '@/contexts/assistants/AssistantAvatarContext'
 export { AssistantNameContext } from '@/contexts/assistants/AssistantNameContext'
 
+export { UserAvatarContext } from '@/contexts/users/UserAvatarContext'
+
 export { FunctionComponentsContext } from '@/contexts/functions/FunctionComponentsContext'
 export { FunctionBase } from '@/components/functions/FunctionBase'
 
