@@ -23,7 +23,7 @@ export const Root = ({
   onSubmit: onSubmitArg,
 }: {
   children: React.ReactNode
-  onSubmit?: SubmitHandler<Inputs | { reset: any, createMessage: any }>
+  onSubmit?: SubmitHandler<Inputs & { reset: any, createMessage: any }>
 }) => {
   const formProps = useForm<Inputs>(formOptions)
 
