@@ -23,7 +23,7 @@ export const Root = ({
   onSubmit: onSubmitArg,
 }: {
   children: React.ReactNode
-  onSubmit?: SubmitHandler<Inputs | { reset: any }>
+  onSubmit?: SubmitHandler<Inputs | { reset: any, createMessage: any }>
 }) => {
   const formProps = useForm<Inputs>(formOptions)
 
@@ -58,7 +58,7 @@ export const Root = ({
     isSubmitting,
   ])
 
-  const onSubmit: SubmitHandler<Inputs> = onSubmitArg ? partob(onSubmitArg, { reset }) : async (data) => {
+  const onSubmit: SubmitHandler<Inputs> = onSubmitArg ? partob(onSubmitArg, { reset, createMessage }) : async (data) => {
     reset()
 
     await createMessage({
