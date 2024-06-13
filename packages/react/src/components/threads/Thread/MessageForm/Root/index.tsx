@@ -12,6 +12,7 @@ import { formOptions } from './lib/formOptions'
 import { MessageFormContext } from '@/contexts/messages/MessageFormContext'
 import { useToasts } from '@/hooks/toasts/useToasts'
 import { useIsMutatingMessage } from '@/hooks/messages/useIsMutatingMessage'
+import { partob } from 'radash'
 
 type Inputs = {
   content: string
@@ -19,8 +20,10 @@ type Inputs = {
 
 export const Root = ({
   children,
+  onSubmit: onSubmitArg,
 }: {
   children: React.ReactNode
+  onSubmit?: SubmitHandler<Inputs | { reset: any }>
 }) => {
   const formProps = useForm<Inputs>(formOptions)
 
@@ -55,7 +58,7 @@ export const Root = ({
     isSubmitting,
   ])
 
-  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+  const onSubmit: SubmitHandler<Inputs> = onSubmitArg ? partob(onSubmitArg, { reset }) : async (data) => {
     reset()
 
     await createMessage({
