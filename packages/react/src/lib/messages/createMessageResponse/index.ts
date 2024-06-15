@@ -10,12 +10,14 @@ export const createMessageResponse = ({
   handleToolCall,
   onStart = () => {},
   onClose = () => {},
+  onEvent = () => {},
 }: {
   client: any
   createRunStream: any
   handleToolCall: any
   onStart?: (args: CallbackArgs) => void
   onClose?: (args: CallbackArgs) => void
+  onEvent?: (args: CallbackArgs & { event: string, data: any }) => void
 }) => (
   new ReadableStream({
     async start(controller) {
@@ -26,6 +28,7 @@ export const createMessageResponse = ({
         stream: createRunStream,
         controller,
         handleToolCall,
+        onEvent,
       })
 
       console.log('Stream ended')

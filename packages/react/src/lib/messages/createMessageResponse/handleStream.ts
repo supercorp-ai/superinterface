@@ -9,13 +9,25 @@ export const handleStream = async ({
   stream,
   controller,
   handleToolCall,
+  onEvent,
 }: {
   client: any
   stream: ReadableStream
   controller: ReadableStreamDefaultController
   handleToolCall: any
+  onEvent: ({
+    controller,
+    event,
+    data,
+  }: {
+    controller: ReadableStreamDefaultController
+    event: string
+    data: any
+  }) => void
 }) => {
   for await (const value of stream) {
+    onEvent({ controller, event: value.event, data: value.data })
+
     if (['thread.message.created', 'thread.message.completed'].includes(value.event)) {
       enqueueJson({
         controller,
