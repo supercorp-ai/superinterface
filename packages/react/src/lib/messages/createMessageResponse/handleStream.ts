@@ -79,6 +79,7 @@ export const handleStream = async ({
         }),
         controller,
         handleToolCall,
+        onEvent,
       })
     } else {
       console.dir({ value }, { depth: null })
