@@ -19,29 +19,29 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@hookform/resolvers": "^3.3.4",
+    "@hookform/resolvers": "^3.7.0",
     "@radix-ui/react-icons": "^1.3.0",
-    "@radix-ui/react-toast": "^1.1.5",
-    "@streamparser/json-whatwg": "^0.0.20",
+    "@radix-ui/react-toast": "^1.2.1",
+    "@streamparser/json-whatwg": "^0.0.21",
     "compromise": "^14.13.0",
-    "dayjs": "^1.11.10",
+    "dayjs": "^1.11.11",
     "detect-browser": "^5.3.0",
     "howler": "^2.2.4",
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",
-    "openai": "^4.38.2",
+    "openai": "^4.52.3",
     "p-map": "^7.0.2",
     "radash": "^12.1.0",
     "react-children-utilities": "^2.10.0",
-    "react-hook-form": "^7.51.3",
-    "react-intersection-observer": "^9.8.2",
+    "react-hook-form": "^7.52.1",
+    "react-intersection-observer": "^9.10.3",
     "react-markdown": "^9.0.1",
     "react-textarea-autosize": "^8.5.3",
     "react-use": "^17.5.0",
     "react-use-audio-player": "^2.2.0",
     "regenerator-runtime": "^0.14.1",
     "use-audio-capture": "^0.0.7",
-    "zod": "^3.22.5"
+    "zod": "^3.23.8"
   },
   "peerDependencies": {
     "@radix-ui/themes": ">=3.0.0",
@@ -52,10 +52,10 @@
     "react": ">=18.0.0"
   },
   "devDependencies": {
-    "@tanstack/react-query": ">=5.0.0",
-    "@types/lodash": "^4.17.0",
-    "@types/react": "^18.2.79",
+    "@tanstack/react-query": ">=5.49.2",
+    "@types/lodash": "^4.17.6",
+    "@types/react": "^18.3.3",
     "react": ">=18.0.0",
-    "tsup": "^8.0.2"
+    "tsup": "^8.1.0"
   }
 }
