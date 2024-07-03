@@ -16,7 +16,7 @@ export const queryFn = ({
   const [_key, { assistantId }] = queryKey
 
   const params = new URLSearchParams({
-    publicApiKey: superinterfaceContext.publicApiKey,
+    publicApiKey: superinterfaceContext.variables.publicApiKey,
   })
 
   return fetch(`${superinterfaceContext.baseUrl}/assistants/${assistantId}?${params}`)
