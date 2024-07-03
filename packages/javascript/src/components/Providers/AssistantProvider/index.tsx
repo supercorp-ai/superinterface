@@ -24,7 +24,12 @@ export const AssistantProvider = ({
   const markdownContext = useMarkdownContext()
 
   const components = useMemo(() => ({
-    code: (props:  JSX.IntrinsicElements['code']) => <Code {...props} markdownContext={markdownContext} />,
+    code: (props:  JSX.IntrinsicElements['code']) => (
+      <Code
+        {...props}
+        markdownContext={markdownContext}
+      />
+    ),
   }), [markdownContext])
 
   if (!assistant) {
@@ -42,7 +47,10 @@ export const AssistantProvider = ({
       hasBackground={false}
     >
       <AssistantNameContext.Provider value={assistant.name}>
-        <MarkdownProvider rehypeReactOptions={{ components }}>
+        <MarkdownProvider
+          // @ts-ignore-next-line
+          components={components}
+        >
           {children}
         </MarkdownProvider>
       </AssistantNameContext.Provider>
