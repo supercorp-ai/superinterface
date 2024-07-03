@@ -10,14 +10,14 @@ export const threadCreated = ({
 }) => {
   if (!superinterfaceContext.threadIdCookieOptions?.set) return
   // @ts-ignore-next-line
-  if (!value.data.metadata?.superinterfaceAssistantId) return
+  if (!value.data.metadata?.assistantId) return
   // @ts-ignore-next-line
-  if (!value.data.metadata?.superinterfaceThreadId) return
+  if (!value.data.metadata?.threadId) return
 
   superinterfaceContext.threadIdCookieOptions.set({
     // @ts-ignore-next-line
-    assistantId: value.data.metadata.superinterfaceAssistantId,
+    assistantId: value.data.metadata.assistantId,
     // @ts-ignore-next-line
-    threadId: value.data.metadata.superinterfaceThreadId,
+    threadId: value.data.metadata.threadId,
   })
 }
