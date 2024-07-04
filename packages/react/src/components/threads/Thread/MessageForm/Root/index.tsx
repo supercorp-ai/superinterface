@@ -1,8 +1,9 @@
 'use client'
+import OpenAI from 'openai'
 import {
   useQueryClient,
 } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form'
 import { Box } from '@radix-ui/themes'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
@@ -16,6 +17,7 @@ import { partob } from 'radash'
 
 type Inputs = {
   content: string
+  attachments?: OpenAI.Beta.Threads.Message.Attachment[]
 }
 
 export const Root = ({
@@ -25,6 +27,7 @@ export const Root = ({
   children: React.ReactNode
   onSubmit?: SubmitHandler<Inputs & { reset: any, createMessage: any }>
 }) => {
+  const [files, setFiles] = useState<File[]>([])
   const formProps = useForm<Inputs>(formOptions)
 
   const {
@@ -75,7 +78,14 @@ export const Root = ({
   ), [latestMessage, isLoading])
 
   return (
-    <MessageFormContext.Provider value={{ isDisabled, isLoading }}>
+    <MessageFormContext.Provider
+      value={{
+        isDisabled,
+        isLoading,
+        files,
+        setFiles,
+      }}
+    >
       <FormProvider {...formProps}>
         <Box
           asChild

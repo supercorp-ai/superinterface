@@ -5,23 +5,29 @@ import {
 import { Submit } from './Submit'
 import { Root } from './Root'
 import { Field } from './Field'
+import { FileUploadButton } from './FileUploadButton'
 
 export const MessageForm = () => (
   <Root>
     <Field.Root>
-      <Text
-        size="2"
-        style={{
-          flexGrow: 1,
-        }}
+      <Flex
+        flexGrow="1"
       >
+        <FileUploadButton />
+
         <Flex
           flexGrow="1"
-          direction="column"
         >
-          <Field.Control />
+          <Text
+            size="2"
+            style={{
+              flexGrow: 1,
+            }}
+          >
+            <Field.Control />
+          </Text>
         </Flex>
-      </Text>
+      </Flex>
 
       <Flex
         flexShrink="0"
