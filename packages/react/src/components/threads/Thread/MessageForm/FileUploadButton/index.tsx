@@ -1,6 +1,9 @@
 'use client'
 
+import type OpenAI from 'openai'
 import { useCallback } from 'react'
+import dayjs from 'dayjs'
+import { optimisticId } from '@/lib/optimistic/optimisticId'
 import {
   FilePlusIcon,
 } from '@radix-ui/react-icons'
@@ -9,13 +12,52 @@ import {
   Flex,
 } from '@radix-ui/themes'
 import { useMessageFormContext } from '@/hooks/messages/useMessageFormContext'
+import { useCreateFile } from '@/hooks/files/useCreateFile'
 
 export const FileUploadButton = () => {
-  const { isDisabled, isLoading } = useMessageFormContext()
+  const { isDisabled, isLoading, setFiles } = useMessageFormContext()
+  const { createFile } = useCreateFile()
 
   const onChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (!files) return
+
+    const newFiles = Array.from(files).map((file) => {
+      const id = optimisticId()
+
+      createFile({
+        file,
+      }, {
+        onSuccess: ({
+          file,
+        }: {
+          file: OpenAI.Files.FileObject
+        }) => {
+          setFiles((prev) => ([
+            ...prev.filter((prevFile) => prevFile.id !== id),
+            file,
+          ]))
+        },
+        onError: () => {
+          console.log('error')
+        },
+      })
+
+      return {
+        id,
+        filename: file.name,
+        object: 'file',
+        purpose: 'assistants',
+        created_at: dayjs().unix(),
+        bytes: file.size,
+      }
+    })
+
+    // @ts-ignore-next-line
+    setFiles((prev) => [
+      ...prev,
+      ...newFiles,
+    ])
 
     console.log(files)
   }, [])

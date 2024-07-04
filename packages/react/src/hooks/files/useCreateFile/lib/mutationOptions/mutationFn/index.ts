@@ -1,10 +1,8 @@
-import { JSONParser } from '@streamparser/json-whatwg'
 import {
   useQueryClient,
 } from '@tanstack/react-query'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
-import { handleResponse } from './handleResponse'
 import { body } from './body'
 
 export const mutationFn = ({
@@ -21,15 +19,12 @@ export const mutationFn = ({
 }) => {
   const response = await fetch(`${superinterfaceContext.baseUrl}/files`, {
     method: 'POST',
-    body: JSON.stringify(body({
+    body: body({
       variables,
       superinterfaceContext,
-    })),
+    }),
   })
 
-  console.log({ response })
-
-  return {
-    success: true,
-  }
+  const result = await response.json()
+  return result
 }

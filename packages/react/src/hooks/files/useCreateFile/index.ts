@@ -27,6 +27,12 @@ export const useCreateFile = ({
 
   return {
     ...props,
-    createFile: partob(props.mutateAsync, threadContext.variables),
+    createFile: (...args: any[]) => {
+      const [firstArg, ...restArgs] = args
+      return props.mutateAsync({
+        ...threadContext.variables,
+        ...firstArg,
+      }, ...restArgs)
+    },
   }
 }

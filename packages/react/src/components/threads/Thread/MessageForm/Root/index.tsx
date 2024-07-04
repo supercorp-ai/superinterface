@@ -27,7 +27,7 @@ export const Root = ({
   children: React.ReactNode
   onSubmit?: SubmitHandler<Inputs & { reset: any, createMessage: any }>
 }) => {
-  const [files, setFiles] = useState<File[]>([])
+  const [files, setFiles] = useState<OpenAI.Files.FileObject[]>([])
   const formProps = useForm<Inputs>(formOptions)
 
   const {
@@ -63,10 +63,21 @@ export const Root = ({
 
   const onSubmit: SubmitHandler<Inputs> = onSubmitArg ? partob(onSubmitArg, { reset, createMessage }) : async (data) => {
     reset()
+    setFiles([])
+
+    const attachments = files.map((file) => ({
+      file_id: file.id,
+      tools: [
+        {
+          type: 'file_search',
+        },
+      ],
+    }))
 
     await createMessage({
       // @ts-ignore-next-line
       content: data.content,
+      ...(attachments.length ? { attachments } : {}),
     })
   }
 

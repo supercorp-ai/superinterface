@@ -1,4 +1,5 @@
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
+import { formData } from './formData'
 
 export const body = ({
   variables,
@@ -9,15 +10,15 @@ export const body = ({
   }
   superinterfaceContext: ReturnType<typeof useSuperinterfaceContext>
 }) => {
-  if (variables.threadId) return variables
-  if (!variables.assistantId) return variables
-  if (!superinterfaceContext.threadIdCookieOptions?.get) return variables
+  if (variables.threadId) return formData(variables)
+  if (!variables.assistantId) return formData(variables)
+  if (!superinterfaceContext.threadIdCookieOptions?.get) return formData(variables)
 
   const threadId = superinterfaceContext.threadIdCookieOptions.get({ assistantId: variables.assistantId })
-  if (!threadId) return variables
+  if (!threadId) return formData(variables)
 
-  return {
+  return formData({
     ...variables,
     threadId,
-  }
+  })
 }

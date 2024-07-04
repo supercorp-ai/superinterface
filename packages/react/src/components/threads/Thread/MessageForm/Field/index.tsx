@@ -35,6 +35,7 @@ const Root = ({
           flexShrink="0"
         >
           <Flex
+            direction="column"
             style={{
               borderRadius: 'var(--radius-2)',
               borderWidth: '1px',
@@ -43,7 +44,6 @@ const Root = ({
               ...(errors.content ? { backgroundColor: 'var(--red-2)' } : {}),
             }}
             p="2"
-            pl="4"
           >
             {children}
           </Flex>
