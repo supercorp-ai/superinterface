@@ -1,13 +1,12 @@
 import { Submit } from './Submit'
 import { Root } from './Root'
 import { Field } from './Field'
-import { FileUpload } from './FileUpload'
 
 export const MessageForm = () => (
   <Root>
     <Field.Root>
-      <FileUpload.Preview />
-      <FileUpload.Button />
+      {false && <Field.Files.Preview />}
+      {false && <Field.Files.Control />}
       <Field.Control />
       <Submit />
     </Field.Root>
@@ -17,4 +16,3 @@ export const MessageForm = () => (
 MessageForm.Root = Root
 MessageForm.Field = Field
 MessageForm.Submit = Submit
-MessageForm.FileUpload = FileUpload

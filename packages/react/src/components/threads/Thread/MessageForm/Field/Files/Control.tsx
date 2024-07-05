@@ -15,7 +15,7 @@ import { useToasts } from '@/hooks/toasts/useToasts'
 import { useMessageFormContext } from '@/hooks/messages/useMessageFormContext'
 import { useCreateFile } from '@/hooks/files/useCreateFile'
 
-export const Button = () => {
+export const Control = () => {
   const { isDisabled, isLoading, setFiles } = useMessageFormContext()
   const { createFile } = useCreateFile()
   const { addToast } = useToasts()

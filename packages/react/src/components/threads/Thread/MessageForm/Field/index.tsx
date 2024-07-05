@@ -5,6 +5,7 @@ import {
   Flex,
 } from '@radix-ui/themes'
 import { Control } from './Control'
+import { Files } from './Files'
 
 const Root = ({
   children,
@@ -53,4 +54,5 @@ const Root = ({
 export const Field = {
   Root,
   Control,
+  Files,
 }
