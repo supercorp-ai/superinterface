@@ -10,6 +10,7 @@ import { RunSteps } from '@/components/runSteps/RunSteps'
 import { useIsMutatingMessage } from '@/hooks/messages/useIsMutatingMessage'
 import { Provider } from './Provider'
 import { TextContent } from './TextContent'
+import { Attachments } from './Attachments'
 
 type Args = {
   message: SerializedMessage
@@ -67,6 +68,10 @@ export const Message = ({
         />
 
         <Box>
+          <Attachments
+            message={message}
+          />
+
           {message.content.map((content, index) => (
             <Fragment
               key={index}
