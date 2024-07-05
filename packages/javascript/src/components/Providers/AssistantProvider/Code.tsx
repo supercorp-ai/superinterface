@@ -21,7 +21,7 @@ export const Code = ({
   ), [messageContext])
 
   if (!isAssistantMessage || className !== 'language-suggestions') {
-    return markdownContext.rehypeReactOptions.components.code({ children, className })
+    return markdownContext.components.code({ children, className })
   }
 
   return <Suggestions>{children}</Suggestions>
