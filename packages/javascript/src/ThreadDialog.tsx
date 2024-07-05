@@ -1,7 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import {
   ThreadDialog,
-  Thread,
 } from '@superinterface/react'
 import { rootElement } from '@/lib/rootElement'
 import { Providers } from '@/components/Providers'
