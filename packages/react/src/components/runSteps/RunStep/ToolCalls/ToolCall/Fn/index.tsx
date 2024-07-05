@@ -2,8 +2,6 @@
 import { useContext } from 'react'
 import OpenAI from 'openai'
 import type { SerializedRunStep } from '@/types'
-// import { Availabilities } from './Availabilities'
-// import { Scores } from './Scores'
 import { FunctionComponentsContext } from '@/contexts/functions/FunctionComponentsContext'
 import { DefaultFunction } from './DefaultFunction'
 

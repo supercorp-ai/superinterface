@@ -6,6 +6,10 @@ export type SerializedMessage = Pick<OpenAI.Beta.Threads.Messages.Message, 'id' 
   runSteps: SerializedRunStep[]
 }
 
+export type ToolCall = OpenAI.Beta.Threads.Runs.CodeInterpreterToolCall
+  | OpenAI.Beta.Threads.Runs.FileSearchToolCall
+  | OpenAI.Beta.Threads.Runs.FunctionToolCall
+
 export type MessagesPage = {
   data: SerializedMessage[]
   hasNextPage: boolean

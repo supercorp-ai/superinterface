@@ -4,7 +4,7 @@ import {
 } from '@radix-ui/themes'
 import { ToolCallBase } from '@/components/toolCalls/ToolCallBase'
 import { ToolCallTitle } from '@/components/toolCalls/ToolCallBase/ToolCallTitle'
-import { Icon } from './Icon'
+import { ToolCallIcon } from '@/components/toolCalls/ToolCallBase/ToolCallIcon'
 import { Content } from './Content'
 
 type Args = {
@@ -19,12 +19,14 @@ export const FunctionBase = ({
   title,
 }: Args) => (
   <Popover.Root>
-    <ToolCallBase>
-      <Icon runStep={runStep} />
-      <ToolCallTitle>
-        {title}
-      </ToolCallTitle>
-    </ToolCallBase>
+    <Popover.Trigger>
+      <ToolCallBase>
+        <ToolCallIcon runStep={runStep} />
+        <ToolCallTitle>
+          {title}
+        </ToolCallTitle>
+      </ToolCallBase>
+    </Popover.Trigger>
     <Popover.Content
       style={{
         maxHeight: '200px',

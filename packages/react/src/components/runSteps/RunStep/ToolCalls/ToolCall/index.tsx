@@ -1,17 +1,11 @@
-import OpenAI from 'openai'
-import {
-  Flex,
-} from '@radix-ui/themes'
 import { Fn } from './Fn'
 import { CodeInterpreter } from './CodeInterpreter'
-import type { SerializedRunStep } from '@/types'
-
-type ToolCall = OpenAI.Beta.Threads.Runs.CodeInterpreterToolCall
-  | OpenAI.Beta.Threads.Runs.FileSearchToolCall
-  | OpenAI.Beta.Threads.Runs.FunctionToolCall
+import { FileSearch } from './FileSearch'
+import { Fallback } from './Fallback'
+import type { SerializedRunStep, ToolCall as ToolCallType } from '@/types'
 
 type Args = {
-  toolCall: ToolCall
+  toolCall: ToolCallType
   runStep: SerializedRunStep
 }
 
@@ -31,15 +25,25 @@ export const ToolCall = ({
   if (toolCall.type === 'code_interpreter') {
     return (
       <CodeInterpreter
-        codeInterpreter={toolCall.code_interpreter}
+        toolCall={toolCall}
+        runStep={runStep}
+      />
+    )
+  }
+
+  if (toolCall.type === 'file_search') {
+    return (
+      <FileSearch
+        toolCall={toolCall}
         runStep={runStep}
       />
     )
   }
 
   return (
-    <Flex>
-      {toolCall.type}
-    </Flex>
+    <Fallback
+      toolCall={toolCall}
+      runStep={runStep}
+    />
   )
 }
