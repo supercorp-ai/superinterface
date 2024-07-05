@@ -5,6 +5,7 @@ import { optimisticId } from '@/lib/optimistic/optimisticId'
 type Args = {
   newMessage: {
     content: string
+    attachments: OpenAI.Beta.Threads.Messages.Message['attachments'] | undefined
   }
 }
 
@@ -28,7 +29,7 @@ export const data = ({
     run_id: null,
     assistant_id: null,
     thread_id: null,
-    attachments: [],
+    attachments: newMessage.attachments ?? [],
     metadata: {},
     runSteps: [],
   }
