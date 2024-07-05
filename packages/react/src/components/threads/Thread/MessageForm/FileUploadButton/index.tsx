@@ -11,12 +11,14 @@ import {
   IconButton,
   Flex,
 } from '@radix-ui/themes'
+import { useToasts } from '@/hooks/toasts/useToasts'
 import { useMessageFormContext } from '@/hooks/messages/useMessageFormContext'
 import { useCreateFile } from '@/hooks/files/useCreateFile'
 
 export const FileUploadButton = () => {
   const { isDisabled, isLoading, setFiles } = useMessageFormContext()
   const { createFile } = useCreateFile()
+  const { addToast } = useToasts()
 
   const onChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
@@ -39,29 +41,29 @@ export const FileUploadButton = () => {
           ]))
         },
         onError: () => {
-          console.log('error')
+          addToast({ type: 'error', message: 'Could not upload file. Please try again.' })
+          setFiles((prev) => (
+            prev.filter((prevFile) => prevFile.id !== id)
+          ))
         },
       })
 
       return {
         id,
         filename: file.name,
-        object: 'file',
-        purpose: 'assistants',
+        object: 'file' as 'file',
+        purpose: 'assistants' as 'assistants',
         created_at: dayjs().unix(),
         bytes: file.size,
+        status: 'processed' as 'processed',
       }
     })
 
-    // @ts-ignore-next-line
-    setFiles((prev) => [
+    setFiles((prev: OpenAI.Files.FileObject[]) => [
       ...prev,
       ...newFiles,
     ])
-
-    console.log(files)
   }, [])
-
 
   return (
     <Flex
@@ -71,9 +73,11 @@ export const FileUploadButton = () => {
       <IconButton
         type="button"
         variant="ghost"
+        color="gray"
         disabled={isDisabled || isLoading}
         style={{
           position: 'relative',
+          overflow: 'hidden',
         }}
       >
         <FilePlusIcon />
@@ -84,8 +88,8 @@ export const FileUploadButton = () => {
             position: 'absolute',
             top: 0,
             left: 0,
-            width: '100%',
-            height: '100%',
+            right: 0,
+            bottom: 0,
             opacity: 0,
           }}
         />

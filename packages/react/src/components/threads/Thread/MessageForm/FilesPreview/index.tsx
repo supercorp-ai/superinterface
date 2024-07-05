@@ -29,6 +29,7 @@ export const FilesPreview = () => {
       {files.map((file) => (
         <Card
           key={file.id}
+          variant="ghost"
         >
           <Flex
             align="center"
@@ -38,32 +39,45 @@ export const FilesPreview = () => {
             <Flex
               align="center"
               gap="1"
+              flexShrink="1"
+              minWidth="0"
+              maxWidth="250px"
             >
-              {isOptimistic({ id: file.id }) ? (
-                <Spinner />
-              ) : (
-                <FileIcon />
-              )}
+              <Flex
+                flexShrink="0"
+              >
+                <Spinner
+                  loading={isOptimistic({ id: file.id })}
+                >
+                  <FileIcon />
+                </Spinner>
+              </Flex>
 
               <Text
                 size="2"
+                truncate
+                wrap="nowrap"
               >
                 {file.filename}
               </Text>
             </Flex>
 
-            <IconButton
-              onClick={() => (
-                setFiles((prev) => (
-                  prev.filter((prevFile) => prevFile.id !== file.id)
-                ))
-              )}
-              color="gray"
-              variant="ghost"
-              size="1"
+            <Flex
+              flexShrink="0"
             >
-              <Cross2Icon />
-            </IconButton>
+              <IconButton
+                onClick={() => (
+                  setFiles((prev) => (
+                    prev.filter((prevFile) => prevFile.id !== file.id)
+                  ))
+                )}
+                color="gray"
+                variant="ghost"
+                size="1"
+              >
+                <Cross2Icon />
+              </IconButton>
+            </Flex>
           </Flex>
         </Card>
       ))}

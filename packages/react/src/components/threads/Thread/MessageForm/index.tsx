@@ -16,23 +16,13 @@ export const MessageForm = () => (
       <Flex
         flexGrow="1"
       >
+        <FileUploadButton />
+
         <Flex
           flexGrow="1"
+          pt="4px"
         >
-          <FileUploadButton />
-
-          <Flex
-            flexGrow="1"
-          >
-            <Text
-              size="2"
-              style={{
-                flexGrow: 1,
-              }}
-            >
-              <Field.Control />
-            </Text>
-          </Flex>
+          <Field.Control />
         </Flex>
 
         <Flex

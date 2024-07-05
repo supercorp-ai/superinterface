@@ -44,6 +44,7 @@ const Root = ({
               ...(errors.content ? { backgroundColor: 'var(--red-2)' } : {}),
             }}
             p="2"
+            pl="3"
           >
             {children}
           </Flex>

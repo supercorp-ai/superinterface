@@ -14,6 +14,7 @@ import { MessageFormContext } from '@/contexts/messages/MessageFormContext'
 import { useToasts } from '@/hooks/toasts/useToasts'
 import { useIsMutatingMessage } from '@/hooks/messages/useIsMutatingMessage'
 import { partob } from 'radash'
+import { isOptimistic } from '@/lib/optimistic/isOptimistic'
 
 type Inputs = {
   content: string
@@ -85,8 +86,9 @@ export const Root = ({
 
   const isDisabled = useMemo(() => (
     // @ts-ignore-next-line
-    latestMessage?.metadata?.isBlocking
-  ), [latestMessage, isLoading])
+    latestMessage?.metadata?.isBlocking ||
+      files.some((file) => isOptimistic({ id: file.id }))
+  ), [latestMessage, isLoading, files])
 
   return (
     <MessageFormContext.Provider
