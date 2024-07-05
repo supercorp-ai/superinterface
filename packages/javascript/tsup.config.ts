@@ -6,6 +6,7 @@ export default defineConfig({
   },
   entry: [
     'src/ThreadDialog.tsx',
+    'src/ThreadDialogFilesEnabled.tsx',
     'src/AudioThreadDialog.tsx',
   ],
   sourcemap: true,
