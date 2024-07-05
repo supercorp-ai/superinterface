@@ -2,13 +2,14 @@ import {
   Flex,
 } from '@radix-ui/themes'
 import { useThreadDialogContext } from '@/hooks/threads/useThreadDialogContext'
+import { Button } from './Button'
 
 type Args = {
   children: React.ReactNode
   style?: React.CSSProperties
 }
 
-export const Trigger = ({
+const Root = ({
   children,
   style = {},
 }: Args) => {
@@ -37,3 +38,12 @@ export const Trigger = ({
     </Flex>
   )
 }
+
+export const Trigger = (args: Omit<Args, 'children'>) => (
+  <Root {...args}>
+    <Button />
+  </Root>
+)
+
+Trigger.Root = Root
+Trigger.Button = Button

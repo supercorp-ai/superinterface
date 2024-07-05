@@ -8,6 +8,7 @@ import {
 import { Theme } from '@radix-ui/themes'
 import { useAssistant } from '@/hooks/assistants/useAssistant'
 import { Code } from './Code'
+import { AssistantContext } from '@/contexts/assistants/AssistantContext'
 
 type Args = {
   children: React.ReactNode
@@ -25,6 +26,7 @@ export const AssistantProvider = ({
 
   const components = useMemo(() => ({
     code: (props:  JSX.IntrinsicElements['code']) => (
+      // @ts-ignore-next-line
       <Code
         {...props}
         markdownContext={markdownContext}
@@ -37,23 +39,25 @@ export const AssistantProvider = ({
   }
 
   return (
-    <Theme
-      accentColor={assistant.theme.accentColor}
-      grayColor={assistant.theme.grayColor}
-      radius={assistant.theme.radius}
-      appearance={assistant.theme.appearance}
-      scaling={assistant.theme.scaling}
-      panelBackground="solid"
-      hasBackground={false}
-    >
-      <AssistantNameContext.Provider value={assistant.name}>
-        <MarkdownProvider
-          // @ts-ignore-next-line
-          components={components}
-        >
-          {children}
-        </MarkdownProvider>
-      </AssistantNameContext.Provider>
-    </Theme>
+    <AssistantContext.Provider value={{ assistant }}>
+      <Theme
+        accentColor={assistant.theme.accentColor}
+        grayColor={assistant.theme.grayColor}
+        radius={assistant.theme.radius}
+        appearance={assistant.theme.appearance}
+        scaling={assistant.theme.scaling}
+        panelBackground="solid"
+        hasBackground={false}
+      >
+        <AssistantNameContext.Provider value={assistant.name}>
+          <MarkdownProvider
+            // @ts-ignore-next-line
+            components={components}
+          >
+            {children}
+          </MarkdownProvider>
+        </AssistantNameContext.Provider>
+      </Theme>
+    </AssistantContext.Provider>
   )
 }

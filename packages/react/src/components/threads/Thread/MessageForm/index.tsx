@@ -5,8 +5,6 @@ import { Field } from './Field'
 export const MessageForm = () => (
   <Root>
     <Field.Root>
-      {false && <Field.Files.Preview />}
-      {false && <Field.Files.Control />}
       <Field.Control />
       <Submit />
     </Field.Root>

@@ -86,6 +86,7 @@ export const Control = () => {
           type="file"
           onChange={onChange}
           style={{
+            cursor: 'pointer',
             position: 'absolute',
             top: 0,
             left: 0,

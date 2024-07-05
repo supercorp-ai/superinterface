@@ -78,6 +78,32 @@ const Root = ({
   )
 }
 
+const Messages = () => (
+  <Thread.Messages
+    style={{
+      paddingTop: 'var(--space-5)',
+      paddingRight: 'var(--space-5)',
+      paddingLeft: 'var(--space-5)',
+    }}
+  />
+)
+
+const FormContainer = ({
+  children,
+}: {
+  children: React.ReactNode
+}) => (
+  <Flex
+    direction="column"
+    pl="5"
+    pr="5"
+    pb="3"
+    flexShrink="0"
+  >
+    {children}
+  </Flex>
+)
+
 export const Content = ({
   style = {},
 }: {
@@ -85,24 +111,14 @@ export const Content = ({
 }) => (
   <Root style={style}>
     <Thread.Root>
-      <Thread.Messages
-        style={{
-          paddingTop: 'var(--space-5)',
-          paddingRight: 'var(--space-5)',
-          paddingLeft: 'var(--space-5)',
-        }}
-      />
-      <Flex
-        direction="column"
-        pl="5"
-        pr="5"
-        pb="3"
-        flexShrink="0"
-      >
+      <Messages />
+      <FormContainer>
         <Thread.MessageForm />
-      </Flex>
+      </FormContainer>
     </Thread.Root>
   </Root>
 )
 
 Content.Root = Root
+Content.Messages = Messages
+Content.FormContainer = FormContainer
