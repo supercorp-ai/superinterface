@@ -15,7 +15,7 @@ import { useToasts } from '@/hooks/toasts/useToasts'
 import { useMessageFormContext } from '@/hooks/messages/useMessageFormContext'
 import { useCreateFile } from '@/hooks/files/useCreateFile'
 
-export const FileUploadButton = () => {
+export const Button = () => {
   const { isDisabled, isLoading, setFiles } = useMessageFormContext()
   const { createFile } = useCreateFile()
   const { addToast } = useToasts()
@@ -69,6 +69,7 @@ export const FileUploadButton = () => {
     <Flex
       pt="2"
       pr="2"
+      flexGrow="0"
     >
       <IconButton
         type="button"

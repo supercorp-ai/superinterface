@@ -1,14 +1,10 @@
 'use client'
-import { usePrevious } from 'react-use'
-import { useContext, useMemo, useRef, useEffect } from 'react'
-import { AssistantNameContext } from '@/contexts/assistants/AssistantNameContext'
-import { TextareaBase } from '@/components/textareas/TextareaBase'
 import { useFormContext } from 'react-hook-form'
 import {
-  Container,
+  Container as RadixContainer,
   Flex,
 } from '@radix-ui/themes'
-import { useMessageFormContext } from '@/hooks/messages/useMessageFormContext'
+import { Control } from './Control'
 
 const Root = ({
   children,
@@ -22,7 +18,7 @@ const Root = ({
   } = useFormContext()
 
   return (
-    <Container
+    <RadixContainer
       size="2"
       flexGrow="0"
     >
@@ -35,7 +31,6 @@ const Root = ({
           flexShrink="0"
         >
           <Flex
-            direction="column"
             style={{
               borderRadius: 'var(--radius-2)',
               borderWidth: '1px',
@@ -45,60 +40,13 @@ const Root = ({
             }}
             p="2"
             pl="3"
+            wrap="wrap"
           >
             {children}
           </Flex>
         </Flex>
       </Flex>
-    </Container>
-  )
-}
-
-const Control = () => {
-  const assistantNameContext = useContext(AssistantNameContext)
-  const {
-    register,
-  } = useFormContext()
-
-  const { isDisabled, isLoading } = useMessageFormContext()
-
-  const isSubmitDisabled = useMemo(() => (
-    isDisabled || isLoading
-  ), [isDisabled, isLoading])
-
-  const isDisabledPrevious = usePrevious(isDisabled)
-
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const textareaProps = register('content')
-
-  useEffect(() => {
-    if (isDisabled) return
-    if (!isDisabledPrevious) return
-    if (!textareaRef.current) return
-
-    textareaRef.current.focus()
-  }, [isDisabled, isDisabledPrevious, textareaProps])
-
-  return (
-    <TextareaBase
-      minRows={1}
-      placeholder={`Message ${assistantNameContext}...`}
-      disabled={isDisabled}
-      onKeyDown={(e: any) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault()
-
-          if (isSubmitDisabled) return
-          e.currentTarget.form?.requestSubmit()
-        }
-      }}
-      {...textareaProps}
-      ref={(e: any) => {
-        textareaProps.ref(e)
-        // @ts-ignore-next-line
-        textareaRef.current = e
-      }}
-    />
+    </RadixContainer>
   )
 }
 

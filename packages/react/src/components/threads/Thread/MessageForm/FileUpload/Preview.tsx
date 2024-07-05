@@ -12,9 +12,8 @@ import {
 import { useMessageFormContext } from '@/hooks/messages/useMessageFormContext'
 import { isOptimistic } from '@/lib/optimistic/isOptimistic'
 
-export const FilesPreview = () => {
-  const { isDisabled, isLoading, files, setFiles } = useMessageFormContext()
-  console.log({ files })
+export const Preview = () => {
+  const { files, setFiles } = useMessageFormContext()
 
   if (!files.length) {
     return null
@@ -22,6 +21,7 @@ export const FilesPreview = () => {
 
   return (
     <Flex
+      flexBasis="100%"
       direction="column"
       pb="2"
       gap="1"

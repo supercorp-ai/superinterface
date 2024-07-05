@@ -1,37 +1,15 @@
-import {
-  Flex,
-  Text,
-} from '@radix-ui/themes'
 import { Submit } from './Submit'
 import { Root } from './Root'
 import { Field } from './Field'
-import { FileUploadButton } from './FileUploadButton'
-import { FilesPreview } from './FilesPreview'
+import { FileUpload } from './FileUpload'
 
 export const MessageForm = () => (
   <Root>
     <Field.Root>
-      <FilesPreview />
-
-      <Flex
-        flexGrow="1"
-      >
-        <FileUploadButton />
-
-        <Flex
-          flexGrow="1"
-          pt="4px"
-        >
-          <Field.Control />
-        </Flex>
-
-        <Flex
-          flexShrink="0"
-          align="end"
-        >
-          <Submit />
-        </Flex>
-      </Flex>
+      <FileUpload.Preview />
+      <FileUpload.Button />
+      <Field.Control />
+      <Submit />
     </Field.Root>
   </Root>
 )
@@ -39,3 +17,4 @@ export const MessageForm = () => (
 MessageForm.Root = Root
 MessageForm.Field = Field
 MessageForm.Submit = Submit
+MessageForm.FileUpload = FileUpload

@@ -6,11 +6,25 @@ import {
 } from '@radix-ui/react-icons'
 import {
   IconButton,
+  Flex,
 } from '@radix-ui/themes'
 import { useMessageFormContext } from '@/hooks/messages/useMessageFormContext'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 
-export const Submit = () => {
+const Root = ({
+  children,
+}: {
+  children: React.ReactNode
+}) => (
+  <Flex
+    flexShrink="0"
+    align="end"
+  >
+    {children}
+  </Flex>
+)
+
+const Button = () => {
   const superinterfaceContext = useSuperinterfaceContext()
   const { isDisabled, isLoading } = useMessageFormContext()
 
@@ -34,3 +48,12 @@ export const Submit = () => {
     </IconButton>
   )
 }
+
+export const Submit = () => (
+  <Root>
+    <Button />
+  </Root>
+)
+
+Submit.Root = Root
+Submit.Button = Button
