@@ -55,6 +55,10 @@ export const Root = ({
 
   const isMutatingMessage = useIsMutatingMessage()
 
+  const isFileLoading = useMemo(() => (
+    files.some((file) => isOptimistic({ id: file.id }))
+  ), [files])
+
   const isLoading = useMemo(() => (
     isMutatingMessage || isSubmitting
   ), [
@@ -62,7 +66,18 @@ export const Root = ({
     isSubmitting,
   ])
 
+  const { latestMessage } = useLatestMessage()
+
+  const isDisabled = useMemo(() => (
+    // @ts-ignore-next-line
+    latestMessage?.metadata?.isBlocking
+  ), [latestMessage, isLoading, files])
+
   const onSubmit: SubmitHandler<Inputs> = onSubmitArg ? partob(onSubmitArg, { reset, createMessage }) : async (data) => {
+    if (isFileLoading) return
+    if (isLoading) return
+    if (isDisabled) return
+
     reset()
     setFiles([])
 
@@ -82,14 +97,6 @@ export const Root = ({
     })
   }
 
-  const { latestMessage } = useLatestMessage()
-
-  const isDisabled = useMemo(() => (
-    // @ts-ignore-next-line
-    latestMessage?.metadata?.isBlocking ||
-      files.some((file) => isOptimistic({ id: file.id }))
-  ), [latestMessage, isLoading, files])
-
   return (
     <MessageFormContext.Provider
       value={{
@@ -97,6 +104,7 @@ export const Root = ({
         isLoading,
         files,
         setFiles,
+        isFileLoading,
       }}
     >
       <FormProvider {...formProps}>

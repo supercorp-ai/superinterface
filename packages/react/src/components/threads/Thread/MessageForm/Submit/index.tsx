@@ -26,7 +26,7 @@ const Root = ({
 
 const Button = () => {
   const superinterfaceContext = useSuperinterfaceContext()
-  const { isDisabled, isLoading } = useMessageFormContext()
+  const { isDisabled, isLoading, isFileLoading } = useMessageFormContext()
 
   if (isLoading) {
     return (
@@ -42,7 +42,7 @@ const Button = () => {
   return (
     <IconButton
       type="submit"
-      disabled={isDisabled}
+      disabled={isDisabled || isFileLoading}
     >
       <ArrowUpIcon />
     </IconButton>
