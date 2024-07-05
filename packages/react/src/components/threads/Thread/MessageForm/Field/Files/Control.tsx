@@ -15,6 +15,28 @@ import { useToasts } from '@/hooks/toasts/useToasts'
 import { useMessageFormContext } from '@/hooks/messages/useMessageFormContext'
 import { useCreateFile } from '@/hooks/files/useCreateFile'
 
+const accept = `.c,text/x-c,
+.cs,text/x-csharp,
+.cpp,text/x-c++,
+.doc,application/msword,
+.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,
+.html,text/html,
+.java,text/x-java,
+.json,application/json,
+.md,text/markdown,
+.pdf,application/pdf,
+.php,text/x-php,
+.pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation,
+.py,text/x-python,
+.py,text/x-script.python,
+.rb,text/x-ruby,
+.tex,text/x-tex,
+.txt,text/plain,
+.css,text/css,
+.js,text/javascript,
+.sh,application/x-sh,
+.ts,application/typescript`
+
 export const Control = () => {
   const { isDisabled, isLoading, setFiles } = useMessageFormContext()
   const { createFile } = useCreateFile()
@@ -84,6 +106,7 @@ export const Control = () => {
         <FilePlusIcon />
         <input
           type="file"
+          accept={accept}
           onChange={onChange}
           style={{
             cursor: 'pointer',
