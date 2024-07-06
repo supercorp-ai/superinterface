@@ -2,6 +2,7 @@
 
 import type OpenAI from 'openai'
 import { useCallback } from 'react'
+import { omit } from 'radash'
 import dayjs from 'dayjs'
 import { optimisticId } from '@/lib/optimistic/optimisticId'
 import {
@@ -42,50 +43,50 @@ export const Control = () => {
   const { createFile } = useCreateFile()
   const { addToast } = useToasts()
 
-  const onChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
-    if (!files) return
+  const onChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fileObjects = event.target.files
+    if (!fileObjects) return
 
-    const newFiles = Array.from(files).map((file) => {
-      const id = optimisticId()
+    const newFiles = Array.from(fileObjects).map((fileObject) => ({
+      id: optimisticId(),
+      filename: fileObject.name,
+      object: 'file' as 'file',
+      purpose: 'assistants' as 'assistants',
+      created_at: dayjs().unix(),
+      bytes: fileObject.size,
+      status: 'processed' as 'processed',
+      fileObject,
+    }))
 
-      createFile({
-        file,
-      }, {
+    setFiles((prev: OpenAI.Files.FileObject[]) => [
+      ...prev,
+      ...newFiles.map((file) => omit(file, ['fileObject'])),
+    ])
+
+    for await (const newFile of newFiles) {
+      await createFile({
+        file: newFile.fileObject,
+      },
+      {
         onSuccess: ({
           file,
         }: {
           file: OpenAI.Files.FileObject
-        }) => {
+        }) => (
           setFiles((prev) => ([
-            ...prev.filter((prevFile) => prevFile.id !== id),
+            ...prev.filter((prevFile) => prevFile.id !== newFile.id),
             file,
           ]))
-        },
+        ),
         onError: () => {
           addToast({ type: 'error', message: 'Could not upload file. Please try again.' })
           setFiles((prev) => (
-            prev.filter((prevFile) => prevFile.id !== id)
+            prev.filter((prevFile) => prevFile.id !== newFile.id)
           ))
         },
       })
-
-      return {
-        id,
-        filename: file.name,
-        object: 'file' as 'file',
-        purpose: 'assistants' as 'assistants',
-        created_at: dayjs().unix(),
-        bytes: file.size,
-        status: 'processed' as 'processed',
-      }
-    })
-
-    setFiles((prev: OpenAI.Files.FileObject[]) => [
-      ...prev,
-      ...newFiles,
-    ])
-  }, [])
+    }
+  }, [addToast, createFile, setFiles])
 
   return (
     <Flex
@@ -106,6 +107,7 @@ export const Control = () => {
         <FilePlusIcon />
         <input
           type="file"
+          multiple
           accept={accept}
           onChange={onChange}
           style={{
