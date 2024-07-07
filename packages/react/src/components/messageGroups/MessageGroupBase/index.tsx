@@ -10,10 +10,9 @@ type Args = {
 
 export const MessageGroupBase = forwardRef(function MessageGroupBase({
   children,
-}: Args, ref) {
+}: Args, ref: React.Ref<HTMLDivElement>) {
   return (
     <Container
-      // @ts-ignore-next-line
       ref={ref}
       size="2"
       flexGrow="0"
