@@ -7,6 +7,7 @@ import { Strong } from './Strong'
 import { Pre } from './Pre'
 import { Code } from './Code'
 import { Img } from './Img'
+import { Annotation } from './Annotation'
 
 export const components = {
   p: Paragraph,
@@ -18,4 +19,5 @@ export const components = {
   pre: Pre,
   code: Code,
   img: Img,
+  annotation: Annotation,
 }

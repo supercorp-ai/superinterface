@@ -77,7 +77,9 @@ export const Message = ({
               key={index}
             >
               {content.type === 'text' && (
-                <TextContent content={content} />
+                <TextContent
+                  content={content}
+                />
               )}
             </Fragment>
           ))}

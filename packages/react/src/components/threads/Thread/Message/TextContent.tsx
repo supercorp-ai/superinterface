@@ -9,10 +9,18 @@ type Args = {
 export const TextContent = ({
   content,
 }: Args) => {
-  const markdownContext = useMarkdownContext()
+  const {
+    getRemarkPlugins,
+    ...rest
+  } = useMarkdownContext()
 
   return (
-    <Markdown {...markdownContext}>
+    <Markdown
+      {...rest}
+      remarkPlugins={getRemarkPlugins({
+        content,
+      })}
+    >
       {content.text.value}
     </Markdown>
   )

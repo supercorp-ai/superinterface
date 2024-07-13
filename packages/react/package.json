@@ -40,6 +40,8 @@
     "react-use": "^17.5.0",
     "react-use-audio-player": "^2.2.0",
     "regenerator-runtime": "^0.14.1",
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.0.0",
     "use-audio-capture": "^0.0.7",
     "zod": "^3.23.8"
   },
