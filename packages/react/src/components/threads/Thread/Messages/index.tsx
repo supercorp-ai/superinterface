@@ -33,6 +33,7 @@ export const Messages = ({
     <Flex
       flexShrink="0"
       flexGrow="1"
+      minHeight="var(--space-5)"
     />
   </Root>
 )
