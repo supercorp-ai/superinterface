@@ -1,5 +1,12 @@
 import OpenAI from 'openai'
-import { visit, SKIP } from 'unist-util-visit'
+import { isNumber } from 'radash'
+import type { Literal } from 'unist'
+// @ts-ignore-next-line
+import flatMap from 'unist-util-flatmap'
+
+type Node = Literal & {
+  value: string
+}
 
 export const remarkAnnotation = ({
   content,
@@ -8,79 +15,113 @@ export const remarkAnnotation = ({
 }) => {
   return () => {
     return (tree: any) => {
-      visit(tree, 'text', (node: any, index: number | undefined, parent: any) => {
-        if (content.text.annotations.length > 0) {
-          content.text.annotations.forEach((annotation) => {
-            if (!node.position?.start?.offset) return
-            if (!node.position?.end?.offset) return
-
-            if (node.position.start.offset > annotation.start_index) {
-              return
-            }
-
-            if (node.position.end.offset < annotation.end_index) {
-              return
-            }
-
-            const beforeStart = node.position.start.offset
-            const beforeEnd = annotation.start_index
-            const annotationStart = annotation.start_index
-            const annotationEnd = annotation.end_index
-            const afterStart = annotation.end_index
-            const afterEnd = node.position.end.offset
-
-            const before = node.value.slice(0, annotation.start_index - node.position.start.offset)
-            const annotatedText = node.value.slice(
-              annotation.start_index - node.position.start.offset,
-              annotation.end_index - node.position.start.offset
-            )
-            const after = node.value.slice(annotation.end_index - node.position.start.offset)
-
-            const newNodes = []
-
-            if (before) {
-              newNodes.push({
-                type: 'text',
-                value: before,
-                position: {
-                  start: { offset: beforeStart },
-                  end: { offset: beforeEnd }
-                }
-              })
-            }
-
-            newNodes.push({
-              value: annotatedText,
-              data: {
-                hName: 'annotation',
-                hProperties: {
-                  annotation,
-                },
-              },
-              position: {
-                start: { offset: annotationStart },
-                end: { offset: annotationEnd }
-              },
-            })
-
-            if (after) {
-              newNodes.push({
-                type: 'text',
-                value: after,
-                position: {
-                  start: { offset: afterStart },
-                  end: { offset: afterEnd }
-                }
-              })
-            }
-
-            parent.children.splice(index, 1, ...newNodes)
-          })
-
-          return SKIP
+      flatMap(tree, (node: Node) => {
+        if (node.type !== 'text') {
+          return [node]
         }
 
-        return
+        if (!content.text.annotations.length) {
+          return [node]
+        }
+
+        if (!node.position) {
+          return [node]
+        }
+
+        const nodeStart = node.position.start.offset
+
+        if (!isNumber(nodeStart)) {
+          return [node]
+        }
+
+        const nodeEnd = node.position.end.offset
+
+        if (!isNumber(nodeEnd)) {
+          return [node]
+        }
+
+        const newNodes: Node[] = []
+
+        const sortedAnnotations = content.text.annotations.sort((a, b) => a.start_index - b.start_index)
+
+        let lastProcessedIndex = nodeStart
+
+        sortedAnnotations.forEach((annotation) => {
+          const annotationStart = annotation.start_index
+          const annotationEnd = annotation.end_index
+
+          if (nodeEnd < annotationStart || nodeStart > annotationEnd) {
+            return
+          }
+
+          const startIndex = Math.max(nodeStart, annotationStart)
+          const endIndex = Math.min(nodeEnd, annotationEnd)
+
+          if (lastProcessedIndex < startIndex) {
+            newNodes.push({
+              type: 'text',
+              value: node.value.slice(lastProcessedIndex - nodeStart, startIndex - nodeStart),
+              position: {
+                start: {
+                  line: node.position!.start.line,
+                  column: node.position!.start.column,
+                  offset: lastProcessedIndex,
+                },
+                end: {
+                  line: node.position!.end.line,
+                  column: node.position!.end.column,
+                  offset: startIndex,
+                },
+              },
+            })
+          }
+
+          newNodes.push({
+            type: 'annotation',
+            value: node.value.slice(startIndex - nodeStart, endIndex - nodeStart),
+            position: {
+              start: {
+                line: node.position!.start.line,
+                column: node.position!.start.column,
+                offset: startIndex,
+              },
+              end: {
+                line: node.position!.end.line,
+                column: node.position!.end.column,
+                offset: endIndex,
+              },
+            },
+            data: {
+              hName: 'annotation',
+              hProperties: {
+                annotation,
+              },
+            },
+          })
+
+          lastProcessedIndex = endIndex
+        })
+
+        if (lastProcessedIndex < nodeEnd) {
+          newNodes.push({
+            type: 'text',
+            value: node.value.slice(lastProcessedIndex - nodeStart, nodeEnd - nodeStart),
+            position: {
+              start: {
+                line: node.position!.start.line,
+                column: node.position!.start.column,
+                offset: lastProcessedIndex,
+              },
+              end: {
+                line: node.position!.end.line,
+                column: node.position!.end.column,
+                offset: nodeEnd,
+              },
+            },
+          })
+        }
+
+        return newNodes
       })
     }
   }
