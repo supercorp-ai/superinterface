@@ -1,11 +1,11 @@
 'use client'
 
-import 'regenerator-runtime/runtime'
+// import 'regenerator-runtime/runtime'
 import { Flex } from '@radix-ui/themes'
 import _ from 'lodash'
 import { AudioThreadContext } from '@/contexts/threads/AudioThreadContext'
 import { useCreateMessage } from '@/hooks/messages/useCreateMessage'
-import { usePermission } from 'react-use'
+import { usePermission } from '@/hooks/misc/usePermission'
 import { blobToData } from './lib/blobToData'
 import { useStatus } from '@/hooks/audioThreads/useStatus'
 import { useRecorder } from '@/hooks/audioThreads/useRecorder'

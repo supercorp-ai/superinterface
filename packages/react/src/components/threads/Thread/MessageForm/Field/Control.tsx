@@ -2,7 +2,7 @@ import {
   Flex,
 } from '@radix-ui/themes'
 import { useFormContext } from 'react-hook-form'
-import { usePrevious } from 'react-use'
+import { usePrevious } from '@/hooks/misc/usePrevious'
 import { useContext, useMemo, useRef, useEffect } from 'react'
 import { AssistantNameContext } from '@/contexts/assistants/AssistantNameContext'
 import { TextareaBase } from '@/components/textareas/TextareaBase'

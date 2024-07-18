@@ -2,7 +2,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import { useAudioCapture, UseAudioCaptureProps } from 'use-audio-capture'
 import { useMemo, useRef, useState, useCallback, useEffect } from 'react'
 import { useAudioPlayer } from 'react-use-audio-player'
-import { useInterval } from 'react-use'
+import { useInterval } from '@/hooks/misc/useInterval'
 import { AudioEngine } from '@/types'
 
 type Args = UseAudioCaptureProps & {
