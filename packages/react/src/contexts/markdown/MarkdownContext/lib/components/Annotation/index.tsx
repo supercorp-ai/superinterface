@@ -5,7 +5,6 @@ import {
 import OpenAI from 'openai'
 import { AnnotationBase } from './AnnotationBase'
 
-
 export const Annotation = ({
   annotation,
 }: {

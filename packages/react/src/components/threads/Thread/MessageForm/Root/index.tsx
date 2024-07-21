@@ -35,6 +35,7 @@ export const Root = ({
     handleSubmit,
     formState: { isSubmitting },
     reset,
+    watch,
   } = formProps
 
   const { addToast } = useToasts()
@@ -97,6 +98,8 @@ export const Root = ({
     })
   }
 
+  const content = watch('content')
+
   return (
     <MessageFormContext.Provider
       value={{
@@ -105,6 +108,7 @@ export const Root = ({
         files,
         setFiles,
         isFileLoading,
+        content,
       }}
     >
       <FormProvider {...formProps}>
