@@ -24,9 +24,11 @@ type Inputs = {
 export const Root = ({
   children,
   onSubmit: onSubmitArg,
+  isDisabled: isDisabledArg,
 }: {
   children: React.ReactNode
   onSubmit?: SubmitHandler<Inputs & { reset: any, createMessage: any }>
+  isDisabled?: boolean
 }) => {
   const [files, setFiles] = useState<OpenAI.Files.FileObject[]>([])
   const formProps = useForm<Inputs>(formOptions)
@@ -71,8 +73,8 @@ export const Root = ({
 
   const isDisabled = useMemo(() => (
     // @ts-ignore-next-line
-    latestMessage?.metadata?.isBlocking
-  ), [latestMessage, isLoading, files])
+    latestMessage?.metadata?.isBlocking || isDisabledArg
+  ), [latestMessage, isDisabledArg])
 
   const onSubmit: SubmitHandler<Inputs> = onSubmitArg ? partob(onSubmitArg, { reset, createMessage }) : async (data) => {
     if (isFileLoading) return
