@@ -20,7 +20,7 @@ export const remarkAnnotation = ({
           return [node]
         }
 
-        if (!content.text.annotations.length) {
+        if (!content.text?.annotations?.length) {
           return [node]
         }
 
