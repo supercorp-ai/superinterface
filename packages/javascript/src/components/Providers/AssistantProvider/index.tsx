@@ -4,9 +4,9 @@ import {
   AssistantNameContext,
   MarkdownProvider,
   useMarkdownContext,
+  useAssistant,
 } from '@superinterface/react'
 import { Theme } from '@radix-ui/themes'
-import { useAssistant } from '@/hooks/assistants/useAssistant'
 import { Code } from './Code'
 
 type Args = {

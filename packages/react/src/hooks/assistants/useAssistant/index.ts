@@ -1,10 +1,8 @@
-import {
-  useSuperinterfaceContext,
-} from '@superinterface/react'
 import { useMemo } from 'react'
 import {
   useQuery,
 } from '@tanstack/react-query'
+import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { queryOptions } from './lib/queryOptions'
 
 type Args = {

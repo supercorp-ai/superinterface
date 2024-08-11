@@ -1,6 +1,4 @@
-import {
-  useSuperinterfaceContext,
-} from '@superinterface/react'
+import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 
 type QueryFunctionArgs = {
   queryKey: Readonly<['assistants', { assistantId: string }]>

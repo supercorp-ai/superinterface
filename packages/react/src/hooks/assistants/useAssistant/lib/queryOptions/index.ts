@@ -1,7 +1,5 @@
 import { queryOptions as tanstackQueryOptions } from '@tanstack/react-query'
-import {
-  useSuperinterfaceContext,
-} from '@superinterface/react'
+import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { queryFn } from './queryFn'
 
 type Args = {
