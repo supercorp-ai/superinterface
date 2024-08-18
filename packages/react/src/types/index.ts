@@ -1,4 +1,5 @@
 import OpenAI from 'openai'
+import { AvatarType, IconAvatarName } from '@/lib/enums'
 
 export type SerializedRunStep = Pick<OpenAI.Beta.Threads.Runs.RunStep, 'id' | 'run_id' | 'step_details' | 'completed_at' | 'cancelled_at' | 'failed_at' | 'status'>
 
@@ -48,3 +49,17 @@ export type ThreadRunStepDeltaEvent = OpenAI.Beta.Assistants.AssistantStreamEven
 }
 
 export type MessagesQueryKey = (string | Record<string, any>)[]
+
+export type IconAvatar = {
+  name: IconAvatarName
+}
+
+export type ImageAvatar = {
+  url: string
+}
+
+export type Avatar = {
+  type: AvatarType
+  iconAvatar: IconAvatar | null
+  imageAvatar: ImageAvatar | null
+}

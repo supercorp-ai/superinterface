@@ -27,6 +27,7 @@ export { AssistantAvatarContext } from '@/contexts/assistants/AssistantAvatarCon
 export { AssistantNameContext } from '@/contexts/assistants/AssistantNameContext'
 
 export { UserAvatarContext } from '@/contexts/users/UserAvatarContext'
+export { Avatar } from '@/components/avatars/Avatar'
 
 export { FunctionComponentsContext } from '@/contexts/functions/FunctionComponentsContext'
 export { FunctionBase } from '@/components/functions/FunctionBase'

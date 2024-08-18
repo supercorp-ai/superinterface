@@ -2,9 +2,11 @@ import { useMemo } from 'react'
 import {
   useSuperinterfaceContext,
   AssistantNameContext,
+  AssistantAvatarContext,
   MarkdownProvider,
   useMarkdownContext,
   useAssistant,
+  Avatar,
 } from '@superinterface/react'
 import { Theme } from '@radix-ui/themes'
 import { Code } from './Code'
@@ -48,12 +50,20 @@ export const AssistantProvider = ({
       hasBackground={false}
     >
       <AssistantNameContext.Provider value={assistant.name}>
-        <MarkdownProvider
-          // @ts-ignore-next-line
-          components={components}
+        <AssistantAvatarContext.Provider
+          value={
+            <Avatar
+              avatar={assistant.avatar}
+            />
+          }
         >
-          {children}
-        </MarkdownProvider>
+          <MarkdownProvider
+            // @ts-ignore-next-line
+            components={components}
+          >
+            {children}
+          </MarkdownProvider>
+        </AssistantAvatarContext.Provider>
       </AssistantNameContext.Provider>
     </Theme>
   )

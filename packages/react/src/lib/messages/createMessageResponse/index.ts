@@ -31,7 +31,6 @@ export const createMessageResponse = ({
         onEvent,
       })
 
-      console.log('Stream ended')
       onClose({ controller })
       controller.close()
     },

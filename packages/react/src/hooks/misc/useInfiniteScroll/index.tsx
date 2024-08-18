@@ -27,7 +27,6 @@ export const useInfiniteScroll = ({
       if (!inView) return
       if (!hasNextPage) return
 
-      console.log('Fetching next page')
       fetchNextPage()
     },
     500,
