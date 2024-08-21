@@ -1,95 +1,71 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client'
+import { useState } from 'react'
+import {
+  SuperinterfaceProvider,
+  Thread,
+  AssistantNameContext,
+} from '@superinterface/react'
+import { Theme, Flex } from '@radix-ui/themes'
+import '@radix-ui/themes/styles.css'
+import {
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query'
 
-export default function Home() {
+export default function Page() {
+  const [queryClient] = useState(() => (
+    new QueryClient({
+      defaultOptions: {
+        queries: {
+          // With SSR, we usually want to set some default staleTime
+          // above 0 to avoid refetching immediately on the client
+          staleTime: 10000,
+        },
+      },
+    })
+  ))
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
+    <QueryClientProvider client={queryClient}>
+      <Theme
+        accentColor="blue"
+        grayColor="gray"
+        appearance="light"
+        radius="medium"
+        scaling="100%"
+      >
+        <SuperinterfaceProvider
+          variables={{
+            publicApiKey: '37245be8-902a-440e-aaae-c56151fe8acc',
+            assistantId: '26518c2b-07e4-44a7-bc62-36b0b3922bc7',
+          }}
         >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+          <AssistantNameContext.Provider value="Next Example Assistant">
+            <Flex
+              flexGrow="1"
+              height="100dvh"
+            >
+              <Thread.Root>
+                <Thread.Messages
+                  style={{
+                    padding: 'var(--space-5)',
+                  }}
+                />
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+                <Flex
+                  direction="column"
+                  pl="5"
+                  pr="5"
+                  pb="5"
+                  flexShrink="0"
+                >
+                  <Thread.MessageForm />
+                </Flex>
+              </Thread.Root>
+            </Flex>
+          </AssistantNameContext.Provider>
+        </SuperinterfaceProvider>
+      </Theme>
+    </QueryClientProvider>
+  )
 }

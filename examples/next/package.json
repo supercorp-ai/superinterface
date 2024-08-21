@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@superinterface/react": "^2.19.3",
     "@tanstack/react-query": "^5.51.1",
     "next": "14.2.5",
     "react": "^18",
