@@ -1,3 +1,5 @@
+Example is hosted here: https://examples-next-multi-assistant.superinterface.ai (see code [here](https://github.com/supercorp-ai/superinterface/tree/main/examples/next-multi-assistant))
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
