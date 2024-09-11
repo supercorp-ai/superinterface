@@ -25,7 +25,7 @@ export const ToolCall = ({
   if (toolCall.type === 'code_interpreter') {
     return (
       <CodeInterpreter
-        toolCall={toolCall}
+        codeInterpreter={toolCall.code_interpreter}
         runStep={runStep}
       />
     )

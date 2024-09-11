@@ -8,6 +8,14 @@ type Node = Literal & {
   value: string
 }
 
+const sortedAnnotations = ({
+  content,
+}: {
+  content: OpenAI.Beta.Threads.Messages.TextContentBlock
+}) => (
+  content.text.annotations.sort((a, b) => a.start_index - b.start_index)
+)
+
 export const remarkAnnotation = ({
   content,
 }: {
@@ -16,7 +24,7 @@ export const remarkAnnotation = ({
   return () => {
     return (tree: any) => {
       flatMap(tree, (node: Node) => {
-        if (node.type !== 'text') {
+        if (!['text', 'link'].includes(node.type)) {
           return [node]
         }
 
@@ -42,15 +50,33 @@ export const remarkAnnotation = ({
 
         const newNodes: Node[] = []
 
-        const sortedAnnotations = content.text.annotations.sort((a, b) => a.start_index - b.start_index)
-
         let lastProcessedIndex = nodeStart
 
-        sortedAnnotations.forEach((annotation) => {
+        sortedAnnotations({ content }).forEach((annotation) => {
           const annotationStart = annotation.start_index
           const annotationEnd = annotation.end_index
 
           if (nodeEnd < annotationStart || nodeStart > annotationEnd) {
+            return
+          }
+
+          if (node.type === 'link') {
+            if (annotation.type === 'file_path') {
+              console.log({ annotation, node })
+              newNodes.push({
+                ...node,
+                type: 'annotation',
+                // @ts-ignore-next-line
+                url: annotation.file_path.file_id,
+                data: {
+                  hName: 'annotation',
+                  hProperties: {
+                    annotation,
+                  },
+                },
+              })
+            }
+
             return
           }
 
@@ -102,23 +128,25 @@ export const remarkAnnotation = ({
           lastProcessedIndex = endIndex
         })
 
-        if (lastProcessedIndex < nodeEnd) {
-          newNodes.push({
-            type: 'text',
-            value: node.value.slice(lastProcessedIndex - nodeStart, nodeEnd - nodeStart),
-            position: {
-              start: {
-                line: node.position!.start.line,
-                column: node.position!.start.column,
-                offset: lastProcessedIndex,
+        if (node.type === 'text') {
+          if (lastProcessedIndex < nodeEnd) {
+            newNodes.push({
+              type: 'text',
+              value: node.value.slice(lastProcessedIndex - nodeStart, nodeEnd - nodeStart),
+              position: {
+                start: {
+                  line: node.position!.start.line,
+                  column: node.position!.start.column,
+                  offset: lastProcessedIndex,
+                },
+                end: {
+                  line: node.position!.end.line,
+                  column: node.position!.end.column,
+                  offset: nodeEnd,
+                },
               },
-              end: {
-                line: node.position!.end.line,
-                column: node.position!.end.column,
-                offset: nodeEnd,
-              },
-            },
-          })
+            })
+          }
         }
 
         return newNodes

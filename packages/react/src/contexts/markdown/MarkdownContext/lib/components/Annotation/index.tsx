@@ -1,14 +1,16 @@
 import {
   QuoteIcon,
-  FileIcon,
 } from '@radix-ui/react-icons'
 import OpenAI from 'openai'
 import { AnnotationBase } from './AnnotationBase'
+import { FilePathAnnotation } from './FilePathAnnotation'
 
 export const Annotation = ({
   annotation,
+  children,
 }: {
   annotation: OpenAI.Beta.Threads.Messages.Annotation
+  children: React.ReactNode
 }) => {
   if (annotation.type === 'file_citation') {
     return (
@@ -19,10 +21,11 @@ export const Annotation = ({
     )
   } else if (annotation.type === 'file_path') {
     return (
-      <AnnotationBase
-        icon={<FileIcon />}
-        content="File generated."
-      />
+      <FilePathAnnotation
+        annotation={annotation}
+      >
+        {children}
+      </FilePathAnnotation>
     )
   }
 

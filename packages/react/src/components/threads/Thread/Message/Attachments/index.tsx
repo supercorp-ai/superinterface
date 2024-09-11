@@ -1,8 +1,6 @@
 import { SerializedMessage } from '@/types'
 import {
   Flex,
-  Card,
-  Text,
   Badge,
 } from '@radix-ui/themes'
 import {
