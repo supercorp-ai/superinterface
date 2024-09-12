@@ -28,7 +28,7 @@ const Root = ({
       align="end"
       position="fixed"
       bottom="24px"
-      right='24px'
+      right="24px"
       style={{
         zIndex: 9999999999,
         ...style,

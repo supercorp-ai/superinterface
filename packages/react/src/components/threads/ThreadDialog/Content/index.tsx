@@ -32,10 +32,6 @@ const Root = ({
         initial: '0',
         sm: '24px',
       }}
-      top={{
-        initial: '0',
-        sm: '24px',
-      }}
       maxHeight={{
         initial: undefined,
         sm: '720px',
@@ -44,7 +40,11 @@ const Root = ({
         initial: undefined,
         sm: '400px',
       }}
-      width='100%'
+      width="100%"
+      height={{
+        initial: '100dvh',
+        sm: 'calc(100dvh - 96px)',
+      }}
       style={{
         zIndex: 9999999999,
         ...style,
