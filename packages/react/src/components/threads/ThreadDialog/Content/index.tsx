@@ -42,8 +42,8 @@ const Root = ({
       }}
       width="100%"
       height={{
-        initial: '100dvh',
-        sm: 'calc(100dvh - 96px)',
+        initial: '100%',
+        sm: 'calc(100% - 96px)',
       }}
       style={{
         zIndex: 9999999999,
