@@ -1,4 +1,4 @@
-![Superinterface](https://superinterface.ai/opengraph-image.png?1cd0a59566fa24e7)
+![Superinterface](https://superinterface.ai/opengraph-image.png?06e0509e551c6593)
 
 # Superinterface
 
