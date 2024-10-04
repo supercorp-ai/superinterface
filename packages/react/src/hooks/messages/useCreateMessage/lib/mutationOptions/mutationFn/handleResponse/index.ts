@@ -20,7 +20,6 @@ export const handleResponse = ({
   queryClient: ReturnType<typeof useQueryClient>
   superinterfaceContext: ReturnType<typeof useSuperinterfaceContext>
 }) => {
-  console.log({ superinterfaceContext })
   const finalHandlers = {
     ...handlers,
     ...{
@@ -28,7 +27,6 @@ export const handleResponse = ({
         value
       }: any) => {
         if (value.data.required_action.type === 'submit_client_tool_outputs') {
-          console.log({ value })
           const toolCalls = value.data.required_action.submit_client_tool_outputs.tool_calls
 
           const toolOutputs = await map(toolCalls, async (toolCall: ToolCall) => {
@@ -60,7 +58,6 @@ export const handleResponse = ({
             }
           })
 
-          console.log({ toolCalls, toolOutputs })
           return fetch(`${superinterfaceContext.baseUrl}/threads/runs/submit-client-tool-outputs`, {
             method: 'POST',
             headers: {
