@@ -1,0 +1,8 @@
+tunnel: 7171dd8d-9e40-45e0-93a8-40f2ca04ecc1
+credentials-file: /Users/domas/.cloudflared/7171dd8d-9e40-45e0-93a8-40f2ca04ecc1.json
+warp-routing:
+  enabled: true
+ingress:
+  - hostname: superinterface-examples-iframe.supercorp.ai
+    service: http://localhost:3006
+  - service: http_status:404

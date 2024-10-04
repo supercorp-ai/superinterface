@@ -1,0 +1,10 @@
+{
+  "name": "@superinterface/iframe-example",
+  "version": "1.0.0",
+  "keywords": [],
+  "license": "ISC",
+  "scripts": {
+    "serve": "npx serve . -p 3006",
+    "tunnel": "cloudflared tunnel --config cloudflared-config.yml run"
+  }
+}
