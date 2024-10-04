@@ -41,9 +41,6 @@ export default function Page() {
             assistantId: '6db2c5cb-b85a-4158-958b-09c9dcb5f4cb',
           }}
           baseUrl="http://localhost:3000/api/cloud"
-          handlers={{
-            'thread.run.requires_action': (a, b, c) => console.log({ a, b, c })
-          }}
         >
           <AssistantNameContext.Provider value="Function caller">
             <Flex
