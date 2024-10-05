@@ -1,0 +1,15 @@
+{
+  "manifest_version": 2,
+  "name": "hackathon",
+  "version": "1.0",
+  "description": "AGI script",
+  "permissions": ["<all_urls>"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["dist/ThreadDialog.global.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "content_security_policy": "script-src 'self' 'unsafe-inline' https://superinterface.ai; object-src 'self'"
+}
