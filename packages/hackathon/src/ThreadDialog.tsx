@@ -1,4 +1,5 @@
 import { unified } from 'unified';
+import { visit } from 'unist-util-visit'
 import rehypeParse from 'rehype-parse';
 import remarkGfm from 'remark-gfm';
 import rehypeRemark from 'rehype-remark'
@@ -243,10 +244,54 @@ window.superClick = async ({ text }) => {
   }
 }
 
+function annotateInputs() {
+  return (tree) => {
+    visit(tree, 'element', (node, index, parent) => {
+      if (node.tagName === 'input') {
+        // Extract the placeholder text
+        const placeholderText = node.properties.placeholder || '';
+
+        // Escape special characters in placeholderText for CSS selector
+        const escapedPlaceholder = placeholderText.replace(/(["\\])/g, '\\$1');
+
+        // Construct the selector string
+        const selectorParts = ['input'];
+
+        if (node.properties.id) {
+          selectorParts.push(`#${node.properties.id}`);
+        }
+        if (node.properties.className) {
+          selectorParts.push(`.${node.properties.className.join('.')}`);
+        }
+        if (node.properties.name) {
+          selectorParts.push(`[name="${node.properties.name}"]`);
+        }
+        if (placeholderText) {
+          selectorParts.push(`[placeholder="${escapedPlaceholder}"]`);
+        }
+
+        const selector = selectorParts.join('');
+
+        // Replace the input node with an inline code node containing the selector
+        parent.children[index] = {
+          type: 'inlineCode',
+          value: `{{input:${selector}}}`,
+        };
+      }
+    });
+  };
+}
+
 window.getContent = async () => {
   const file = await unified()
     .use(rehypeParse, { fragment: true })
-    .use(rehypeDomParse)
+    // .use(addPlaceholdersToInputs)
+    .use(annotateInputs)
+    .use(() => (tree) => {
+      console.log('AST after annotateInputs:', JSON.stringify(tree, null, 2));
+    })
+    // .use(annotateInputs)
+    // .use(rehypeDomParse)
     .use(rehypeRemark)
     .use(remarkGfm)
     .use(remarkStringify)
