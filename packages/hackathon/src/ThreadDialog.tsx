@@ -335,7 +335,7 @@ window.findElement = (searchTerm) => {
 
 // Function to animate the cursor and simulate a click
 window.animateClick = (searchTerm) => {
-  const targetElement = window.findElement(searchTerm)
+  const targetElement = window.findElement(searchTerm);
   if (!targetElement) {
     console.error('Target element is not provided or does not exist.');
     return;
@@ -382,13 +382,13 @@ window.animateClick = (searchTerm) => {
 
       const easeInOutQuad = (t) => {
         return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-      }
+      };
 
       const animateScroll = (currentTime) => {
         const timeElapsed = currentTime - startTime;
         const progress = Math.min(timeElapsed / duration, 1);
         const easedProgress = easeInOutQuad(progress);
-        window.scrollTo(0, startY + (distanceY * easedProgress));
+        window.scrollTo(0, startY + distanceY * easedProgress);
 
         if (progress < 1) {
           requestAnimationFrame(animateScroll);
@@ -417,7 +417,7 @@ window.animateClick = (searchTerm) => {
     const centerY = targetRect.top + targetRect.height / 2 + window.scrollY;
 
     // Calculate the starting point of the circle (top of the circle)
-    const radius = Math.max(targetRect.width, targetRect.height) * 1; // Adjust radius as needed
+    const radius = Math.max(targetRect.width, targetRect.height) / 3; // Radius is 3x smaller
     const circleStartX = centerX + radius * Math.cos(0);
     const circleStartY = centerY + radius * Math.sin(0);
 
@@ -439,8 +439,8 @@ window.animateClick = (searchTerm) => {
         currentX += deltaX;
         currentY += deltaY;
         // Since cursor is fixed, position relative to viewport is currentX - window.scrollX
-        cursor.style.left = (currentX - window.scrollX) + 'px';
-        cursor.style.top = (currentY - window.scrollY) + 'px';
+        cursor.style.left = currentX - window.scrollX + 'px';
+        cursor.style.top = currentY - window.scrollY + 'px';
         frame++;
         requestAnimationFrame(animateMoveToCircleStart);
       } else {
@@ -453,7 +453,7 @@ window.animateClick = (searchTerm) => {
   };
 
   // Animation settings for circling
-  const circleDuration = 2000; // Circling duration in milliseconds
+  const circleDuration = 3000; // Circling duration in milliseconds (faster)
   const circleTotalFrames = (circleDuration / 1000) * fps;
   let circleFrame = 0;
 
@@ -461,11 +461,15 @@ window.animateClick = (searchTerm) => {
   const animateCircle = (centerX, centerY) => {
     if (circleFrame < circleTotalFrames) {
       const angle = (2 * Math.PI * circleFrame) / circleTotalFrames; // Complete one full circle
-      const radius = Math.max(targetElement.getBoundingClientRect().width, targetElement.getBoundingClientRect().height) * 1; // Adjust radius as needed
+      const radius =
+        Math.max(
+          targetElement.getBoundingClientRect().width,
+          targetElement.getBoundingClientRect().height
+        ) / 3; // Radius is 3x smaller
       const x = centerX + radius * Math.cos(angle);
       const y = centerY + radius * Math.sin(angle);
-      cursor.style.left = (x - window.scrollX) + 'px';
-      cursor.style.top = (y - window.scrollY) + 'px';
+      cursor.style.left = x - window.scrollX + 'px';
+      cursor.style.top = y - window.scrollY + 'px';
       circleFrame++;
       requestAnimationFrame(() => animateCircle(centerX, centerY));
     } else {
@@ -477,8 +481,8 @@ window.animateClick = (searchTerm) => {
   // Function to show click animation and simulate a click
   const showClickAnimation = (centerX, centerY) => {
     // Move cursor to center of target element
-    cursor.style.left = (centerX - window.scrollX) + 'px';
-    cursor.style.top = (centerY - window.scrollY) + 'px';
+    cursor.style.left = centerX - window.scrollX + 'px';
+    cursor.style.top = centerY - window.scrollY + 'px';
 
     // Click animation: scale cursor down and back up
     cursor.style.transition = 'transform 0.1s ease';
