@@ -13,7 +13,7 @@ export default defineConfig({
   clean: true,
   shims: true,
   platform: 'browser',
-  minify: true,
+  minify: false,
   format: [
     'iife',
     'cjs',
