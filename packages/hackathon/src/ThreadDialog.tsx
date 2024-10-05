@@ -1,4 +1,6 @@
 import { unified } from 'unified';
+import rehypeParse from 'rehype-parse';
+import remarkGfm from 'remark-gfm';
 import rehypeRemark from 'rehype-remark'
 import rehypeDomParse from 'rehype-dom-parse';
 import remarkStringify from 'remark-stringify';
@@ -11,7 +13,8 @@ import { Providers } from '@/components/Providers'
 
 window.superinterface = window.superinterface || {};
 window.superinterface.publicApiKey = "dc703d26-e6dd-4528-8a2f-2f2ea41af366";
-window.superinterface.assistantId = "3cac8ac7-ca54-4be8-b769-f69cf9174196";
+// window.superinterface.assistantId = "3cac8ac7-ca54-4be8-b769-f69cf9174196";
+window.superinterface.assistantId = "3f7ef24c-1df7-4118-a785-34079eaf4e43";
 
 // Function to find the target element based on a search term
 window.findElement = (searchTerm) => {
@@ -242,8 +245,10 @@ window.superClick = async ({ text }) => {
 
 window.getContent = async () => {
   const file = await unified()
+    .use(rehypeParse, { fragment: true })
     .use(rehypeDomParse)
     .use(rehypeRemark)
+    .use(remarkGfm)
     .use(remarkStringify)
     .process(window.document.body.innerHTML ?? '');
 

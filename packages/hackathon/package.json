@@ -30,6 +30,7 @@
     "rehype-dom-parse": "^5.0.2",
     "rehype-parse": "^9.0.1",
     "rehype-remark": "^10.0.0",
+    "remark-gfm": "^4.0.0",
     "remark-stringify": "^11.0.0",
     "unified": "^11.0.5"
   },
