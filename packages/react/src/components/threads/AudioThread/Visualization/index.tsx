@@ -46,7 +46,7 @@ export const Visualization = () => {
         style={{
           backgroundColor: audioThreadContext.status === 'playing' ? 'var(--accent-4)' : 'var(--gray-4)',
           borderRadius: '9999px',
-          scale,
+          scale: 1,
         }}
       >
         <BarsVisualizer

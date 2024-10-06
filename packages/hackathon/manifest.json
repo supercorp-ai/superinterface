@@ -11,5 +11,9 @@
       "run_at": "document_end"
     }
   ],
-  "content_security_policy": "script-src 'self' 'unsafe-inline' https://superinterface.ai; object-src 'self'"
+  "content_security_policy": "script-src 'self' 'unsafe-inline' https://superinterface.ai https://models.readyplayer.me; object-src 'self'; connect-src 'self' https://models.readyplayer.me http://localhost:3001;",
+  "web_accessible_resources": [
+    "files/6701bce3b0bb42a82a69ed6c.glb",
+    "http://localhost:3001/6701bce3b0bb42a82a69ed6c.glb"
+  ]
 }

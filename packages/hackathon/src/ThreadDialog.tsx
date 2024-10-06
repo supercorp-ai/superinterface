@@ -3,18 +3,18 @@ import { visit } from 'unist-util-visit'
 import rehypeParse from 'rehype-parse';
 import remarkGfm from 'remark-gfm';
 import rehypeRemark from 'rehype-remark'
-import rehypeDomParse from 'rehype-dom-parse';
 import remarkStringify from 'remark-stringify';
 import { createRoot } from 'react-dom/client'
 import {
   ThreadDialog,
+  AudioThreadDialog,
 } from '@superinterface/react'
 import { rootElement } from '@/lib/rootElement'
 import { Providers } from '@/components/Providers'
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { useAnimations, useGLTF } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, Canvas } from "@react-three/fiber";
 import * as THREE from "three";
 
 const facialExpressions = {
@@ -113,153 +113,68 @@ const corresponding = {
 let setupMode = false;
 
 const Avatar = () => {
-   const { nodes, materials, scene } = useGLTF(
-    "https://models.readyplayer.me/6701bce3b0bb42a82a69ed6c.glb"
-  );
+  //   console.log('Avatar')
+  // const link = chrome.extension.getURL('files/6701bce3b0bb42a82a69ed6c.glb')
+  // console.log(link)
+  //
+  // const { nodes, materials, scene } = useGLTF(
+  //   'https://fd96-78-58-52-214.ngrok-free.app/64f1a714fe61576b46f27ca2.glb'
+  //   // 'https://fd96-78-58-52-214.ngrok-free.app/6701bce3b0bb42a82a69ed6c.glb'
+  //   // 'http://localhost:62009/6701bce3b0bb42a82a69ed6c.glb',
+  //   // 'http://localhost:3001/6701bce3b0bb42a82a69ed6c.glb',
+  //   // 'https://models.readyplayer.me/6701bce3b0bb42a82a69ed6c.glb'
+  //   // link
+  // )
+  //
+  // const { animations } = useGLTF(
+  //   'https://fd96-78-58-52-214.ngrok-free.app/animations.glb'
+  //   // 'https://github.com/wass08/r3f-virtual-girlfriend-frontend/blob/main/public/models/animations.glb?raw=true'
+  //   // "/models/animations.glb"
+  // )
 
-  const { animations } = useGLTF("/models/animations.glb")
-
-  const group = useRef();
-  const { actions, mixer } = useAnimations(animations, group);
-  const [animation, setAnimation] = useState(
-    animations.find((a) => a.name === "Idle") ? "Idle" : animations[0].name // Check if Idle animation exists otherwise use first animation
+   const group = useRef();
+  const { nodes, materials } = useGLTF(
+    'https://fd96-78-58-52-214.ngrok-free.app/64f1a714fe61576b46f27ca2.glb'
   )
+  // const { nodes, materials } = useGLTF(
+  //   '/path/to/your/readyplayerme-avatar.glb'
+  // );
 
-  useEffect(() => {
-    actions[animation]
-      .reset()
-      .fadeIn(mixer.stats.actions.inUse === 0 ? 0 : 0.5)
-      .play();
-    return () => actions[animation].fadeOut(0.5);
-  }, [animation]);
-
-  const lerpMorphTarget = (target, value, speed = 0.1) => {
-    scene.traverse((child) => {
-      if (child.isSkinnedMesh && child.morphTargetDictionary) {
-        const index = child.morphTargetDictionary[target];
-        if (
-          index === undefined ||
-          child.morphTargetInfluences[index] === undefined
-        ) {
-          return;
-        }
-        child.morphTargetInfluences[index] = THREE.MathUtils.lerp(
-          child.morphTargetInfluences[index],
-          value,
-          speed
-        );
-
-        if (!setupMode) {
-          try {
-            set({
-              [target]: value,
-            });
-          } catch (e) {}
-        }
-      }
-    });
+  const lerpMorphTarget = (mesh, target, value, speed = 0.1) => {
+    const index = mesh.morphTargetDictionary[target];
+    if (index !== undefined) {
+      mesh.morphTargetInfluences[index] = THREE.MathUtils.lerp(
+        mesh.morphTargetInfluences[index],
+        value,
+        speed
+      );
+    }
   };
 
-  const [blink, setBlink] = useState(false);
-  const [winkLeft, setWinkLeft] = useState(false);
-  const [winkRight, setWinkRight] = useState(false);
-  const [facialExpression, setFacialExpression] = useState("");
-  const [audio, setAudio] = useState();
-
-  useFrame(() => {
-    !setupMode &&
-      Object.keys(nodes.EyeLeft.morphTargetDictionary).forEach((key) => {
-        const mapping = facialExpressions[facialExpression];
-        if (key === "eyeBlinkLeft" || key === "eyeBlinkRight") {
-          return; // eyes wink/blink are handled separately
-        }
-        if (mapping && mapping[key]) {
-          lerpMorphTarget(key, mapping[key], 0.1);
-        } else {
-          lerpMorphTarget(key, 0, 0.1);
-        }
-      });
-
-    lerpMorphTarget("eyeBlinkLeft", blink || winkLeft ? 1 : 0, 0.5);
-    lerpMorphTarget("eyeBlinkRight", blink || winkRight ? 1 : 0, 0.5);
-
-    // LIPSYNC
-    if (setupMode) {
-      return;
-    }
-
-    const appliedMorphTargets = [];
-    if (message && lipsync) {
-      const currentAudioTime = audio.currentTime;
-      for (let i = 0; i < lipsync.mouthCues.length; i++) {
-        const mouthCue = lipsync.mouthCues[i];
-        if (
-          currentAudioTime >= mouthCue.start &&
-          currentAudioTime <= mouthCue.end
-        ) {
-          appliedMorphTargets.push(corresponding[mouthCue.value]);
-          lerpMorphTarget(corresponding[mouthCue.value], 1, 0.2);
-          break;
-        }
-      }
-    }
-
-    Object.values(corresponding).forEach((value) => {
-      if (appliedMorphTargets.includes(value)) {
-        return;
-      }
-      lerpMorphTarget(value, 0, 0.1);
-    });
+  useFrame((state) => {
+    const time = state.clock.getElapsedTime();
+    const mouthOpenValue = (Math.sin(time * 2) + 1) / 2; // Oscillates between 0 and 1
+    lerpMorphTarget(
+      nodes.Wolf3D_Head,
+      'mouthOpen',
+      mouthOpenValue,
+      0.1
+    );
   });
 
-   useEffect(() => {
-    let blinkTimeout;
-    const nextBlink = () => {
-      blinkTimeout = setTimeout(() => {
-        setBlink(true);
-        setTimeout(() => {
-          setBlink(false);
-          nextBlink();
-        }, 200);
-      }, THREE.MathUtils.randInt(1000, 5000));
-    };
-    nextBlink();
-    return () => clearTimeout(blinkTimeout);
-  }, []);
-
   return (
-    <group {...props} dispose={null} ref={group}>
+    <group dispose={null} ref={group}>
       <primitive object={nodes.Hips} />
+      {/* Head */}
       <skinnedMesh
-        name="Wolf3D_Body"
-        geometry={nodes.Wolf3D_Body.geometry}
-        material={materials.Wolf3D_Body}
-        skeleton={nodes.Wolf3D_Body.skeleton}
+        name="Wolf3D_Head"
+        geometry={nodes.Wolf3D_Head.geometry}
+        material={materials.Wolf3D_Skin}
+        skeleton={nodes.Wolf3D_Head.skeleton}
+        morphTargetDictionary={nodes.Wolf3D_Head.morphTargetDictionary}
+        morphTargetInfluences={nodes.Wolf3D_Head.morphTargetInfluences}
       />
-      <skinnedMesh
-        name="Wolf3D_Outfit_Bottom"
-        geometry={nodes.Wolf3D_Outfit_Bottom.geometry}
-        material={materials.Wolf3D_Outfit_Bottom}
-        skeleton={nodes.Wolf3D_Outfit_Bottom.skeleton}
-      />
-      <skinnedMesh
-        name="Wolf3D_Outfit_Footwear"
-        geometry={nodes.Wolf3D_Outfit_Footwear.geometry}
-        material={materials.Wolf3D_Outfit_Footwear}
-        skeleton={nodes.Wolf3D_Outfit_Footwear.skeleton}
-      />
-      <skinnedMesh
-        name="Wolf3D_Outfit_Top"
-        geometry={nodes.Wolf3D_Outfit_Top.geometry}
-        material={materials.Wolf3D_Outfit_Top}
-        skeleton={nodes.Wolf3D_Outfit_Top.skeleton}
-      />
-      <skinnedMesh
-        name="Wolf3D_Hair"
-        geometry={nodes.Wolf3D_Hair.geometry}
-        material={materials.Wolf3D_Hair}
-        skeleton={nodes.Wolf3D_Hair.skeleton}
-      />
+      {/* Eyes */}
       <skinnedMesh
         name="EyeLeft"
         geometry={nodes.EyeLeft.geometry}
@@ -276,14 +191,7 @@ const Avatar = () => {
         morphTargetDictionary={nodes.EyeRight.morphTargetDictionary}
         morphTargetInfluences={nodes.EyeRight.morphTargetInfluences}
       />
-      <skinnedMesh
-        name="Wolf3D_Head"
-        geometry={nodes.Wolf3D_Head.geometry}
-        material={materials.Wolf3D_Skin}
-        skeleton={nodes.Wolf3D_Head.skeleton}
-        morphTargetDictionary={nodes.Wolf3D_Head.morphTargetDictionary}
-        morphTargetInfluences={nodes.Wolf3D_Head.morphTargetInfluences}
-      />
+      {/* Teeth */}
       <skinnedMesh
         name="Wolf3D_Teeth"
         geometry={nodes.Wolf3D_Teeth.geometry}
@@ -291,6 +199,13 @@ const Avatar = () => {
         skeleton={nodes.Wolf3D_Teeth.skeleton}
         morphTargetDictionary={nodes.Wolf3D_Teeth.morphTargetDictionary}
         morphTargetInfluences={nodes.Wolf3D_Teeth.morphTargetInfluences}
+      />
+      {/* Hair */}
+      <skinnedMesh
+        name="Wolf3D_Hair"
+        geometry={nodes.Wolf3D_Hair.geometry}
+        material={materials.Wolf3D_Hair}
+        skeleton={nodes.Wolf3D_Hair.skeleton}
       />
     </group>
   );
@@ -526,7 +441,7 @@ window.superClick = async ({ text }) => {
 
   try {
     const result = window.animateClick(text) ?? 'Clicked successfully.';
-    await new Promise(r => setTimeout(r, 3000));
+    await new Promise(r => setTimeout(r, 6000));
     return result
   } catch(error) {
     return `Error: ${error.message}`
@@ -650,9 +565,8 @@ window.superInput = function({ selector, value }) {
 
 const root = createRoot(rootElement())
 
-    // <Avatar />
 root.render(
   <Providers>
-    <ThreadDialog />
+    <AudioThreadDialog />
   </Providers>
 )
