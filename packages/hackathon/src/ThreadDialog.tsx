@@ -451,7 +451,7 @@ window.superClick = async ({ text }) => {
 function annotateInputs() {
   return (tree) => {
     visit(tree, 'element', (node, index, parent) => {
-      if (node.tagName === 'input') {
+      if (['input', 'textarea'].includes(node.tagName)) {
         // Extract the placeholder text
         const placeholderText = node.properties.placeholder || '';
 
@@ -459,7 +459,8 @@ function annotateInputs() {
         const escapedPlaceholder = placeholderText.replace(/(["\\])/g, '\\$1');
 
         // Construct the selector string
-        const selectorParts = ['input'];
+        const selectorParts = [node.tagName];
+        console.log({ node, selectorParts })
 
         if (node.properties.id) {
           selectorParts.push(`#${node.properties.id}`);
@@ -479,7 +480,7 @@ function annotateInputs() {
         // Replace the input node with an inline code node containing the selector
         parent.children[index] = {
           type: 'inlineCode',
-          value: `{{input:${selector}}}`,
+          value: `{{${node.tagName}:${selector}}}`,
         };
       }
     });
