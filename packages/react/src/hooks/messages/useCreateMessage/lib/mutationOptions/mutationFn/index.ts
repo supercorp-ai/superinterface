@@ -36,7 +36,7 @@ export const mutationFn = ({
       const errorResponse = await response.json() as { error: string }
       throw new Error(errorResponse.error)
     } catch (error) {
-      throw new Error('There was a problem sending your message. Please try again.')
+      throw new Error('Failed to send your message, try again. If you are the owner, check the logs.')
     }
   }
 
