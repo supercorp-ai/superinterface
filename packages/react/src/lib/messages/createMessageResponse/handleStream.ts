@@ -53,6 +53,16 @@ export const handleStream = async ({
           }),
         },
       })
+    } else if (value.event === 'thread.run.failed') {
+      enqueueJson({
+        controller,
+        value: {
+          event: value.event,
+          data: serializeRun({
+            run: value.data,
+          }),
+        },
+      })
     } else if (['thread.run.step.created', 'thread.run.step.completed'].includes(value.event)) {
       enqueueJson({
         controller,

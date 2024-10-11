@@ -39,7 +39,7 @@ export default function Page() {
         <SuperinterfaceProvider
           variables={{
             publicApiKey: '37245be8-902a-440e-aaae-c56151fe8acc',
-            assistantId: '6db2c5cb-b85a-4158-958b-09c9dcb5f4cb',
+            assistantId: 'd7087de1-a076-455c-927e-ce32b14f562f',
           }}
           baseUrl="http://localhost:3000/api/cloud"
         >
