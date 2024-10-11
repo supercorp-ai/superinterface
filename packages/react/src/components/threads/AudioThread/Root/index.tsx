@@ -10,15 +10,36 @@ import { blobToData } from './lib/blobToData'
 import { useStatus } from '@/hooks/audioThreads/useStatus'
 import { useRecorder } from '@/hooks/audioThreads/useRecorder'
 import { useMessageAudio } from '@/hooks/audioThreads/useMessageAudio'
+import {
+  useQueryClient,
+} from '@tanstack/react-query'
+import { useThreadContext } from '@/hooks/threads/useThreadContext'
+import { useToasts } from '@/hooks/toasts/useToasts'
+import { createMessageDefaultOnError } from '@/lib/errors/createMessageDefaultOnError'
+import { ToastsProvider } from '@/components/toasts/ToastsProvider'
 
 export type Args = {
   children: React.ReactNode
 }
 
-export const Root = ({
+const Content = ({
   children,
 }: Args) => {
-  const createMessageProps = useCreateMessage()
+  const { addToast } = useToasts()
+  const queryClient = useQueryClient()
+  const threadContext = useThreadContext()
+
+  const createMessageProps = useCreateMessage({
+    onError: (error: unknown) => {
+      createMessageDefaultOnError({
+        queryClient,
+        addToast,
+        threadContext,
+      })(error)
+
+      recorderProps.start()
+    }
+  })
 
   const recorderProps = useRecorder({
     isStopOnSilence: true,
@@ -70,3 +91,13 @@ export const Root = ({
     </AudioThreadContext.Provider>
   )
 }
+
+export const Root = ({
+  children,
+}: Args) => (
+  <ToastsProvider>
+    <Content>
+      {children}
+    </Content>
+  </ToastsProvider>
+)

@@ -11,7 +11,7 @@ export const Root = ({
   children,
   ...rest
 }: Args) => (
-  <ToastsProvider>
+  <ToastsProvider bottom="var(--space-9)">
     <Provider {...rest}>
       <Flex
         direction="column"

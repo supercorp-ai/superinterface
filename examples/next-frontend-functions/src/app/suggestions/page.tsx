@@ -1,10 +1,8 @@
 'use client'
-
 import { useState } from 'react'
 import {
   SuperinterfaceProvider,
-  ThreadDialog,
-  AudioThreadDialog,
+  Thread,
   AssistantNameContext,
 } from '@superinterface/react'
 import { Theme } from '@radix-ui/themes'
@@ -13,6 +11,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
+import { MarkdownProvider } from './MarkdownProvider'
 
 export default function Page() {
   const [queryClient] = useState(() => (
@@ -39,12 +38,14 @@ export default function Page() {
         <SuperinterfaceProvider
           variables={{
             publicApiKey: '37245be8-902a-440e-aaae-c56151fe8acc',
-            assistantId: '6db2c5cb-b85a-4158-958b-09c9dcb5f4cb',
+            assistantId: '1bcb2f56-6aa5-41bd-8e71-e077331520ce',
           }}
           baseUrl="http://localhost:3000/api/cloud"
         >
-          <AssistantNameContext.Provider value="Function caller">
-            <ThreadDialog />
+          <AssistantNameContext.Provider value="Next Example Suggestions Assistant">
+            <MarkdownProvider>
+              <Thread />
+            </MarkdownProvider>
           </AssistantNameContext.Provider>
         </SuperinterfaceProvider>
       </Theme>

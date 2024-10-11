@@ -15,6 +15,7 @@ import { useToasts } from '@/hooks/toasts/useToasts'
 import { useIsMutatingMessage } from '@/hooks/messages/useIsMutatingMessage'
 import { partob } from 'radash'
 import { isOptimistic } from '@/lib/optimistic/isOptimistic'
+import { createMessageDefaultOnError } from '@/lib/errors/createMessageDefaultOnError'
 
 type Inputs = {
   content: string
@@ -45,15 +46,11 @@ export const Root = ({
   const threadContext = useThreadContext()
 
   const { createMessage } = useCreateMessage({
-    onError: (error: any) => {
-      if (error.name === 'AbortError') {
-        queryClient.invalidateQueries({ queryKey: ['messages', threadContext.variables] })
-        queryClient.invalidateQueries({ queryKey: ['runs', threadContext.variables] })
-        return
-      }
-
-      addToast({ type: 'error', message: error.message })
-    },
+    onError: createMessageDefaultOnError({
+      queryClient,
+      addToast,
+      threadContext,
+    }),
   })
 
   const isMutatingMessage = useIsMutatingMessage()

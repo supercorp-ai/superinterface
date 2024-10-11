@@ -6,8 +6,10 @@ import { Toast as ToastType } from '@/types'
 
 export const ToastsProvider = ({
   children,
+  bottom = 0,
 }: {
   children: React.ReactNode
+  bottom?: number | string
 }) => {
   const [toasts, setToasts] = useState<ToastType[]>([])
   const addToast = useCallback((toast: ToastType) => (
@@ -37,7 +39,7 @@ export const ToastsProvider = ({
         <Toast.Viewport
           style={{
             position: 'absolute',
-            bottom: 'var(--space-9)',
+            bottom,
             right: 0,
             display: 'flex',
             flexDirection: 'column',

@@ -7,6 +7,12 @@ import {
   Spinner,
 } from '@radix-ui/themes'
 import { useCreateMessage } from '@/hooks/messages/useCreateMessage'
+import {
+  useQueryClient,
+} from '@tanstack/react-query'
+import { useThreadContext } from '@/hooks/threads/useThreadContext'
+import { useToasts } from '@/hooks/toasts/useToasts'
+import { createMessageDefaultOnError } from '@/lib/errors/createMessageDefaultOnError'
 
 export const Item = ({
   suggestion,
@@ -15,7 +21,17 @@ export const Item = ({
   suggestion: string
   isDisabled: boolean
 }) => {
-  const { createMessage, isPending } = useCreateMessage()
+  const { addToast } = useToasts()
+  const queryClient = useQueryClient()
+  const threadContext = useThreadContext()
+
+  const { createMessage, isPending } = useCreateMessage({
+    onError: createMessageDefaultOnError({
+      queryClient,
+      addToast,
+      threadContext,
+    }),
+  })
 
   return (
     <Content
