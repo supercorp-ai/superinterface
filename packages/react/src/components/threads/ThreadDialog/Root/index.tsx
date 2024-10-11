@@ -1,5 +1,4 @@
 import { Provider } from '@/components/threads/ThreadDialog/Provider'
-import { ToastsProvider } from '@/components/toasts/ToastsProvider'
 
 type Args = {
   children: React.ReactNode
@@ -8,9 +7,7 @@ type Args = {
 export const Root = ({
   children,
 }: Args) => (
-  <ToastsProvider>
-    <Provider>
-      {children}
-    </Provider>
-  </ToastsProvider>
+  <Provider>
+    {children}
+  </Provider>
 )

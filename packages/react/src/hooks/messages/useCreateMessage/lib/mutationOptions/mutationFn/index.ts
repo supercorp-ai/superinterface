@@ -31,6 +31,15 @@ export const mutationFn = ({
     signal: abortController.signal,
   })
 
+  if (response.status !== 200) {
+    try {
+      const errorResponse = await response.json() as { error: string }
+      throw new Error(errorResponse.error)
+    } catch (error) {
+      throw new Error('There was a problem sending your message. Please try again.')
+    }
+  }
+
   if (response.body == null) {
     throw new Error('The response body is empty.');
   }

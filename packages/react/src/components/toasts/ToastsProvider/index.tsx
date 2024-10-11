@@ -37,7 +37,7 @@ export const ToastsProvider = ({
         <Toast.Viewport
           style={{
             position: 'absolute',
-            bottom: 0,
+            bottom: 'var(--space-9)',
             right: 0,
             display: 'flex',
             flexDirection: 'column',
