@@ -1,5 +1,5 @@
 {
-  "name": "superinterface-tsup-react-example",
+  "name": "superinterface-standalone-example",
   "version": "1.0.0",
   "main": "./dist/ThreadDialog.js",
   "module": "./dist/ThreadDialog.mjs",
