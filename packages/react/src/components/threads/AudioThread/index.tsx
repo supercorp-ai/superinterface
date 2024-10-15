@@ -15,4 +15,5 @@ export const AudioThread = (props: Args) => (
 
 AudioThread.Root = Root
 AudioThread.Visualization = Visualization
+AudioThread.Status = Status
 AudioThread.Form = Form
