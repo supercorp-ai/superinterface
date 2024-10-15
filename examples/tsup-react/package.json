@@ -1,0 +1,40 @@
+{
+  "name": "superinterface-tsup-react-example",
+  "version": "1.0.0",
+  "main": "./dist/ThreadDialog.js",
+  "module": "./dist/ThreadDialog.mjs",
+  "types": "./dist/ThreadDialog.d.ts",
+  "exports": {
+    ".": "./dist/ThreadDialog.js",
+    "./*": "./dist/*.js",
+    "./types": "./dist/types/ThreadDialog.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [],
+  "license": "ISC",
+  "scripts": {
+    "build": "tsup",
+    "metafile": "tsup --metafile",
+    "serve": "npx serve dist -p 3005 --cors"
+  },
+  "dependencies": {
+    "@radix-ui/react-icons": "^1.3.0",
+    "@radix-ui/themes": "3.1.1",
+    "@superinterface/react": "*",
+    "@tanstack/react-query": "^5.50.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.39",
+    "postcss-import": "^16.1.0",
+    "read-cache": "^1.0.0",
+    "resolve": "^1.22.8",
+    "tsup": "^8.1.0"
+  }
+}

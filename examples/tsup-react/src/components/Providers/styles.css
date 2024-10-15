@@ -1,0 +1,8 @@
+@import './reset.css';
+@import '@radix-ui/themes/styles.css';
+
+.superinterface .radix-themes {
+  --default-font-family: "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+  --cursor-button: pointer;
+  --cursor-menu-item: pointer;
+}
