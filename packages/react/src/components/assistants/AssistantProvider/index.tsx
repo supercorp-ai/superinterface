@@ -1,13 +1,11 @@
 import { useMemo } from 'react'
-import {
-  useSuperinterfaceContext,
-  AssistantNameContext,
-  AssistantAvatarContext,
-  MarkdownProvider,
-  useMarkdownContext,
-  useAssistant,
-  Avatar,
-} from '@superinterface/react'
+import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
+import { AssistantAvatarContext } from '@/contexts/assistants/AssistantAvatarContext'
+import { AssistantNameContext } from '@/contexts/assistants/AssistantNameContext'
+import { MarkdownProvider } from '@/components/markdown/MarkdownProvider'
+import { useMarkdownContext } from '@/hooks/markdown/useMarkdownContext'
+import { useAssistant } from '@/hooks/assistants/useAssistant'
+import { Avatar } from '@/components/avatars/Avatar'
 import { Theme } from '@radix-ui/themes'
 import { Code } from './Code'
 

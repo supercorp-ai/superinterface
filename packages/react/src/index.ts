@@ -36,3 +36,4 @@ export { ComponentsProvider } from '@/components/components/ComponentsProvider'
 export { useComponents } from '@/hooks/components/useComponents'
 
 export { RunStep } from '@/components/runSteps/RunStep'
+export { AssistantProvider } from '@/components/assistants/AssistantProvider'

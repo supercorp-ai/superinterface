@@ -6,7 +6,9 @@ import { useState } from 'react'
 import {
   SuperinterfaceProvider,
   AssistantProvider,
+  MarkdownProvider,
 } from '@superinterface/react'
+import { components } from './components'
 import './styles.css'
 
 type Args = {
@@ -16,12 +18,6 @@ type Args = {
 export const Providers = ({
   children,
 }: Args) => {
-  const superinterfaceContext = (window as any).superinterface
-
-  if (!superinterfaceContext) {
-    throw new Error('window.superinterface is not set up. Please read Superinterface integration docs.')
-  }
-
   const [queryClient] = useState(() => (
     new QueryClient({
       defaultOptions: {
@@ -36,17 +32,20 @@ export const Providers = ({
 
   return (
     <SuperinterfaceProvider
-      baseUrl={superinterfaceContext.baseUrl ?? 'https://superinterface.ai/api/cloud'}
       variables={{
-        publicApiKey: superinterfaceContext.publicApiKey,
-        assistantId: superinterfaceContext.assistantId,
+        publicApiKey: 'dc703d26-e6dd-4528-8a2f-2f2ea41af366',
+        assistantId: '87de630a-50d1-44b5-a0e4-07886f0f7c34',
       }}
     >
-      <QueryClientProvider client={queryClient}>
-        <AssistantProvider>
-          {children}
-        </AssistantProvider>
-      </QueryClientProvider>
+      <MarkdownProvider
+        components={components}
+      >
+        <QueryClientProvider client={queryClient}>
+          <AssistantProvider>
+            {children}
+          </AssistantProvider>
+        </QueryClientProvider>
+      </MarkdownProvider>
     </SuperinterfaceProvider>
   )
 }
