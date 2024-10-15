@@ -18,6 +18,11 @@ export const Img = ({
       <video
         src={src}
         controls
+        style={{
+          width: '100%',
+          borderRadius: '8px',
+          overflow: 'hidden',
+        }}
       />
     )
   } else if (isAudio(src)) {

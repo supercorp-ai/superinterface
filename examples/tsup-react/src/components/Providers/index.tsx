@@ -5,8 +5,8 @@ import {
 import { useState } from 'react'
 import {
   SuperinterfaceProvider,
-  AssistantProvider,
   MarkdownProvider,
+  AssistantProvider,
 } from '@superinterface/react'
 import { components } from './components'
 import './styles.css'
@@ -38,6 +38,7 @@ export const Providers = ({
       }}
     >
       <MarkdownProvider
+        // @ts-ignore-next-line
         components={components}
       >
         <QueryClientProvider client={queryClient}>

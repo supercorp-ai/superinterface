@@ -6,7 +6,7 @@ import { Providers } from '@/components/Providers'
 
 const element = document.createElement('div')
 element.classList.add('superinterface')
-document.body.appendChild(element)
+document.querySelector('#thread-root')?.appendChild(element)
 
 const root = createRoot(element)
 

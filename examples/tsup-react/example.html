@@ -4,14 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
-      body {
-        background-image: linear-gradient(45deg, #cfc0ed 25%, #b3ac86 25%, #b3ac86 50%, #cfc0ed 50%, #cfc0ed 75%, #b3ac86 75%, #b3ac86 100%);
-        background-size: 56.57px 56.57px;
-      }
     </style>
   </head>
   <body>
     Hello custom code!
+    <div
+      id="thread-root"
+      style="height: 600px; width: 100%; display: flex;"
+    ></div>
+    Some footer
+    <div
+      id="audio-thread-root"
+      style="height: 600px; width: 100%; display: flex;"
+    ></div>
+    Another footer
+    <script src="http://localhost:3000/Thread.global.js"></script>
     <script src="http://localhost:3000/ThreadDialog.global.js"></script>
+    <script src="http://localhost:3000/AudioThread.global.js"></script>
   </body>
 </html>
