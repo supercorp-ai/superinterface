@@ -2,7 +2,7 @@ import {
   Box,
 } from '@radix-ui/themes'
 
-export const Img = (props: JSX.IntrinsicElements['img']) => (
+export const ImageComponent = (props: JSX.IntrinsicElements['img']) => (
   <Box
     pb="3"
   >

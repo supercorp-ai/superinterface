@@ -1,4 +1,4 @@
-import { Heading } from '@radix-ui/themes'
+import { Heading, Table } from '@radix-ui/themes'
 import { Paragraph } from './Paragraph'
 import { Link } from './Link'
 import { UnorderedList } from './UnorderedList'
@@ -27,4 +27,16 @@ export const components = {
   h4: (props:  JSX.IntrinsicElements['h4']) => <Heading as="h4" size="3">{props.children}</Heading>,
   h5: (props:  JSX.IntrinsicElements['h5']) => <Heading as="h5" size="3">{props.children}</Heading>,
   h6: (props:  JSX.IntrinsicElements['h6']) => <Heading as="h6" size="3">{props.children}</Heading>,
+  table: (props: JSX.IntrinsicElements['table']) => (
+    <Table.Root
+      {...props}
+      variant="surface"
+      mb="3"
+    />
+  ),
+  thead: Table.Header,
+  tbody: Table.Body,
+  tr: Table.Row,
+  td: Table.Cell,
+  th: Table.ColumnHeaderCell,
 }
