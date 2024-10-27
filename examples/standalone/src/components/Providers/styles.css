@@ -1,5 +1,6 @@
 @import './reset.css';
 @import '@radix-ui/themes/styles.css';
+@import '@vidstack/react/player/styles/base.css';
 
 .superinterface {
   display: flex;
