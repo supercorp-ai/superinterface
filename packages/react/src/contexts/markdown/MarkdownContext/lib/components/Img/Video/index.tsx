@@ -3,6 +3,7 @@ import {
 } from '@radix-ui/themes'
 import '@vidstack/react/player/styles/base.css'
 import {
+  VideoMimeType,
   MediaPlayer,
   MediaProvider,
   Controls,
@@ -20,7 +21,10 @@ export const Video = ({
 }) => (
   <MediaContainer>
     <MediaPlayer
-      src={src}
+      src={{
+        src,
+        type: `video/${src.split('.').pop()}` as VideoMimeType,
+      }}
       playsInline
       hideControlsOnMouseLeave
       crossOrigin
