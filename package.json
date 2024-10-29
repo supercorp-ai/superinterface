@@ -9,11 +9,11 @@
     "dev": "turbo run build --force -- --watch"
   },
   "dependencies": {
-    "typescript": "^5.5.3"
+    "typescript": "^5.6.3"
   },
   "devDependencies": {
-    "@swc/core": "^1.6.7",
-    "turbo": "^2.0.6"
+    "@swc/core": "^1.7.40",
+    "turbo": "^2.2.3"
   },
   "packageManager": "npm@10.2.0"
 }
