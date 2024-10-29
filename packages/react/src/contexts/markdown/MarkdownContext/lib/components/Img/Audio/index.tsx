@@ -6,6 +6,7 @@ import {
   MediaPlayer,
   MediaProvider,
   Controls,
+  AudioMimeType,
 } from '@vidstack/react'
 import { PlayButton } from '@/components/media/PlayButton'
 import { VolumeButton } from '@/components/media/VolumeButton'
@@ -19,7 +20,10 @@ export const Audio = ({
 }) => (
   <MediaContainer>
     <MediaPlayer
-      src={src}
+      src={{
+        src,
+        type: `audio/${src.split('.').pop()}` as AudioMimeType,
+      }}
       viewType="audio"
       crossOrigin
       playsInline
