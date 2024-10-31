@@ -22,10 +22,6 @@ export const Content = ({
     })
   ), [fn])
 
-  if (!args) {
-    return null
-  }
-
   return (
     <Code
       variant="ghost"
@@ -35,12 +31,12 @@ export const Content = ({
         wordBreak: 'break-word',
       }}
     >
-      <Box>
+      {args && <Box>
         {args}
-      </Box>
-      <Box>
+      </Box>}
+      {output && <Box>
         {output}
-      </Box>
+      </Box>}
     </Code>
   )
 }
