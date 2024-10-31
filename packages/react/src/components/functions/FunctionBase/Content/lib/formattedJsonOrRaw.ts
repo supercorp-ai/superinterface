@@ -10,6 +10,10 @@ export const formattedJsonOrRaw = ({
   try {
     return JSON.stringify(JSON.parse(value), null, 2)
   } catch (error) {
-    return value
+    if (typeof value === 'string') {
+      return value
+    } else {
+      return JSON.stringify(value, null, 2)
+    }
   }
 }
