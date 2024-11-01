@@ -52,7 +52,13 @@ export const threadRunRequiresAction = async ({
       const args = toolCall.function.arguments
       const parsedArgs = JSON.parse(args)
 
-      const output = await fn(parsedArgs)
+      let output
+
+      try {
+        output = await fn(parsedArgs)
+      } catch (error: any) {
+        output = `Error: ${error.message}`
+      }
 
       return {
         toolCallId: toolCall.id,
