@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { useMemo, Fragment } from 'react'
+import { useMemo } from 'react'
 import { isEmpty } from 'radash'
 import {
   Box,
@@ -9,8 +9,8 @@ import { SerializedMessage } from '@/types'
 import { RunSteps } from '@/components/runSteps/RunSteps'
 import { useIsMutatingMessage } from '@/hooks/messages/useIsMutatingMessage'
 import { Provider } from './Provider'
-import { TextContent } from './TextContent'
 import { Attachments } from './Attachments'
+import { ContentPart } from './ContentPart'
 
 type Args = {
   message: SerializedMessage
@@ -73,15 +73,10 @@ export const Message = ({
           />
 
           {message.content.map((content, index) => (
-            <Fragment
+            <ContentPart
               key={index}
-            >
-              {content.type === 'text' && (
-                <TextContent
-                  content={content}
-                />
-              )}
-            </Fragment>
+              content={content}
+            />
           ))}
 
           {isInProgress && isEmpty(laterRunSteps) && (
