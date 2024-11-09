@@ -9,8 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@superinterface/react": "file:/Users/domas/Developer/supercorp/superinterface/packages/react",
-    "@tanstack/react-query": "file:/Users/domas/Developer/supercorp/superinterface/packages/react/node_modules/@tanstack/react-query",
+    "@superinterface/react": "file:../../packages/react",
+    "@tanstack/react-query": "file:../../packages/react/node_modules/@tanstack/react-query",
     "next": "14.2.5",
     "react": "^18",
     "react-dom": "^18"
