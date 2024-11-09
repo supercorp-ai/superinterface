@@ -45,7 +45,6 @@
     "unist-util-flatmap": "^1.0.0",
     "unist-util-visit": "^5.0.0",
     "use-audio-capture": "^0.0.7",
-    "video-extensions": "^2.0.0",
     "zod": "^3.23.8"
   },
   "peerDependencies": {
