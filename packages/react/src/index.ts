@@ -8,6 +8,7 @@ export { useMessageContext } from '@/hooks/messages/useMessageContext'
 export { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 export { useCreateMessage } from '@/hooks/messages/useCreateMessage'
 export { useMessageFormContext } from '@/hooks/messages/useMessageFormContext'
+export { useIsMutatingMessage } from '@/hooks/messages/useIsMutatingMessage'
 
 export { useAssistant } from '@/hooks/assistants/useAssistant'
 
