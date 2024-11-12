@@ -37,6 +37,9 @@ export default function Page() {
         <AssistantProvider>
           <Thread />
         </AssistantProvider>
+        <style>
+          {`.radix-themes { min-height: inherit; }`}
+        </style>
       </SuperinterfaceProvider>
     </QueryClientProvider>
   )
