@@ -7,6 +7,7 @@ import {
   SuperinterfaceProvider,
   AssistantProvider,
 } from '@superinterface/react'
+import { ThemeProvider } from './ThemeProvider'
 import './styles.css'
 
 type Args = {
@@ -35,18 +36,20 @@ export const Providers = ({
   ))
 
   return (
-    <SuperinterfaceProvider
-      baseUrl={superinterfaceContext.baseUrl ?? 'https://superinterface.ai/api/cloud'}
-      variables={{
-        publicApiKey: superinterfaceContext.publicApiKey,
-        assistantId: superinterfaceContext.assistantId,
-      }}
-    >
-      <QueryClientProvider client={queryClient}>
-        <AssistantProvider>
-          {children}
-        </AssistantProvider>
-      </QueryClientProvider>
-    </SuperinterfaceProvider>
+    <QueryClientProvider client={queryClient}>
+      <SuperinterfaceProvider
+        baseUrl={superinterfaceContext.baseUrl ?? 'https://superinterface.ai/api/cloud'}
+        variables={{
+          publicApiKey: superinterfaceContext.publicApiKey,
+          assistantId: superinterfaceContext.assistantId,
+        }}
+      >
+        <ThemeProvider>
+          <AssistantProvider>
+            {children}
+          </AssistantProvider>
+        </ThemeProvider>
+      </SuperinterfaceProvider>
+    </QueryClientProvider>
   )
 }

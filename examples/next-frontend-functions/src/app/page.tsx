@@ -4,9 +4,9 @@ import { useState } from 'react'
 import {
   SuperinterfaceProvider,
   Thread,
-  AssistantNameContext,
+  AssistantProvider,
 } from '@superinterface/react'
-import { Theme, Flex } from '@radix-ui/themes'
+import { Theme } from '@radix-ui/themes'
 import '@radix-ui/themes/styles.css'
 import {
   QueryClient,
@@ -40,32 +40,10 @@ export default function Page() {
             publicApiKey: '37245be8-902a-440e-aaae-c56151fe8acc',
             assistantId: '6db2c5cb-b85a-4158-958b-09c9dcb5f4cb',
           }}
-          baseUrl="http://localhost:3000/api/cloud"
         >
-          <AssistantNameContext.Provider value="Function caller">
-            <Flex
-              flexGrow="1"
-              height="100dvh"
-            >
-              <Thread.Root>
-                <Thread.Messages
-                  style={{
-                    padding: 'var(--space-5)',
-                  }}
-                />
-
-                <Flex
-                  direction="column"
-                  pl="5"
-                  pr="5"
-                  pb="5"
-                  flexShrink="0"
-                >
-                  <Thread.MessageForm />
-                </Flex>
-              </Thread.Root>
-            </Flex>
-          </AssistantNameContext.Provider>
+          <AssistantProvider>
+            <Thread />
+          </AssistantProvider>
         </SuperinterfaceProvider>
       </Theme>
     </QueryClientProvider>

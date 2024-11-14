@@ -28,19 +28,27 @@ export default function Page() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SuperinterfaceProvider
-        variables={{
-          publicApiKey: '37245be8-902a-440e-aaae-c56151fe8acc',
-          assistantId: '26518c2b-07e4-44a7-bc62-36b0b3922bc7',
-        }}
+      <Theme
+        accentColor="blue"
+        grayColor="gray"
+        appearance="light"
+        radius="medium"
+        scaling="100%"
       >
-        <AssistantProvider>
-          <Thread />
-        </AssistantProvider>
-        <style>
-          {`.radix-themes { min-height: inherit; }`}
-        </style>
-      </SuperinterfaceProvider>
+        <SuperinterfaceProvider
+          variables={{
+            publicApiKey: '37245be8-902a-440e-aaae-c56151fe8acc',
+            assistantId: '26518c2b-07e4-44a7-bc62-36b0b3922bc7',
+          }}
+        >
+          <AssistantProvider>
+            <Thread />
+          </AssistantProvider>
+          <style>
+            {`.radix-themes { min-height: inherit; }`}
+          </style>
+        </SuperinterfaceProvider>
+      </Theme>
     </QueryClientProvider>
   )
 }
