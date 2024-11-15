@@ -5,4 +5,5 @@
   --default-font-family: "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
   --cursor-button: pointer;
   --cursor-menu-item: pointer;
+  z-index: auto;
 }
