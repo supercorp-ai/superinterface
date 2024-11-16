@@ -2,6 +2,7 @@ import {
   Flex,
   Text,
 } from '@radix-ui/themes'
+import type { StyleProps } from '@/types'
 
 const html = ({ texts }: { texts: string[] }) => `
   .status-messages-texts:after {
@@ -19,12 +20,16 @@ const html = ({ texts }: { texts: string[] }) => `
 
 export const StatusMessages = ({
   texts,
+  className,
+  style,
 }: {
   texts: string[]
-}) => (
+} & StyleProps) => (
   <Flex
     justify="center"
     pb="5"
+    className={className}
+    style={style}
   >
     <Text
       size="2"

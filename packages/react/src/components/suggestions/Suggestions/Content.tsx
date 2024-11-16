@@ -5,13 +5,16 @@ import { useIsMutatingMessage } from '@/hooks/messages/useIsMutatingMessage'
 import {
   Flex,
 } from '@radix-ui/themes'
+import type { StyleProps } from '@/types'
 import { Item } from './Item'
 
 export const Content = ({
   children,
+  className,
+  style,
 }: {
   children: React.ReactNode
-}) => {
+} & StyleProps) => {
   const isMutatingMessage = useIsMutatingMessage()
 
   const suggestions = useMemo(() => (
@@ -25,6 +28,8 @@ export const Content = ({
       gap="2"
       py="2"
       wrap="wrap"
+      className={className}
+      style={style}
     >
       {suggestions.map((suggestion) => (
         <Item

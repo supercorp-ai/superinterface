@@ -1,22 +1,26 @@
 import {
   Flex,
 } from '@radix-ui/themes'
+import { Message } from '@/components/threads/Thread/Message'
+import { StyleProps } from '@/types'
 import { Content } from './Content'
 import { Progress } from './Progress'
 import { Root } from './Root'
 import { NextPageSkeleton } from './NextPageSkeleton'
-import { Message } from '@/components/threads/Thread/Message'
 
 type Args = {
   children?: React.ReactNode
-  style?: React.CSSProperties
-}
+} & StyleProps
 
 export const Messages = ({
   children,
-  style = {},
+  className,
+  style,
 }: Args) => (
-  <Root style={style}>
+  <Root
+    style={style}
+    className={className}
+  >
     <Flex
       flexShrink="0"
       height="var(--space-3)"

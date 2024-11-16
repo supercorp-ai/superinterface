@@ -17,13 +17,16 @@ import { useThreadContext } from '@/hooks/threads/useThreadContext'
 import { useToasts } from '@/hooks/toasts/useToasts'
 import { createMessageDefaultOnError } from '@/lib/errors/createMessageDefaultOnError'
 import { ToastsProvider } from '@/components/toasts/ToastsProvider'
+import type { StyleProps } from '@/types'
 
 export type Args = {
   children: React.ReactNode
-}
+} & StyleProps
 
 const Content = ({
   children,
+  className,
+  style,
 }: Args) => {
   const { addToast } = useToasts()
   const queryClient = useQueryClient()
@@ -85,6 +88,8 @@ const Content = ({
         direction="column"
         flexGrow="1"
         p="9"
+        className={className}
+        style={style}
       >
         {children}
       </Flex>
@@ -94,9 +99,10 @@ const Content = ({
 
 export const Root = ({
   children,
+  ...rest
 }: Args) => (
   <ToastsProvider>
-    <Content>
+    <Content {...rest}>
       {children}
     </Content>
   </ToastsProvider>

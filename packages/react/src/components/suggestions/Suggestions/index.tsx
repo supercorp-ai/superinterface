@@ -1,13 +1,16 @@
 import { useMemo } from 'react'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
+import type { StyleProps } from '@/types'
 import { Content } from './Content'
 import { Item } from './Item'
 
 export const Suggestions = ({
   children,
+  className,
+  style,
 }: {
   children: React.ReactNode
-}) => {
+} & StyleProps) => {
   const latestMessageProps = useLatestMessage()
 
   const isDisabled = useMemo(() => (
@@ -19,7 +22,10 @@ export const Suggestions = ({
   if (isDisabled) return null
 
   return (
-    <Content>
+    <Content
+      className={className}
+      style={style}
+    >
       {children}
     </Content>
   )

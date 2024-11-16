@@ -1,9 +1,10 @@
+import type { StyleProps } from '@/types'
 import { Submit } from './Submit'
 import { Root } from './Root'
 import { Field } from './Field'
 
-export const MessageForm = () => (
-  <Root>
+export const MessageForm = (props: StyleProps) => (
+  <Root {...props}>
     <Field.Root>
       <Field.Control />
       <Submit />

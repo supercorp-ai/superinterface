@@ -10,21 +10,26 @@ import {
 } from '@radix-ui/themes'
 import { useMessageFormContext } from '@/hooks/messages/useMessageFormContext'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
+import type { StyleProps } from '@/types'
 
 const Root = ({
   children,
+  style,
+  className,
 }: {
   children: React.ReactNode
-}) => (
+} & StyleProps) => (
   <Flex
     flexShrink="0"
     align="end"
+    style={style}
+    className={className}
   >
     {children}
   </Flex>
 )
 
-const Button = () => {
+const Button = (props: StyleProps) => {
   const superinterfaceContext = useSuperinterfaceContext()
   const { isDisabled, isLoading, isFileLoading } = useMessageFormContext()
 
@@ -33,6 +38,7 @@ const Button = () => {
       <IconButton
         type="button"
         onClick={() => superinterfaceContext.createMessageAbortControllerRef.current?.abort()}
+        {...props}
       >
         <StopIcon />
       </IconButton>
@@ -43,14 +49,15 @@ const Button = () => {
     <IconButton
       type="submit"
       disabled={isDisabled || isFileLoading}
+      {...props}
     >
       <ArrowUpIcon />
     </IconButton>
   )
 }
 
-export const Submit = () => (
-  <Root>
+export const Submit = (props: StyleProps) => (
+  <Root {...props}>
     <Button />
   </Root>
 )

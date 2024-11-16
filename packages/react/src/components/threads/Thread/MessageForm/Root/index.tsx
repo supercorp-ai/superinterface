@@ -16,6 +16,7 @@ import { useIsMutatingMessage } from '@/hooks/messages/useIsMutatingMessage'
 import { partob } from 'radash'
 import { isOptimistic } from '@/lib/optimistic/isOptimistic'
 import { createMessageDefaultOnError } from '@/lib/errors/createMessageDefaultOnError'
+import type { StyleProps } from '@/types'
 
 type Inputs = {
   content: string
@@ -26,11 +27,13 @@ export const Root = ({
   children,
   onSubmit: onSubmitArg,
   isDisabled: isDisabledArg,
+  style,
+  className,
 }: {
   children: React.ReactNode
   onSubmit?: SubmitHandler<Inputs & { reset: any, createMessage: any }>
   isDisabled?: boolean
-}) => {
+} & StyleProps) => {
   const [files, setFiles] = useState<OpenAI.Files.FileObject[]>([])
   const formProps = useForm<Inputs>(formOptions)
 
@@ -114,6 +117,8 @@ export const Root = ({
         <Box
           asChild
           flexShrink="0"
+          style={style}
+          className={className}
         >
           <form
             onSubmit={handleSubmit(onSubmit)}

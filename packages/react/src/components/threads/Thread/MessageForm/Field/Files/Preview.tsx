@@ -11,8 +11,9 @@ import {
 } from '@radix-ui/react-icons'
 import { useMessageFormContext } from '@/hooks/messages/useMessageFormContext'
 import { isOptimistic } from '@/lib/optimistic/isOptimistic'
+import type { StyleProps } from '@/types'
 
-export const Preview = () => {
+export const Preview = (props: StyleProps) => {
   const { files, setFiles } = useMessageFormContext()
 
   if (!files.length) {
@@ -25,6 +26,7 @@ export const Preview = () => {
       direction="column"
       pb="2"
       gap="1"
+      {...props}
     >
       {files.map((file) => (
         <Card

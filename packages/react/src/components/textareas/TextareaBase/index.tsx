@@ -1,9 +1,14 @@
 import { forwardRef } from 'react'
 import TextareaAutosize from 'react-textarea-autosize'
+import type { StyleProps } from '@/types'
 
-type Props = React.ComponentProps<typeof TextareaAutosize>
+type Props = React.ComponentProps<typeof TextareaAutosize> & StyleProps
 
-export const TextareaBase = forwardRef(function TextareaBase(props: Props, ref) {
+export const TextareaBase = forwardRef(function TextareaBase({
+  style,
+  className,
+  ...rest
+}: Props, ref) {
   return (
     <>
       <style>
@@ -14,7 +19,7 @@ export const TextareaBase = forwardRef(function TextareaBase(props: Props, ref) 
       <TextareaAutosize
         // @ts-ignore-next-line
         ref={ref}
-        className="rt-reset superinterface-textarea"
+        className={`rt-reset superinterface-textarea ${className ?? ''}`}
         style={{
           border: 0,
           outline: 0,
@@ -23,8 +28,9 @@ export const TextareaBase = forwardRef(function TextareaBase(props: Props, ref) 
           color: 'var(--gray-12)',
           flexGrow: 1,
           display: 'flex',
+          ...(style ?? {}),
         }}
-        {...props}
+        {...rest}
       />
     </>
   )

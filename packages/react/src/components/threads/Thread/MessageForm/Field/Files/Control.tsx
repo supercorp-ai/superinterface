@@ -15,6 +15,7 @@ import {
 import { useToasts } from '@/hooks/toasts/useToasts'
 import { useMessageFormContext } from '@/hooks/messages/useMessageFormContext'
 import { useCreateFile } from '@/hooks/files/useCreateFile'
+import type { StyleProps } from '@/types'
 
 const accept = `.c,text/x-c,
 .cs,text/x-csharp,
@@ -38,7 +39,7 @@ const accept = `.c,text/x-c,
 .sh,application/x-sh,
 .ts,application/typescript`
 
-export const Control = () => {
+export const Control = (props: StyleProps) => {
   const { isDisabled, isLoading, setFiles } = useMessageFormContext()
   const { createFile } = useCreateFile()
   const { addToast } = useToasts()
@@ -93,6 +94,7 @@ export const Control = () => {
       pt="2"
       pr="2"
       flexGrow="0"
+      {...props}
     >
       <IconButton
         type="button"

@@ -6,21 +6,23 @@ import {
 import { useThreadDialogContext } from '@/hooks/threads/useThreadDialogContext'
 import { Thread } from '@/components/threads/Thread'
 import { Close } from '@/components/threads/ThreadDialog/Close'
+import type { StyleProps } from '@/types'
 
 type Args = {
   children: React.ReactNode
-  style?: React.CSSProperties
-}
+} & StyleProps
 
 const Root = ({
   children,
-  style = {},
+  className,
+  style,
 }: Args) => {
   const { isOpen } = useThreadDialogContext()
   if (!isOpen) return null
 
   return (
     <Flex
+      className={className}
       direction="column"
       justify="end"
       position="fixed"
@@ -78,38 +80,43 @@ const Root = ({
   )
 }
 
-const Messages = () => (
+const Messages = ({
+  className,
+  style,
+}: StyleProps) => (
   <Thread.Messages
+    className={className}
     style={{
       paddingTop: 'var(--space-5)',
       paddingRight: 'var(--space-5)',
       paddingLeft: 'var(--space-5)',
+      ...style,
     }}
   />
 )
 
 const FormContainer = ({
   children,
+  className,
+  style,
 }: {
   children: React.ReactNode
-}) => (
+} & StyleProps) => (
   <Flex
     direction="column"
     pl="5"
     pr="5"
     pb="3"
     flexShrink="0"
+    className={className}
+    style={style}
   >
     {children}
   </Flex>
 )
 
-export const Content = ({
-  style = {},
-}: {
-  style?: React.CSSProperties
-}) => (
-  <Root style={style}>
+export const Content = (props: StyleProps) => (
+  <Root {...props}>
     <Thread.Root>
       <Messages />
       <FormContainer>

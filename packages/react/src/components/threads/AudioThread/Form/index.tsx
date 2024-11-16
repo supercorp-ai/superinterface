@@ -5,14 +5,16 @@ import { BarsVisualizer } from '@/components/threads/AudioThread/BarsVisualizer'
 import { useAudioThreadContext } from '@/hooks/threads/useAudioThreadContext'
 import { MicIcon } from './MicIcon'
 import { ActionButton } from './ActionButton'
+import type { StyleProps } from '@/types'
 
-export const Form = () => {
+export const Form = (props: StyleProps) => {
   const audioThreadContext = useAudioThreadContext()
 
   return (
     <Flex
       direction="column"
       align="center"
+      {...props}
     >
       <Flex
         pb="3"

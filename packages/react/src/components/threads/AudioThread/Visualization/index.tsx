@@ -6,8 +6,9 @@ import { Name } from '@/components/messageGroups/MessageGroupBase/Name'
 import { AssistantNameContext } from '@/contexts/assistants/AssistantNameContext'
 import { useAudioThreadContext } from '@/hooks/threads/useAudioThreadContext'
 import { BarsVisualizer } from '@/components/threads/AudioThread/BarsVisualizer'
+import type { StyleProps } from '@/types'
 
-export const Visualization = () => {
+export const Visualization = (props: StyleProps) => {
   const audioThreadContext = useAudioThreadContext()
   const assistantNameContext = useContext(AssistantNameContext)
   const [scale, setScale] = useState(0)
@@ -37,6 +38,7 @@ export const Visualization = () => {
       justify="center"
       mb="3"
       flexGrow="1"
+      {...props}
     >
       <Flex
         align="center"

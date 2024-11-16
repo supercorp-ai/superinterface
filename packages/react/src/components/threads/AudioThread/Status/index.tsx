@@ -1,7 +1,8 @@
 import { useAudioThreadContext } from '@/hooks/threads/useAudioThreadContext'
+import type { StyleProps } from '@/types'
 import { StatusMessages } from './StatusMessages'
 
-export const Status = () => {
+export const Status = (props: StyleProps) => {
   const audioThreadContext = useAudioThreadContext()
 
   if (audioThreadContext.status === 'recording') {
@@ -13,6 +14,7 @@ export const Status = () => {
           'Finish speaking to send',
           'Click the button below to send manually',
         ]}
+        {...props}
       />
     )
   }
@@ -23,6 +25,7 @@ export const Status = () => {
         texts={[
           'Click the button below to activate',
         ]}
+        {...props}
       />
     )
   }
@@ -33,6 +36,7 @@ export const Status = () => {
         texts={[
           'Click the button below to interrupt',
         ]}
+        {...props}
       />
     )
   }
@@ -42,6 +46,7 @@ export const Status = () => {
       texts={[
         'Thinking',
       ]}
+      {...props}
     />
   )
 }

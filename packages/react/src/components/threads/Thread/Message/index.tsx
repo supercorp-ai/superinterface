@@ -11,6 +11,7 @@ import { useIsMutatingMessage } from '@/hooks/messages/useIsMutatingMessage'
 import { Provider } from './Provider'
 import { Attachments } from './Attachments'
 import { ContentPart } from './ContentPart'
+import type { StyleProps } from '@/types'
 
 type Args = {
   message: SerializedMessage
@@ -18,7 +19,9 @@ type Args = {
 
 export const Message = ({
   message,
-}: Args) => {
+  className,
+  style,
+}: Args & StyleProps) => {
   const [olderRunSteps, laterRunSteps] = useMemo(() => {
     if (!message.runSteps.length) return [[], []]
 
@@ -62,7 +65,10 @@ export const Message = ({
 
   return (
     <Provider value={{ message }}>
-      <Box>
+      <Box
+        className={className}
+        style={style}
+      >
         <RunSteps
           runSteps={olderRunSteps}
         />

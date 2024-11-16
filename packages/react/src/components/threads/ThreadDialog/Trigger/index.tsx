@@ -3,15 +3,16 @@ import {
 } from '@radix-ui/themes'
 import { useThreadDialogContext } from '@/hooks/threads/useThreadDialogContext'
 import { Button } from './Button'
+import type { StyleProps } from '@/types'
 
 type Args = {
   children: React.ReactNode
-  style?: React.CSSProperties
-}
+} & StyleProps
 
 const Root = ({
   children,
-  style = {},
+  style,
+  className,
 }: Args) => {
   const { setIsOpen, isOpen } = useThreadDialogContext()
 
@@ -29,9 +30,10 @@ const Root = ({
       position="fixed"
       bottom="24px"
       right="24px"
+      className={className}
       style={{
         zIndex: 9999999999,
-        ...style,
+        ...(style ?? {}),
       }}
     >
       {children}

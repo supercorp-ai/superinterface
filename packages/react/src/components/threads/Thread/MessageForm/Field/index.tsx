@@ -6,12 +6,15 @@ import {
 } from '@radix-ui/themes'
 import { Control } from './Control'
 import { Files } from './Files'
+import type { StyleProps } from '@/types'
 
 const Root = ({
   children,
+  className,
+  style,
 }: {
   children: React.ReactNode
-}) => {
+} & StyleProps) => {
   const {
     formState: {
       errors,
@@ -22,6 +25,8 @@ const Root = ({
     <RadixContainer
       size="2"
       flexGrow="0"
+      className={className}
+      style={style}
     >
       <Flex
         direction="column"

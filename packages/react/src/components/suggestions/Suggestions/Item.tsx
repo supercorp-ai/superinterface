@@ -13,14 +13,17 @@ import {
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
 import { useToasts } from '@/hooks/toasts/useToasts'
 import { createMessageDefaultOnError } from '@/lib/errors/createMessageDefaultOnError'
+import type { StyleProps } from '@/types'
 
 export const Item = ({
   suggestion,
   isDisabled,
+  className,
+  style,
 }: {
   suggestion: string
   isDisabled: boolean
-}) => {
+} & StyleProps) => {
   const { addToast } = useToasts()
   const queryClient = useQueryClient()
   const threadContext = useThreadContext()
@@ -43,6 +46,8 @@ export const Item = ({
       }}
       isDisabled={isDisabled}
       isPending={isPending}
+      className={className}
+      style={style}
     >
       {suggestion}
     </Content>
@@ -54,13 +59,16 @@ const Content = ({
   isDisabled,
   isPending,
   children,
+  className,
+  style,
 }: {
   onClick: () => void
   isDisabled: boolean
   isPending: boolean
   children: React.ReactNode
-}) => (
+} & StyleProps) => (
   <Button
+    className={className}
     variant="soft"
     onClick={onClick}
     disabled={isDisabled}
@@ -68,6 +76,7 @@ const Content = ({
       minHeight: 'var(--base-button-height)',
       height: 'inherit',
       flexShrink: 1,
+      ...(style ?? {}),
     }}
   >
     <Text

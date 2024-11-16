@@ -7,21 +7,28 @@ import { useContext, useMemo, useRef, useEffect } from 'react'
 import { AssistantNameContext } from '@/contexts/assistants/AssistantNameContext'
 import { TextareaBase } from '@/components/textareas/TextareaBase'
 import { useMessageFormContext } from '@/hooks/messages/useMessageFormContext'
+import type { StyleProps } from '@/types'
 
 const Root = ({
   children,
+  style,
+  className,
 }: {
   children: React.ReactNode
-}) => (
+} & StyleProps) => (
   <Flex
     flexGrow="1"
     pt="4px"
+    style={style}
+    className={className}
   >
     {children}
   </Flex>
 )
 
-const Input = () => {
+const Input = (props: Omit<StyleProps, 'style'> & {
+  style?: Omit<React.CSSProperties, 'minHeight' | 'maxHeight' | 'height'>
+}) => {
   const assistantNameContext = useContext(AssistantNameContext)
   const {
     register,
@@ -60,6 +67,7 @@ const Input = () => {
         }
       }}
       {...textareaProps}
+      {...props}
       ref={(e: any) => {
         textareaProps.ref(e)
         // @ts-ignore-next-line
@@ -69,8 +77,8 @@ const Input = () => {
   )
 }
 
-export const Control = () => (
-  <Root>
+export const Control = (props: StyleProps) => (
+  <Root {...props}>
     <Input />
   </Root>
 )

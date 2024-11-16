@@ -3,14 +3,15 @@
 import { Flex } from '@radix-ui/themes'
 import { useInfiniteScroll } from '@/hooks/misc/useInfiniteScroll'
 import { useMessages } from '@/hooks/messages/useMessages'
+import type { StyleProps } from '@/types'
 
 export const Root = ({
   children,
-  style = {},
+  style,
+  className,
 }: {
   children: React.ReactNode
-  style?: React.CSSProperties
-}) => {
+} & StyleProps) => {
   const {
     isFetchingNextPage,
     hasNextPage,
@@ -29,9 +30,10 @@ export const Root = ({
       direction="column-reverse"
       flexGrow="1"
       style={{
-        ...style,
         overflow: 'auto',
+        ...(style ?? {}),
       }}
+      className={className}
     >
       {children}
 
