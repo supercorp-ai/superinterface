@@ -1,15 +1,15 @@
 import OpenAI from 'openai'
 import { isEmpty } from 'radash'
-import { Message } from '@/types'
+import { SerializedMessage } from '@/types'
 
 type Args = {
-  message: Message
+  message: SerializedMessage
 }
 
 export const input = ({
   message,
 }: Args) => {
-  const textContents = message.content.filter((c: OpenAI.Beta.Threads.Messages.TextContentBlock) => (
+  const textContents = (message.content as OpenAI.Beta.Threads.Messages.TextContentBlock[]).filter((c: OpenAI.Beta.Threads.Messages.TextContentBlock) => (
     c.type === 'text'
   ))
 

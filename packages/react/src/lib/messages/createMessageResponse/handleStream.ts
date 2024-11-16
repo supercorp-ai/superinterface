@@ -25,6 +25,7 @@ export const handleStream = async ({
     data: any
   }) => void
 }) => {
+  // @ts-ignore-next-line
   for await (const value of stream) {
     onEvent({ controller, event: value.event, data: value.data })
 

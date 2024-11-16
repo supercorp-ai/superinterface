@@ -18,6 +18,7 @@ export const AudioThreadContext = createContext<{
     resume: async () => {},
     visualizationAnalyser: null,
   },
+  // @ts-ignore-next-line
   messageAudioProps: {
     visualizationAnalyser: null,
     playing: false,

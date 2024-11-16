@@ -1,9 +1,9 @@
 'use client'
 import { createContext } from 'react'
-import { Message } from '@/types'
+import { SerializedMessage } from '@/types'
 
 export const MessageContext = createContext<{
-  message: Message | null
+  message: SerializedMessage | null
 }>({
   message: null,
 })

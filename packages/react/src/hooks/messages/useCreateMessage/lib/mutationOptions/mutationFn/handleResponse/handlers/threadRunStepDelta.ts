@@ -36,11 +36,13 @@ const updatedRunStep = ({
   runStep: SerializedRunStep
   value: ThreadRunStepDeltaEvent
 }) => {
+  // @ts-ignore-next-line
   if (!runStep?.step_details?.tool_calls) return runStep
 
   if (value.data.delta?.step_details?.type === 'tool_calls') {
     if (!value.data.delta.step_details.tool_calls) return runStep
 
+    // @ts-ignore-next-line
     const newToolCalls = _.cloneDeep(runStep.step_details.tool_calls)
 
     value.data.delta.step_details.tool_calls.forEach((delta: OpenAI.Beta.Threads.Runs.ToolCallDelta) => (

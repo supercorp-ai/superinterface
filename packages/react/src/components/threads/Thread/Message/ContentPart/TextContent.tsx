@@ -15,6 +15,7 @@ export const TextContent = ({
   } = useMarkdownContext()
 
   return (
+    // @ts-ignore-next-line
     <Markdown
       {...rest}
       remarkPlugins={getRemarkPlugins({

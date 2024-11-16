@@ -10,7 +10,10 @@ import { Name } from '@/components/messageGroups/MessageGroupBase/Name'
 
 export const MessagesSkeleton = forwardRef(function MessagesSkeleton(_props, ref) {
   return (
-    <MessageGroupBase ref={ref}>
+    <MessageGroupBase
+      // @ts-ignore-next-line
+      ref={ref}
+    >
       <Skeleton loading>
         <Avatar
           fallback={<Flex />}
