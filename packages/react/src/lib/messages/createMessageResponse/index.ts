@@ -9,6 +9,7 @@ export const createMessageResponse = ({
   createRunStream,
   handleToolCall,
   onStart = () => {},
+  onError = () => {},
   onClose = () => {},
   onEvent = () => {},
 }: {
@@ -16,6 +17,7 @@ export const createMessageResponse = ({
   createRunStream: any
   handleToolCall: any
   onStart?: (args: CallbackArgs) => void
+  onError?: (args: CallbackArgs & { error: any }) => void
   onClose?: (args: CallbackArgs) => void
   onEvent?: (args: CallbackArgs & { event: string, data: any }) => void
 }) => (
@@ -23,13 +25,18 @@ export const createMessageResponse = ({
     async start(controller) {
       onStart({ controller })
 
-      await handleStream({
-        client,
-        stream: createRunStream,
-        controller,
-        handleToolCall,
-        onEvent,
-      })
+      try {
+        await handleStream({
+          client,
+          stream: createRunStream,
+          controller,
+          handleToolCall,
+          onEvent,
+        })
+      } catch (error) {
+        onError({ error, controller })
+        controller.error(error)
+      }
 
       onClose({ controller })
       controller.close()
