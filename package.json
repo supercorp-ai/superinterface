@@ -12,8 +12,8 @@
     "typescript": "^5.6.3"
   },
   "devDependencies": {
-    "@swc/core": "^1.7.40",
-    "turbo": "^2.2.3"
+    "@swc/core": "^1.9.2",
+    "turbo": "^2.3.0"
   },
   "packageManager": "npm@10.2.0"
 }
