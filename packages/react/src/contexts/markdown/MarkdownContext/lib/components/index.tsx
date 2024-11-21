@@ -28,11 +28,14 @@ export const components = {
   h5: (props:  JSX.IntrinsicElements['h5']) => <Heading as="h5" size="3">{props.children}</Heading>,
   h6: (props:  JSX.IntrinsicElements['h6']) => <Heading as="h6" size="3">{props.children}</Heading>,
   table: (props: JSX.IntrinsicElements['table']) => (
-    <Table.Root
-      {...props}
-      variant="surface"
-      mb="3"
-    />
+    <>
+      <style>{`.rt-TableRootTable { overflow: inherit; }`}</style>
+      <Table.Root
+        {...props}
+        variant="surface"
+        mb="3"
+      />
+    </>
   ),
   thead: Table.Header,
   tbody: Table.Body,

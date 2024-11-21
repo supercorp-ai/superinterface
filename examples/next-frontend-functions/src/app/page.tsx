@@ -34,6 +34,10 @@ export default function Page() {
         appearance="light"
         radius="medium"
         scaling="100%"
+        style={{
+          height: '100dvh',
+          display: 'flex',
+        }}
       >
         <SuperinterfaceProvider
           variables={{
