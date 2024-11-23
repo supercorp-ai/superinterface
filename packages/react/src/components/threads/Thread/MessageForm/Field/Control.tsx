@@ -28,6 +28,7 @@ const Root = ({
 
 const Input = (props: Omit<StyleProps, 'style'> & {
   style?: Omit<React.CSSProperties, 'minHeight' | 'maxHeight' | 'height'>
+  placeholder?: string
 }) => {
   const assistantNameContext = useContext(AssistantNameContext)
   const {
@@ -56,7 +57,7 @@ const Input = (props: Omit<StyleProps, 'style'> & {
   return (
     <TextareaBase
       minRows={1}
-      placeholder={`Message ${assistantNameContext}...`}
+      placeholder={props.placeholder ?? `Message ${assistantNameContext}...`}
       disabled={isDisabled}
       onKeyDown={(e: any) => {
         if (e.key === 'Enter' && !e.shiftKey) {
