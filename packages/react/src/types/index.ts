@@ -70,3 +70,9 @@ export type StyleProps = {
   style?: React.CSSProperties
   className?: string
 }
+
+export type ThreadStorageOptions = {
+  get: (args: { assistantId: string }) => string | null
+  set: (args: { assistantId: string, threadId: string }) => void
+  remove: (args: { assistantId: string }) => void
+}

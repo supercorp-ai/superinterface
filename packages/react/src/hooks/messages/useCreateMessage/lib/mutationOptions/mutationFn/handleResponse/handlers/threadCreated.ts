@@ -8,13 +8,13 @@ export const threadCreated = ({
   value: OpenAI.Beta.Assistants.AssistantStreamEvent.ThreadCreated
   superinterfaceContext: ReturnType<typeof useSuperinterfaceContext>
 }) => {
-  if (!superinterfaceContext.threadIdCookieOptions?.set) return
+  if (!superinterfaceContext.threadIdStorageOptions?.set) return
   // @ts-ignore-next-line
   if (!value.data.metadata?.assistantId) return
   // @ts-ignore-next-line
   if (!value.data.metadata?.threadId) return
 
-  superinterfaceContext.threadIdCookieOptions.set({
+  superinterfaceContext.threadIdStorageOptions.set({
     // @ts-ignore-next-line
     assistantId: value.data.metadata.assistantId,
     // @ts-ignore-next-line

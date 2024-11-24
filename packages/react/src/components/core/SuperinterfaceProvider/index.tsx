@@ -9,7 +9,7 @@ import {
 import { merge } from '@/lib/misc/merge'
 import { SuperinterfaceContext } from '@/contexts/core/SuperinterfaceContext'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
-import { options } from '@/lib/threadIdCookies/options'
+import type { ThreadStorageOptions } from '@/types'
 
 export type Args = {
   children: React.ReactNode
@@ -21,7 +21,7 @@ export type Args = {
     queries?: UseInfiniteQueryOptions<InfiniteData<MessagesPage>>
     mutations?: UseMutationOptions
   }
-  threadIdCookieOptions?: typeof options | null
+  threadIdStorageOptions?: ThreadStorageOptions | null
 }
 
 export const SuperinterfaceProvider = ({
@@ -29,7 +29,7 @@ export const SuperinterfaceProvider = ({
   baseUrl,
   variables,
   defaultOptions,
-  threadIdCookieOptions,
+  threadIdStorageOptions,
 }: Args) => {
   const superinterfaceContext = useSuperinterfaceContext()
   const createMessageAbortControllerRef = useRef<AbortController | null>(null)
@@ -40,7 +40,7 @@ export const SuperinterfaceProvider = ({
       ...(baseUrl ? { baseUrl } : {}),
       ...(variables ? { variables } : {}),
       ...(defaultOptions ? { defaultOptions } : {}),
-      ...(threadIdCookieOptions ? { threadIdCookieOptions } : {}),
+      ...(threadIdStorageOptions ? { threadIdStorageOptions } : {}),
       createMessageAbortControllerRef,
     }
   )

@@ -11,9 +11,9 @@ export const variableParams = ({
 }) => {
   if (variables.threadId) return variables
   if (!variables.assistantId) return variables
-  if (!superinterfaceContext.threadIdCookieOptions?.get) return variables
+  if (!superinterfaceContext.threadIdStorageOptions?.get) return variables
 
-  const threadId = superinterfaceContext.threadIdCookieOptions.get({ assistantId: variables.assistantId })
+  const threadId = superinterfaceContext.threadIdStorageOptions.get({ assistantId: variables.assistantId })
   if (!threadId) return variables
 
   return {

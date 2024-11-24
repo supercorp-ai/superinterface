@@ -12,9 +12,9 @@ export const body = ({
 }) => {
   if (variables.threadId) return formData(variables)
   if (!variables.assistantId) return formData(variables)
-  if (!superinterfaceContext.threadIdCookieOptions?.get) return formData(variables)
+  if (!superinterfaceContext.threadIdStorageOptions?.get) return formData(variables)
 
-  const threadId = superinterfaceContext.threadIdCookieOptions.get({ assistantId: variables.assistantId })
+  const threadId = superinterfaceContext.threadIdStorageOptions.get({ assistantId: variables.assistantId })
   if (!threadId) return formData(variables)
 
   return formData({

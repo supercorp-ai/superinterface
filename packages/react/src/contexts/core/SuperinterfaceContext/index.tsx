@@ -1,7 +1,11 @@
 'use client'
+
 import { createContext } from 'react'
 import { baseUrl } from '@/lib/superinterfaceCloud/baseUrl'
-import { options } from '@/lib/threadIdCookies/options'
+import { cookieOptions } from '@/lib/threadIdStorage/cookieOptions'
+import { localStorageOptions } from '@/lib/threadIdStorage/localStorageOptions'
+import { isIframe } from '@/lib/iframes/isIframe'
+import type  { ThreadStorageOptions } from '@/types'
 
 export const SuperinterfaceContext = createContext<{
   baseUrl: string | null
@@ -10,7 +14,7 @@ export const SuperinterfaceContext = createContext<{
     queries: Record<string, any>
     mutations: Record<string, any>
   }
-  threadIdCookieOptions: typeof options | null
+  threadIdStorageOptions: ThreadStorageOptions | null
   createMessageAbortControllerRef: React.MutableRefObject<AbortController | null>
 }>({
   baseUrl,
@@ -19,6 +23,6 @@ export const SuperinterfaceContext = createContext<{
     queries: {},
     mutations: {},
   },
-  threadIdCookieOptions: options,
+  threadIdStorageOptions: isIframe() ? localStorageOptions : cookieOptions,
   createMessageAbortControllerRef: { current: null },
 })

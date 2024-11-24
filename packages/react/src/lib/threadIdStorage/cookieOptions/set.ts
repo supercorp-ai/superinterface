@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie'
-import { key } from '@/lib/threadIdCookies/key'
+import { key } from '@/lib/threadIdStorage/key'
 
 export const set = ({
   assistantId,
@@ -8,7 +8,5 @@ export const set = ({
   assistantId: string
   threadId: string
 }) => (
-  Cookies.set(key({ assistantId }), threadId, {
-    expires: 7,
-  })
+  Cookies.set(key({ assistantId }), threadId)
 )
