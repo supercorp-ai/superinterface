@@ -1,11 +1,11 @@
 {
   "name": "@superinterface/javascript",
   "version": "2.9.0",
-  "main": "./dist/ThreadDialog.js",
-  "module": "./dist/ThreadDialog.mjs",
-  "types": "./dist/ThreadDialog.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./dist/ThreadDialog.js",
+    ".": "./dist/index.js",
     "./*": "./dist/*.js",
     "./types": "./dist/types/ThreadDialog.js"
   },
@@ -24,8 +24,8 @@
     "@radix-ui/themes": "3.1.1",
     "@superinterface/react": "*",
     "@tanstack/react-query": "^5.50.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react": "19.0.0-rc-7670501b-20241124",
+    "react-dom": "19.0.0-rc-7670501b-20241124"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",

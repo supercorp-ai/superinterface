@@ -51,9 +51,9 @@
     "@radix-ui/themes": ">=3.0.0",
     "@tanstack/query-core": ">=5.0.0",
     "@tanstack/react-query": ">=5.0.0",
-    "react": "*",
     "@types/react": "*",
-    "@types/react-dom": "*"
+    "@types/react-dom": "*",
+    "react": "*"
   },
   "devDependencies": {
     "@tanstack/react-query": ">=5.60.6",
@@ -62,11 +62,9 @@
     "@types/lodash": "^4.17.13",
     "@types/react": "npm:types-react@rc",
     "@types/react-dom": "npm:types-react-dom@rc",
-    "react": "19.0.0-rc-66855b96-20241106",
     "@types/unist": "^3.0.3",
-    "tsup": "^8.3.5",
-    "typedoc": "^0.26.11",
-    "typedoc-plugin-markdown": "^4.2.10"
+    "react": "19.0.0-rc-7670501b-20241124",
+    "tsup": "^8.3.5"
   },
   "overrides": {
     "react": "*",
