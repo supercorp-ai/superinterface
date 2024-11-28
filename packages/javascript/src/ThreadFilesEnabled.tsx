@@ -2,7 +2,7 @@ import { createRoot } from 'react-dom/client'
 import {
   Thread,
 } from '@superinterface/react'
-import { rootElement } from '@/lib/rootElement'
+import { rootElement } from '@superinterface/root-element'
 import { Providers } from '@/components/Providers'
 import { superinterfaceContext as getSuperinterfaceContext } from '@/lib/superinterfaceContext'
 
