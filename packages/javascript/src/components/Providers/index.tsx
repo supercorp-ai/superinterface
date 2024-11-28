@@ -12,17 +12,13 @@ import './styles.css'
 
 type Args = {
   children: React.ReactNode
+  superinterfaceContext: Record<string, any>
 }
 
 export const Providers = ({
   children,
+  superinterfaceContext,
 }: Args) => {
-  const superinterfaceContext = (window as any).superinterface
-
-  if (!superinterfaceContext) {
-    throw new Error('window.superinterface is not set up. Please read Superinterface integration docs.')
-  }
-
   const [queryClient] = useState(() => (
     new QueryClient({
       defaultOptions: {
@@ -37,13 +33,7 @@ export const Providers = ({
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SuperinterfaceProvider
-        baseUrl={superinterfaceContext.baseUrl ?? 'https://superinterface.ai/api/cloud'}
-        variables={{
-          publicApiKey: superinterfaceContext.publicApiKey,
-          assistantId: superinterfaceContext.assistantId,
-        }}
-      >
+      <SuperinterfaceProvider {...superinterfaceContext}>
         <ThemeProvider>
           <AssistantProvider>
             {children}
