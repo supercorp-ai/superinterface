@@ -4,11 +4,16 @@ import {
 } from '@superinterface/react'
 import { rootElement } from '@/lib/rootElement'
 import { Providers } from '@/components/Providers'
+import { superinterfaceContext as getSuperinterfaceContext } from '@/lib/superinterfaceContext'
 
-const root = createRoot(rootElement())
+const currentScript = document.currentScript
+const superinterfaceContext = getSuperinterfaceContext({ currentScript })
+const root = createRoot(rootElement({ currentScript }))
 
 root.render(
-  <Providers>
+  <Providers
+    superinterfaceContext={superinterfaceContext}
+  >
     <ThreadDialog />
   </Providers>
 )

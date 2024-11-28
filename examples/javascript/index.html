@@ -14,19 +14,21 @@
         window.superinterface = window.superinterface || {};
         window.superinterface.publicApiKey = "37245be8-902a-440e-aaae-c56151fe8acc";
         window.superinterface.assistantId = "79f270e5-e026-4ed0-82f4-12755d63444f";
-        window.superinterface.baseUrl = "http://localhost:3000/api/cloud";
+        // window.superinterface.baseUrl = "http://localhost:3000/api/cloud";
 
         const e = document.createElement("script");
         // e.src = "https://superinterface.ai/javascript/ThreadDialog.js";
-        e.src = "http://localhost:3005/ThreadDialog.global.js";
+        e.src = "http://localhost:3005/Thread.global.js";
         // e.src = "http://localhost:3005/ThreadDialogFilesEnabled.global.js";
         // e.src = "http://localhost:3005/AudioThreadDialog.global.js";
         e.async = 1;
         document.getElementsByTagName("head")[0].appendChild(e);
       })();
     </script>
+    <!-- <script async defer src="http://localhost:3005/ThreadDialog.global.js?publicApiKey=0f6cc1bf-f84b-4851-9f37-59d6639e7703&#38;assistantId=79f270e5-e026-4ed0-82f4-12755d63444f"></script> -->
   </head>
   <body>
+    <script async defer src="http://localhost:3005/AudioThread.global.js?publicApiKey=0f6cc1bf-f84b-4851-9f37-59d6639e7703&assistantId=79f270e5-e026-4ed0-82f4-12755d63444f"></script>
     Hello JavaScript!
   </body>
 </html>

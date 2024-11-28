@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import {
-  AudioThreadDialog,
+  Thread,
 } from '@superinterface/react'
 import { rootElement } from '@/lib/rootElement'
 import { Providers } from '@/components/Providers'
@@ -12,6 +12,6 @@ const root = createRoot(rootElement({ currentScript }))
 
 root.render(
   <Providers superinterfaceContext={superinterfaceContext}>
-    <AudioThreadDialog />
+    <Thread />
   </Providers>
 )
