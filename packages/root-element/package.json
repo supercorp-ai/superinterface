@@ -1,0 +1,23 @@
+{
+  "name": "@superinterface/root-element",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./*": "./dist/*.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [],
+  "license": "ISC",
+  "scripts": {
+    "build": "tsup",
+    "metafile": "tsup --metafile"
+  },
+  "devDependencies": {
+    "tsup": "^8.1.0"
+  }
+}
