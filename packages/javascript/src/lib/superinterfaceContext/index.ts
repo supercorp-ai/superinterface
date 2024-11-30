@@ -4,11 +4,17 @@ import {
 } from './currentScriptSuperinterfaceContext'
 import { windowSuperinterfaceContext } from './windowSuperinterfaceContext'
 
+declare const INJECTED_SUPERINTERFACE_CONTEXT: Record<string, any> | undefined
+
 export const superinterfaceContext = ({
   currentScript,
 }: {
   currentScript: HTMLOrSVGScriptElement | null
 }) => {
+  if (typeof INJECTED_SUPERINTERFACE_CONTEXT !== 'undefined') {
+    return INJECTED_SUPERINTERFACE_CONTEXT
+  }
+
   if (currentScript instanceof HTMLScriptElement) {
     const currentScriptSuperinterfaceContext = getCurrentScriptSuperinterfaceContext({ currentScript })
 
