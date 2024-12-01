@@ -37,9 +37,30 @@ export const components = {
       />
     </>
   ),
-  thead: Table.Header,
-  tbody: Table.Body,
-  tr: Table.Row,
-  td: Table.Cell,
-  th: Table.ColumnHeaderCell,
+  thead: (props: JSX.IntrinsicElements['thead']) => (
+    <Table.Header
+      {...props}
+    />
+  ),
+  tbody: (props: JSX.IntrinsicElements['tbody']) => (
+    <Table.Body
+      {...props}
+    />
+  ),
+  tr: (props: JSX.IntrinsicElements['tr']) => (
+    <Table.Row
+      {...props}
+    />
+  ),
+  td: ({ width, ...rest }: JSX.IntrinsicElements['td']) => (
+    <Table.Cell
+      {...rest}
+      width={width as string}
+    />
+  ),
+  th: (props: JSX.IntrinsicElements['th']) => (
+    <Table.ColumnHeaderCell
+      {...props}
+    />
+  ),
 }
