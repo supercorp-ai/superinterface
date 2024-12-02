@@ -5,7 +5,6 @@ import { merge } from '@/lib/misc/merge'
 
 export const MarkdownProvider = ({
   children,
-  components,
   ...rest
 }: {
   children: React.ReactNode
