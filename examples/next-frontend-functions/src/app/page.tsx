@@ -1,42 +1,66 @@
 'use client'
 
-import { useState } from 'react'
 import {
   SuperinterfaceProvider,
-  Thread,
-  MarkdownProvider,
+  ThreadDialog,
   AssistantProvider,
+  MarkdownProvider,
 } from '@superinterface/react'
-import { Theme } from '@radix-ui/themes'
+import { Theme, Card, Flex, Text, Button, TextArea } from '@radix-ui/themes'
 import '@radix-ui/themes/styles.css'
 import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
+import { useState, ReactNode } from 'react'
 
-const CustomComponent = ({
-  children,
-}: {
-  children: React.ReactNode
-}) => (
-  <div>
-    Some component with content {children}
-  </div>
-)
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 10000,
+    },
+  },
+})
+
+interface EmailDraftProps {
+  subject?: string
+  children: ReactNode
+}
+
+const EmailDraft = ({ subject = '', children }: EmailDraftProps) => {
+  const [emailSubject, setEmailSubject] = useState(subject)
+  const [emailBody, setEmailBody] = useState(children?.toString() || '')
+
+  const handleSend = () => {
+    // Here you would typically integrate with your email sending service
+    // For now, we'll just open the default mail client
+    window.open(`mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`)
+  }
+
+  return (
+    <Card style={{ width: '100%', marginBottom: '16px' }}>
+      <Flex direction="column" gap="2">
+        <TextArea
+          placeholder="Subject"
+          value={emailSubject}
+          onChange={(e) => setEmailSubject(e.target.value)}
+          style={{ minHeight: '40px' }}
+        />
+        <TextArea
+          placeholder="Email body"
+          value={emailBody}
+          onChange={(e) => setEmailBody(e.target.value)}
+          style={{ minHeight: '150px' }}
+        />
+        <Flex justify="end">
+          <Button onClick={handleSend}>Send Email</Button>
+        </Flex>
+      </Flex>
+    </Card>
+  )
+}
 
 export default function Page() {
-  const [queryClient] = useState(() => (
-    new QueryClient({
-      defaultOptions: {
-        queries: {
-          // With SSR, we usually want to set some default staleTime
-          // above 0 to avoid refetching immediately on the client
-          staleTime: 10000,
-        },
-      },
-    })
-  ))
-
   return (
     <QueryClientProvider client={queryClient}>
       <Theme
@@ -45,20 +69,17 @@ export default function Page() {
         appearance="light"
         radius="medium"
         scaling="100%"
-        style={{
-          height: '100dvh',
-          display: 'flex',
-        }}
+        panelBackground="solid"
       >
         <SuperinterfaceProvider
           variables={{
             publicApiKey: '37245be8-902a-440e-aaae-c56151fe8acc',
-            assistantId: '6db2c5cb-b85a-4158-958b-09c9dcb5f4cb',
+            assistantId: 'cbe898ee-d9fa-4515-9bcc-2f3cd95fb088',
           }}
         >
           <AssistantProvider>
-            <MarkdownProvider components={{ CustomComponent }}>
-              <Thread />
+            <MarkdownProvider components={{ EmailDraft }}>
+              <ThreadDialog />
             </MarkdownProvider>
           </AssistantProvider>
         </SuperinterfaceProvider>

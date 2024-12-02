@@ -2,27 +2,28 @@ import { visit, CONTINUE, SKIP } from 'estree-util-visit';
 import type {
   Node,
   VariableDeclaration,
-  VariableDeclarator,
   FunctionDeclaration,
   BlockStatement,
   IfStatement,
-  ExpressionStatement,
   CallExpression,
   AssignmentExpression,
 } from 'estree';
 
 export const recmaFallbackComponentPlugin = () => {
   return (tree: Node) => {
-    // Step 1: Change 'const' to 'let' for CustomComponent declaration
+    // Step 1: Change variable declarations from 'const' to 'let'
     visit(tree, (node) => {
       if (node.type === 'VariableDeclaration' && node.kind === 'const') {
         const varDecl = node as VariableDeclaration;
 
         for (const declarator of varDecl.declarations) {
+          // Check for both _components and direct component destructuring patterns
           if (
-            declarator.id.type === 'ObjectPattern' &&
-            declarator.init?.type === 'Identifier' &&
-            declarator.init.name === '_components'
+            (declarator.id.type === 'ObjectPattern' &&
+              declarator.init?.type === 'Identifier' &&
+              declarator.init.name === '_components') ||
+            (declarator.id.type === 'ObjectPattern' &&
+              declarator.init?.type === 'ObjectExpression')
           ) {
             varDecl.kind = 'let';
             return SKIP;
@@ -114,6 +115,7 @@ export const recmaFallbackComponentPlugin = () => {
             ifNode.consequent.expression.callee.type === 'Identifier' &&
             ifNode.consequent.expression.callee.name === '_missingMdxReference'
           ) {
+            // Create the assignment expression
             const assignmentExpr: AssignmentExpression = {
               type: 'AssignmentExpression',
               operator: '=',
