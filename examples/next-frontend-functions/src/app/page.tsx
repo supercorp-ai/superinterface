@@ -4,6 +4,7 @@ import { useState } from 'react'
 import {
   SuperinterfaceProvider,
   Thread,
+  MarkdownProvider,
   AssistantProvider,
 } from '@superinterface/react'
 import { Theme } from '@radix-ui/themes'
@@ -46,7 +47,9 @@ export default function Page() {
           }}
         >
           <AssistantProvider>
-            <Thread />
+            <MarkdownProvider>
+              <Thread />
+            </MarkdownProvider>
           </AssistantProvider>
         </SuperinterfaceProvider>
       </Theme>

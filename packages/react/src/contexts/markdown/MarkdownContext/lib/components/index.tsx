@@ -10,7 +10,7 @@ import { Code } from './Code'
 import { Img } from './Img'
 import { Annotation } from './Annotation'
 
-export const components = {
+export const components: Record<string, any> = {
   p: Paragraph,
   a: Link,
   strong: Strong,
