@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { compile } from '@mdx-js/mdx'
 import { MDXProvider, useMDXComponents } from '@mdx-js/react'
 import * as runtime from 'react/jsx-runtime'
-import recmaMdxEscapeMissingComponents from 'recma-mdx-escape-missing-components'
+import { recmaFallbackComponentPlugin } from '@/lib/recma/recmaFallbackComponentPlugin'
 import { useMarkdownContext } from '@/hooks/markdown/useMarkdownContext'
 
 const evaluate = async ({
@@ -31,7 +31,7 @@ export const TextContent = ({
         const compiled = await compile(content.text.value, {
           outputFormat: 'function-body',
           remarkPlugins,
-          recmaPlugins: [recmaMdxEscapeMissingComponents],
+          recmaPlugins: [recmaFallbackComponentPlugin],
           providerImportSource: '@mdx-js/react',
         })
 
