@@ -2,7 +2,7 @@
 
 import {
   SuperinterfaceProvider,
-  ThreadDialog,
+  Thread,
   AssistantProvider,
   MarkdownProvider,
 } from '@superinterface/react'
@@ -70,6 +70,10 @@ export default function Page() {
         radius="medium"
         scaling="100%"
         panelBackground="solid"
+        style={{
+          height: '100dvh',
+          display: 'flex',
+        }}
       >
         <SuperinterfaceProvider
           variables={{
@@ -79,7 +83,7 @@ export default function Page() {
         >
           <AssistantProvider>
             <MarkdownProvider components={{ EmailDraft }}>
-              <ThreadDialog />
+              <Thread />
             </MarkdownProvider>
           </AssistantProvider>
         </SuperinterfaceProvider>

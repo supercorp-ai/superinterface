@@ -34,6 +34,7 @@ export const Root = ({
   onSubmit?: SubmitHandler<Inputs & { reset: any, createMessage: any }>
   isDisabled?: boolean
 } & StyleProps) => {
+  'use no memo'
   const [files, setFiles] = useState<OpenAI.Files.FileObject[]>([])
   const formProps = useForm<Inputs>(formOptions)
 
