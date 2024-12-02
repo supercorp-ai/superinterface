@@ -14,6 +14,16 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query'
 
+const CustomComponent = ({
+  children,
+}: {
+  children: React.ReactNode
+}) => (
+  <div>
+    Some component with content {children}
+  </div>
+)
+
 export default function Page() {
   const [queryClient] = useState(() => (
     new QueryClient({
@@ -47,7 +57,7 @@ export default function Page() {
           }}
         >
           <AssistantProvider>
-            <MarkdownProvider>
+            <MarkdownProvider components={{ CustomComponent }}>
               <Thread />
             </MarkdownProvider>
           </AssistantProvider>
