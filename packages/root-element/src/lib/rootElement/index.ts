@@ -19,7 +19,6 @@ const appendWithStyles = ({
 
  .superinterface-root {
    display: flex;
-   flex-direction: column;
    flex-grow: 1;
    max-height: 100dvh;
  }`
