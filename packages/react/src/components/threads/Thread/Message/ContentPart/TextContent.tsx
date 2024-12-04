@@ -38,7 +38,6 @@ export const TextContent = ({
         })
 
         const code = String(compiled)
-        console.log(code)
 
         const module = await evaluate({ code })
 
