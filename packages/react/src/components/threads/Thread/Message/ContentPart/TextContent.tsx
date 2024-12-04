@@ -1,10 +1,12 @@
 import OpenAI from 'openai'
 import React, { useState, useEffect, useMemo } from 'react'
+import { Badge } from '@radix-ui/themes'
 import { compile } from '@mdx-js/mdx'
 import { MDXProvider, useMDXComponents } from '@mdx-js/react'
 import * as runtime from 'react/jsx-runtime'
 import { recmaFallbackComponentPlugin } from '@/lib/recma/recmaFallbackComponentPlugin'
 import { useMarkdownContext } from '@/hooks/markdown/useMarkdownContext'
+import { ErrorBoundary } from 'react-error-boundary'
 
 const evaluate = async ({
   code,
@@ -36,6 +38,7 @@ export const TextContent = ({
         })
 
         const code = String(compiled)
+        console.log(code)
 
         const module = await evaluate({ code })
 
@@ -52,10 +55,21 @@ export const TextContent = ({
   if (!MDXComponent) return content.text.value
 
   return (
-    <MDXProvider
-      components={components}
+    <ErrorBoundary
+      fallback={(
+        <Badge
+          color="red"
+          mb="2"
+        >
+          Could not render message.
+        </Badge>
+      )}
     >
-      <MDXComponent />
-    </MDXProvider>
+      <MDXProvider
+        components={components}
+      >
+        <MDXComponent />
+      </MDXProvider>
+    </ErrorBoundary>
   )
 }

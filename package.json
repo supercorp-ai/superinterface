@@ -9,6 +9,7 @@
     "dev": "turbo run build --force -- --watch"
   },
   "dependencies": {
+    "react-error-boundary": "^4.1.2",
     "typescript": "^5.6.3"
   },
   "devDependencies": {
