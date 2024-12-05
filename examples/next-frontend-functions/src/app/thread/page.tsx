@@ -5,13 +5,30 @@ import {
   SuperinterfaceProvider,
   Thread,
   AssistantNameContext,
+  useCreateMessage,
 } from '@superinterface/react'
-import { Theme } from '@radix-ui/themes'
+import { Theme, Button } from '@radix-ui/themes'
 import '@radix-ui/themes/styles.css'
 import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
+
+const ExampleButton = () => {
+  const { createMessage } = useCreateMessage()
+
+  return (
+    <Button
+      onClick={() => {
+        createMessage({
+          content: 'Hi',
+        })
+      }}
+    >
+      Hi
+    </Button>
+  )
+}
 
 export default function Page() {
   const [queryClient] = useState(() => (
@@ -42,6 +59,7 @@ export default function Page() {
           }}
         >
           <AssistantNameContext.Provider value="Annotations tester">
+            <ExampleButton />
             <Thread />
           </AssistantNameContext.Provider>
         </SuperinterfaceProvider>

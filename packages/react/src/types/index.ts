@@ -76,3 +76,15 @@ export type ThreadStorageOptions = {
   set: (args: { assistantId: string, threadId: string }) => void
   remove: (args: { assistantId: string }) => void
 }
+
+type UseCreateMessageTextVariables = {
+  content: string
+}
+
+type UseCreateMessageAudioVariables = {
+  audioContent: unknown
+}
+
+export type UseCreateMessageVariables = (UseCreateMessageTextVariables | UseCreateMessageAudioVariables) & {
+  [key: string]: any
+}

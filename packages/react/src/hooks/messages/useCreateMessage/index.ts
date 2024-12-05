@@ -1,4 +1,4 @@
-import { partob } from 'radash'
+import { useCallback } from 'react'
 import {
   useMutation,
   useQueryClient,
@@ -6,6 +6,7 @@ import {
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
 import { mutationOptions } from './lib/mutationOptions'
+import type { UseCreateMessageVariables } from '@/types'
 
 export const useCreateMessage = ({
   onError = () => {},
@@ -25,8 +26,15 @@ export const useCreateMessage = ({
     onError,
   }))
 
+  const createMessage = useCallback((variables: UseCreateMessageVariables) => (
+    props.mutateAsync({
+      ...threadContext.variables,
+      ...variables,
+    })
+  ), [props.mutateAsync, threadContext.variables])
+
   return {
     ...props,
-    createMessage: partob(props.mutateAsync, threadContext.variables),
+    createMessage,
   }
 }

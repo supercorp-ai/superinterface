@@ -54,7 +54,6 @@ const Content = ({
       const audioContent = await blobToData(blob)
 
       return createMessageProps.createMessage({
-        // @ts-ignore-next-line
         audioContent,
       })
     },

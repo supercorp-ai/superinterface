@@ -4,6 +4,7 @@ import {
 } from '@tanstack/react-query'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
+import type { UseCreateMessageVariables } from '@/types'
 import { handleResponse } from './handleResponse'
 import { body } from './body'
 
@@ -15,10 +16,7 @@ export const mutationFn = ({
   superinterfaceContext: ReturnType<typeof useSuperinterfaceContext>
   queryClient: ReturnType<typeof useQueryClient>
   threadContext: ReturnType<typeof useThreadContext>
-}) => async (variables: {
-  content: string
-  [key: string]: any
-}) => {
+}) => async (variables: UseCreateMessageVariables) => {
   const abortController = new AbortController()
   superinterfaceContext.createMessageAbortControllerRef.current = abortController
 
