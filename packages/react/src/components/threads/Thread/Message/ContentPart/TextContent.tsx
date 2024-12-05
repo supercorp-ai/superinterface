@@ -17,6 +17,12 @@ const evaluate = async ({
   return fn({ ...runtime, useMDXComponents })
 }
 
+const replaceExpressionsWithLiterals = ({ content }: { content: string }) => (
+  content.replace(/\{([^}]+)\}/g, (_match, expression) => (
+    `{'{'}${expression}{'}'}`
+  ))
+)
+
 export const TextContent = ({
   content
 }: {
@@ -30,10 +36,14 @@ export const TextContent = ({
   useEffect(() => {
     const compileMDX = async () => {
       try {
-        const compiled = await compile(content.text.value, {
+        const compiled = await compile(replaceExpressionsWithLiterals({
+          content: content.text.value
+        }), {
           outputFormat: 'function-body',
           remarkPlugins,
-          recmaPlugins: [recmaFallbackComponentPlugin],
+          recmaPlugins: [
+            recmaFallbackComponentPlugin,
+          ],
           providerImportSource: '@mdx-js/react',
         })
 
