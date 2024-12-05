@@ -55,14 +55,26 @@ export const threadRunRequiresAction = async ({
       let output
 
       try {
-        output = await fn(parsedArgs)
+        output = await fn(parsedArgs) ?? ''
       } catch (error: any) {
         output = `Error: ${error.message}`
       }
 
+      let serializedOutput
+
+      try {
+        if (typeof output === 'string') {
+          serializedOutput = output
+        } else {
+          serializedOutput = JSON.stringify(output)
+        }
+      } catch (error: any) {
+        serializedOutput = `Error: ${error.message}`
+      }
+
       return {
         toolCallId: toolCall.id,
-        output,
+        output: serializedOutput,
       }
     })
 
