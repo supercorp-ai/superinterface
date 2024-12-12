@@ -17,16 +17,18 @@ import { useThreadContext } from '@/hooks/threads/useThreadContext'
 import { useToasts } from '@/hooks/toasts/useToasts'
 import { createMessageDefaultOnError } from '@/lib/errors/createMessageDefaultOnError'
 import { ToastsProvider } from '@/components/toasts/ToastsProvider'
-import type { StyleProps } from '@/types'
+import type { StyleProps, PlayArgs } from '@/types'
 
 export type Args = {
   children: React.ReactNode
+  play?: (args: PlayArgs) => void
 } & StyleProps
 
 const Content = ({
   children,
   className,
   style,
+  play,
 }: Args) => {
   const { addToast } = useToasts()
   const queryClient = useQueryClient()
@@ -62,6 +64,7 @@ const Content = ({
   const microphonePermission = usePermission({ name: 'microphone' })
 
   const messageAudioProps = useMessageAudio({
+    play,
     onEnd: () => {
       if (microphonePermission === 'granted') {
         recorderProps.start()

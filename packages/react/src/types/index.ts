@@ -88,3 +88,10 @@ type UseCreateMessageAudioVariables = {
 export type UseCreateMessageVariables = (UseCreateMessageTextVariables | UseCreateMessageAudioVariables) & {
   [key: string]: any
 }
+
+export type PlayArgs = {
+  input: string
+  onPlay: () => void
+  onStop: () => void
+  onEnd: () => void
+}
