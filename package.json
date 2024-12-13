@@ -16,9 +16,5 @@
     "@swc/core": "^1.9.2",
     "turbo": "^2.3.0"
   },
-  "packageManager": "npm@10.2.0",
-  "overrides": {
-    "react": "19.0.0-rc-7670501b-20241124",
-    "react-dom": "19.0.0-rc-7670501b-20241124"
-  }
+  "packageManager": "npm@10.2.0"
 }

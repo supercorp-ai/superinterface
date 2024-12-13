@@ -1,3 +1,4 @@
+import { type JSX } from 'react'
 import { Heading, Table } from '@radix-ui/themes'
 import { Paragraph } from './Paragraph'
 import { Link } from './Link'

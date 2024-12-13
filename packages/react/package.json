@@ -73,11 +73,7 @@
     "@types/unist": "^3.0.3",
     "babel-plugin-react-compiler": "^19.0.0-beta-df7b47d-20241124",
     "esbuild-plugin-babel": "^0.2.3",
-    "react": "19.0.0-rc-7670501b-20241124",
+    "react": "19.0.0",
     "tsup": "^8.3.5"
-  },
-  "overrides": {
-    "react": "*",
-    "react-dom": "*"
   }
 }
