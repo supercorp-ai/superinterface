@@ -1,22 +1,23 @@
-import {
-  QuoteIcon,
-} from '@radix-ui/react-icons'
 import OpenAI from 'openai'
+import {
+  useMarkdownContext,
+} from '@/hooks/markdown/useMarkdownContext'
 import { FilePathAnnotation } from '@/components/annotations/FilePathAnnotation'
-import { AnnotationBase } from './AnnotationBase'
+import { FileCitation } from './FileCitation'
 
-export const Annotation = ({
+export const SourceAnnotation = ({
   annotation,
+  markdownContext,
   children,
 }: {
   annotation: OpenAI.Beta.Threads.Messages.Annotation
+  markdownContext: ReturnType<typeof useMarkdownContext>
   children: React.ReactNode
 }) => {
   if (annotation.type === 'file_citation') {
     return (
-      <AnnotationBase
-        icon={<QuoteIcon />}
-        content="File cited."
+      <FileCitation
+        annotation={annotation}
       />
     )
   } else if (annotation.type === 'file_path') {

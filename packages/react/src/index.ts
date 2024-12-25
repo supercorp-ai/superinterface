@@ -25,6 +25,8 @@ export { MarkdownContext } from '@/contexts/markdown/MarkdownContext'
 export { MarkdownProvider } from '@/components/markdown/MarkdownProvider'
 export { useMarkdownContext } from '@/hooks/markdown/useMarkdownContext'
 
+export { SourceAnnotation } from '@/components/annotations/SourceAnnotation'
+
 export { AssistantAvatarContext } from '@/contexts/assistants/AssistantAvatarContext'
 export { AssistantNameContext } from '@/contexts/assistants/AssistantNameContext'
 
