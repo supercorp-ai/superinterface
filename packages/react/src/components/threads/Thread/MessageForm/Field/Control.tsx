@@ -30,7 +30,6 @@ const Input = (props: Omit<StyleProps, 'style'> & {
   style?: Omit<React.CSSProperties, 'minHeight' | 'maxHeight' | 'height'>
   placeholder?: string
 }) => {
-  'use no memo'
   const assistantNameContext = useContext(AssistantNameContext)
   const {
     register,
