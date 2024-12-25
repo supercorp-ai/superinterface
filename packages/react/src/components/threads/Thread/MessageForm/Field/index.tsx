@@ -15,6 +15,7 @@ const Root = ({
 }: {
   children: React.ReactNode
 } & StyleProps) => {
+  'use no memo'
   const {
     formState: {
       errors,
