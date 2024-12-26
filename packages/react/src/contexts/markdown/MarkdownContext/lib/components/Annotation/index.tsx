@@ -6,12 +6,14 @@ import { FilePathAnnotation } from '@/components/annotations/FilePathAnnotation'
 import { AnnotationBase } from './AnnotationBase'
 
 export const Annotation = ({
-  annotation,
   children,
+  ...rest
 }: {
-  annotation: OpenAI.Beta.Threads.Messages.Annotation
+  ['data-annotation']: string
   children: React.ReactNode
 }) => {
+  const annotation = JSON.parse(rest['data-annotation'] ?? '{}') as OpenAI.Beta.Threads.Messages.Annotation
+
   if (annotation.type === 'file_citation') {
     return (
       <AnnotationBase

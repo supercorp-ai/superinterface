@@ -12,7 +12,7 @@ interface AnnotationNode extends Literal {
   data: {
     hName: 'annotation'
     hProperties: {
-      annotation: any
+      ['data-annotation']: string
     }
   }
 }
@@ -194,7 +194,7 @@ const createAnnotationNode = ({
     data: {
       hName: 'annotation',
       hProperties: {
-        annotation,
+        ['data-annotation']: JSON.stringify(annotation),
       },
     },
   }
