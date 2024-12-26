@@ -34,10 +34,13 @@ export const Content = ({
         >
           <Flex
             flexGrow="1"
-            position="relative"
           >
             <embed
               src={`${superinterfaceContext.baseUrl}/files/${fileId}/contents?${nextSearchParams}`}
+              style={{
+                width: '100%',
+                height: '100%',
+              }}
             />
           </Flex>
         </Inset>
