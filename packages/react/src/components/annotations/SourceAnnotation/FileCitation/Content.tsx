@@ -4,9 +4,6 @@ import {
   Inset,
 } from '@radix-ui/themes'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
-import { usePDFSlick } from '@pdfslick/react'
-import '@pdfslick/react/dist/pdf_viewer.css'
-import { Navigation } from './Navigation'
 
 export const Content = ({
   fileId,
@@ -15,14 +12,6 @@ export const Content = ({
 }) => {
   const superinterfaceContext = useSuperinterfaceContext()
   const nextSearchParams = new URLSearchParams(superinterfaceContext.variables)
-
-  const { viewerRef, usePDFSlickStore, PDFSlickViewer } = usePDFSlick(
-    `${superinterfaceContext.baseUrl}/files/${fileId}/contents?${nextSearchParams}`,
-    {
-      scaleValue: 'page-width',
-      removePageBorders: true,
-    }
-  )
 
   return (
     <Flex
@@ -47,10 +36,8 @@ export const Content = ({
             flexGrow="1"
             position="relative"
           >
-            <PDFSlickViewer {...{ viewerRef, usePDFSlickStore }} />
-
-            <Navigation
-              usePDFSlickStore={usePDFSlickStore}
+            <embed
+              src={`${superinterfaceContext.baseUrl}/files/${fileId}/contents?${nextSearchParams}`}
             />
           </Flex>
         </Inset>
