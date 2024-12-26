@@ -9,8 +9,8 @@ export const Annotation = ({
   children,
   ...rest
 }: {
-  ['data-annotation']: string
   children: React.ReactNode
+  ['data-annotation']: string
 }) => {
   const annotation = JSON.parse(rest['data-annotation'] ?? '{}') as OpenAI.Beta.Threads.Messages.Annotation
 

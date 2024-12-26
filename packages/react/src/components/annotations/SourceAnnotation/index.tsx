@@ -1,16 +1,11 @@
 import OpenAI from 'openai'
-import {
-  useMarkdownContext,
-} from '@/hooks/markdown/useMarkdownContext'
 import { FilePathAnnotation } from '@/components/annotations/FilePathAnnotation'
 import { FileCitation } from './FileCitation'
 
 export const SourceAnnotation = ({
-  markdownContext,
   children,
   ...rest
 }: {
-  markdownContext: ReturnType<typeof useMarkdownContext>
   children: React.ReactNode
   ['data-annotation']: string
 }) => {
