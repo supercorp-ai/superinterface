@@ -17,7 +17,7 @@ export const Content = ({
   const nextSearchParams = new URLSearchParams(superinterfaceContext.variables)
 
   const { viewerRef, usePDFSlickStore, PDFSlickViewer } = usePDFSlick(
-    `${superinterfaceContext.baseUrl}/api/cloud/files/${fileId}/contents?${nextSearchParams}`,
+    `${superinterfaceContext.baseUrl}/files/${fileId}/contents?${nextSearchParams}`,
     {
       scaleValue: 'page-width',
       removePageBorders: true,
