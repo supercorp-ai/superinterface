@@ -1,6 +1,6 @@
 {
   "name": "@superinterface/javascript",
-  "version": "3.2.1",
+  "version": "3.2.2",
   "main": "./dist/ThreadDialog.js",
   "module": "./dist/ThreadDialog.mjs",
   "types": "./dist/ThreadDialog.d.ts",
