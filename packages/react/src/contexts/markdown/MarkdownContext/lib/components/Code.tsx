@@ -12,7 +12,11 @@ export const Code = ({
   }
 
   return (
-    <RadixCode>
+    <RadixCode
+      style={{
+        wordBreak: 'break-word',
+      }}
+    >
       {children}
     </RadixCode>
   )
