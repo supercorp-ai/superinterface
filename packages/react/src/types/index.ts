@@ -95,3 +95,38 @@ export type PlayArgs = {
   onStop: () => void
   onEnd: () => void
 }
+
+export type UserAudioControls = {
+  start: () => Promise<void>
+  stop: () => Promise<void>
+  pause: () => Promise<void>
+  resume: () => Promise<void>
+  visualizationAnalyser: AnalyserNode | null
+
+  isPending: boolean
+
+  /** Possibly a raw 'recorder' status for internal reference, e.g. 'idle', 'recording' */
+  rawStatus?: string
+}
+
+export type AssistantAudioControls = {
+  play: () => void
+  pause: () => void
+  stop: () => void
+  visualizationAnalyser: AnalyserNode | null
+
+  /** Flags that your code references to figure out if it's playing, paused, loaded, etc. */
+  playing: boolean
+  paused: boolean
+  isPending: boolean
+  isReady: boolean
+  isAudioPlayed: boolean
+
+  /** Possibly a raw 'assistant' status for internal reference, e.g. 'idle', 'loading', 'playing' */
+  rawStatus?: string
+}
+
+export type AudioRuntime = {
+  user: UserAudioControls
+  assistant: AssistantAudioControls
+}

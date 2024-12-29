@@ -10,12 +10,14 @@ import {
 } from '@radix-ui/react-icons'
 import { useAudioThreadContext } from '@/hooks/threads/useAudioThreadContext'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
+import { useStatus } from '@/hooks/audioThreads/useStatus'
 
 export const ActionButton = () => {
+  const { status } = useStatus()
   const audioThreadContext = useAudioThreadContext()
   const superinterfaceContext = useSuperinterfaceContext()
 
-  if (audioThreadContext.status === 'recording') {
+  if (status === 'recording') {
     return (
       <Flex
         align="center"
@@ -25,7 +27,7 @@ export const ActionButton = () => {
           ml="-7"
         >
           <IconButton
-            onClick={audioThreadContext.recorderProps.pause}
+            onClick={audioThreadContext.audioRuntime.user.pause}
             color="gray"
             variant="soft"
             size="1"
@@ -35,7 +37,7 @@ export const ActionButton = () => {
         </Flex>
 
         <IconButton
-          onClick={audioThreadContext.recorderProps.stop}
+          onClick={audioThreadContext.audioRuntime.user.stop}
           highContrast
           variant="soft"
           size="4"
@@ -46,10 +48,10 @@ export const ActionButton = () => {
     )
   }
 
-  if (audioThreadContext.status === 'recorderPaused') {
+  if (status === 'recorderPaused') {
     return (
       <IconButton
-        onClick={audioThreadContext.recorderProps.resume}
+        onClick={audioThreadContext.audioRuntime.user.resume}
         color="red"
         size="4"
       >
@@ -58,23 +60,23 @@ export const ActionButton = () => {
     )
   }
 
-  if (audioThreadContext.status === 'idle') {
+  if (status === 'idle') {
     return (
       <IconButton
-        onClick={() => audioThreadContext.recorderProps.start()}
+        onClick={() => audioThreadContext.audioRuntime.user.start()}
         size="4"
         color="red"
       />
     )
   }
 
-  if (audioThreadContext.status === 'playing') {
+  if (status === 'playing') {
     return (
       <IconButton
         onClick={() => {
-          audioThreadContext.messageAudioProps.stop()
+          audioThreadContext.audioRuntime.assistant.stop()
           superinterfaceContext.createMessageAbortControllerRef.current?.abort()
-          audioThreadContext.recorderProps.start()
+          audioThreadContext.audioRuntime.user.start()
         }}
         size="4"
         color="gray"
@@ -85,10 +87,10 @@ export const ActionButton = () => {
     )
   }
 
-  if (audioThreadContext.status === 'playerPaused') {
+  if (status === 'playerPaused') {
     return (
       <IconButton
-        onClick={() => audioThreadContext.messageAudioProps.play()}
+        onClick={() => audioThreadContext.audioRuntime.assistant.play()}
         size="4"
       >
         <ResumeIcon />
