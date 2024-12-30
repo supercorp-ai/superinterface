@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 
 export const useRealtimeWebRTCAudioRuntime = () => {
   // =============================
   //    INTERNAL STATE
   // =============================
   const [recorderStatus, setRecorderStatus] = useState<'idle' | 'recording' | 'paused' | 'stopped'>('idle')
+  const superinterfaceContext = useSuperinterfaceContext()
 
   const [assistantPlaying, setAssistantPlaying] = useState(false)
   const [assistantPaused, setAssistantPaused] = useState(false)
@@ -27,9 +29,6 @@ export const useRealtimeWebRTCAudioRuntime = () => {
   // For automatically playing the remote audio
   const assistantAudioElRef = useRef<HTMLAudioElement | null>(null)
 
-  // =============================
-  //   CLEANUP ON UNMOUNT
-  // =============================
   useEffect(() => {
     return () => {
       if (pcRef.current) {
@@ -42,9 +41,6 @@ export const useRealtimeWebRTCAudioRuntime = () => {
     }
   }, [])
 
-  // =============================
-  //   SESSION INIT (LAZY)
-  // =============================
   async function startSessionIfNeeded() {
     // Avoid multiple inits
     if (sessionStartedRef.current) return
@@ -52,27 +48,15 @@ export const useRealtimeWebRTCAudioRuntime = () => {
     await initRealtimeSession()
   }
 
-  /**
-   * The main async function to gather ephemeral key, create PC, do offer/answer, etc.
-   * Called exactly once (when user.start() is invoked the first time).
-   */
   async function initRealtimeSession() {
     try {
-      // 1. Get ephemeral key from your server
-      const tokenResponse = await fetch('/session')
-      const data = await tokenResponse.json()
-      const EPHEMERAL_KEY = data.client_secret.value
-
-      // 2. Create the RTCPeerConnection
       const peerConn = new RTCPeerConnection()
       pcRef.current = peerConn
 
-      // 3. Create an <audio> element to play remote audio from the model
       const audioEl = document.createElement('audio')
       audioEl.autoplay = true
       assistantAudioElRef.current = audioEl
 
-      // 4. Once we get a remote track, set the remote audio
       peerConn.ontrack = (evt) => {
         // Possibly multiple tracks, but we only expect one for audio
         remoteStreamRef.current = evt.streams[0]
@@ -86,39 +70,32 @@ export const useRealtimeWebRTCAudioRuntime = () => {
         setAssistantAudioPlayed(true)
       }
 
-      // 5. (Optional) Create a data channel if you want to send/receive “oai-events”
       const dc = peerConn.createDataChannel('oai-events')
       dc.onmessage = (e) => {
         console.log('[Realtime DC message]', e.data)
       }
 
-      // 6. Get the local mic so user can talk to the model
       const ms = await navigator.mediaDevices.getUserMedia({ audio: true })
       localStreamRef.current = ms
       ms.getTracks().forEach((t) => {
         peerConn.addTrack(t, ms)
       })
-      // We set user status to "idle" => user hasn't "recorded" yet
+
       setRecorderStatus('idle')
 
-      // 7. Create the offer / set local desc
       const offer = await peerConn.createOffer()
       await peerConn.setLocalDescription(offer)
 
-      // 8. Send the SDP to the Realtime endpoint
-      const baseUrl = 'https://api.openai.com/v1/realtime'
-      // The model name is just an example
-      const model = 'gpt-4o-realtime-preview-2024-12-17'
-      const sdpResponse = await fetch(`${baseUrl}?model=${model}`, {
+      const searchParams = new URLSearchParams(superinterfaceContext.variables)
+
+      const sdpResponse = await fetch(`${superinterfaceContext.baseUrl}/audio-runtimes/webrtc?${searchParams}`, {
         method: 'POST',
         body: offer.sdp,
         headers: {
-          Authorization: `Bearer ${EPHEMERAL_KEY}`,
           'Content-Type': 'application/sdp',
         },
       })
 
-      // 9. Get the remote SDP and set it
       const answerSdp = await sdpResponse.text()
       const answer = {
         type: 'answer' as RTCSdpType,
@@ -126,10 +103,8 @@ export const useRealtimeWebRTCAudioRuntime = () => {
       }
       await peerConn.setRemoteDescription(answer)
 
-      // 10. Build analyzers for mic & remote audio
       buildAnalyzers(ms, audioEl)
 
-      // Mark assistant no longer "pending" after successful handshake
       setAssistantIsPending(false)
       setAssistantIsReady(true)
       setAssistantPlaying(true)
@@ -171,14 +146,8 @@ export const useRealtimeWebRTCAudioRuntime = () => {
     }
   }
 
-  // =============================
-  //    THE RUNTIME
-  // =============================
   const runtime = useMemo(() => ({
-    // For your library, you might just return this object directly
-    // as the runtime, but I'm naming it explicitly here to highlight
-    // it's the "Realtime WebRTC" runtime shape.
-    realtimeWebRtcAudioRuntime: {
+    realtimeWebRTCAudioRuntime: {
       user: {
         start: async () => {
           // 1. If we haven't started the session, do so
