@@ -14,10 +14,14 @@ export { useAssistant } from '@/hooks/assistants/useAssistant'
 
 export { ThreadDialog } from '@/components/threads/ThreadDialog'
 export { ThreadDialogContext } from '@/contexts/threads/ThreadDialogContext'
+export { useThreadDialogContext } from '@/hooks/threads/useThreadDialogContext'
+
 export { AudioThreadDialog } from '@/components/threads/AudioThreadDialog'
 export { AudioThread } from '@/components/threads/AudioThread'
-export { useThreadDialogContext } from '@/hooks/threads/useThreadDialogContext'
 export { useAudioThreadContext } from '@/hooks/threads/useAudioThreadContext'
+
+export { useTtsAudioRuntime } from '@/hooks/audioRuntimes/useTtsAudioRuntime'
+export { useRealtimeWebRTCAudioRuntime } from '@/hooks/audioRuntimes/useRealtimeWebRTCAudioRuntime'
 
 export { Suggestions } from '@/components/suggestions/Suggestions'
 

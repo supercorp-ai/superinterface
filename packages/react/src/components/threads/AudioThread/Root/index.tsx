@@ -4,12 +4,13 @@ import { Flex } from '@radix-ui/themes'
 import _ from 'lodash'
 import { AudioThreadContext } from '@/contexts/threads/AudioThreadContext'
 import { ToastsProvider } from '@/components/toasts/ToastsProvider'
-import type { StyleProps, PlayArgs } from '@/types'
-import { useTtsAudioRuntime } from '@/hooks/ttsAudioRuntimes/useTtsAudioRuntime'
+import type { StyleProps, PlayArgs, AudioRuntime } from '@/types'
+import { useTtsAudioRuntime } from '@/hooks/audioRuntimes/useTtsAudioRuntime'
 
 export type Args = {
   children: React.ReactNode
   play?: (args: PlayArgs) => void
+  audioRuntime?: AudioRuntime
 } & StyleProps
 
 const Content = ({
@@ -17,6 +18,7 @@ const Content = ({
   className,
   style,
   play,
+  audioRuntime,
 }: Args) => {
   const { ttsAudioRuntime } = useTtsAudioRuntime({
     play,
@@ -25,7 +27,7 @@ const Content = ({
   return (
     <AudioThreadContext.Provider
       value={{
-        audioRuntime: ttsAudioRuntime,
+        audioRuntime: audioRuntime ?? ttsAudioRuntime,
       }}
     >
       <Flex

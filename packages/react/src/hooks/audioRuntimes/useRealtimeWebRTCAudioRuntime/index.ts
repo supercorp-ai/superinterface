@@ -1,26 +1,36 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 export const useRealtimeWebRTCAudioRuntime = () => {
+  // =============================
+  //    INTERNAL STATE
+  // =============================
   const [recorderStatus, setRecorderStatus] = useState<'idle' | 'recording' | 'paused' | 'stopped'>('idle')
+
   const [assistantPlaying, setAssistantPlaying] = useState(false)
   const [assistantPaused, setAssistantPaused] = useState(false)
   const [assistantIsPending, setAssistantIsPending] = useState(true)
   const [assistantIsReady, setAssistantIsReady] = useState(false)
   const [assistantAudioPlayed, setAssistantAudioPlayed] = useState(false)
 
+  // Keep track if we have already started the session
+  const sessionStartedRef = useRef(false)
+
+  // RTC references
   const pcRef = useRef<RTCPeerConnection | null>(null)
   const localStreamRef = useRef<MediaStream | null>(null)
   const remoteStreamRef = useRef<MediaStream | null>(null)
 
+  // For analyzing local microphone audio
   const userAnalyserRef = useRef<AnalyserNode | null>(null)
+  // For analyzing remote assistant audio
   const assistantAnalyserRef = useRef<AnalyserNode | null>(null)
+  // For automatically playing the remote audio
   const assistantAudioElRef = useRef<HTMLAudioElement | null>(null)
 
+  // =============================
+  //   CLEANUP ON UNMOUNT
+  // =============================
   useEffect(() => {
-    // We only want to init once, on mount:
-    initRealtimeSession()
-
-    // Clean up on unmount
     return () => {
       if (pcRef.current) {
         pcRef.current.close()
@@ -32,7 +42,20 @@ export const useRealtimeWebRTCAudioRuntime = () => {
     }
   }, [])
 
-  // The main async function to gather ephemeral key, create PC, do offer/answer, etc.
+  // =============================
+  //   SESSION INIT (LAZY)
+  // =============================
+  async function startSessionIfNeeded() {
+    // Avoid multiple inits
+    if (sessionStartedRef.current) return
+    sessionStartedRef.current = true
+    await initRealtimeSession()
+  }
+
+  /**
+   * The main async function to gather ephemeral key, create PC, do offer/answer, etc.
+   * Called exactly once (when user.start() is invoked the first time).
+   */
   async function initRealtimeSession() {
     try {
       // 1. Get ephemeral key from your server
@@ -49,10 +72,6 @@ export const useRealtimeWebRTCAudioRuntime = () => {
       audioEl.autoplay = true
       assistantAudioElRef.current = audioEl
 
-      // If you wanted to attach it to DOM, you'd do:
-      // document.body.appendChild(audioEl)
-      // But you can also just keep it in memory.
-
       // 4. Once we get a remote track, set the remote audio
       peerConn.ontrack = (evt) => {
         // Possibly multiple tracks, but we only expect one for audio
@@ -67,8 +86,7 @@ export const useRealtimeWebRTCAudioRuntime = () => {
         setAssistantAudioPlayed(true)
       }
 
-      // 5. Create a data channel if you want to send/receive “oai-events”
-      //    (not strictly required for just audio)
+      // 5. (Optional) Create a data channel if you want to send/receive “oai-events”
       const dc = peerConn.createDataChannel('oai-events')
       dc.onmessage = (e) => {
         console.log('[Realtime DC message]', e.data)
@@ -80,7 +98,7 @@ export const useRealtimeWebRTCAudioRuntime = () => {
       ms.getTracks().forEach((t) => {
         peerConn.addTrack(t, ms)
       })
-      // We set user status to "idle" => user hasn't started "recording" yet.
+      // We set user status to "idle" => user hasn't "recorded" yet
       setRecorderStatus('idle')
 
       // 7. Create the offer / set local desc
@@ -104,11 +122,11 @@ export const useRealtimeWebRTCAudioRuntime = () => {
       const answerSdp = await sdpResponse.text()
       const answer = {
         type: 'answer' as RTCSdpType,
-        sdp: answerSdp
+        sdp: answerSdp,
       }
       await peerConn.setRemoteDescription(answer)
 
-      // 10. Start building the analyzers for mic & remote audio if you want
+      // 10. Build analyzers for mic & remote audio
       buildAnalyzers(ms, audioEl)
 
       // Mark assistant no longer "pending" after successful handshake
@@ -138,13 +156,13 @@ export const useRealtimeWebRTCAudioRuntime = () => {
       micSource.connect(micAnalyser)
       userAnalyserRef.current = micAnalyser
 
-      // 2. remote (assistant) - let's wait for "canplay" to ensure audioEl has data
+      // 2. remote (assistant) - wait for "canplay" to ensure audioEl has data
       audioEl.addEventListener('canplay', () => {
         const audioCtx2 = new AudioContext()
         const remoteSource = audioCtx2.createMediaElementSource(audioEl)
         const remoteAnalyser = audioCtx2.createAnalyser()
         remoteSource.connect(remoteAnalyser)
-        // also connect to speaker
+        // Also connect to speaker
         remoteSource.connect(audioCtx2.destination)
         assistantAnalyserRef.current = remoteAnalyser
       })
@@ -153,52 +171,67 @@ export const useRealtimeWebRTCAudioRuntime = () => {
     }
   }
 
+  // =============================
+  //    THE RUNTIME
+  // =============================
   const runtime = useMemo(() => ({
+    // For your library, you might just return this object directly
+    // as the runtime, but I'm naming it explicitly here to highlight
+    // it's the "Realtime WebRTC" runtime shape.
     realtimeWebRtcAudioRuntime: {
       user: {
-        // For "start," we treat it as "recording" from the user perspective
         start: async () => {
+          // 1. If we haven't started the session, do so
+          await startSessionIfNeeded()
+          // 2. Now mark user as "recording"
           setRecorderStatus('recording')
-          // Possibly unmute the local track, if we’d muted it before
+          // Possibly unmute local track
           if (localStreamRef.current) {
-            localStreamRef.current.getAudioTracks().forEach(t => t.enabled = true)
+            localStreamRef.current.getAudioTracks().forEach((t) => (t.enabled = true))
           }
         },
         pause: async () => {
+          // If not started yet, no need
+          if (!sessionStartedRef.current) return
           setRecorderStatus('paused')
-          // Possibly just disable track if you want
           if (localStreamRef.current) {
-            localStreamRef.current.getAudioTracks().forEach(t => t.enabled = false)
+            localStreamRef.current.getAudioTracks().forEach((t) => (t.enabled = false))
           }
         },
         resume: async () => {
+          // If not started yet, no need
+          if (!sessionStartedRef.current) return
           setRecorderStatus('recording')
           if (localStreamRef.current) {
-            localStreamRef.current.getAudioTracks().forEach(t => t.enabled = true)
+            localStreamRef.current.getAudioTracks().forEach((t) => (t.enabled = true))
           }
         },
         stop: async () => {
+          // If not started yet, no need
+          if (!sessionStartedRef.current) return
           setRecorderStatus('stopped')
-          // Possibly close track or end them
+          // Possibly close local track
           if (localStreamRef.current) {
-            localStreamRef.current.getTracks().forEach(track => track.stop())
+            localStreamRef.current.getTracks().forEach((track) => track.stop())
           }
         },
         visualizationAnalyser: userAnalyserRef.current,
-        rawStatus: recorderStatus, // 'idle' | 'recording' | 'paused' | 'stopped'
+        rawStatus: recorderStatus,
       },
       assistant: {
         play: async () => {
-          // “Play” in Realtime basically means unpausing the remote track
+          // If not started, do so
+          await startSessionIfNeeded()
           setAssistantPaused(false)
           setAssistantPlaying(true)
           if (assistantAudioElRef.current) {
-            assistantAudioElRef.current.play().catch(err => {
+            assistantAudioElRef.current.play().catch((err) => {
               console.error('Assistant play error:', err)
             })
           }
         },
         pause: async () => {
+          if (!sessionStartedRef.current) return
           setAssistantPaused(true)
           setAssistantPlaying(false)
           if (assistantAudioElRef.current) {
@@ -206,7 +239,7 @@ export const useRealtimeWebRTCAudioRuntime = () => {
           }
         },
         stop: async () => {
-          // “Stop” might mean fully close the remote track
+          if (!sessionStartedRef.current) return
           setAssistantPaused(false)
           setAssistantPlaying(false)
           if (assistantAudioElRef.current) {

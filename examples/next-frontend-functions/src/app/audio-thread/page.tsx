@@ -5,28 +5,17 @@ import {
   SuperinterfaceProvider,
   AudioThread,
   AssistantNameContext,
-  useCreateMessage,
 } from '@superinterface/react'
-import { Theme, Button } from '@radix-ui/themes'
+import { Theme } from '@radix-ui/themes'
 import '@radix-ui/themes/styles.css'
 import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
 
-const ExampleButton = () => {
-  const { createMessage } = useCreateMessage()
-
+const Content = () => {
   return (
-    <Button
-      onClick={() => {
-        createMessage({
-          content: 'Hi',
-        })
-      }}
-    >
-      Hi
-    </Button>
+    <AudioThread />
   )
 }
 
@@ -59,8 +48,7 @@ export default function Page() {
           }}
         >
           <AssistantNameContext.Provider value="Annotations tester">
-            <ExampleButton />
-            <AudioThread />
+            <Content />
           </AssistantNameContext.Provider>
         </SuperinterfaceProvider>
       </Theme>
