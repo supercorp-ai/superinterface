@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
+import { threadCreated } from './threadEvents/threadCreated'
 
 export const useRealtimeWebRTCAudioRuntime = () => {
   // =============================
@@ -70,36 +71,25 @@ export const useRealtimeWebRTCAudioRuntime = () => {
         setAssistantAudioPlayed(true)
       }
 
-      const dc = peerConn.createDataChannel('other-events')
-
-      // dc.onmessage = (e) => {
-      //   console.log('[Realtime DC message]', e.data)
-      // }
-      //
-      // peerConn.ondatachannel = (event) => {
-      //   event.channel.onmessage = (e) => {
-      //     console.log('[Frontend] Received message:', e.data);
-      //   };
-      //
-      //   event.channel.onopen = () => {
-      //     console.log('[Frontend] Data Channel is open');
-      //   };
-      // };
-
-      // peerConn.ondatachannel = (event) => {
-      //   console.log({ event }, 'ondatachannel')
-      // }
+      // TODO: This is a hack to get the data channel to work
+      peerConn.createDataChannel('unused-data-channel-just-to-negotiate')
 
       peerConn.addEventListener('datachannel', (event) => {
-        console.log('datachannel event:', event)
+        const channel = event.channel
 
-        event.channel.onmessage = (e) => {
-          console.log('[Realtime DC message IN CHAN]', e.data)
+        if (channel.label === 'thread-events') {
+          event.channel.onmessage = ({ data }) => {
+            const parsedData = JSON.parse(data)
+            console.log({ parsedData })
+
+            if (parsedData.type === 'thread.created') {
+              threadCreated({
+                event: parsedData,
+                superinterfaceContext,
+              })
+            }
+          }
         }
-      })
-
-      dc.addEventListener('message', ({ data }) => {
-        console.log('[Realtime DC message in her3]', data)
       })
 
       const ms = await navigator.mediaDevices.getUserMedia({ audio: true })
