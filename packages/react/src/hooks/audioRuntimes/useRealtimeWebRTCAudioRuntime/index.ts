@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { threadCreated } from './threadEvents/threadCreated'
+import { variableParams } from '@/lib/threads/queryOptions/variableParams'
 
 export const useRealtimeWebRTCAudioRuntime = () => {
   // =============================
@@ -103,7 +104,10 @@ export const useRealtimeWebRTCAudioRuntime = () => {
       const offer = await peerConn.createOffer()
       await peerConn.setLocalDescription(offer)
 
-      const searchParams = new URLSearchParams(superinterfaceContext.variables)
+      const searchParams = new URLSearchParams(variableParams({
+        variables: superinterfaceContext.variables,
+        superinterfaceContext,
+      }))
 
       const sdpResponse = await fetch(`${superinterfaceContext.baseUrl}/audio-runtimes/webrtc?${searchParams}`, {
         method: 'POST',
