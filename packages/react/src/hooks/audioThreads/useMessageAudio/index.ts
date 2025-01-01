@@ -80,7 +80,7 @@ export const useMessageAudio = ({
       ...superinterfaceContext.variables,
     })
 
-    audioPlayer.load(`${superinterfaceContext.baseUrl}/tts?${searchParams}`, {
+    audioPlayer.load(`${superinterfaceContext.baseUrl}/audio-runtimes/tts?${searchParams}`, {
       format: 'mp3',
       autoplay: isAudioPlayed,
       html5: isHtmlAudioSupported,
@@ -98,7 +98,7 @@ export const useMessageAudio = ({
           ...superinterfaceContext.variables,
         })
 
-        nextAudioPlayer.load(`${superinterfaceContext.baseUrl}/tts?${nextSearchParams}`, {
+        nextAudioPlayer.load(`${superinterfaceContext.baseUrl}/audio-runtimes/tts?${nextSearchParams}`, {
           format: 'mp3',
           autoplay: false,
           html5: isHtmlAudioSupported,
