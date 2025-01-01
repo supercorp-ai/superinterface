@@ -11,6 +11,8 @@ export const useRealtimeWebRTCAudioRuntime = () => {
   const [recorderStatus, setRecorderStatus] = useState<'idle' | 'recording' | 'paused' | 'stopped'>('idle')
   const superinterfaceContext = useSuperinterfaceContext()
 
+  const [userIsPending, setUserIsPending] = useState(false)
+
   const [assistantPlaying, setAssistantPlaying] = useState(false)
   const [assistantPaused, setAssistantPaused] = useState(false)
   const [assistantIsPending, setAssistantIsPending] = useState(true)
@@ -53,6 +55,7 @@ export const useRealtimeWebRTCAudioRuntime = () => {
 
   async function initRealtimeSession() {
     try {
+      setUserIsPending(true)
       const peerConn = new RTCPeerConnection()
       pcRef.current = peerConn
 
@@ -67,7 +70,6 @@ export const useRealtimeWebRTCAudioRuntime = () => {
 
         // Update assistant side states
         setAssistantIsPending(false)
-        setAssistantIsReady(true)
         setAssistantPlaying(true)
         setAssistantPaused(false)
         setAssistantAudioPlayed(true)
@@ -132,11 +134,13 @@ export const useRealtimeWebRTCAudioRuntime = () => {
 
       buildAnalyzers(ms, audioEl)
 
+      setUserIsPending(false)
       setAssistantIsPending(false)
       setAssistantIsReady(true)
       setAssistantPlaying(true)
     } catch (err) {
       console.error('Error initRealtimeSession:', err)
+      setUserIsPending(false)
       setRecorderStatus('stopped')
       setAssistantPlaying(false)
       setAssistantPaused(false)
@@ -211,6 +215,7 @@ export const useRealtimeWebRTCAudioRuntime = () => {
             localStreamRef.current.getTracks().forEach((track) => track.stop())
           }
         },
+        isPending: userIsPending,
         visualizationAnalyser: userAnalyserRef.current,
         rawStatus: recorderStatus,
       },
@@ -254,6 +259,7 @@ export const useRealtimeWebRTCAudioRuntime = () => {
     },
   }), [
     recorderStatus,
+    userIsPending,
     assistantPlaying,
     assistantPaused,
     assistantIsPending,
