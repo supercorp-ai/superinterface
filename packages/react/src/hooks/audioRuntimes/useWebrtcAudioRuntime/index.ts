@@ -4,7 +4,7 @@ import { threadCreated } from '@/hooks/messages/useCreateMessage/lib/mutationOpt
 import { threadRunRequiresAction } from '@/hooks/messages/useCreateMessage/lib/mutationOptions/mutationFn/handleResponse/handlers/threadRunRequiresAction'
 import { variableParams } from '@/lib/threads/queryOptions/variableParams'
 
-export const useRealtimeWebRTCAudioRuntime = () => {
+export const useWebrtcAudioRuntime = () => {
   const [recorderStatus, setRecorderStatus] = useState<'idle' | 'recording' | 'paused' | 'stopped'>('idle')
   const superinterfaceContext = useSuperinterfaceContext()
 
@@ -161,7 +161,7 @@ export const useRealtimeWebRTCAudioRuntime = () => {
   }
 
   return useMemo(() => ({
-    realtimeWebRTCAudioRuntime: {
+    webrtcAudioRuntime: {
       user: {
         start: async () => {
           await startSessionIfNeeded()

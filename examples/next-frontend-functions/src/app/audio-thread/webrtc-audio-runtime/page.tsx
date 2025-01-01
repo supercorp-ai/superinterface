@@ -5,7 +5,7 @@ import {
   SuperinterfaceProvider,
   AudioThread,
   AssistantNameContext,
-  useRealtimeWebRTCAudioRuntime,
+  useWebrtcAudioRuntime,
 } from '@superinterface/react'
 import { Theme } from '@radix-ui/themes'
 import '@radix-ui/themes/styles.css'
@@ -15,11 +15,11 @@ import {
 } from '@tanstack/react-query'
 
 const Content = () => {
-  const { realtimeWebRTCAudioRuntime } = useRealtimeWebRTCAudioRuntime()
+  const { webrtcAudioRuntime } = useWebrtcAudioRuntime()
 
   return (
     <AudioThread
-      audioRuntime={realtimeWebRTCAudioRuntime}
+      audioRuntime={webrtcAudioRuntime}
     />
   )
 }

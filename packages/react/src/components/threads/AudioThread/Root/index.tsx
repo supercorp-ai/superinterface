@@ -6,7 +6,7 @@ import { AudioThreadContext } from '@/contexts/threads/AudioThreadContext'
 import { useAudioThreadContext } from '@/hooks/threads/useAudioThreadContext'
 import { ToastsProvider } from '@/components/toasts/ToastsProvider'
 import type { StyleProps, PlayArgs, AudioRuntime } from '@/types'
-import { useTtsAudioRuntime } from '@/hooks/audioRuntimes/useTtsAudioRuntime'
+import { TtsAudioRuntimeProvider } from '@/components/audioRuntimes/TtsAudioRuntimeProvider'
 
 export type Args = {
   children: React.ReactNode
@@ -30,28 +30,6 @@ const Content = ({
   </Flex>
 )
 
-const TtsAudioRuntime = ({
-  children,
-  play,
-}: {
-  children: React.ReactNode
-  play?: (args: PlayArgs) => void
-}) => {
-  const { ttsAudioRuntime } = useTtsAudioRuntime({
-    play,
-  })
-
-  return (
-    <AudioThreadContext.Provider
-      value={{
-        audioRuntime: ttsAudioRuntime,
-      }}
-    >
-      {children}
-    </AudioThreadContext.Provider>
-  )
-}
-
 const AudioRuntimeProvider = ({
   children,
   play,
@@ -66,9 +44,9 @@ const AudioRuntimeProvider = ({
   }
 
   return (
-    <TtsAudioRuntime play={play}>
+    <TtsAudioRuntimeProvider play={play}>
       {children}
-    </TtsAudioRuntime>
+    </TtsAudioRuntimeProvider>
   )
 }
 
