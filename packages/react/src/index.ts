@@ -21,7 +21,10 @@ export { AudioThread } from '@/components/threads/AudioThread'
 export { useAudioThreadContext } from '@/hooks/threads/useAudioThreadContext'
 
 export { useTtsAudioRuntime } from '@/hooks/audioRuntimes/useTtsAudioRuntime'
+export { TtsAudioRuntimeProvider } from '@/components/audioRuntimes/TtsAudioRuntimeProvider'
+
 export { useWebrtcAudioRuntime } from '@/hooks/audioRuntimes/useWebrtcAudioRuntime'
+export { WebrtcAudioRuntimeProvider } from '@/components/audioRuntimes/WebrtcAudioRuntimeProvider'
 
 export { Suggestions } from '@/components/suggestions/Suggestions'
 
