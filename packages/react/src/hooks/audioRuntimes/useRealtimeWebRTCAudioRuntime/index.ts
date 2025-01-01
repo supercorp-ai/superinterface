@@ -70,11 +70,33 @@ export const useRealtimeWebRTCAudioRuntime = () => {
         setAssistantAudioPlayed(true)
       }
 
-      const dc = peerConn.createDataChannel('oai-events')
+      const dc = peerConn.createDataChannel('other-events')
 
-      dc.onmessage = (e) => {
-        console.log('[Realtime DC message]', e.data)
-      }
+      // dc.onmessage = (e) => {
+      //   console.log('[Realtime DC message]', e.data)
+      // }
+      //
+      // peerConn.ondatachannel = (event) => {
+      //   event.channel.onmessage = (e) => {
+      //     console.log('[Frontend] Received message:', e.data);
+      //   };
+      //
+      //   event.channel.onopen = () => {
+      //     console.log('[Frontend] Data Channel is open');
+      //   };
+      // };
+
+      // peerConn.ondatachannel = (event) => {
+      //   console.log({ event }, 'ondatachannel')
+      // }
+
+      peerConn.addEventListener('datachannel', (event) => {
+        console.log('datachannel event:', event)
+
+        event.channel.onmessage = (e) => {
+          console.log('[Realtime DC message IN CHAN]', e.data)
+        }
+      })
 
       dc.addEventListener('message', ({ data }) => {
         console.log('[Realtime DC message in her3]', data)
