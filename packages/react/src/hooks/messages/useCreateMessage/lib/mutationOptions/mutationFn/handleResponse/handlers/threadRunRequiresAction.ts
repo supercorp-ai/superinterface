@@ -1,15 +1,11 @@
-import { QueryClient } from '@tanstack/react-query'
 import { ToolCall } from '@/types'
 import _ from 'lodash'
 import OpenAI from 'openai'
 import { map } from 'radash'
-import { MessagesQueryKey } from '@/types'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 
 export const threadRunRequiresAction = async ({
   value,
-  queryClient,
-  messagesQueryKey,
   superinterfaceContext,
 }: {
   value: OpenAI.Beta.Assistants.AssistantStreamEvent.ThreadRunRequiresAction & {
@@ -22,8 +18,6 @@ export const threadRunRequiresAction = async ({
       }
     }
   }
-  messagesQueryKey: MessagesQueryKey
-  queryClient: QueryClient
   superinterfaceContext: ReturnType<typeof useSuperinterfaceContext>
 }) => {
   // @ts-ignore-next-line

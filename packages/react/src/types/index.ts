@@ -95,3 +95,32 @@ export type PlayArgs = {
   onStop: () => void
   onEnd: () => void
 }
+
+export type UserAudioControls = {
+  start: () => Promise<void>
+  stop: () => Promise<void>
+  pause: () => Promise<void>
+  resume: () => Promise<void>
+  visualizationAnalyser: AnalyserNode | null
+
+  isPending: boolean
+  rawStatus?: string
+}
+
+export type AssistantAudioControls = {
+  play: () => void
+  pause: () => void
+  stop: () => void
+  visualizationAnalyser: AnalyserNode | null
+  playing: boolean
+  paused: boolean
+  isPending: boolean
+  isReady: boolean
+  isAudioPlayed: boolean
+  rawStatus?: string
+}
+
+export type AudioRuntime = {
+  user: UserAudioControls
+  assistant: AssistantAudioControls
+}

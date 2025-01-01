@@ -205,7 +205,9 @@ export const useMessageAudio = ({
     return result
   }, [audioEngine])
 
-  const isPending = useMemo(() => isPlaying || unplayedMessageSentences.length > 0, [isPlaying, unplayedMessageSentences])
+  const isPending = useMemo(() => (
+    isPlaying || unplayedMessageSentences.length > 0 || latestMessageProps.latestMessage?.status === 'in_progress'
+  ), [isPlaying, unplayedMessageSentences, latestMessageProps])
 
   return {
     isPending,

@@ -1,11 +1,11 @@
-import { useAudioThreadContext } from '@/hooks/threads/useAudioThreadContext'
 import type { StyleProps } from '@/types'
+import { useStatus } from '@/hooks/audioThreads/useStatus'
 import { StatusMessages } from './StatusMessages'
 
 export const Status = (props: StyleProps) => {
-  const audioThreadContext = useAudioThreadContext()
+  const { status } = useStatus()
 
-  if (audioThreadContext.status === 'recording') {
+  if (status === 'recording') {
     return (
       <StatusMessages
         texts={[
@@ -19,7 +19,7 @@ export const Status = (props: StyleProps) => {
     )
   }
 
-  if (['recorderPaused', 'idle', 'playerPaused'].includes(audioThreadContext.status)) {
+  if (['recorderPaused', 'idle', 'playerPaused'].includes(status)) {
     return (
       <StatusMessages
         texts={[
@@ -30,7 +30,7 @@ export const Status = (props: StyleProps) => {
     )
   }
 
-  if (audioThreadContext.status === 'playing') {
+  if (status === 'playing') {
     return (
       <StatusMessages
         texts={[

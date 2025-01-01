@@ -6,9 +6,11 @@ import { Name } from '@/components/messageGroups/MessageGroupBase/Name'
 import { AssistantNameContext } from '@/contexts/assistants/AssistantNameContext'
 import { useAudioThreadContext } from '@/hooks/threads/useAudioThreadContext'
 import { BarsVisualizer } from '@/components/threads/AudioThread/BarsVisualizer'
+import { useStatus } from '@/hooks/audioThreads/useStatus'
 import type { StyleProps } from '@/types'
 
 export const Visualization = (props: StyleProps) => {
+  const { status } = useStatus()
   const audioThreadContext = useAudioThreadContext()
   const assistantNameContext = useContext(AssistantNameContext)
   const [scale, setScale] = useState(0)
@@ -28,7 +30,7 @@ export const Visualization = (props: StyleProps) => {
   }, [])
 
   useEffect(() => {
-    draw({ visualizationAnalyser: audioThreadContext.recorderProps.visualizationAnalyser })
+    draw({ visualizationAnalyser: audioThreadContext.audioRuntime.user.visualizationAnalyser })
   }, [draw, audioThreadContext])
 
   return (
@@ -46,14 +48,14 @@ export const Visualization = (props: StyleProps) => {
         height="200px"
         width="200px"
         style={{
-          backgroundColor: audioThreadContext.status === 'playing' ? 'var(--accent-4)' : 'var(--gray-4)',
+          backgroundColor: status === 'playing' ? 'var(--accent-4)' : 'var(--gray-4)',
           borderRadius: '9999px',
           scale,
         }}
       >
         <BarsVisualizer
-          visualizationAnalyser={audioThreadContext.messageAudioProps.visualizationAnalyser}
-          backgroundColor={audioThreadContext.status === 'playing' ? 'var(--accent-11)' : 'var(--gray-11)'}
+          visualizationAnalyser={audioThreadContext.audioRuntime.assistant.visualizationAnalyser}
+          backgroundColor={status === 'playing' ? 'var(--accent-11)' : 'var(--gray-11)'}
           height="40px"
           barWidth="24px"
         />

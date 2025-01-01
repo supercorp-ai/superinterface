@@ -1,30 +1,32 @@
 'use client'
+
 import { createContext } from 'react'
-import { statusMessages } from '@/hooks/audioThreads/useStatus/lib/statusMessages'
-import { useRecorder } from '@/hooks/audioThreads/useRecorder'
-import { useMessageAudio } from '@/hooks/audioThreads/useMessageAudio'
+import type { AudioRuntime } from '@/types'
 
 export const AudioThreadContext = createContext<{
-  status: keyof typeof statusMessages
-  recorderProps: ReturnType<typeof useRecorder>
-  messageAudioProps: ReturnType<typeof useMessageAudio>
+  audioRuntime: AudioRuntime
 }>({
-  status: 'idle',
-  recorderProps: {
-    status: 'idle',
-    start: async () => {},
-    stop: async () => {},
-    pause: async () => {},
-    resume: async () => {},
-    visualizationAnalyser: null,
-  },
-  // @ts-ignore-next-line
-  messageAudioProps: {
-    visualizationAnalyser: null,
-    playing: false,
-    paused: false,
-    isReady: false,
-    play: async () => {},
-    pause: async () => {},
+  audioRuntime: {
+    user: {
+      start: async () => {},
+      stop: async () => {},
+      pause: async () => {},
+      resume: async () => {},
+      visualizationAnalyser: null,
+      isPending: false,
+      rawStatus: 'idle',
+    },
+    assistant: {
+      play: () => {},
+      playing: false,
+      paused: false,
+      isPending: false,
+      isReady: false,
+      isAudioPlayed: false,
+      stop: () => {},
+      pause: () => {},
+      visualizationAnalyser: null,
+      rawStatus: 'idle',
+    },
   },
 })
