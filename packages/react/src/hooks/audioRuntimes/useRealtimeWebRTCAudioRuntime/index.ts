@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
-import { threadCreated } from './threadEvents/threadCreated'
+import { threadCreated } from '@/hooks/messages/useCreateMessage/lib/mutationOptions/mutationFn/handleResponse/handlers/threadCreated'
+import { threadRunRequiresAction } from '@/hooks/messages/useCreateMessage/lib/mutationOptions/mutationFn/handleResponse/handlers/threadRunRequiresAction'
 import { variableParams } from '@/lib/threads/queryOptions/variableParams'
 
 export const useRealtimeWebRTCAudioRuntime = () => {
@@ -73,19 +74,24 @@ export const useRealtimeWebRTCAudioRuntime = () => {
       }
 
       // TODO: This is a hack to get the data channel to work
-      peerConn.createDataChannel('unused-data-channel-just-to-negotiate')
+      peerConn.createDataChannel('unused-negotiation-only')
 
       peerConn.addEventListener('datachannel', (event) => {
         const channel = event.channel
 
         if (channel.label === 'thread-events') {
-          event.channel.onmessage = ({ data }) => {
+          channel.onmessage = ({ data }) => {
+            console.log('Data channel message:', data)
             const parsedData = JSON.parse(data)
-            console.log({ parsedData })
 
-            if (parsedData.type === 'thread.created') {
+            if (parsedData.event === 'thread.created') {
               threadCreated({
-                event: parsedData,
+                value: parsedData,
+                superinterfaceContext,
+              })
+            } else if (parsedData.event === 'thread.run.requires_action') {
+              threadRunRequiresAction({
+                value: parsedData,
                 superinterfaceContext,
               })
             }
