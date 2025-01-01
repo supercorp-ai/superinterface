@@ -104,8 +104,6 @@ export type UserAudioControls = {
   visualizationAnalyser: AnalyserNode | null
 
   isPending: boolean
-
-  /** Possibly a raw 'recorder' status for internal reference, e.g. 'idle', 'recording' */
   rawStatus?: string
 }
 
@@ -114,15 +112,11 @@ export type AssistantAudioControls = {
   pause: () => void
   stop: () => void
   visualizationAnalyser: AnalyserNode | null
-
-  /** Flags that your code references to figure out if it's playing, paused, loaded, etc. */
   playing: boolean
   paused: boolean
   isPending: boolean
   isReady: boolean
   isAudioPlayed: boolean
-
-  /** Possibly a raw 'assistant' status for internal reference, e.g. 'idle', 'loading', 'playing' */
   rawStatus?: string
 }
 
