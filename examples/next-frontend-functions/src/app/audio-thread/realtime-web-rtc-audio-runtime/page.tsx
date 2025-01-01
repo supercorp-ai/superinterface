@@ -50,10 +50,10 @@ export default function Page() {
           baseUrl="http://localhost:3000/api/cloud"
           variables={{
             publicApiKey: '37245be8-902a-440e-aaae-c56151fe8acc',
-            assistantId: '13b80702-9d30-44db-84b6-85764921f00c',
+            assistantId: '1e5e718b-d94c-4362-b4a5-8401583b958a',
           }}
         >
-          <AssistantNameContext.Provider value="Annotations tester">
+          <AssistantNameContext.Provider value="Realtime tester">
             <Content />
           </AssistantNameContext.Provider>
         </SuperinterfaceProvider>

@@ -71,9 +71,14 @@ export const useRealtimeWebRTCAudioRuntime = () => {
       }
 
       const dc = peerConn.createDataChannel('oai-events')
+
       dc.onmessage = (e) => {
         console.log('[Realtime DC message]', e.data)
       }
+
+      dc.addEventListener('message', ({ data }) => {
+        console.log('[Realtime DC message in her3]', data)
+      })
 
       const ms = await navigator.mediaDevices.getUserMedia({ audio: true })
       localStreamRef.current = ms
