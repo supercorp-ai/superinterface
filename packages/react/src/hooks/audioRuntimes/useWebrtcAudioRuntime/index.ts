@@ -47,7 +47,20 @@ export const useWebrtcAudioRuntime = () => {
   async function initRealtimeSession() {
     try {
       setUserIsPending(true)
-      const peerConn = new RTCPeerConnection()
+
+      const iceServers = [
+        {
+          url: 'stun:global.stun.twilio.com:3478',
+          urls: 'stun:global.stun.twilio.com:3478'
+        },
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' },
+        { urls: 'stun:stun4.l.google.com:19302' },
+        { urls: 'stun:stun.stunprotocol.org:3478' },
+      ]
+
+      const peerConn = new RTCPeerConnection({ iceServers })
       pcRef.current = peerConn
 
       const audioEl = document.createElement('audio')
