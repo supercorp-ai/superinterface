@@ -48,19 +48,28 @@ export const useWebrtcAudioRuntime = () => {
     try {
       setUserIsPending(true)
 
-      const iceServers = [
-        {
-          url: 'stun:global.stun.twilio.com:3478',
-          urls: 'stun:global.stun.twilio.com:3478'
-        },
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' },
-        { urls: 'stun:stun2.l.google.com:19302' },
-        { urls: 'stun:stun4.l.google.com:19302' },
-        { urls: 'stun:stun.stunprotocol.org:3478' },
-      ]
+      const searchParams = new URLSearchParams(variableParams({
+        variables: superinterfaceContext.variables,
+        superinterfaceContext,
+      }))
 
-      const peerConn = new RTCPeerConnection({ iceServers })
+
+      const iceServersResponse = await fetch(
+        `${superinterfaceContext.baseUrl}/audio-runtimes/webrtc/ice-servers?${searchParams}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+
+      const iceServersData = await iceServersResponse.json()
+
+      const peerConn = new RTCPeerConnection({
+        iceServers: iceServersData.iceServers,
+      })
+
       pcRef.current = peerConn
 
       const audioEl = document.createElement('audio')
@@ -113,11 +122,6 @@ export const useWebrtcAudioRuntime = () => {
 
       const offer = await peerConn.createOffer()
       await peerConn.setLocalDescription(offer)
-
-      const searchParams = new URLSearchParams(variableParams({
-        variables: superinterfaceContext.variables,
-        superinterfaceContext,
-      }))
 
       const sdpResponse = await fetch(`${superinterfaceContext.baseUrl}/audio-runtimes/webrtc?${searchParams}`, {
         method: 'POST',
