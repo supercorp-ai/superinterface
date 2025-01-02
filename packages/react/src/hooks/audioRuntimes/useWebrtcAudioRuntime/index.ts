@@ -114,7 +114,28 @@ export const useWebrtcAudioRuntime = () => {
         },
       })
 
-      const answerSdp = await sdpResponse.text()
+      if (!sdpResponse.ok) {
+        throw new Error(`Server responded with status ${sdpResponse.status}`)
+      }
+
+      if (!sdpResponse.body) {
+        throw new Error('ReadableStream not supported in this browser.')
+      }
+
+      const reader = sdpResponse.body.getReader()
+      const decoder = new TextDecoder('utf-8')
+      let answerSdp = ''
+
+      // Read the first chunk
+      const { value, done } = await reader.read()
+
+      if (done) {
+        throw new Error('Stream closed before SDP was received')
+      }
+
+      // Decode the SDP
+      answerSdp += decoder.decode(value, { stream: true })
+      console.log('Received SDP Answer:', answerSdp)
       const answer = {
         type: 'answer' as RTCSdpType,
         sdp: answerSdp,
