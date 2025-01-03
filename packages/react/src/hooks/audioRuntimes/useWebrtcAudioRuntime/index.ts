@@ -4,6 +4,69 @@ import { threadCreated } from '@/hooks/messages/useCreateMessage/lib/mutationOpt
 import { threadRunRequiresAction } from '@/hooks/messages/useCreateMessage/lib/mutationOptions/mutationFn/handleResponse/handlers/threadRunRequiresAction'
 import { variableParams } from '@/lib/threads/queryOptions/variableParams'
 
+const sentTypes = [
+  'session.created',
+  'response.done',
+  'conversation.item.input_audio_transcription.completed',
+]
+
+const handleThreadEvent = ({
+  event,
+  superinterfaceContext,
+}: {
+  event: Event
+  superinterfaceContext: ReturnType<typeof useSuperinterfaceContext>
+}) => {
+  if (event.data.event === 'thread.created') {
+    threadCreated({
+      value: event.data,
+      superinterfaceContext,
+    })
+  } else if (event.data.event === 'thread.run.requires_action') {
+    threadRunRequiresAction({
+      value: event.data,
+      superinterfaceContext,
+    })
+  }
+}
+
+type Event = {
+  type: 'openaiEvent' | 'threadEvent'
+  data: any
+}
+
+const handleOpenaiEvent = ({
+  event,
+  openaiEventsDataChannel,
+}: {
+  event: Event
+  openaiEventsDataChannel: RTCDataChannel
+}) => {
+  openaiEventsDataChannel.send(JSON.stringify(event.data))
+}
+
+const handleEvent = ({
+  event,
+  superinterfaceContext,
+  openaiEventsDataChannel,
+}: {
+  event: Event
+  superinterfaceContext: ReturnType<typeof useSuperinterfaceContext>
+  openaiEventsDataChannel: RTCDataChannel
+}) => {
+  if (event.type === 'openaiEvent') {
+    return handleOpenaiEvent({
+      event,
+      openaiEventsDataChannel,
+    })
+  } else if (event.type === 'threadEvent') {
+    return handleThreadEvent({
+      event,
+      superinterfaceContext,
+    })
+  }
+}
+
 export const useWebrtcAudioRuntime = () => {
   const [recorderStatus, setRecorderStatus] = useState<'idle' | 'recording' | 'paused' | 'stopped'>('idle')
   const superinterfaceContext = useSuperinterfaceContext()
@@ -53,23 +116,7 @@ export const useWebrtcAudioRuntime = () => {
         superinterfaceContext,
       }))
 
-
-      const iceServersResponse = await fetch(
-        `${superinterfaceContext.baseUrl}/audio-runtimes/webrtc/ice-servers?${searchParams}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-
-      const iceServersData = await iceServersResponse.json()
-
-      const peerConn = new RTCPeerConnection({
-        iceServers: iceServersData.iceServers,
-      })
-
+      const peerConn = new RTCPeerConnection()
       pcRef.current = peerConn
 
       const audioEl = document.createElement('audio')
@@ -86,29 +133,58 @@ export const useWebrtcAudioRuntime = () => {
         setAssistantAudioPlayed(true)
       }
 
-      // TODO: This is a hack to get the data channel to work
-      peerConn.createDataChannel('unused-negotiation-only')
+      const openaiEventsDataChannel = peerConn.createDataChannel('oai-events')
+      openaiEventsDataChannel.addEventListener('message', async (e) => {
+        const parsedData = JSON.parse(e.data)
 
-      peerConn.addEventListener('datachannel', (event) => {
-        const channel = event.channel
+        if (!sentTypes.includes(parsedData.type)) return;
 
-        if (channel.label === 'thread-events') {
-          channel.onmessage = ({ data }) => {
-            console.log('Data channel message:', data)
-            const parsedData = JSON.parse(data)
+        const eventsResponse = await fetch(`${superinterfaceContext.baseUrl}/audio-runtimes/webrtc/events?${searchParams}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: e.data,
+        })
 
-            if (parsedData.event === 'thread.created') {
-              threadCreated({
-                value: parsedData,
-                superinterfaceContext,
-              })
-            } else if (parsedData.event === 'thread.run.requires_action') {
-              threadRunRequiresAction({
-                value: parsedData,
-                superinterfaceContext,
-              })
+        if (!eventsResponse.body) {
+          throw new Error('No body in events response')
+        }
+
+        const reader = eventsResponse.body.getReader()
+
+        const decoder = new TextDecoder('utf-8')
+        let { value, done } = await reader.read()
+        let buffer = ''
+
+        while (!done) {
+          // Decode the current chunk and add it to the buffer
+          buffer += decoder.decode(value, { stream: true })
+
+          // Split the buffer by newline to get complete JSON objects
+          const lines = buffer.split('\n')
+
+          // Keep the last partial line in the buffer
+          buffer = lines.pop() || ''
+
+          for (const line of lines) {
+            if (line.trim()) {
+              try {
+                const event = JSON.parse(line)
+
+                handleEvent({
+                  event,
+                  superinterfaceContext,
+                  openaiEventsDataChannel,
+                })
+              } catch (error) {
+                console.error('JSON parse error:', error, 'Line:', line);
+              }
             }
           }
+
+          // Read the next chunk
+          ({ value, done } = await reader.read())
         }
       })
 
@@ -135,24 +211,8 @@ export const useWebrtcAudioRuntime = () => {
         throw new Error(`Server responded with status ${sdpResponse.status}`)
       }
 
-      if (!sdpResponse.body) {
-        throw new Error('ReadableStream not supported in this browser.')
-      }
+      const answerSdp = await sdpResponse.text()
 
-      const reader = sdpResponse.body.getReader()
-      const decoder = new TextDecoder('utf-8')
-      let answerSdp = ''
-
-      // Read the first chunk
-      const { value, done } = await reader.read()
-
-      if (done) {
-        throw new Error('Stream closed before SDP was received')
-      }
-
-      // Decode the SDP
-      answerSdp += decoder.decode(value, { stream: true })
-      console.log('Received SDP Answer:', answerSdp)
       const answer = {
         type: 'answer' as RTCSdpType,
         sdp: answerSdp,
