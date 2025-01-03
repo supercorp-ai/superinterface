@@ -111,11 +111,6 @@ export const useWebrtcAudioRuntime = () => {
     try {
       setUserIsPending(true)
 
-      const searchParams = new URLSearchParams(variableParams({
-        variables: superinterfaceContext.variables,
-        superinterfaceContext,
-      }))
-
       const peerConn = new RTCPeerConnection()
       pcRef.current = peerConn
 
@@ -138,6 +133,11 @@ export const useWebrtcAudioRuntime = () => {
         const parsedData = JSON.parse(e.data)
 
         if (!sentTypes.includes(parsedData.type)) return;
+
+        const searchParams = new URLSearchParams(variableParams({
+          variables: superinterfaceContext.variables,
+          superinterfaceContext,
+        }))
 
         const eventsResponse = await fetch(`${superinterfaceContext.baseUrl}/audio-runtimes/webrtc/events?${searchParams}`, {
           method: 'POST',
@@ -198,6 +198,11 @@ export const useWebrtcAudioRuntime = () => {
 
       const offer = await peerConn.createOffer()
       await peerConn.setLocalDescription(offer)
+
+      const searchParams = new URLSearchParams(variableParams({
+        variables: superinterfaceContext.variables,
+        superinterfaceContext,
+      }))
 
       const sdpResponse = await fetch(`${superinterfaceContext.baseUrl}/audio-runtimes/webrtc?${searchParams}`, {
         method: 'POST',
