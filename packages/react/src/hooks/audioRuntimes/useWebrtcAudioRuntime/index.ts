@@ -133,6 +133,7 @@ export const useWebrtcAudioRuntime = () => {
         const parsedData = JSON.parse(e.data)
 
         if (!sentTypes.includes(parsedData.type)) return;
+        if (parsedData.type === 'response.done' && parsedData.response.status !== 'completed') return
 
         const searchParams = new URLSearchParams(variableParams({
           variables: superinterfaceContext.variables,
