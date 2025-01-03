@@ -264,69 +264,49 @@ export const useWebrtcAudioRuntime = () => {
     }
   }
 
+  const start = async () => {
+    await startSessionIfNeeded()
+    setAssistantPaused(false)
+    setAssistantPlaying(true)
+
+    if (assistantAudioElRef.current) {
+      assistantAudioElRef.current.play().catch((err) => {
+        console.error('Assistant play error:', err)
+      })
+    }
+
+    if (localStreamRef.current) {
+      localStreamRef.current.getAudioTracks().forEach((t) => t.enabled = true)
+    }
+  }
+
+  const pause = async () => {
+    if (!sessionStartedRef.current) return
+
+    setAssistantPaused(true)
+    setAssistantPlaying(false)
+
+    if (localStreamRef.current) {
+      localStreamRef.current.getAudioTracks().forEach((t) => t.enabled = false)
+    }
+  }
+
+
   return useMemo(() => ({
     webrtcAudioRuntime: {
       user: {
-        start: async () => {
-          await startSessionIfNeeded()
-          setRecorderStatus('recording')
-          if (localStreamRef.current) {
-            localStreamRef.current.getAudioTracks().forEach((t) => (t.enabled = true))
-          }
-        },
-        pause: async () => {
-          if (!sessionStartedRef.current) return
-          setRecorderStatus('paused')
-          if (localStreamRef.current) {
-            localStreamRef.current.getAudioTracks().forEach((t) => (t.enabled = false))
-          }
-        },
-        resume: async () => {
-          if (!sessionStartedRef.current) return
-          setRecorderStatus('recording')
-          if (localStreamRef.current) {
-            localStreamRef.current.getAudioTracks().forEach((t) => (t.enabled = true))
-          }
-        },
-        stop: async () => {
-          if (!sessionStartedRef.current) return
-          setRecorderStatus('stopped')
-          if (localStreamRef.current) {
-            localStreamRef.current.getTracks().forEach((track) => track.stop())
-          }
-        },
+        start: async () => {},
+        pause,
+        resume: start,
+        stop: pause,
         isPending: userIsPending,
         visualizationAnalyser: userAnalyserRef.current,
         rawStatus: recorderStatus,
       },
       assistant: {
-        play: async () => {
-          await startSessionIfNeeded()
-          setAssistantPaused(false)
-          setAssistantPlaying(true)
-          if (assistantAudioElRef.current) {
-            assistantAudioElRef.current.play().catch((err) => {
-              console.error('Assistant play error:', err)
-            })
-          }
-        },
-        pause: async () => {
-          if (!sessionStartedRef.current) return
-          setAssistantPaused(true)
-          setAssistantPlaying(false)
-          if (assistantAudioElRef.current) {
-            assistantAudioElRef.current.pause()
-          }
-        },
-        stop: async () => {
-          if (!sessionStartedRef.current) return
-          setAssistantPaused(false)
-          setAssistantPlaying(false)
-          if (assistantAudioElRef.current) {
-            assistantAudioElRef.current.pause()
-            assistantAudioElRef.current.currentTime = 0
-          }
-        },
+        play: start,
+        pause,
+        stop: pause,
         visualizationAnalyser: assistantAnalyserRef.current,
         playing: assistantPlaying,
         paused: assistantPaused,
