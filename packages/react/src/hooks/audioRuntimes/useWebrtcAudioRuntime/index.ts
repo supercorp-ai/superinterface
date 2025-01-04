@@ -30,6 +30,18 @@ const handleThreadEvent = ({
   }
 }
 
+const createAnalyser = ({
+  mediaStream,
+}: {
+  mediaStream: MediaStream
+}) => {
+  const audioCtx = new AudioContext()
+  const source = audioCtx.createMediaStreamSource(mediaStream)
+  const analyser = audioCtx.createAnalyser()
+  source.connect(analyser)
+  return analyser
+}
+
 type Event = {
   type: 'openaiEvent' | 'threadEvent'
   data: any
@@ -225,7 +237,10 @@ export const useWebrtcAudioRuntime = () => {
       }
       await peerConn.setRemoteDescription(answer)
 
-      buildAnalyzers(ms, audioEl)
+      buildAnalyzers({
+        localStream: ms,
+        remoteStream: remoteStreamRef.current!,
+      })
 
       setUserIsPending(false)
       setAssistantIsPending(false)
@@ -243,22 +258,16 @@ export const useWebrtcAudioRuntime = () => {
     }
   }
 
-  function buildAnalyzers(localStream: MediaStream, audioEl: HTMLAudioElement) {
+  function buildAnalyzers({
+    localStream,
+    remoteStream,
+  }: {
+    localStream: MediaStream
+    remoteStream: MediaStream
+  }) {
     try {
-      const audioCtx1 = new AudioContext()
-      const micSource = audioCtx1.createMediaStreamSource(localStream)
-      const micAnalyser = audioCtx1.createAnalyser()
-      micSource.connect(micAnalyser)
-      userAnalyserRef.current = micAnalyser
-
-      audioEl.addEventListener('canplay', () => {
-        const audioCtx2 = new AudioContext()
-        const remoteSource = audioCtx2.createMediaElementSource(audioEl)
-        const remoteAnalyser = audioCtx2.createAnalyser()
-        remoteSource.connect(remoteAnalyser)
-        remoteSource.connect(audioCtx2.destination)
-        assistantAnalyserRef.current = remoteAnalyser
-      })
+      userAnalyserRef.current = createAnalyser({ mediaStream: localStream })
+      assistantAnalyserRef.current = createAnalyser({ mediaStream: remoteStream })
     } catch (err) {
       console.warn('Could not build analyzers:', err)
     }
