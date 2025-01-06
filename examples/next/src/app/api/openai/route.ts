@@ -6,7 +6,7 @@ import {
 
 export const GET = async () => {
   const client = new OpenAI({
-    apiKey: process.env.RENAMED_OPENAI_API_KEY,
+    // apiKey: process.env.RENAMED_OPENAI_API_KEY,
   })
 
   const pageParam = null
