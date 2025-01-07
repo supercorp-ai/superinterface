@@ -6,7 +6,7 @@ import {
 
 export const GET = async () => {
   const client = new OpenAI({
-    apiKey: '123',
+    apiKey: 'sk-proj-11111111111111111111',
   })
 
   const pageParam = null
