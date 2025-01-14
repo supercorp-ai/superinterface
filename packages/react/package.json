@@ -1,6 +1,6 @@
 {
   "name": "@superinterface/react",
-  "version": "3.14.4",
+  "version": "3.14.5",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -34,7 +34,7 @@
     "howler": "^2.2.4",
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",
-    "openai": "^4.77.0",
+    "openai": "^4.78.1",
     "p-map": "^7.0.3",
     "radash": "^12.1.0",
     "react-children-utilities": "^2.10.0",
