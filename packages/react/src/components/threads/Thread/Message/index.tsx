@@ -10,7 +10,7 @@ import { RunSteps } from '@/components/runSteps/RunSteps'
 import { useIsMutatingMessage } from '@/hooks/messages/useIsMutatingMessage'
 import { Provider } from './Provider'
 import { Attachments } from './Attachments'
-import { ContentPart } from './ContentPart'
+import { MessageContent } from '@/components/messages/MessageContent'
 import type { StyleProps } from '@/types'
 
 type Args = {
@@ -78,12 +78,9 @@ export const Message = ({
             message={message}
           />
 
-          {message.content.map((content, index) => (
-            <ContentPart
-              key={index}
-              content={content}
-            />
-          ))}
+          <MessageContent
+            message={message}
+          />
 
           {isInProgress && isEmpty(laterRunSteps) && (
             <StartingContentSkeleton />

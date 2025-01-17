@@ -47,3 +47,5 @@ export { useComponents } from '@/hooks/components/useComponents'
 
 export { RunStep } from '@/components/runSteps/RunStep'
 export { AssistantProvider } from '@/components/assistants/AssistantProvider'
+
+export { MessageContent } from '@/components/messages/MessageContent'
