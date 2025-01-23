@@ -1,12 +1,35 @@
+import { isArray } from 'radash'
 import dayjs from 'dayjs'
 import OpenAI from 'openai'
 import { optimisticId } from '@/lib/optimistic/optimisticId'
 
+type NewMessage = {
+  content: string
+  attachments: OpenAI.Beta.Threads.Messages.Message['attachments'] | undefined
+}
+
 type Args = {
-  newMessage: {
-    content: string
-    attachments: OpenAI.Beta.Threads.Messages.Message['attachments'] | undefined
+  newMessage: NewMessage
+}
+
+const content = ({
+  newMessage,
+}: {
+  newMessage: NewMessage
+}) => {
+  if (isArray(newMessage.content)) {
+    return newMessage.content
   }
+
+  return [
+    {
+      type: 'text',
+      text: {
+        annotations: [],
+        value: newMessage.content,
+      },
+    } as OpenAI.Beta.Threads.Messages.TextContentBlock,
+  ]
 }
 
 export const data = ({
@@ -17,15 +40,7 @@ export const data = ({
     role: 'user' as OpenAI.Beta.Threads.Messages.Message['role'],
     created_at: dayjs().unix(),
     object: 'thread.message' as OpenAI.Beta.Threads.Messages.Message['object'],
-    content: [
-      {
-        type: 'text',
-        text: {
-          annotations: [],
-          value: newMessage.content,
-        },
-      } as OpenAI.Beta.Threads.Messages.TextContentBlock,
-    ],
+    content: content({ newMessage }),
     run_id: null,
     assistant_id: null,
     thread_id: null,
