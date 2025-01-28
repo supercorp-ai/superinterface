@@ -123,7 +123,17 @@ export const useWebrtcAudioRuntime = () => {
     try {
       setUserIsPending(true)
 
-      const peerConn = new RTCPeerConnection()
+      const peerConn = new RTCPeerConnection({
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' },
+          { urls: 'stun:stun2.l.google.com:19302' },
+          { urls: 'stun:stun3.l.google.com:19302' },
+          { urls: 'stun:stun4.l.google.com:19302' },
+          { urls: 'stun:global.stun.twilio.com:3478?transport=udp' },
+        ],
+      })
+
       pcRef.current = peerConn
 
       const audioEl = document.createElement('audio')
