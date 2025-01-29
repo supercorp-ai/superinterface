@@ -60,6 +60,19 @@ const EmailDraft = ({ subject = '', children }: EmailDraftProps) => {
   )
 }
 
+const Input = (props: any) => {
+  console.log(props)
+  return 'Input'
+}
+
+const Form = (props: any) => {
+  return (
+    <>
+      {props.children}
+    </>
+  )
+}
+
 export default function Page() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -82,7 +95,7 @@ export default function Page() {
           }}
         >
           <AssistantProvider>
-            <MarkdownProvider components={{ EmailDraft }}>
+            <MarkdownProvider components={{ EmailDraft, Input, Form }}>
               <Thread />
             </MarkdownProvider>
           </AssistantProvider>
