@@ -96,6 +96,15 @@ const isNodePureLiteral = (node: Babel.Node | null | undefined): boolean => {
   ) {
     return true
   }
+
+  if (Babel.isTemplateLiteral(node)) {
+    if (node.expressions.length === 0) {
+      return true
+    }
+
+    return false
+  }
+
   if (Babel.isObjectExpression(node)) {
     return node.properties.every(
       (prop) =>
