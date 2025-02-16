@@ -6,7 +6,11 @@ export const ListItem = ({ children }: JSX.IntrinsicElements['li']) => (
   <Box
     pb="1"
   >
-    <li>
+    <li
+      style={{
+        wordBreak: 'break-word',
+      }}
+    >
       {children}
     </li>
   </Box>
