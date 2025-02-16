@@ -73,7 +73,11 @@ export const Message = ({
           runSteps={olderRunSteps}
         />
 
-        <Box>
+        <Box
+          style={{
+            wordBreak: 'break-word',
+          }}
+        >
           <Attachments
             message={message}
           />
