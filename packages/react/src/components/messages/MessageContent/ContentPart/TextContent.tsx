@@ -6,6 +6,7 @@ import { MDXProvider, useMDXComponents } from '@mdx-js/react'
 import * as runtime from 'react/jsx-runtime'
 import { recmaFallbackComponentPlugin } from '@/lib/recma/recmaFallbackComponentPlugin'
 import { useMarkdownContext } from '@/hooks/markdown/useMarkdownContext'
+import { escapeInvalidTagNames } from '@/lib/markdown/escapeInvalidTagNames'
 import { ErrorBoundary } from 'react-error-boundary'
 
 const evaluate = async ({
@@ -30,7 +31,7 @@ export const TextContent = ({
   useEffect(() => {
     const compileMDX = async () => {
       try {
-        const compiled = await compile(content.text.value, {
+        const compiled = await compile(escapeInvalidTagNames(content.text.value), {
           outputFormat: 'function-body',
           remarkPlugins,
           recmaPlugins: [

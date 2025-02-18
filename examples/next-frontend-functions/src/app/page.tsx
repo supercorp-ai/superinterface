@@ -5,14 +5,18 @@ import {
   Thread,
   AssistantProvider,
   MarkdownProvider,
+  useCreateMessage,
+  useSuperinterfaceContext,
 } from '@superinterface/react'
-import { Theme, Card, Flex, Text, Button, TextArea } from '@radix-ui/themes'
+import '@radix-ui/themes/styles.css'
+import { EnvelopeOpenIcon, ExternalLinkIcon } from '@radix-ui/react-icons'
+import { Theme, Card, Flex, Text, Button, TextArea, Grid, Link } from '@radix-ui/themes'
 import '@radix-ui/themes/styles.css'
 import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
-import { useState, ReactNode } from 'react'
+import { useState, ReactNode, useMemo } from 'react'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -73,6 +77,104 @@ const Form = (props: any) => {
   )
 }
 
+interface GmailAuthenticationProps {
+  authUrl: string
+}
+
+const GmailAuthentication: React.FC<GmailAuthenticationProps> = ({
+  authUrl,
+}) => {
+  const { createMessage } = useCreateMessage()
+  const { variables } = useSuperinterfaceContext()
+
+  const processedAuthUrl = useMemo(() => {
+    try {
+      const url = new URL(authUrl)
+      // Create a state object using the current context variables
+      const stateObject = { variables }
+      console.log({ variables, authUrl })
+      // Encode the state object as a query parameter
+      const encodedState = encodeURIComponent(JSON.stringify(stateObject))
+      // Add the state parameter to the URL
+      url.searchParams.set('state', encodedState)
+      return url.toString()
+    } catch (error) {
+      console.error('Error processing auth URL:', error)
+      return authUrl
+    }
+  }, [authUrl, variables])
+
+  const handleDone = () => {
+    createMessage({ content: 'Done.' })
+  }
+
+  return (
+    <Card style={{ width: '100%', maxWidth: '400px' }}>
+      <Flex
+        direction="column"
+        gap="4"
+        p="4"
+      >
+        <Flex
+          direction="column"
+          align="center"
+          gap="2"
+        >
+          <EnvelopeOpenIcon
+            width="48"
+            height="48"
+            color="var(--accent-9)"
+          />
+          <Text
+            size="4"
+            weight="bold"
+            align="center"
+          >
+            Gmail Authentication
+          </Text>
+          <Text
+            size="2"
+            color="gray"
+            align="center"
+          >
+            Authenticate your Gmail to allow the assistant to read and send
+            emails on your behalf.
+          </Text>
+        </Flex>
+
+        <Grid
+          columns="1"
+          gap="3"
+          width="100%"
+        >
+          <Link
+            href={processedAuthUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ textDecoration: 'none' }}
+          >
+            <Button
+              variant="solid"
+              style={{ width: '100%' }}
+            >
+              Authenticate
+              <ExternalLinkIcon />
+            </Button>
+          </Link>
+          <Button
+            variant="soft"
+            onClick={handleDone}
+            style={{ width: '100%' }}
+          >
+            Done
+          </Button>
+        </Grid>
+      </Flex>
+    </Card>
+  )
+}
+
+
 export default function Page() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -90,12 +192,11 @@ export default function Page() {
       >
         <SuperinterfaceProvider
           variables={{
-            publicApiKey: '37245be8-902a-440e-aaae-c56151fe8acc',
-            assistantId: 'cbe898ee-d9fa-4515-9bcc-2f3cd95fb088',
+            userId: 'cm791wwu40000l403mbggcasi',
           }}
         >
           <AssistantProvider>
-            <MarkdownProvider components={{ EmailDraft, Input, Form }}>
+            <MarkdownProvider components={{ EmailDraft, Input, Form, GmailAuthentication }}>
               <Thread />
             </MarkdownProvider>
           </AssistantProvider>
