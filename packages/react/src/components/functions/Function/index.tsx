@@ -7,7 +7,7 @@ type Args = {
   runStep: OpenAI.Beta.Threads.Runs.RunStep
 }
 
-export const DefaultFunction = ({
+export const Function = ({
   fn,
   runStep,
 }: Args) => (

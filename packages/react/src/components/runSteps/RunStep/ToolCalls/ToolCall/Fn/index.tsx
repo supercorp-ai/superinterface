@@ -3,7 +3,7 @@ import { useContext } from 'react'
 import OpenAI from 'openai'
 import type { SerializedRunStep } from '@/types'
 import { FunctionComponentsContext } from '@/contexts/functions/FunctionComponentsContext'
-import { DefaultFunction } from './DefaultFunction'
+import { ComponentsContext } from '@/contexts/components/ComponentsContext'
 
 type Args = {
   fn: OpenAI.Beta.Threads.Runs.FunctionToolCall.Function
@@ -15,7 +15,8 @@ export const Fn = ({
   runStep,
 }: Args) => {
   const functionComponentsContext = useContext(FunctionComponentsContext)
-  const Component = functionComponentsContext[fn.name] || DefaultFunction
+  const componentsContext = useContext(ComponentsContext)
+  const Component = functionComponentsContext[fn.name] || componentsContext.components.Function
 
   return (
     // @ts-ignore-next-line

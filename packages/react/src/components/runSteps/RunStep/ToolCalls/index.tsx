@@ -1,10 +1,11 @@
+import { useContext } from 'react'
 import OpenAI from 'openai'
 import {
   Flex,
 } from '@radix-ui/themes'
 import type { SerializedRunStep, StyleProps } from '@/types'
 import { ToolCall } from './ToolCall'
-import { Starting } from './Starting'
+import { ComponentsContext } from '@/contexts/components/ComponentsContext'
 
 type Args = {
   stepDetails: OpenAI.Beta.Threads.Runs.ToolCallsStepDetails
@@ -27,6 +28,15 @@ const Root = ({
   </Flex>
 )
 
+const StartingToolCalls = () => {
+  const componentsContext = useContext(ComponentsContext)
+  const StartingToolCalls = componentsContext.components.StartingToolCalls
+
+  return (
+    <StartingToolCalls />
+  )
+}
+
 export const ToolCalls = ({
   stepDetails,
   runStep,
@@ -38,7 +48,7 @@ export const ToolCalls = ({
     style={style}
   >
     {!stepDetails.tool_calls.length && (
-      <Starting />
+      <StartingToolCalls />
     )}
     {stepDetails.tool_calls.map((toolCall) => (
       <ToolCall
@@ -51,5 +61,5 @@ export const ToolCalls = ({
 )
 
 ToolCalls.Root = Root
-ToolCalls.Starting = Starting
+ToolCalls.StartingToolCalls = StartingToolCalls
 ToolCalls.ToolCall = ToolCall

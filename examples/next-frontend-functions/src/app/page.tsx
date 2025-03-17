@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  ComponentsProvider,
   SuperinterfaceProvider,
   Thread,
   AssistantProvider,
@@ -174,7 +175,6 @@ const GmailAuthentication: React.FC<GmailAuthenticationProps> = ({
   )
 }
 
-
 export default function Page() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -196,9 +196,15 @@ export default function Page() {
           }}
         >
           <AssistantProvider>
-            <MarkdownProvider components={{ EmailDraft, Input, Form, GmailAuthentication }}>
-              <Thread />
-            </MarkdownProvider>
+            <ComponentsProvider
+              components={{
+                StartingToolCalls: () => <div>Starting tool calls</div>,
+              }}
+            >
+              <MarkdownProvider components={{ EmailDraft, Input, Form, GmailAuthentication }}>
+                <Thread />
+              </MarkdownProvider>
+            </ComponentsProvider>
           </AssistantProvider>
         </SuperinterfaceProvider>
       </Theme>

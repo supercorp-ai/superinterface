@@ -8,7 +8,7 @@ import {
 import { ToolCallBase } from '@/components/toolCalls/ToolCallBase'
 import { ToolCallTitle } from '@/components/toolCalls/ToolCallBase/ToolCallTitle'
 
-export const Starting = () => (
+export const StartingToolCalls = () => (
   <Popover.Root>
     <ToolCallBase>
       <CircleIcon />
@@ -22,7 +22,7 @@ export const Starting = () => (
       }}
     >
       <Text>
-        Getting ready to connect to domain API
+        Starting some actions
       </Text>
     </Popover.Content>
   </Popover.Root>
