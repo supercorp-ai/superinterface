@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   SuperinterfaceProvider,
   Thread,
@@ -43,19 +43,25 @@ export default function Page() {
     })
   ))
 
+  useEffect(() => {
+    window.getCurrentTime = () => (
+      new Date().toLocaleTimeString()
+    )
+  }, [])
+
   return (
     <QueryClientProvider client={queryClient}>
       <Theme
         accentColor="blue"
         grayColor="gray"
-        appearance="light"
+        appearance="dark"
         radius="medium"
         scaling="100%"
       >
         <SuperinterfaceProvider
           variables={{
-            publicApiKey: '37245be8-902a-440e-aaae-c56151fe8acc',
-            assistantId: '13b80702-9d30-44db-84b6-85764921f00c',
+            publicApiKey: '29a25789-15d4-4f5f-a150-aa6d4e64a03b',
+            assistantId: '704a880a-cb7b-48c6-be78-cd47ec406d9e',
           }}
         >
           <AssistantNameContext.Provider value="Annotations tester">
