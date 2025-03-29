@@ -7,7 +7,7 @@ import {
   AssistantNameContext,
   useCreateMessage,
 } from '@superinterface/react'
-import { Theme, Button } from '@radix-ui/themes'
+import { Theme, Button, Flex } from '@radix-ui/themes'
 import '@radix-ui/themes/styles.css'
 import {
   QueryClient,
@@ -65,8 +65,12 @@ export default function Page() {
           }}
         >
           <AssistantNameContext.Provider value="Annotations tester">
-            <ExampleButton />
-            <Thread />
+            <Flex
+              height="100dvh"
+            >
+              <ExampleButton />
+              <Thread />
+            </Flex>
           </AssistantNameContext.Provider>
         </SuperinterfaceProvider>
       </Theme>
