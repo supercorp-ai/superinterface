@@ -48,7 +48,7 @@
     "unified": "^11.0.5",
     "unist-util-flatmap": "^1.0.0",
     "unist-util-visit": "^5.0.0",
-    "use-audio-capture": "^0.0.7",
+    "use-audio-capture": "^0.0.10",
     "zod": "^3.24.1"
   },
   "peerDependencies": {
@@ -73,7 +73,7 @@
     "@types/unist": "^3.0.3",
     "babel-plugin-react-compiler": "^19.0.0-beta-df7b47d-20241124",
     "esbuild-plugin-babel": "^0.2.3",
-    "react": "19.0.0",
+    "react": "19.1",
     "tsup": "^8.3.5"
   }
 }
