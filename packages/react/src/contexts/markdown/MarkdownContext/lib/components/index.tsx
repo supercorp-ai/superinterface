@@ -21,6 +21,7 @@ export const components: Record<string, any> = {
   pre: Pre,
   code: Code,
   img: Img,
+  MarkdownImg: Img,
   annotation: Annotation,
   h1: (props:  JSX.IntrinsicElements['h1']) => <Heading as="h1">{props.children}</Heading>,
   h2: (props:  JSX.IntrinsicElements['h2']) => <Heading as="h2" size="5">{props.children}</Heading>,
