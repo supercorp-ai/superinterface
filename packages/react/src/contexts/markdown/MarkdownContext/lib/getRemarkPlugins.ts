@@ -6,9 +6,16 @@ import { remarkPureLiteralPlugin } from '@/lib/remark/remarkPureLiteralPlugin'
 export const getRemarkPlugins = ({
   content,
 }: {
-  content: OpenAI.Beta.Threads.Messages.TextContentBlock
-}) => [
-  remarkPureLiteralPlugin,
-  remarkAnnotation({ content }),
-  remarkGfm,
-]
+  content:
+    | OpenAI.Beta.Threads.Messages.Message['content'][number]
+    | OpenAI.Beta.Threads.Messages.TextContentBlock
+}) => {
+  const textContentBlock = content.type === 'text' ? content : null
+  return [
+    remarkPureLiteralPlugin,
+    ...(textContentBlock
+      ? [remarkAnnotation({ content: textContentBlock })]
+      : []),
+    remarkGfm,
+  ]
+}
