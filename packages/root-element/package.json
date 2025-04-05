@@ -18,6 +18,6 @@
     "metafile": "tsup --metafile"
   },
   "devDependencies": {
-    "tsup": "^8.1.0"
+    "tsup": "^8.4.0"
   }
 }
