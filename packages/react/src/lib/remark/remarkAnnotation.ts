@@ -8,6 +8,7 @@ import flatMap from 'unist-util-flatmap'
 interface AnnotationNode extends Literal {
   type: 'annotation'
   value: string
+  children?: Node[]
   position?: Position
   data: {
     hName: 'annotation'
@@ -32,13 +33,10 @@ export const remarkAnnotation = ({
   return () => {
     return (tree: any) => {
       flatMap(tree, (node: Node) => {
-        // Process text and link nodes
         if (node.type === 'text' || node.type === 'link') {
           return processNodeWithAnnotations({ node, content })
-        } else {
-          // Return other nodes as-is
-          return [node]
         }
+        return [node]
       })
     }
   }
@@ -51,33 +49,71 @@ const processNodeWithAnnotations = ({
   node: Node
   content: OpenAI.Beta.Threads.Messages.TextContentBlock
 }): Node[] => {
-  if (!content.text?.annotations?.length) {
+  if (!content.text?.annotations?.length || !node.position) {
     return [node]
   }
-
-  if (!node.position) {
-    return [node]
-  }
-
   const annotations = sortedAnnotations({ content })
 
   if (node.type === 'text') {
-    // node is a Text node
     return processTextNode({ node: node as Text, annotations })
   } else if (node.type === 'link') {
-    // node is a Link node
     const linkNode = node as Link
-    // Process link node's children
-    linkNode.children = flatMap(linkNode.children, (childNode: Node) => {
-      if (childNode.type === 'text') {
-        return processTextNode({ node: childNode as Text, annotations })
-      } else {
-        return [childNode]
+
+    linkNode.children = flatMap(linkNode.children, (child: Node) => {
+      if (child.type === 'text') {
+        return processTextNode({ node: child as Text, annotations })
       }
+      return [child]
     })
-    return [linkNode]
+
+    if (!linkNode.position) return [linkNode]
+
+    // Compute the total label length from all text children.
+    let labelLength = 0
+    for (const child of linkNode.children) {
+      if (child.type === 'text' && typeof (child as Text).value === 'string') {
+        labelLength += (child as Text).value.length
+      }
+    }
+
+    // The raw markdown syntax for a link is: [label](url)
+    // Offsets:
+    //   1 char for '[',
+    //   labelLength for the label,
+    //   1 char for ']',
+    //   1 char for '('.
+    // So the URL portion starts at:
+    const linkStart = linkNode.position.start.offset!
+    const urlStartOffset = linkStart + 1 + labelLength + 1 + 1  // = linkStart + labelLength + 3
+    // And the URL portion ends at the link node’s end offset minus 1 (to drop the closing ')'):
+    const urlEndOffset = linkNode.position.end.offset! - 1
+
+    const matchingURLAnnotations = annotations.filter(annotation =>
+      annotation.start_index >= urlStartOffset && annotation.end_index <= urlEndOffset
+    )
+
+    if (matchingURLAnnotations.length > 0) {
+      const annotation = matchingURLAnnotations[0]
+      const newAnnotationNode: AnnotationNode = {
+        type: 'annotation',
+        value: linkNode.url,
+        children: linkNode.children,
+        position: {
+          start: { ...linkNode.position.start, offset: urlStartOffset },
+          end: { ...linkNode.position.end, offset: urlEndOffset },
+        },
+        data: {
+          hName: 'annotation',
+          hProperties: {
+            ['data-annotation']: JSON.stringify(annotation),
+          },
+        },
+      }
+      return [newAnnotationNode]
+    } else {
+      return [linkNode]
+    }
   } else {
-    // Return node as-is
     return [node]
   }
 }
@@ -89,16 +125,10 @@ const processTextNode = ({
   node: Text
   annotations: any[]
 }): Node[] => {
-  if (!node.position || !node.value) {
-    return [node]
-  }
-
+  if (!node.position || !node.value) return [node]
   const nodeStart = node.position.start.offset!
   const nodeEnd = node.position.end.offset!
-
-  if (!isNumber(nodeStart) || !isNumber(nodeEnd)) {
-    return [node]
-  }
+  if (!isNumber(nodeStart) || !isNumber(nodeEnd)) return [node]
 
   const newNodes: Node[] = []
   let lastIndex = nodeStart
@@ -106,33 +136,18 @@ const processTextNode = ({
   annotations.forEach((annotation) => {
     const annotationStart = annotation.start_index
     const annotationEnd = annotation.end_index
-
-    if (nodeEnd <= annotationStart || nodeStart >= annotationEnd) {
-      return
-    }
-
+    if (nodeEnd <= annotationStart || nodeStart >= annotationEnd) return
     const start = Math.max(nodeStart, annotationStart)
     const end = Math.min(nodeEnd, annotationEnd)
-
     if (lastIndex < start) {
       newNodes.push(createTextNode({ node, startOffset: lastIndex, endOffset: start }))
     }
-
-    newNodes.push(
-      createAnnotationNode({
-        node,
-        startOffset: start,
-        endOffset: end,
-        annotation,
-      })
-    )
+    newNodes.push(createAnnotationNode({ node, startOffset: start, endOffset: end, annotation }))
     lastIndex = end
   })
-
   if (lastIndex < nodeEnd) {
     newNodes.push(createTextNode({ node, startOffset: lastIndex, endOffset: nodeEnd }))
   }
-
   return newNodes
 }
 
@@ -147,19 +162,12 @@ const createTextNode = ({
 }): Text => {
   const valueStart = startOffset - node.position!.start.offset!
   const valueEnd = endOffset - node.position!.start.offset!
-
   return {
     type: 'text',
     value: node.value.slice(valueStart, valueEnd),
     position: {
-      start: {
-        ...node.position!.start,
-        offset: startOffset,
-      },
-      end: {
-        ...node.position!.end,
-        offset: endOffset,
-      },
+      start: { ...node.position!.start, offset: startOffset },
+      end: { ...node.position!.end, offset: endOffset },
     },
   }
 }
@@ -177,25 +185,16 @@ const createAnnotationNode = ({
 }): AnnotationNode => {
   const valueStart = startOffset - node.position!.start.offset!
   const valueEnd = endOffset - node.position!.start.offset!
-
   return {
     type: 'annotation',
     value: node.value.slice(valueStart, valueEnd),
     position: {
-      start: {
-        ...node.position!.start,
-        offset: startOffset,
-      },
-      end: {
-        ...node.position!.end,
-        offset: endOffset,
-      },
+      start: { ...node.position!.start, offset: startOffset },
+      end: { ...node.position!.end, offset: endOffset },
     },
     data: {
       hName: 'annotation',
-      hProperties: {
-        ['data-annotation']: JSON.stringify(annotation),
-      },
+      hProperties: { ['data-annotation']: JSON.stringify(annotation) },
     },
   }
 }
