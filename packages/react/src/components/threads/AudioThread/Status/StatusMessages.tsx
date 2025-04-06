@@ -36,6 +36,7 @@ export const StatusMessages = ({
       weight="regular"
       color="gray"
       className="status-messages-texts"
+      align="center"
     />
 
     <style
