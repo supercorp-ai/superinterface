@@ -8,6 +8,7 @@ export const ComponentsProvider = ({
   ...rest
 }: {
   children: React.ReactNode
+  components: Record<string, React.ComponentType<any>>
 }) => {
   const prevComponents = useComponents()
 
