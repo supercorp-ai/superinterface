@@ -1,6 +1,6 @@
 {
   "name": "@superinterface/javascript",
-  "version": "3.5.0",
+  "version": "3.6.0",
   "main": "./dist/ThreadDialog.js",
   "module": "./dist/ThreadDialog.mjs",
   "types": "./dist/ThreadDialog.d.ts",
@@ -15,7 +15,7 @@
   "keywords": [],
   "license": "ISC",
   "scripts": {
-    "build": "tsup",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192' tsup",
     "metafile": "tsup --metafile",
     "serve": "npx serve dist -p 3005 --cors"
   },
