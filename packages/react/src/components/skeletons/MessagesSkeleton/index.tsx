@@ -5,12 +5,11 @@ import {
   Box,
   Skeleton,
 } from '@radix-ui/themes'
-import { MessageGroupBase } from '@/components/messageGroups/MessageGroupBase'
-import { Name } from '@/components/messageGroups/MessageGroupBase/Name'
+import { MessageGroup } from '@/components/messageGroups/MessageGroup'
 
 export const MessagesSkeleton = forwardRef(function MessagesSkeleton(_props, ref) {
   return (
-    <MessageGroupBase
+    <MessageGroup.Root
       // @ts-ignore-next-line
       ref={ref}
     >
@@ -24,14 +23,14 @@ export const MessagesSkeleton = forwardRef(function MessagesSkeleton(_props, ref
       <Box
         pb="3"
       >
-        <Name>
+        <MessageGroup.Name>
           <Skeleton
             loading
             style={{
               width: '128px',
             }}
           />
-        </Name>
+        </MessageGroup.Name>
 
         <Skeleton
           loading
@@ -56,6 +55,6 @@ export const MessagesSkeleton = forwardRef(function MessagesSkeleton(_props, ref
           }}
         />
       </Box>
-    </MessageGroupBase>
+    </MessageGroup.Root>
   )
 })

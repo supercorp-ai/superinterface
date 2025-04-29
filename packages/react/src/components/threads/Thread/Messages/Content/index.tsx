@@ -5,7 +5,7 @@ import { useMessageGroups } from '@/hooks/messageGroups/useMessageGroups'
 import { MessageGroup as MessageGroupType } from '@/types'
 import { MessagesSkeleton } from '@/components/skeletons/MessagesSkeleton'
 import { useToasts } from '@/hooks/toasts/useToasts'
-import { MessageGroup } from './MessageGroup'
+import { useComponents } from '@/hooks/components/useComponents'
 
 export const Content = () => {
   const {
@@ -19,6 +19,12 @@ export const Content = () => {
   const { messageGroups } = useMessageGroups({
     messages,
   })
+
+  const {
+    components: {
+      MessageGroup,
+    },
+  } = useComponents()
 
   useEffect(() => {
     if (isLoadingError) {

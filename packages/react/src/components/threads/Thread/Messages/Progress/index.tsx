@@ -5,7 +5,7 @@ import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { isOptimistic } from '@/lib/optimistic/isOptimistic'
 import { useIsMutatingMessage } from '@/hooks/messages/useIsMutatingMessage'
 import { StartingContentSkeleton } from '@/components/skeletons/StartingContentSkeleton'
-import { MessageGroupBase } from '@/components/messageGroups/MessageGroupBase'
+import { MessageGroup } from '@/components/messageGroups/MessageGroup'
 
 export const Progress = () => {
   const { latestMessage } = useLatestMessage()
@@ -29,7 +29,7 @@ export const Progress = () => {
 
   if (isMutatingMessage) {
     return (
-      <MessageGroupBase>
+      <MessageGroup.Root>
         <Flex
           flexShrink="0"
           height="24px"
@@ -39,7 +39,7 @@ export const Progress = () => {
         <Box>
           <StartingContentSkeleton />
         </Box>
-      </MessageGroupBase>
+      </MessageGroup.Root>
     )
   }
 

@@ -2,9 +2,7 @@
 import { useContext } from 'react'
 import { Box } from '@radix-ui/themes'
 import { StartingContentSkeleton } from '@/components/skeletons/StartingContentSkeleton'
-import { MessageGroupBase } from '@/components/messageGroups/MessageGroupBase'
-import { Name } from '@/components/messageGroups/MessageGroupBase/Name'
-import { AssistantAvatar } from '@/components/messageGroups/MessageGroupBase/AssistantAvatar'
+import { MessageGroup } from '@/components/messageGroups/MessageGroup'
 import { AssistantNameContext } from '@/contexts/assistants/AssistantNameContext'
 
 type Args = {
@@ -17,18 +15,18 @@ export const StartingSkeleton = ({
   const assistantNameContext = useContext(AssistantNameContext)
 
   return (
-    <MessageGroupBase>
-      <AssistantAvatar />
+    <MessageGroup.Root>
+      <MessageGroup.AssistantAvatar />
 
       <Box>
-        <Name>
+        <MessageGroup.Name>
           {assistantNameContext}
-        </Name>
+        </MessageGroup.Name>
 
         {children}
 
         <StartingContentSkeleton />
       </Box>
-    </MessageGroupBase>
+    </MessageGroup.Root>
   )
 }

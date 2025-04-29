@@ -49,4 +49,6 @@ export { RunStep } from '@/components/runSteps/RunStep'
 export { AssistantProvider } from '@/components/assistants/AssistantProvider'
 
 export { MessageContent } from '@/components/messages/MessageContent'
+export { MessageGroup } from '@/components/messageGroups/MessageGroup'
+
 export { useCreateFile } from '@/hooks/files/useCreateFile'

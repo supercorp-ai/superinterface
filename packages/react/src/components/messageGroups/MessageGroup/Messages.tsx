@@ -6,7 +6,7 @@ type Args = {
   messageGroup: MessageGroup
 }
 
-export const Content = ({
+export const Messages = ({
   messageGroup,
 }: Args) => (
   <Flex

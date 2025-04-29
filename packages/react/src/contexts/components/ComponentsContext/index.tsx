@@ -5,6 +5,7 @@ import { Function } from '@/components/functions/Function'
 import { StartingToolCalls } from '@/components/toolCalls/StartingToolCalls'
 import { TextContent } from '@/components/contents/TextContent'
 import { ImageFileContent } from '@/components/contents/ImageFileContent'
+import { MessageGroup } from '@/components/messageGroups/MessageGroup'
 
 export const ComponentsContext = createContext({
   components: {
@@ -13,5 +14,6 @@ export const ComponentsContext = createContext({
     StartingToolCalls,
     TextContent,
     ImageFileContent,
+    MessageGroup,
   },
 })

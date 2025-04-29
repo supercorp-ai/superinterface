@@ -1,8 +1,7 @@
 import { useState, useCallback, useEffect, useContext, createContext } from 'react'
 import _ from 'lodash'
 import { Flex } from '@radix-ui/themes'
-import { AssistantAvatar } from '@/components/messageGroups/MessageGroupBase/AssistantAvatar'
-import { Name } from '@/components/messageGroups/MessageGroupBase/Name'
+import { MessageGroup } from '@/components/messageGroups/MessageGroup'
 import { AssistantNameContext } from '@/contexts/assistants/AssistantNameContext'
 import { useAudioThreadContext } from '@/hooks/threads/useAudioThreadContext'
 import { BarsVisualizer as AudioThreadBarsVisualizer } from '@/components/threads/AudioThread/BarsVisualizer'
@@ -146,10 +145,10 @@ const AssistantInfo = (props: StyleProps) => {
       pt="5"
       {...props}
     >
-      <AssistantAvatar />
-      <Name>
+      <MessageGroup.AssistantAvatar />
+      <MessageGroup.Name>
         {assistantNameContext}
-      </Name>
+      </MessageGroup.Name>
     </Flex>
   )
 }

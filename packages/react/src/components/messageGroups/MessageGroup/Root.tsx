@@ -3,19 +3,24 @@ import {
   Flex,
   Container,
 } from '@radix-ui/themes'
+import type { StyleProps } from '@/types'
 
 type Args = {
   children: React.ReactNode
-}
+} & StyleProps
 
-export const MessageGroupBase = forwardRef(function MessageGroupBase({
+export const Root = forwardRef(function Root({
   children,
+  style,
+  className,
 }: Args, ref: React.Ref<HTMLDivElement>) {
   return (
     <Container
       ref={ref}
       size="2"
       flexGrow="0"
+      className={className}
+      style={style}
     >
       <Flex
         flexShrink="0"
