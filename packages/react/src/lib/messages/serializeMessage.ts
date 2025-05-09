@@ -20,5 +20,5 @@ export const serializeMessage = ({
   runSteps: (message.runSteps ?? []).map((runStep) => (
     serializeRunStep({ runStep })
   )),
-  status: message.status,
+  status: message.status ?? 'completed',
 })
