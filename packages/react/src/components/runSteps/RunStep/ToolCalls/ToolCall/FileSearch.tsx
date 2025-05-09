@@ -1,19 +1,22 @@
-import { ToolCallBase } from '@/components/toolCalls/ToolCallBase'
-import { ToolCallTitle } from '@/components/toolCalls/ToolCallBase/ToolCallTitle'
-import { ToolCallIcon } from '@/components/toolCalls/ToolCallBase/ToolCallIcon'
+'use client'
+import { useContext } from 'react'
 import type { SerializedRunStep, ToolCall } from '@/types'
+import { ComponentsContext } from '@/contexts/components/ComponentsContext'
 
 export const FileSearch = ({
-  runStep,
   toolCall,
+  runStep,
 }: {
   toolCall: ToolCall
   runStep: SerializedRunStep
-}) => (
-  <ToolCallBase>
-    <ToolCallIcon runStep={runStep} />
-    <ToolCallTitle>
-      Searching files
-    </ToolCallTitle>
-  </ToolCallBase>
-)
+}) => {
+  const componentsContext = useContext(ComponentsContext)
+  const Component = componentsContext.components.FileSearchToolCall
+
+  return (
+    <Component
+      toolCall={toolCall}
+      runStep={runStep}
+    />
+  )
+}
