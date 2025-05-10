@@ -11,6 +11,16 @@ type Args = {
 
 export const StartingSkeleton = ({
   children,
+}: Args) => (
+  <Root>
+    {children}
+
+    <Content />
+  </Root>
+)
+
+const Root = ({
+  children,
 }: Args) => {
   const assistantNameContext = useContext(AssistantNameContext)
 
@@ -30,3 +40,8 @@ export const StartingSkeleton = ({
     </MessageGroup.Root>
   )
 }
+
+const Content = StartingContentSkeleton
+
+StartingSkeleton.Root = Root
+StartingSkeleton.Content = Content
