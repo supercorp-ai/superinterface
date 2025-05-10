@@ -9,6 +9,7 @@ import { FallbackToolCall } from '@/components/toolCalls/FallbackToolCall'
 import { TextContent } from '@/components/contents/TextContent'
 import { ImageFileContent } from '@/components/contents/ImageFileContent'
 import { MessageGroup } from '@/components/messageGroups/MessageGroup'
+import { MessageAttachments } from '@/components/messages/MessageAttachments'
 
 export const ComponentsContext = createContext({
   components: {
@@ -21,5 +22,6 @@ export const ComponentsContext = createContext({
     TextContent,
     ImageFileContent,
     MessageGroup,
+    MessageAttachments,
   },
 })

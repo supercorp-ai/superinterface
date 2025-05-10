@@ -58,7 +58,6 @@ export const Message = ({
         <Box style={{ wordBreak: 'break-word' }}>
           <Attachments message={message} />
           <MessageContent message={message} />
-
         </Box>
 
         <RunSteps runSteps={laterRunSteps} />
