@@ -10,6 +10,8 @@ import { TextContent } from '@/components/contents/TextContent'
 import { ImageFileContent } from '@/components/contents/ImageFileContent'
 import { MessageGroup } from '@/components/messageGroups/MessageGroup'
 import { MessageAttachments } from '@/components/messages/MessageAttachments'
+import { StartingSkeleton } from '@/components/skeletons/StartingSkeleton'
+import { StartingContentSkeleton } from '@/components/skeletons/StartingContentSkeleton'
 
 export const ComponentsContext = createContext({
   components: {
@@ -23,5 +25,7 @@ export const ComponentsContext = createContext({
     ImageFileContent,
     MessageGroup,
     MessageAttachments,
+    StartingSkeleton,
+    StartingContentSkeleton,
   },
 })

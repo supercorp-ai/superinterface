@@ -1,11 +1,34 @@
 import { useMemo } from 'react'
-import { Flex, Box } from '@radix-ui/themes'
-import { StartingSkeleton } from '@/components/skeletons/StartingSkeleton'
+import { Box } from '@radix-ui/themes'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { isOptimistic } from '@/lib/optimistic/isOptimistic'
 import { useIsMutatingMessage } from '@/hooks/messages/useIsMutatingMessage'
-import { StartingContentSkeleton } from '@/components/skeletons/StartingContentSkeleton'
 import { MessageGroup } from '@/components/messageGroups/MessageGroup'
+import { useComponents } from '@/hooks/components/useComponents'
+
+const StartingSkeleton = () => {
+  const {
+    components: {
+      StartingSkeleton,
+    },
+  } = useComponents()
+
+  return (
+    <StartingSkeleton />
+  )
+}
+
+const StartingContentSkeleton = () => {
+  const {
+    components: {
+      StartingContentSkeleton,
+    },
+  } = useComponents()
+
+  return (
+    <StartingContentSkeleton />
+  )
+}
 
 export const Progress = () => {
   const { latestMessage } = useLatestMessage()
@@ -30,11 +53,7 @@ export const Progress = () => {
   if (isMutatingMessage) {
     return (
       <MessageGroup.Root>
-        <Flex
-          flexShrink="0"
-          height="24px"
-          width="24px"
-        />
+        <MessageGroup.AssistantAvatar.Root />
 
         <Box>
           <StartingContentSkeleton />
