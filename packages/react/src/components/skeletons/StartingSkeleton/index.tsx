@@ -34,8 +34,6 @@ const Root = ({
         </MessageGroup.Name>
 
         {children}
-
-        <StartingContentSkeleton />
       </Box>
     </MessageGroup.Root>
   )
