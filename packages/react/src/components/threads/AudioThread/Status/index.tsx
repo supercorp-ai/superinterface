@@ -34,7 +34,7 @@ export const Status = (props: StyleProps) => {
     return (
       <StatusMessages
         texts={[
-          'Click the button below to interrupt',
+          'Listening',
         ]}
         {...props}
       />
