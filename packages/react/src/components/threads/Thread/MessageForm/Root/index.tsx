@@ -104,14 +104,16 @@ export const Root = ({
       },
     }))
 
+    const content = [
+      ...imageFileContentParts,
+      {
+        type: 'text' as 'text',
+        text: data.content,
+      },
+    ]
+
     await createMessage({
-      content: [
-        ...imageFileContentParts,
-        {
-          type: 'text',
-          text: data.content,
-        },
-      ],
+      content,
       ...(attachments.length ? { attachments } : {}),
     })
   }

@@ -18,7 +18,19 @@ const content = ({
   newMessage: NewMessage
 }) => {
   if (isArray(newMessage.content)) {
-    return newMessage.content
+    return newMessage.content.map((item) => {
+      if (item.type === 'text') {
+        return {
+          type: 'text',
+          text: {
+            annotations: [],
+            value: item.text,
+          },
+        } as OpenAI.Beta.Threads.Messages.TextContentBlock
+      }
+
+      return item
+    })
   }
 
   return [
