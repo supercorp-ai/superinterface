@@ -73,8 +73,7 @@ export const Root = ({
   const { latestMessage } = useLatestMessage()
 
   const isDisabled = useMemo(() => (
-    // @ts-ignore-next-line
-    latestMessage?.metadata?.isBlocking || isDisabledArg
+    !!latestMessage?.metadata?.isBlocking || !!isDisabledArg
   ), [latestMessage, isDisabledArg])
 
   const onSubmit: SubmitHandler<Inputs> = onSubmitArg ? partob(onSubmitArg, { reset, createMessage }) : async (data) => {
@@ -85,7 +84,9 @@ export const Root = ({
     reset()
     setFiles([])
 
-    const attachments = files.map((file) => ({
+    const attachments = files.filter((file) => (
+      file.purpose === 'assistants'
+    )).map((file) => ({
       file_id: file.id,
       tools: [
         {
@@ -94,9 +95,23 @@ export const Root = ({
       ],
     }))
 
+    const imageFileContentParts = files.filter((file) => (
+      file.purpose === 'vision'
+    )).map((file) => ({
+      type: 'image_file' as 'image_file',
+      image_file: {
+        file_id: file.id,
+      },
+    }))
+
     await createMessage({
-      // @ts-ignore-next-line
-      content: data.content,
+      content: [
+        ...imageFileContentParts,
+        {
+          type: 'text',
+          text: data.content,
+        },
+      ],
       ...(attachments.length ? { attachments } : {}),
     })
   }

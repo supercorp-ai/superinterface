@@ -37,7 +37,24 @@ const accept = `.c,text/x-c,
 .css,text/css,
 .js,text/javascript,
 .sh,application/x-sh,
-.ts,application/typescript`
+.ts,application/typescript,
+.png,image/png,
+.jpeg,image/jpeg,
+.jpg,image/jpeg,
+.webp,image/webp,
+.gif,image/gif`
+
+const purpose = ({
+  fileObject,
+}: {
+  fileObject: File
+}) => {
+  if (fileObject.type.startsWith('image/')) {
+    return 'vision' as 'vision'
+  }
+
+  return 'assistants' as 'assistants'
+}
 
 export const Control = (props: StyleProps) => {
   const { isDisabled, isLoading, setFiles } = useMessageFormContext()
@@ -48,16 +65,18 @@ export const Control = (props: StyleProps) => {
     const fileObjects = event.target.files
     if (!fileObjects) return
 
-    const newFiles = Array.from(fileObjects).map((fileObject) => ({
-      id: optimisticId(),
-      filename: fileObject.name,
-      object: 'file' as 'file',
-      purpose: 'assistants' as 'assistants',
-      created_at: dayjs().unix(),
-      bytes: fileObject.size,
-      status: 'processed' as 'processed',
-      fileObject,
-    }))
+    const newFiles = Array.from(fileObjects).map((fileObject) => {
+      return {
+        id: optimisticId(),
+        filename: fileObject.name,
+        object: 'file' as const,
+        purpose: purpose({ fileObject }),
+        created_at: dayjs().unix(),
+        bytes: fileObject.size,
+        status: 'processed' as const,
+        fileObject,
+      }
+    })
 
     setFiles((prev: OpenAI.Files.FileObject[]) => [
       ...prev,
@@ -67,6 +86,7 @@ export const Control = (props: StyleProps) => {
     for await (const newFile of newFiles) {
       await createFile({
         file: newFile.fileObject,
+        purpose: newFile.purpose,
       },
       {
         onSuccess: ({

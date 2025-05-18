@@ -81,11 +81,32 @@ type UseCreateMessageTextVariables = {
   content: string
 }
 
+type ContentPart = {
+  type: 'text'
+  text: string
+} | {
+  type: 'image_file'
+  image_file: {
+    file_id: string
+    detail?: string
+  }
+} | {
+  type: 'image_url'
+  image_url: {
+    url: string
+    detail?: string
+  }
+}
+
+type UseCreateMessageContentPartsVariables = {
+  content: ContentPart[]
+}
+
 type UseCreateMessageAudioVariables = {
   audioContent: unknown
 }
 
-export type UseCreateMessageVariables = (UseCreateMessageTextVariables | UseCreateMessageAudioVariables) & {
+export type UseCreateMessageVariables = (UseCreateMessageTextVariables | UseCreateMessageAudioVariables | UseCreateMessageContentPartsVariables) & {
   [key: string]: any
 }
 
