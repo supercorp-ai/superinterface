@@ -26,6 +26,8 @@ export { TtsAudioRuntimeProvider } from '@/components/audioRuntimes/TtsAudioRunt
 export { useWebrtcAudioRuntime } from '@/hooks/audioRuntimes/useWebrtcAudioRuntime'
 export { WebrtcAudioRuntimeProvider } from '@/components/audioRuntimes/WebrtcAudioRuntimeProvider'
 
+export { Gui } from '@/components/gui/Gui'
+
 export { Suggestions } from '@/components/suggestions/Suggestions'
 
 export { MarkdownContext } from '@/contexts/markdown/MarkdownContext'
