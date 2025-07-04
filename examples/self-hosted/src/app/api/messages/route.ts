@@ -92,13 +92,6 @@ export const POST = async (request: NextRequest) => {
         },
       })
     },
-    onError: async ({
-      error,
-    }) => {
-      if (request.signal.aborted) return
-
-      console.error('Error in thread run:', error)
-    },
   }), {
     status: 200,
     headers: {
