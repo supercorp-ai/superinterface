@@ -1,4 +1,4 @@
-![Superinterface thread example](https://raw.githubusercontent.com/supercorp-ai/superinterface/main/examples/next-thread/example.png)
+![Superinterface thread example](https://raw.githubusercontent.com/supercorp-ai/superinterface/main/examples/next-thread/src/app/opengraph-image.png)
 
 This example is hosted here: https://examples-next-thread.superinterface.ai (see code [here](https://github.com/supercorp-ai/superinterface/tree/main/examples/next-thread))
 
