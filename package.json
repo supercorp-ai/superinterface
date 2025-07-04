@@ -6,7 +6,8 @@
   ],
   "scripts": {
     "build": "turbo run build --force",
-    "dev": "turbo run build --force -- --watch"
+    "dev": "turbo run build --force -- --watch",
+    "prepare": "husky install"
   },
   "dependencies": {
     "react-error-boundary": "^4.1.2",
@@ -14,7 +15,13 @@
   },
   "devDependencies": {
     "@swc/core": "^1.9.2",
+    "husky": "^8.0.0",
+    "lint-staged": "^16.1.2",
+    "prettier": "^3.6.2",
     "turbo": "^2.3.0"
   },
-  "packageManager": "npm@10.2.0"
+  "packageManager": "npm@10.2.0",
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
+  }
 }
