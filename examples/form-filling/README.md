@@ -1,4 +1,4 @@
-![Superinterface form filling example](https://raw.githubusercontent.com/supercorp-ai/superinterface/main/examples/form-filling/src/app/opengraph-image.png)
+![Superinterface form filling example.](https://raw.githubusercontent.com/supercorp-ai/superinterface/main/examples/form-filling/src/app/opengraph-image.png)
 
 This example is hosted here: https://examples-form-filling.superinterface.ai (see code [here](https://github.com/supercorp-ai/superinterface/tree/main/examples/form-filling))
 

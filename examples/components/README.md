@@ -1,4 +1,4 @@
-![Superinterface components example](https://raw.githubusercontent.com/supercorp-ai/superinterface/main/examples/components/src/app/opengraph-image.png)
+![Superinterface components example.](https://raw.githubusercontent.com/supercorp-ai/superinterface/main/examples/components/src/app/opengraph-image.png)
 
 This example is hosted here: https://examples-components.superinterface.ai (see code [here](https://github.com/supercorp-ai/superinterface/tree/main/examples/components))
 

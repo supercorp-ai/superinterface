@@ -1,4 +1,4 @@
-![Superinterface self-hosted example](https://raw.githubusercontent.com/supercorp-ai/superinterface/main/examples/self-hosted/src/app/opengraph-image.png)
+![Superinterface self-hosted example.](https://raw.githubusercontent.com/supercorp-ai/superinterface/main/examples/self-hosted/src/app/opengraph-image.png)
 
 This example is hosted here: https://examples-self-hosted.superinterface.ai (see code [here](https://github.com/supercorp-ai/superinterface/tree/main/examples/self-hosted))
 

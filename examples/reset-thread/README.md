@@ -1,4 +1,4 @@
-![Superinterface reset thread example](https://raw.githubusercontent.com/supercorp-ai/superinterface/main/examples/reset-thread/src/app/opengraph-image.png)
+![Superinterface reset thread example.](https://raw.githubusercontent.com/supercorp-ai/superinterface/main/examples/reset-thread/src/app/opengraph-image.png)
 
 This example is hosted here: https://examples-reset-thread.superinterface.ai (see code [here](https://github.com/supercorp-ai/superinterface/tree/main/examples/reset-thread))
 
