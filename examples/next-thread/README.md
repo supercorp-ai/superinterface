@@ -1,4 +1,6 @@
-Examples are hosted here: https://examples-next.superinterface.ai (see code [here](https://github.com/supercorp-ai/superinterface/tree/main/examples/next))
+![Superinterface thread example](https://raw.githubusercontent.com/supercorp-ai/superinterface/main/examples/next-thread/example.png)
+
+This example is hosted here: https://examples-next-thread.superinterface.ai (see code [here](https://github.com/supercorp-ai/superinterface/tree/main/examples/next-thread))
 
 Otherwise, this is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
