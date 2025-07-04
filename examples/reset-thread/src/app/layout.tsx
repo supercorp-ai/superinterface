@@ -5,8 +5,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Superinterface thread example',
-  description: 'This example shows how to build a chat thread using Superinterface and Next.js.',
+  title: 'Superinterface reset thread example',
+  description: 'This example shows how to build a chat thread with reset button using Superinterface.',
 };
 
 export default function RootLayout({
