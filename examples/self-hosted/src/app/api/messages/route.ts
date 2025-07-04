@@ -7,7 +7,7 @@ import {
 import { enqueueJson } from '@superinterface/react/utils'
 
 const client = new OpenAI({
-  apiKey: process.env.MY_OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
 })
 
 export const GET = async (request: NextRequest) => {
