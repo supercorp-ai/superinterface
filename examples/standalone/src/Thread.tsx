@@ -1,7 +1,5 @@
 import { createRoot } from 'react-dom/client'
-import {
-  Thread,
-} from '@superinterface/react'
+import { Thread } from '@superinterface/react'
 import { Providers } from '@/components/Providers'
 
 const element = document.createElement('div')
@@ -13,5 +11,5 @@ const root = createRoot(element)
 root.render(
   <Providers>
     <Thread />
-  </Providers>
+  </Providers>,
 )

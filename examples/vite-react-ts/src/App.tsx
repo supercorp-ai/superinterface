@@ -3,15 +3,9 @@ import {
   Thread,
   AssistantNameContext,
 } from '@superinterface/react'
-import {
-  Theme,
-  Flex,
-} from '@radix-ui/themes'
+import { Theme, Flex } from '@radix-ui/themes'
 import '@radix-ui/themes/styles.css'
-import {
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,9 +25,7 @@ function App() {
       radius="medium"
       scaling="100%"
     >
-      <div>
-        Some header content
-      </div>
+      <div>Some header content</div>
 
       <QueryClientProvider client={queryClient}>
         <SuperinterfaceProvider
@@ -53,9 +45,7 @@ function App() {
         </SuperinterfaceProvider>
       </QueryClientProvider>
 
-      <div>
-        Some footer content
-      </div>
+      <div>Some footer content</div>
     </Theme>
   )
 }

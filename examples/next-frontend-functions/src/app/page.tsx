@@ -11,12 +11,18 @@ import {
 } from '@superinterface/react'
 import '@radix-ui/themes/styles.css'
 import { EnvelopeOpenIcon, ExternalLinkIcon } from '@radix-ui/react-icons'
-import { Theme, Card, Flex, Text, Button, TextArea, Grid, Link } from '@radix-ui/themes'
-import '@radix-ui/themes/styles.css'
 import {
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/react-query'
+  Theme,
+  Card,
+  Flex,
+  Text,
+  Button,
+  TextArea,
+  Grid,
+  Link,
+} from '@radix-ui/themes'
+import '@radix-ui/themes/styles.css'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState, ReactNode, useMemo } from 'react'
 
 const queryClient = new QueryClient({
@@ -39,12 +45,17 @@ const EmailDraft = ({ subject = '', children }: EmailDraftProps) => {
   const handleSend = () => {
     // Here you would typically integrate with your email sending service
     // For now, we'll just open the default mail client
-    window.open(`mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`)
+    window.open(
+      `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`,
+    )
   }
 
   return (
     <Card style={{ width: '100%', marginBottom: '16px' }}>
-      <Flex direction="column" gap="2">
+      <Flex
+        direction="column"
+        gap="2"
+      >
         <TextArea
           placeholder="Subject"
           value={emailSubject}
@@ -71,11 +82,7 @@ const Input = (props: any) => {
 }
 
 const Form = (props: any) => {
-  return (
-    <>
-      {props.children}
-    </>
-  )
+  return <>{props.children}</>
 }
 
 interface GmailAuthenticationProps {
@@ -201,7 +208,9 @@ export default function Page() {
                 StartingToolCalls: () => <div>Starting tool calls</div>,
               }}
             >
-              <MarkdownProvider components={{ EmailDraft, Input, Form, GmailAuthentication }}>
+              <MarkdownProvider
+                components={{ EmailDraft, Input, Form, GmailAuthentication }}
+              >
                 <Thread />
               </MarkdownProvider>
             </ComponentsProvider>

@@ -38,11 +38,7 @@ const ResetThreadButton = () => {
       top="5"
       right="5"
     >
-      <Button
-        onClick={onClick}
-      >
-        Reset thread
-      </Button>
+      <Button onClick={onClick}>Reset thread</Button>
     </Flex>
   )
 }

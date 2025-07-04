@@ -9,20 +9,21 @@ type Args = {
   children: React.ReactNode
 }
 
-export const MarkdownProvider = ({
-  children,
-}: Args) => {
+export const MarkdownProvider = ({ children }: Args) => {
   const markdownContext = useMarkdownContext()
 
-  const components = useMemo(() => ({
-    code: (props:  JSX.IntrinsicElements['code']) => (
-      // @ts-expect-error broad types
-      <Code
-        {...props}
-        markdownContext={markdownContext}
-      />
-    ),
-  }), [markdownContext])
+  const components = useMemo(
+    () => ({
+      code: (props: JSX.IntrinsicElements['code']) => (
+        // @ts-expect-error broad types
+        <Code
+          {...props}
+          markdownContext={markdownContext}
+        />
+      ),
+    }),
+    [markdownContext],
+  )
 
   return (
     <SuperinterfaceMarkdownProvider

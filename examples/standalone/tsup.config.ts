@@ -15,14 +15,8 @@ export default defineConfig({
   shims: true,
   platform: 'browser',
   minify: true,
-  format: [
-    'iife',
-    'cjs',
-    'esm'
-  ],
+  format: ['iife', 'cjs', 'esm'],
   injectStyle: true,
   dts: false,
-  noExternal: [
-    /(.*)/
-  ],
+  noExternal: [/(.*)/],
 })

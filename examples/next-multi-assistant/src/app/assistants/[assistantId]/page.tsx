@@ -8,20 +8,15 @@ import {
   Avatar,
   Thread,
 } from '@superinterface/react'
-import {
-  Flex,
-  Spinner,
-} from '@radix-ui/themes'
+import { Flex, Spinner } from '@radix-ui/themes'
 import { MarkdownProvider } from './MarkdownProvider'
 
 export default function Page({
-  params: {
-    assistantId,
-  },
+  params: { assistantId },
 }: {
   params: {
     assistantId: string
-  },
+  }
 }) {
   const { assistant } = useAssistant({
     assistantId,
@@ -34,9 +29,7 @@ export default function Page({
         align="center"
         justify="center"
       >
-        <Spinner
-          size="3"
-        />
+        <Spinner size="3" />
       </Flex>
     )
   }
@@ -49,11 +42,7 @@ export default function Page({
     >
       <AssistantNameContext.Provider value={assistant.name}>
         <AssistantAvatarContext.Provider
-          value={
-            <Avatar
-              avatar={assistant.avatar}
-            />
-          }
+          value={<Avatar avatar={assistant.avatar} />}
         >
           <Thread.Root>
             <MarkdownProvider>

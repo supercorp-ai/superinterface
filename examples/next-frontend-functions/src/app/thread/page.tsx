@@ -9,10 +9,7 @@ import {
 } from '@superinterface/react'
 import { Theme, Button, Flex } from '@radix-ui/themes'
 import '@radix-ui/themes/styles.css'
-import {
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 const ExampleButton = () => {
   const { createMessage } = useCreateMessage()
@@ -31,22 +28,21 @@ const ExampleButton = () => {
 }
 
 export default function Page() {
-  const [queryClient] = useState(() => (
-    new QueryClient({
-      defaultOptions: {
-        queries: {
-          // With SSR, we usually want to set some default staleTime
-          // above 0 to avoid refetching immediately on the client
-          staleTime: 10000,
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            // With SSR, we usually want to set some default staleTime
+            // above 0 to avoid refetching immediately on the client
+            staleTime: 10000,
+          },
         },
-      },
-    })
-  ))
+      }),
+  )
 
   useEffect(() => {
-    window.getCurrentTime = () => (
-      new Date().toLocaleTimeString()
-    )
+    window.getCurrentTime = () => new Date().toLocaleTimeString()
   }, [])
 
   return (
@@ -65,9 +61,7 @@ export default function Page() {
           }}
         >
           <AssistantNameContext.Provider value="Annotations tester">
-            <Flex
-              height="100dvh"
-            >
+            <Flex height="100dvh">
               <ExampleButton />
               <Thread />
             </Flex>

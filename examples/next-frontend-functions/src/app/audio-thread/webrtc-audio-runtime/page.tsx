@@ -9,33 +9,27 @@ import {
 } from '@superinterface/react'
 import { Theme } from '@radix-ui/themes'
 import '@radix-ui/themes/styles.css'
-import {
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 const Content = () => {
   const { webrtcAudioRuntime } = useWebrtcAudioRuntime()
 
-  return (
-    <AudioThread
-      audioRuntime={webrtcAudioRuntime}
-    />
-  )
+  return <AudioThread audioRuntime={webrtcAudioRuntime} />
 }
 
 export default function Page() {
-  const [queryClient] = useState(() => (
-    new QueryClient({
-      defaultOptions: {
-        queries: {
-          // With SSR, we usually want to set some default staleTime
-          // above 0 to avoid refetching immediately on the client
-          staleTime: 10000,
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            // With SSR, we usually want to set some default staleTime
+            // above 0 to avoid refetching immediately on the client
+            staleTime: 10000,
+          },
         },
-      },
-    })
-  ))
+      }),
+  )
 
   return (
     <QueryClientProvider client={queryClient}>

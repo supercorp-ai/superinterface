@@ -11,7 +11,9 @@
   min-height: inherit;
   display: flex;
   flex-grow: 1;
-  --default-font-family: "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+  --default-font-family:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans,
+    Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
   --cursor-button: pointer;
   --cursor-menu-item: pointer;
 }

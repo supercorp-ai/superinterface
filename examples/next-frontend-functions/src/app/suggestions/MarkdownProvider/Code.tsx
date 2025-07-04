@@ -10,15 +10,16 @@ export const Code = ({
   className,
   markdownContext,
 }: {
-  children: string,
-  className: string,
+  children: string
+  className: string
   markdownContext: ReturnType<typeof useMarkdownContext>
 }) => {
   const messageContext = useMessageContext()
 
-  const isAssistantMessage = useMemo(() => (
-    messageContext.message?.role === 'assistant'
-  ), [messageContext])
+  const isAssistantMessage = useMemo(
+    () => messageContext.message?.role === 'assistant',
+    [messageContext],
+  )
 
   if (!isAssistantMessage || className !== 'language-suggestions') {
     return markdownContext.components.code({ children, className })

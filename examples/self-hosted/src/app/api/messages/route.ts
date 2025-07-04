@@ -24,19 +24,18 @@ export const GET = async (request: NextRequest) => {
 
   const pageParam = searchParams.get('pageParam') || null
 
-  return NextResponse.json(await messagesResponse({
-    threadId,
-    // @ts-expect-error OpenAI is not typed correctly here
-    client,
-    ...(pageParam ? { pageParam } : {}),
-  }))
+  return NextResponse.json(
+    await messagesResponse({
+      threadId,
+      // @ts-expect-error OpenAI is not typed correctly here
+      client,
+      ...(pageParam ? { pageParam } : {}),
+    }),
+  )
 }
 
 export const POST = async (request: NextRequest) => {
-  const {
-    threadId,
-    content,
-  } = await request.json()
+  const { threadId, content } = await request.json()
 
   let thread
 
@@ -53,49 +52,50 @@ export const POST = async (request: NextRequest) => {
     content,
   })
 
-  const createRunStream = await client.beta.threads.runs.create(
-    thread.id,
-    {
-      assistant_id: process.env.NEXT_PUBLIC_ASSISTANT_ID!,
-      instructions: 'You are a Superinterface self-hosted assistant example. Tell that about yourself if asked.',
-      model: 'gpt-4.1-mini',
-      stream: true,
-    },
-  )
+  const createRunStream = await client.beta.threads.runs.create(thread.id, {
+    assistant_id: process.env.NEXT_PUBLIC_ASSISTANT_ID!,
+    instructions:
+      'You are a Superinterface self-hosted assistant example. Tell that about yourself if asked.',
+    model: 'gpt-4.1-mini',
+    stream: true,
+  })
 
-  return new Response(createMessageResponse({
-    client,
-    createRunStream,
-    handleToolCall: () => {
-      throw new Error('No tool calls expected in this example')
-    },
-    onStart: ({
-      controller,
-    }: {
-      controller: ReadableStreamDefaultController,
-    }) => {
-      if (threadId) return
-
-      return enqueueJson({
+  return new Response(
+    createMessageResponse({
+      client,
+      createRunStream,
+      handleToolCall: () => {
+        throw new Error('No tool calls expected in this example')
+      },
+      onStart: ({
         controller,
-        value: {
-          event: 'thread.created',
-          data: {
-            ...thread,
-            metadata: {
-              ...thread.metadata,
-              // add these because default Superinterface threadIdStorage expects it
-              assistantId: process.env.NEXT_PUBLIC_ASSISTANT_ID!,
-              threadId: thread.id,
+      }: {
+        controller: ReadableStreamDefaultController
+      }) => {
+        if (threadId) return
+
+        return enqueueJson({
+          controller,
+          value: {
+            event: 'thread.created',
+            data: {
+              ...thread,
+              metadata: {
+                ...thread.metadata,
+                // add these because default Superinterface threadIdStorage expects it
+                assistantId: process.env.NEXT_PUBLIC_ASSISTANT_ID!,
+                threadId: thread.id,
+              },
             },
           },
-        },
-      })
+        })
+      },
+    }),
+    {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+      },
     },
-  }), {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/json; charset=utf-8',
-    },
-  })
+  )
 }

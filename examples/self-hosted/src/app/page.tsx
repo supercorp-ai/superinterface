@@ -1,15 +1,9 @@
 'use client'
 
-import {
-  SuperinterfaceProvider,
-  Thread,
-} from '@superinterface/react'
+import { SuperinterfaceProvider, Thread } from '@superinterface/react'
 import { Theme, Flex } from '@radix-ui/themes'
 import '@radix-ui/themes/styles.css'
-import {
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 const queryClient = new QueryClient({
   defaultOptions: {

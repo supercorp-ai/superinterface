@@ -8,10 +8,7 @@ import {
 } from '@superinterface/react'
 import { Theme, Flex, Card, Avatar, Heading, Text } from '@radix-ui/themes'
 import '@radix-ui/themes/styles.css'
-import {
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,22 +18,14 @@ const queryClient = new QueryClient({
   },
 })
 
-const Song = ({
-  title,
-  artist,
-}: {
-  title: string
-  artist: string
-}) => (
+const Song = ({ title, artist }: { title: string; artist: string }) => (
   <Flex
     direction="column"
     maxWidth="400px"
     mb="3"
   >
     <Card>
-      <Flex
-        gap="2"
-      >
+      <Flex gap="2">
         <Avatar
           src="/placeholder.png"
           fallback="A"
@@ -45,10 +34,11 @@ const Song = ({
           direction="column"
           gap="1"
         >
-          <Heading size="2">
-            {title}
-          </Heading>
-          <Text size="2" color="gray">
+          <Heading size="2">{title}</Heading>
+          <Text
+            size="2"
+            color="gray"
+          >
             {artist}
           </Text>
         </Flex>

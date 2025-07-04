@@ -1,9 +1,5 @@
 import Link from 'next/link'
-import {
-  Flex,
-  Text,
-  Card,
-} from '@radix-ui/themes'
+import { Flex, Text, Card } from '@radix-ui/themes'
 import { assistants } from '@/lib/assistants'
 
 const Item = ({
@@ -12,7 +8,7 @@ const Item = ({
   assistant: {
     id: string
     name: string
-  },
+  }
 }) => (
   <Card
     asChild
