@@ -2,6 +2,7 @@
   "name": "next-reset-thread",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "npm@11.4.2",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
