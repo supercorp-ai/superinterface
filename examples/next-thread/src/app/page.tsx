@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import {
   SuperinterfaceProvider,
   Thread,
@@ -13,23 +12,19 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query'
 
-export default function Page() {
-  const [queryClient] = useState(() => (
-    new QueryClient({
-      defaultOptions: {
-        queries: {
-          // With SSR, we usually want to set some default staleTime
-          // above 0 to avoid refetching immediately on the client
-          staleTime: 10000,
-        },
-      },
-    })
-  ))
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 10000,
+    },
+  },
+})
 
+export default function Page() {
   return (
     <QueryClientProvider client={queryClient}>
       <Theme
-        accentColor="blue"
+        accentColor="lime"
         grayColor="gray"
         appearance="light"
         radius="medium"
@@ -37,16 +32,19 @@ export default function Page() {
       >
         <SuperinterfaceProvider
           variables={{
-            publicApiKey: '37245be8-902a-440e-aaae-c56151fe8acc',
-            assistantId: '26518c2b-07e4-44a7-bc62-36b0b3922bc7',
+            publicApiKey: '18d58cdd-96bc-4d01-ab21-1a891a4fd49e',
+            assistantId: '92ad4821-e7cf-49d9-bb93-89f43fb9316f',
           }}
         >
           <AssistantProvider>
-            <Thread />
+            <Flex
+              flexGrow="1"
+              height="100dvh"
+              p="5"
+            >
+              <Thread />
+            </Flex>
           </AssistantProvider>
-          <style>
-            {`.radix-themes { min-height: inherit; }`}
-          </style>
         </SuperinterfaceProvider>
       </Theme>
     </QueryClientProvider>
