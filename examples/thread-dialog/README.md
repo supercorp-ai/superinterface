@@ -1,6 +1,6 @@
-![Superinterface thread example](https://raw.githubusercontent.com/supercorp-ai/superinterface/main/examples/thread/src/app/opengraph-image.png)
+![Superinterface thread dialog example](https://raw.githubusercontent.com/supercorp-ai/superinterface/main/examples/thread-dialog/src/app/opengraph-image.png)
 
-This example is hosted here: https://examples-thread.superinterface.ai (see code [here](https://github.com/supercorp-ai/superinterface/tree/main/examples/thread))
+This example is hosted here: https://examples-thread-dialog.superinterface.ai (see code [here](https://github.com/supercorp-ai/superinterface/tree/main/examples/thread-dialog))
 
 ## Getting Started
 
