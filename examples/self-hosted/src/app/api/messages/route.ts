@@ -37,7 +37,7 @@ export const GET = async (request: NextRequest) => {
 export const POST = async (request: NextRequest) => {
   const { threadId, content } = await request.json()
 
-  let thread
+  let thread: OpenAI.Beta.Thread | null = null
 
   if (threadId) {
     thread = await client.beta.threads.retrieve(threadId)
@@ -73,6 +73,7 @@ export const POST = async (request: NextRequest) => {
         controller: ReadableStreamDefaultController
       }) => {
         if (threadId) return
+        if (!thread) return
 
         return enqueueJson({
           controller,
