@@ -24,8 +24,11 @@ export default function Page() {
 
   useEffect(() => {
     window.setName = ({ name }: { name: string }) => setName(name)
+  }, [setName])
+
+  useEffect(() => {
     window.setCity = ({ city }: { city: string }) => setCity(city)
-  }, [setName, setCity])
+  }, [setCity])
 
   return (
     <QueryClientProvider client={queryClient}>
