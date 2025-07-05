@@ -1,9 +1,9 @@
 {
-  "name": "@superinterface/javascript-example",
+  "name": "thread-dialog-script-tag",
   "version": "1.0.0",
   "keywords": [],
   "license": "ISC",
   "scripts": {
-    "serve": "npx serve . -p 3006"
+    "dev": "npx serve . -p 3006"
   }
 }
