@@ -4,6 +4,6 @@
   "keywords": [],
   "license": "ISC",
   "scripts": {
-    "serve": "npx serve . -p 3006"
+    "dev": "npx serve . -p 3006"
   }
 }
