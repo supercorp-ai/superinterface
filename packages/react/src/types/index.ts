@@ -1,13 +1,35 @@
 import OpenAI from 'openai'
 import { AvatarType, IconAvatarName } from '@/lib/enums'
 
-export type SerializedRunStep = Pick<OpenAI.Beta.Threads.Runs.RunStep, 'id' | 'run_id' | 'step_details' | 'completed_at' | 'cancelled_at' | 'failed_at' | 'status'>
+export type SerializedRunStep = Pick<
+  OpenAI.Beta.Threads.Runs.RunStep,
+  | 'id'
+  | 'run_id'
+  | 'step_details'
+  | 'completed_at'
+  | 'cancelled_at'
+  | 'failed_at'
+  | 'status'
+>
 
-export type SerializedMessage = Pick<OpenAI.Beta.Threads.Messages.Message, 'id' | 'role' | 'created_at' | 'content' | 'run_id' | 'assistant_id' | 'thread_id' | 'attachments' | 'metadata' | 'status'> & {
+export type SerializedMessage = Pick<
+  OpenAI.Beta.Threads.Messages.Message,
+  | 'id'
+  | 'role'
+  | 'created_at'
+  | 'content'
+  | 'run_id'
+  | 'assistant_id'
+  | 'thread_id'
+  | 'attachments'
+  | 'metadata'
+  | 'status'
+> & {
   runSteps: SerializedRunStep[]
 }
 
-export type ToolCall = OpenAI.Beta.Threads.Runs.CodeInterpreterToolCall
+export type ToolCall =
+  | OpenAI.Beta.Threads.Runs.CodeInterpreterToolCall
   | OpenAI.Beta.Threads.Runs.FileSearchToolCall
   | OpenAI.Beta.Threads.Runs.FunctionToolCall
 
@@ -19,7 +41,7 @@ export type MessagesPage = {
 
 export type MessageGroup = {
   id: string
-  role: "user" | "assistant"
+  role: 'user' | 'assistant'
   messages: SerializedMessage[]
   createdAt: number
 }
@@ -34,19 +56,22 @@ export type Toast = {
   message: string
 }
 
-export type ThreadMessageCreatedEvent = OpenAI.Beta.Assistants.AssistantStreamEvent.ThreadMessageCreated & {
-  data: SerializedMessage
-}
-
-export type ThreadMessageCompletedEvent = OpenAI.Beta.Assistants.AssistantStreamEvent.ThreadMessageCompleted & {
-  data: SerializedMessage
-}
-
-export type ThreadRunStepDeltaEvent = OpenAI.Beta.Assistants.AssistantStreamEvent.ThreadRunStepDelta & {
-  data: {
-    run_id: string
+export type ThreadMessageCreatedEvent =
+  OpenAI.Beta.Assistants.AssistantStreamEvent.ThreadMessageCreated & {
+    data: SerializedMessage
   }
-}
+
+export type ThreadMessageCompletedEvent =
+  OpenAI.Beta.Assistants.AssistantStreamEvent.ThreadMessageCompleted & {
+    data: SerializedMessage
+  }
+
+export type ThreadRunStepDeltaEvent =
+  OpenAI.Beta.Assistants.AssistantStreamEvent.ThreadRunStepDelta & {
+    data: {
+      run_id: string
+    }
+  }
 
 export type MessagesQueryKey = (string | Record<string, any>)[]
 
@@ -73,7 +98,7 @@ export type StyleProps = {
 
 export type ThreadStorageOptions = {
   get: (args: { assistantId: string }) => string | null
-  set: (args: { assistantId: string, threadId: string }) => void
+  set: (args: { assistantId: string; threadId: string }) => void
   remove: (args: { assistantId: string }) => void
 }
 
@@ -81,22 +106,25 @@ type UseCreateMessageTextVariables = {
   content: string
 }
 
-type ContentPart = {
-  type: 'text'
-  text: string
-} | {
-  type: 'image_file'
-  image_file: {
-    file_id: string
-    detail?: string
-  }
-} | {
-  type: 'image_url'
-  image_url: {
-    url: string
-    detail?: string
-  }
-}
+type ContentPart =
+  | {
+      type: 'text'
+      text: string
+    }
+  | {
+      type: 'image_file'
+      image_file: {
+        file_id: string
+        detail?: string
+      }
+    }
+  | {
+      type: 'image_url'
+      image_url: {
+        url: string
+        detail?: string
+      }
+    }
 
 type UseCreateMessageContentPartsVariables = {
   content: ContentPart[]
@@ -106,7 +134,11 @@ type UseCreateMessageAudioVariables = {
   audioContent: unknown
 }
 
-export type UseCreateMessageVariables = (UseCreateMessageTextVariables | UseCreateMessageAudioVariables | UseCreateMessageContentPartsVariables) & {
+export type UseCreateMessageVariables = (
+  | UseCreateMessageTextVariables
+  | UseCreateMessageAudioVariables
+  | UseCreateMessageContentPartsVariables
+) & {
   [key: string]: any
 }
 
@@ -144,4 +176,34 @@ export type AssistantAudioControls = {
 export type AudioRuntime = {
   user: UserAudioControls
   assistant: AssistantAudioControls
+}
+
+export type RecurrenceRule = {
+  frequency: 'daily' | 'weekly' | 'monthly' | 'yearly'
+  byDay?: string[]
+  byMonth?: number[]
+  byHour?: number[]
+  byMinute?: number[]
+  bySecond?: number[]
+  until?: string
+  count?: number
+  [key: string]: any
+}
+
+export type Schedule = {
+  start: string
+  due?: string
+  recurrenceRules?: RecurrenceRule[]
+  [key: string]: any
+}
+
+export type Task = {
+  id: string
+  title: string
+  message: string
+  schedule: Schedule
+  threadId: string
+  key: string
+  createdAt: string
+  updatedAt: string
 }
