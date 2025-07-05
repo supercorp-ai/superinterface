@@ -6,11 +6,11 @@ import {
 } from '@superinterface/react/server'
 import { enqueueJson } from '@superinterface/react/utils'
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
-
 export const GET = async (request: NextRequest) => {
+  const client = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  })
+
   const searchParams = request.nextUrl.searchParams
   const threadId = searchParams.get('threadId') || null
 
@@ -35,6 +35,10 @@ export const GET = async (request: NextRequest) => {
 }
 
 export const POST = async (request: NextRequest) => {
+  const client = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  })
+
   const { threadId, content } = await request.json()
 
   let thread: OpenAI.Beta.Thread | null = null
