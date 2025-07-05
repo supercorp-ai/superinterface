@@ -1,6 +1,7 @@
 {
   "name": "group-iframe",
   "version": "1.0.0",
+  "packageManager": "npm@11.4.2",
   "keywords": [],
   "license": "ISC",
   "scripts": {
