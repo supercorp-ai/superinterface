@@ -12,26 +12,33 @@ type Args = {
   message: SerializedMessage
 }
 
-export const Message = ({
-  message,
-  className,
-  style,
-}: Args & StyleProps) => {
+export const Message = ({ message, className, style }: Args & StyleProps) => {
   const [olderRunSteps, laterRunSteps] = useMemo(() => {
     if (!message.runSteps.length) return [[], []]
 
-    const messageCreationRunStepIndex = message.runSteps.findIndex((runStep) => {
-      if (runStep.step_details.type !== 'message_creation') return
-      return runStep.step_details.message_creation.message_id === message.id
-    })
+    const messageCreationRunStepIndex = message.runSteps.findIndex(
+      (runStep) => {
+        if (runStep.step_details.type !== 'message_creation') return
+        return runStep.step_details.message_creation.message_id === message.id
+      },
+    )
+
+    if (messageCreationRunStepIndex === -1) {
+      return [[], message.runSteps]
+    }
 
     let nextRunStepIndex = message.runSteps
       .slice(0, messageCreationRunStepIndex)
-      .findLastIndex((runStep) => runStep.step_details.type === 'message_creation')
+      .findLastIndex(
+        (runStep) => runStep.step_details.type === 'message_creation',
+      )
     if (nextRunStepIndex === -1) {
       nextRunStepIndex = 0
     }
-    const laterRunSteps = message.runSteps.slice(nextRunStepIndex, messageCreationRunStepIndex)
+    const laterRunSteps = message.runSteps.slice(
+      nextRunStepIndex,
+      messageCreationRunStepIndex,
+    )
 
     const prevRunStepIndex = message.runSteps
       .slice(messageCreationRunStepIndex + 1)
@@ -43,7 +50,7 @@ export const Message = ({
     } else {
       olderRunSteps = message.runSteps.slice(
         messageCreationRunStepIndex + 1,
-        messageCreationRunStepIndex + prevRunStepIndex
+        messageCreationRunStepIndex + prevRunStepIndex,
       )
     }
 
@@ -52,7 +59,10 @@ export const Message = ({
 
   return (
     <Provider value={{ message }}>
-      <Box className={className} style={style}>
+      <Box
+        className={className}
+        style={style}
+      >
         <RunSteps runSteps={olderRunSteps} />
 
         <Box style={{ wordBreak: 'break-word' }}>
