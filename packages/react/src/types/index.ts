@@ -179,7 +179,14 @@ export type AudioRuntime = {
 }
 
 export type RecurrenceRule = {
-  frequency: 'daily' | 'weekly' | 'monthly' | 'yearly'
+  frequency:
+    | 'secondly'
+    | 'minutely'
+    | 'hourly'
+    | 'daily'
+    | 'weekly'
+    | 'monthly'
+    | 'yearly'
   byDay?: string[]
   byMonth?: number[]
   byHour?: number[]
