@@ -1,4 +1,4 @@
-![Superinterface primitives example.](https://raw.githubusercontent.com/supercorp-ai/superinterface/main/examples/reset-thread/src/app/opengraph-image.png)
+![Superinterface primitives example.](https://raw.githubusercontent.com/supercorp-ai/superinterface/main/examples/primitives/src/app/opengraph-image.png)
 
 This example is hosted here: https://examples-primitives.superinterface.ai (see code [here](https://github.com/supercorp-ai/superinterface/tree/main/examples/primitives))
 
