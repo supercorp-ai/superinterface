@@ -56,5 +56,6 @@ export { MessageGroup } from '@/components/messageGroups/MessageGroup'
 export { MessagesSkeleton } from '@/components/skeletons/MessagesSkeleton'
 
 export { StartingSkeleton } from '@/components/skeletons/StartingSkeleton'
+export { StartingContentSkeleton } from '@/components/skeletons/StartingContentSkeleton'
 
 export { useCreateFile } from '@/hooks/files/useCreateFile'
