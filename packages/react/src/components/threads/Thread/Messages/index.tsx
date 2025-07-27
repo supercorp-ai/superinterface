@@ -1,6 +1,4 @@
-import {
-  Flex,
-} from '@radix-ui/themes'
+import { Flex } from '@radix-ui/themes'
 import { Message } from '@/components/threads/Thread/Message'
 import { StyleProps } from '@/types'
 import { Content } from './Content'
@@ -12,11 +10,7 @@ type Args = {
   children?: React.ReactNode
 } & StyleProps
 
-export const Messages = ({
-  children,
-  className,
-  style,
-}: Args) => (
+export const Messages = ({ children, className, style }: Args) => (
   <Root
     style={style}
     className={className}
@@ -45,3 +39,4 @@ export const Messages = ({
 Messages.Root = Root
 Messages.Message = Message
 Messages.NextPageSkeleton = NextPageSkeleton
+Messages.Content = Content
