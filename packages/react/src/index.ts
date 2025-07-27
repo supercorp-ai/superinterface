@@ -53,6 +53,8 @@ export { AssistantProvider } from '@/components/assistants/AssistantProvider'
 export { MessageContent } from '@/components/messages/MessageContent'
 export { MessageGroup } from '@/components/messageGroups/MessageGroup'
 
+export { MessagesSkeleton } from '@/components/skeletons/MessagesSkeleton'
+
 export { StartingSkeleton } from '@/components/skeletons/StartingSkeleton'
 
 export { useCreateFile } from '@/hooks/files/useCreateFile'

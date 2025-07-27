@@ -12,6 +12,7 @@ import { MessageGroup } from '@/components/messageGroups/MessageGroup'
 import { MessageAttachments } from '@/components/messages/MessageAttachments'
 import { StartingSkeleton } from '@/components/skeletons/StartingSkeleton'
 import { StartingContentSkeleton } from '@/components/skeletons/StartingContentSkeleton'
+import { MessagesSkeleton } from '@/components/skeletons/MessagesSkeleton'
 
 export const ComponentsContext = createContext({
   components: {
@@ -27,5 +28,6 @@ export const ComponentsContext = createContext({
     MessageAttachments,
     StartingSkeleton,
     StartingContentSkeleton,
+    MessagesSkeleton,
   },
 })

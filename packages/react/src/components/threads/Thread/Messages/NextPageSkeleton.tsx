@@ -1,17 +1,17 @@
 'use client'
 import { useMessages } from '@/hooks/messages/useMessages'
-import { MessagesSkeleton } from '@/components/skeletons/MessagesSkeleton'
+import { useComponents } from '@/hooks/components/useComponents'
 
 export const NextPageSkeleton = () => {
+  const { hasNextPage } = useMessages()
+
   const {
-    hasNextPage,
-  } = useMessages()
+    components: { MessagesSkeleton },
+  } = useComponents()
 
   if (!hasNextPage) {
     return null
   }
 
-  return (
-    <MessagesSkeleton />
-  )
+  return <MessagesSkeleton />
 }
