@@ -2,14 +2,11 @@ import { defineConfig } from 'tsup'
 import babel from 'esbuild-plugin-babel'
 
 const ReactCompilerConfig = {
-  target: '18'
+  target: '18',
 }
 
 export default defineConfig({
-  entry: [
-    'src/*.ts',
-    'src/types/*.ts',
-  ],
+  entry: ['src/*.ts', 'src/types/*.ts', 'src/enums/*.ts'],
   esbuildPlugins: [
     babel({
       config: {
@@ -30,23 +27,14 @@ export default defineConfig({
             },
           ],
         ],
-        plugins: [
-          ['babel-plugin-react-compiler', ReactCompilerConfig],
-        ],
+        plugins: [['babel-plugin-react-compiler', ReactCompilerConfig]],
       },
     }),
   ],
   splitting: false,
   sourcemap: true,
   clean: true,
-  format: [
-    'esm',
-    'cjs',
-  ],
+  format: ['esm', 'cjs'],
   dts: true,
-  external: [
-    'react',
-    'react-dom',
-    '@tanstack/react-query',
-  ],
+  external: ['react', 'react-dom', '@tanstack/react-query'],
 })
