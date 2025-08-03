@@ -1,6 +1,5 @@
 import OpenAI from 'openai'
-import { AvatarType, IconAvatarName } from '@/lib/enums'
-export type { AvatarType, IconAvatarName }
+import { AvatarType, IconAvatarName } from '@/enums'
 
 export type SerializedRunStep = Pick<
   OpenAI.Beta.Threads.Runs.RunStep,

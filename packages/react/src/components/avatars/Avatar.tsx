@@ -1,4 +1,4 @@
-import { AvatarType as AvatarTypeEnum } from '@/lib/enums'
+import { AvatarType as AvatarTypeEnum } from '@/enums'
 import { Avatar as AvatarType, StyleProps } from '@/types'
 import { Avatar as RadixAvatar } from '@radix-ui/themes'
 import { ImageAvatar } from '@/components/imageAvatars/ImageAvatar'

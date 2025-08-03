@@ -1,6 +1,6 @@
 {
   "name": "@superinterface/react",
-  "version": "4.1.2",
+  "version": "4.2.0",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -8,6 +8,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./*": "./dist/*.js",
+    "./enums": "./dist/enums/index.js",
     "./types": "./dist/types/index.js"
   },
   "files": [

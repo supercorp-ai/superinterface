@@ -1,4 +1,4 @@
-import { IconAvatarName } from '@/lib/enums'
+import { IconAvatarName } from '@/enums'
 import {
   BackpackIcon,
   RocketIcon,
