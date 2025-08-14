@@ -1,10 +1,5 @@
 import OpenAI from 'openai'
-import {
-  Popover,
-  Flex,
-  Code,
-  Box,
-} from '@radix-ui/themes'
+import { Popover, Flex, Code, Box } from '@radix-ui/themes'
 import { ToolCallBase } from '@/components/toolCalls/ToolCallBase'
 import { ToolCallTitle } from '@/components/toolCalls/ToolCallBase/ToolCallTitle'
 import { ToolCallIcon } from '@/components/toolCalls/ToolCallBase/ToolCallIcon'
@@ -28,12 +23,8 @@ const Content = ({
         wordBreak: 'break-word',
       }}
     >
-      <Box>
-        {codeInterpreter.input}
-      </Box>
-      <Box>
-        {JSON.stringify(codeInterpreter.outputs)}
-      </Box>
+      <Box>{codeInterpreter.input}</Box>
+      <Box>{JSON.stringify(codeInterpreter.outputs)}</Box>
     </Code>
   )
 }
@@ -41,27 +32,23 @@ const Content = ({
 export const CodeInterpreterToolCall = ({
   codeInterpreter,
   runStep,
+  toolCall: _toolCall,
 }: {
   codeInterpreter: OpenAI.Beta.Threads.Runs.CodeInterpreterToolCall.CodeInterpreter
   runStep: SerializedRunStep
+  toolCall: OpenAI.Beta.Threads.Runs.CodeInterpreterToolCall
 }) => (
   <Popover.Root>
     <Popover.Trigger>
       <Flex>
         <ToolCallBase>
           <ToolCallIcon runStep={runStep} />
-          <ToolCallTitle>
-            Using code interpreter
-          </ToolCallTitle>
+          <ToolCallTitle>Using code interpreter</ToolCallTitle>
         </ToolCallBase>
       </Flex>
     </Popover.Trigger>
-    <Popover.Content
-      maxHeight="200px"
-    >
-      <Content
-        codeInterpreter={codeInterpreter}
-      />
+    <Popover.Content maxHeight="200px">
+      <Content codeInterpreter={codeInterpreter} />
     </Popover.Content>
   </Popover.Root>
 )

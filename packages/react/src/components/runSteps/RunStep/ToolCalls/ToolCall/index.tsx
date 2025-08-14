@@ -9,14 +9,12 @@ type Args = {
   runStep: SerializedRunStep
 }
 
-export const ToolCall = ({
-  toolCall,
-  runStep,
-}: Args) => {
+export const ToolCall = ({ toolCall, runStep }: Args) => {
   if (toolCall.type === 'function') {
     return (
       <Fn
         fn={toolCall.function}
+        toolCall={toolCall}
         runStep={runStep}
       />
     )
@@ -26,6 +24,7 @@ export const ToolCall = ({
     return (
       <CodeInterpreter
         codeInterpreter={toolCall.code_interpreter}
+        toolCall={toolCall}
         runStep={runStep}
       />
     )

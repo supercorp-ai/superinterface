@@ -8,21 +8,21 @@ import { ComponentsContext } from '@/contexts/components/ComponentsContext'
 type Args = {
   fn: OpenAI.Beta.Threads.Runs.FunctionToolCall.Function
   runStep: SerializedRunStep
+  toolCall: OpenAI.Beta.Threads.Runs.FunctionToolCall
 }
 
-export const Fn = ({
-  fn,
-  runStep,
-}: Args) => {
+export const Fn = ({ fn, runStep, toolCall }: Args) => {
   const functionComponentsContext = useContext(FunctionComponentsContext)
   const componentsContext = useContext(ComponentsContext)
-  const Component = functionComponentsContext[fn.name] || componentsContext.components.Function
+  const Component =
+    functionComponentsContext[fn.name] || componentsContext.components.Function
 
   return (
     // @ts-ignore-next-line
     <Component
       fn={fn}
       runStep={runStep}
+      toolCall={toolCall}
     />
   )
 }
