@@ -1,113 +1,15 @@
 'use client'
 
-import type OpenAI from 'openai'
-import { useCallback } from 'react'
-import { omit } from 'radash'
-import dayjs from 'dayjs'
-import { optimisticId } from '@/lib/optimistic/optimisticId'
-import {
-  FilePlusIcon,
-} from '@radix-ui/react-icons'
-import {
-  IconButton,
-  Flex,
-} from '@radix-ui/themes'
-import { useToasts } from '@/hooks/toasts/useToasts'
-import { useMessageFormContext } from '@/hooks/messages/useMessageFormContext'
-import { useCreateFile } from '@/hooks/files/useCreateFile'
+import { FilePlusIcon } from '@radix-ui/react-icons'
+import { IconButton, Flex } from '@radix-ui/themes'
 import type { StyleProps } from '@/types'
-
-const accept = `.c,text/x-c,
-.cs,text/x-csharp,
-.cpp,text/x-c++,
-.doc,application/msword,
-.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,
-.html,text/html,
-.java,text/x-java,
-.json,application/json,
-.md,text/markdown,
-.pdf,application/pdf,
-.php,text/x-php,
-.pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation,
-.py,text/x-python,
-.py,text/x-script.python,
-.rb,text/x-ruby,
-.tex,text/x-tex,
-.txt,text/plain,
-.css,text/css,
-.js,text/javascript,
-.sh,application/x-sh,
-.ts,application/typescript,
-.png,image/png,
-.jpeg,image/jpeg,
-.jpg,image/jpeg,
-.webp,image/webp,
-.gif,image/gif`
-
-const purpose = ({
-  fileObject,
-}: {
-  fileObject: File
-}) => {
-  if (fileObject.type.startsWith('image/')) {
-    return 'vision' as 'vision'
-  }
-
-  return 'assistants' as 'assistants'
-}
+import { useMessageFormContext } from '@/hooks/messages/useMessageFormContext'
+import { useChangeFilesField } from '@/hooks/files/useChangeFilesField'
+import { filesFieldAccept } from '@/lib/files/filesFieldAccept'
 
 export const Control = (props: StyleProps) => {
-  const { isDisabled, isLoading, setFiles } = useMessageFormContext()
-  const { createFile } = useCreateFile()
-  const { addToast } = useToasts()
-
-  const onChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const fileObjects = event.target.files
-    if (!fileObjects) return
-
-    const newFiles = Array.from(fileObjects).map((fileObject) => {
-      return {
-        id: optimisticId(),
-        filename: fileObject.name,
-        object: 'file' as const,
-        purpose: purpose({ fileObject }),
-        created_at: dayjs().unix(),
-        bytes: fileObject.size,
-        status: 'processed' as const,
-        fileObject,
-      }
-    })
-
-    setFiles((prev: OpenAI.Files.FileObject[]) => [
-      ...prev,
-      ...newFiles.map((file) => omit(file, ['fileObject'])),
-    ])
-
-    for await (const newFile of newFiles) {
-      await createFile({
-        file: newFile.fileObject,
-        purpose: newFile.purpose,
-      },
-      {
-        onSuccess: ({
-          file,
-        }: {
-          file: OpenAI.Files.FileObject
-        }) => (
-          setFiles((prev) => ([
-            ...prev.filter((prevFile) => prevFile.id !== newFile.id),
-            file,
-          ]))
-        ),
-        onError: () => {
-          addToast({ type: 'error', message: 'Could not upload file. Please try again.' })
-          setFiles((prev) => (
-            prev.filter((prevFile) => prevFile.id !== newFile.id)
-          ))
-        },
-      })
-    }
-  }, [addToast, createFile, setFiles])
+  const { isDisabled, isLoading } = useMessageFormContext()
+  const { changeFilesField } = useChangeFilesField()
 
   return (
     <Flex
@@ -130,8 +32,8 @@ export const Control = (props: StyleProps) => {
         <input
           type="file"
           multiple
-          accept={accept}
-          onChange={onChange}
+          accept={filesFieldAccept}
+          onChange={changeFilesField}
           style={{
             cursor: 'pointer',
             position: 'absolute',

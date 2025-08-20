@@ -59,3 +59,4 @@ export { StartingSkeleton } from '@/components/skeletons/StartingSkeleton'
 export { StartingContentSkeleton } from '@/components/skeletons/StartingContentSkeleton'
 
 export { useCreateFile } from '@/hooks/files/useCreateFile'
+export { useChangeFilesField } from '@/hooks/files/useChangeFilesField'
