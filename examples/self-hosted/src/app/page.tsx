@@ -24,7 +24,9 @@ export default function Page() {
         scaling="100%"
       >
         <SuperinterfaceProvider
-          baseUrl="http://localhost:3000/api"
+          // Uses self-hosted Superinterface API
+          // http://localhost:3000/api
+          baseUrl="/api"
           variables={{
             assistantId: process.env.NEXT_PUBLIC_ASSISTANT_ID,
           }}
