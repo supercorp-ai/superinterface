@@ -1,9 +1,7 @@
 'use client'
 import OpenAI from 'openai'
-import {
-  useQueryClient,
-} from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { useMemo, useState, useCallback } from 'react'
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form'
 import { Box } from '@radix-ui/themes'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
@@ -31,7 +29,13 @@ export const Root = ({
   className,
 }: {
   children: React.ReactNode
-  onSubmit?: SubmitHandler<Inputs & { reset: any, createMessage: any }>
+  onSubmit?: SubmitHandler<
+    Inputs & {
+      reset: () => void
+      createMessage: ReturnType<typeof useCreateMessage>['createMessage']
+      files: OpenAI.Files.FileObject[]
+    }
+  >
   isDisabled?: boolean
 } & StyleProps) => {
   'use no memo'
@@ -41,7 +45,7 @@ export const Root = ({
   const {
     handleSubmit,
     formState: { isSubmitting },
-    reset,
+    reset: formReset,
     watch,
   } = formProps
 
@@ -59,64 +63,74 @@ export const Root = ({
 
   const isMutatingMessage = useIsMutatingMessage()
 
-  const isFileLoading = useMemo(() => (
-    files.some((file) => isOptimistic({ id: file.id }))
-  ), [files])
+  const isFileLoading = useMemo(
+    () => files.some((file) => isOptimistic({ id: file.id })),
+    [files],
+  )
 
-  const isLoading = useMemo(() => (
-    isMutatingMessage || isSubmitting
-  ), [
-    isMutatingMessage,
-    isSubmitting,
-  ])
+  const isLoading = useMemo(
+    () => isMutatingMessage || isSubmitting,
+    [isMutatingMessage, isSubmitting],
+  )
 
   const { latestMessage } = useLatestMessage()
 
-  const isDisabled = useMemo(() => (
-    !!latestMessage?.metadata?.isBlocking || !!isDisabledArg
-  ), [latestMessage, isDisabledArg])
+  const isDisabled = useMemo(
+    () => !!latestMessage?.metadata?.isBlocking || !!isDisabledArg,
+    [latestMessage, isDisabledArg],
+  )
 
-  const onSubmit: SubmitHandler<Inputs> = onSubmitArg ? partob(onSubmitArg, { reset, createMessage }) : async (data) => {
-    if (isFileLoading) return
-    if (isLoading) return
-    if (isDisabled) return
-
-    reset()
+  const reset = useCallback(() => {
+    formReset()
     setFiles([])
+  }, [formReset])
 
-    const attachments = files.filter((file) => (
-      file.purpose === 'assistants'
-    )).map((file) => ({
-      file_id: file.id,
-      tools: [
-        {
-          type: 'file_search',
-        },
-      ],
-    }))
+  const onSubmit: SubmitHandler<Inputs> = onSubmitArg
+    ? partob(onSubmitArg, {
+        reset,
+        createMessage,
+        files,
+      })
+    : async (data) => {
+        if (isFileLoading) return
+        if (isLoading) return
+        if (isDisabled) return
 
-    const imageFileContentParts = files.filter((file) => (
-      file.purpose === 'vision'
-    )).map((file) => ({
-      type: 'image_file' as 'image_file',
-      image_file: {
-        file_id: file.id,
-      },
-    }))
+        reset()
 
-    const content = [
-      ...imageFileContentParts,
-      {
-        type: 'text' as 'text',
-        text: data.content,
-      },
-    ]
+        const attachments = files
+          .filter((file) => file.purpose === 'assistants')
+          .map((file) => ({
+            file_id: file.id,
+            tools: [
+              {
+                type: 'file_search',
+              },
+            ],
+          }))
 
-    await createMessage({
-      content,
-      ...(attachments.length ? { attachments } : {}),
-    })
-  }
+        const imageFileContentParts = files
+          .filter((file) => file.purpose === 'vision')
+          .map((file) => ({
+            type: 'image_file' as 'image_file',
+            image_file: {
+              file_id: file.id,
+            },
+          }))
+
+        const content = [
+          ...imageFileContentParts,
+          {
+            type: 'text' as 'text',
+            text: data.content,
+          },
+        ]
+
+        await createMessage({
+          content,
+          ...(attachments.length ? { attachments } : {}),
+        })
+      }
 
   const content = watch('content')
 
@@ -138,11 +152,7 @@ export const Root = ({
           style={style}
           className={className}
         >
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-          >
-            {children}
-          </form>
+          <form onSubmit={handleSubmit(onSubmit)}>{children}</form>
         </Box>
       </FormProvider>
     </MessageFormContext.Provider>
