@@ -4,7 +4,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
-import { useForm, SubmitHandler, FormProvider } from 'react-hook-form'
+import { useForm, SubmitHandler, FormProvider, UseFormReset } from 'react-hook-form'
 import { Box } from '@radix-ui/themes'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useCreateMessage } from '@/hooks/messages/useCreateMessage'
@@ -16,11 +16,17 @@ import { useIsMutatingMessage } from '@/hooks/messages/useIsMutatingMessage'
 import { partob } from 'radash'
 import { isOptimistic } from '@/lib/optimistic/isOptimistic'
 import { createMessageDefaultOnError } from '@/lib/errors/createMessageDefaultOnError'
-import type { StyleProps } from '@/types'
+import type { StyleProps, UseCreateMessageVariables } from '@/types'
 
 type Inputs = {
   content: string
-  attachments?: OpenAI.Beta.Threads.Message.Attachment[]
+  attachments?: OpenAI.Files.FileObject[]
+}
+
+type OnSubmitArgs = {
+  reset: UseFormReset<Inputs>
+  createMessage: (variables: UseCreateMessageVariables) => Promise<any>
+  setFiles: (files: OpenAI.Files.FileObject[]) => void
 }
 
 export const Root = ({
@@ -31,7 +37,7 @@ export const Root = ({
   className,
 }: {
   children: React.ReactNode
-  onSubmit?: SubmitHandler<Inputs & { reset: any, createMessage: any }>
+  onSubmit?: SubmitHandler<Inputs & OnSubmitArgs>
   isDisabled?: boolean
 } & StyleProps) => {
   'use no memo'
@@ -76,7 +82,8 @@ export const Root = ({
     !!latestMessage?.metadata?.isBlocking || !!isDisabledArg
   ), [latestMessage, isDisabledArg])
 
-  const onSubmit: SubmitHandler<Inputs> = onSubmitArg ? partob(onSubmitArg, { reset, createMessage }) : async (data) => {
+
+  const onSubmit: SubmitHandler<Inputs> = onSubmitArg ? partob(onSubmitArg, { reset, createMessage, attachments:files, setFiles }) : async (data) => {
     if (isFileLoading) return
     if (isLoading) return
     if (isDisabled) return
