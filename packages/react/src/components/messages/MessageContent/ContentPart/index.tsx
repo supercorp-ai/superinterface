@@ -7,16 +7,10 @@ const TextContent = ({
   content: OpenAI.Beta.Threads.Messages.TextContentBlock
 }) => {
   const {
-    components: {
-      TextContent,
-    },
+    components: { TextContent },
   } = useComponents()
 
-  return (
-    <TextContent
-      content={content}
-    />
-  )
+  return <TextContent content={content} />
 }
 
 const ImageFileContent = ({
@@ -25,16 +19,22 @@ const ImageFileContent = ({
   content: OpenAI.Beta.Threads.Messages.ImageFileContentBlock
 }) => {
   const {
-    components: {
-      ImageFileContent,
-    },
+    components: { ImageFileContent },
   } = useComponents()
 
-  return (
-    <ImageFileContent
-      content={content}
-    />
-  )
+  return <ImageFileContent content={content} />
+}
+
+const ImageUrlContent = ({
+  content,
+}: {
+  content: OpenAI.Beta.Threads.Messages.ImageFileContentBlock
+}) => {
+  const {
+    components: { ImageUrlContent },
+  } = useComponents()
+
+  return <ImageUrlContent content={content} />
 }
 
 export const ContentPart = ({
@@ -43,19 +43,15 @@ export const ContentPart = ({
   content: OpenAI.Beta.Threads.Messages.MessageContent
 }) => {
   if (content.type === 'text') {
-    return (
-      <TextContent
-        content={content}
-      />
-    )
+    return <TextContent content={content} />
   }
 
   if (content.type === 'image_file') {
-    return (
-      <ImageFileContent
-        content={content}
-      />
-    )
+    return <ImageFileContent content={content} />
+  }
+
+  if (content.type === 'image_url') {
+    return <ImageUrlContent content={content} />
   }
 
   return null

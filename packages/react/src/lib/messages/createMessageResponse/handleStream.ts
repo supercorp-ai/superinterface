@@ -29,7 +29,11 @@ export const handleStream = async ({
   for await (const value of stream) {
     onEvent({ controller, event: value.event, data: value.data })
 
-    if (['thread.message.created', 'thread.message.completed'].includes(value.event)) {
+    if (
+      ['thread.message.created', 'thread.message.completed'].includes(
+        value.event,
+      )
+    ) {
       enqueueJson({
         controller,
         value: {
@@ -39,7 +43,9 @@ export const handleStream = async ({
           }),
         },
       })
-    } else if (['thread.message.delta', 'thread.run.step.delta'].includes(value.event)) {
+    } else if (
+      ['thread.message.delta', 'thread.run.step.delta'].includes(value.event)
+    ) {
       enqueueJson({
         controller,
         value,
@@ -64,7 +70,11 @@ export const handleStream = async ({
           }),
         },
       })
-    } else if (['thread.run.step.created', 'thread.run.step.completed'].includes(value.event)) {
+    } else if (
+      ['thread.run.step.created', 'thread.run.step.completed'].includes(
+        value.event,
+      )
+    ) {
       enqueueJson({
         controller,
         value: {
@@ -93,7 +103,7 @@ export const handleStream = async ({
         onEvent,
       })
     } else {
-      console.dir({ value }, { depth: null })
+      // console.dir({ value }, { depth: null })
     }
   }
 }
