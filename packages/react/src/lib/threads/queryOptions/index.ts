@@ -1,7 +1,4 @@
-import {
-  useQueryClient,
-  infiniteQueryOptions,
-} from '@tanstack/react-query'
+import { useQueryClient, infiniteQueryOptions } from '@tanstack/react-query'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
 import { MessagesPage } from '@/types'
@@ -20,30 +17,27 @@ export const queryOptions = ({
   superinterfaceContext,
 }: {
   queryKeyBase: string[]
-  path: string,
-  queryClient: ReturnType<typeof useQueryClient>,
-  threadContext: ReturnType<typeof useThreadContext>,
-  superinterfaceContext: ReturnType<typeof useSuperinterfaceContext>,
+  path: string
+  queryClient: ReturnType<typeof useQueryClient>
+  threadContext: ReturnType<typeof useThreadContext>
+  superinterfaceContext: ReturnType<typeof useSuperinterfaceContext>
 }) => {
   const queryKey = [...queryKeyBase, threadContext.variables]
 
   return infiniteQueryOptions<MessagesPage>({
     // @ts-ignore-next-line
-    queryFn: async ({
-      pageParam,
-      queryKey,
-    }: QueryFunctionArgs) => {
+    queryFn: async ({ pageParam, queryKey }: QueryFunctionArgs) => {
       const [_key, variables] = queryKey
       const params = new URLSearchParams({
         ...(pageParam ? { pageParam } : {}),
         ...variableParams({ variables, superinterfaceContext }),
       })
 
-      return fetch(`${superinterfaceContext.baseUrl}${path}?${params}`)
-        .then(async (response) => {
+      return fetch(`${superinterfaceContext.baseUrl}${path}?${params}`).then(
+        async (response) => {
           if (response.status !== 200) {
             try {
-              const errorResponse = await response.json() as { error: string }
+              const errorResponse = (await response.json()) as { error: string }
               throw new Error(errorResponse.error)
             } catch (error) {
               throw new Error('Failed to fetch')
@@ -51,7 +45,8 @@ export const queryOptions = ({
           }
 
           return response.json() as Promise<MessagesPage>
-        })
+        },
+      )
     },
     initialPageParam: undefined,
     getNextPageParam: (lastPage: MessagesPage) => {
@@ -59,7 +54,7 @@ export const queryOptions = ({
 
       return lastPage.lastId
     },
-    limit: 10,
+    limit: 20,
     ...threadContext.defaultOptions.queries,
     ...queryClient.getQueryDefaults(queryKey),
     queryKey,

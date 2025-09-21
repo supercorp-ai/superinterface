@@ -30,9 +30,11 @@ export const handleStream = async ({
     onEvent({ controller, event: value.event, data: value.data })
 
     if (
-      ['thread.message.created', 'thread.message.completed'].includes(
-        value.event,
-      )
+      [
+        'thread.message.created',
+        'thread.message.in_progress',
+        'thread.message.completed',
+      ].includes(value.event)
     ) {
       enqueueJson({
         controller,

@@ -61,6 +61,11 @@ export type ThreadMessageCreatedEvent =
     data: SerializedMessage
   }
 
+export type ThreadMessageInProgressEvent =
+  OpenAI.Beta.Assistants.AssistantStreamEvent.ThreadMessageInProgress & {
+    data: SerializedMessage
+  }
+
 export type ThreadMessageCompletedEvent =
   OpenAI.Beta.Assistants.AssistantStreamEvent.ThreadMessageCompleted & {
     data: SerializedMessage

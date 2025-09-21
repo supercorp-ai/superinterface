@@ -5,6 +5,7 @@ import { threadMessageCompleted } from './threadMessageCompleted'
 import { threadRunCreated } from './threadRunCreated'
 import { threadRunFailed } from './threadRunFailed'
 import { threadRunStepCreated } from './threadRunStepCreated'
+import { threadMessageInProgress } from './threadMessageInProgress'
 import { threadRunStepDelta } from './threadRunStepDelta'
 import { threadRunStepCompleted } from './threadRunStepCompleted'
 import { threadRunRequiresAction } from './threadRunRequiresAction'
@@ -12,6 +13,7 @@ import { threadRunRequiresAction } from './threadRunRequiresAction'
 export const handlers = {
   'thread.created': threadCreated,
   'thread.message.created': threadMessageCreated,
+  'thread.message.in_progress': threadMessageInProgress,
   'thread.message.delta': threadMessageDelta,
   'thread.message.completed': threadMessageCompleted,
   'thread.run.created': threadRunCreated,

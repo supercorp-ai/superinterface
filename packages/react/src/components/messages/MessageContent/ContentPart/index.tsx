@@ -28,7 +28,7 @@ const ImageFileContent = ({
 const ImageUrlContent = ({
   content,
 }: {
-  content: OpenAI.Beta.Threads.Messages.ImageFileContentBlock
+  content: OpenAI.Beta.Threads.Messages.ImageURLContentBlock
 }) => {
   const {
     components: { ImageUrlContent },
