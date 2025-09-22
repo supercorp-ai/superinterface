@@ -36,7 +36,7 @@
     "howler": "^2.2.4",
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",
-    "openai": "^5.15.0",
+    "openai": "^5.22.0",
     "p-map": "^7.0.3",
     "radash": "^12.1.0",
     "react-children-utilities": "^2.10.0",
