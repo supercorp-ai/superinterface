@@ -1,19 +1,15 @@
 import { forwardRef } from 'react'
-import {
-  Flex,
-  Container,
-} from '@radix-ui/themes'
+import { Flex, Container } from '@radix-ui/themes'
 import type { StyleProps } from '@/types'
 
 type Args = {
   children: React.ReactNode
 } & StyleProps
 
-export const Root = forwardRef(function Root({
-  children,
-  style,
-  className,
-}: Args, ref: React.Ref<HTMLDivElement>) {
+export const Root = forwardRef<HTMLDivElement, Args>(function Root(
+  { children, style, className },
+  ref,
+) {
   return (
     <Container
       ref={ref}

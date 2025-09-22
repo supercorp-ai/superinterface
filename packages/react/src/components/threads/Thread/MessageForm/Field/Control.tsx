@@ -1,11 +1,12 @@
-import {
-  Flex,
-} from '@radix-ui/themes'
+import { Flex } from '@radix-ui/themes'
 import { useFormContext } from 'react-hook-form'
 import { usePrevious } from '@/hooks/misc/usePrevious'
 import { useContext, useMemo, useRef, useEffect } from 'react'
 import { AssistantNameContext } from '@/contexts/assistants/AssistantNameContext'
-import { TextareaBase } from '@/components/textareas/TextareaBase'
+import {
+  TextareaBase,
+  type TextareaBaseProps,
+} from '@/components/textareas/TextareaBase'
 import { useMessageFormContext } from '@/hooks/messages/useMessageFormContext'
 import type { StyleProps } from '@/types'
 
@@ -26,21 +27,21 @@ const Root = ({
   </Flex>
 )
 
-const Input = (props: Omit<StyleProps, 'style'> & {
-  style?: Omit<React.CSSProperties, 'minHeight' | 'maxHeight' | 'height'>
+type InputProps = Omit<TextareaBaseProps, 'ref'> & {
   placeholder?: string
-}) => {
+}
+
+const Input = (props: InputProps) => {
   'use no memo'
   const assistantNameContext = useContext(AssistantNameContext)
-  const {
-    register,
-  } = useFormContext()
+  const { register } = useFormContext()
 
   const { isDisabled, isLoading } = useMessageFormContext()
 
-  const isSubmitDisabled = useMemo(() => (
-    isDisabled || isLoading
-  ), [isDisabled, isLoading])
+  const isSubmitDisabled = useMemo(
+    () => isDisabled || isLoading,
+    [isDisabled, isLoading],
+  )
 
   const isDisabledPrevious = usePrevious(isDisabled)
 
