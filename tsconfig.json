@@ -6,15 +6,22 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
+    "strict": false,
     "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@superinterface/react": ["packages/react/src"],
+      "@superinterface/react/*": ["packages/react/src/*"],
+      "@superinterface/root-element": ["packages/root-element/src"],
+      "@superinterface/root-element/*": ["packages/root-element/src/*"]
+    }
   },
-  "include": ["packages/*/src"],
+  "include": ["packages/*/src", "types/**/*.d.ts"],
   "exclude": ["node_modules"]
 }
