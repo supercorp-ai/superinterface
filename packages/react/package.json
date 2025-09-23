@@ -17,7 +17,8 @@
   "keywords": [],
   "license": "ISC",
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -35,7 +36,7 @@
     "howler": "^2.2.4",
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",
-    "openai": "^5.15.0",
+    "openai": "^5.22.0",
     "p-map": "^7.0.3",
     "radash": "^12.1.0",
     "react-children-utilities": "^2.10.0",
@@ -69,8 +70,9 @@
     "@types/howler": "^2.2.12",
     "@types/js-cookie": "^3.0.6",
     "@types/lodash": "^4.17.16",
-    "@types/react": "npm:types-react@rc",
-    "@types/react-dom": "npm:types-react-dom@rc",
+    "@types/node": "^22.10.5",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.1",
     "@types/unist": "^3.0.3",
     "babel-plugin-react-compiler": "^19.0.0-beta-e993439-20250328",
     "esbuild-plugin-babel": "^0.2.3",
