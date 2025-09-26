@@ -5,7 +5,15 @@
     "declaration": false,
     "noEmit": false,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./packages/root-element/src/*",
+        "./packages/react/src/*",
+        "./packages/javascript/src/*"
+      ],
+      "@superinterface/react": ["./packages/react/src"],
+      "@superinterface/react/*": ["./packages/react/src/*"],
+      "@superinterface/root-element": ["./packages/root-element/src"],
+      "@superinterface/root-element/*": ["./packages/root-element/src/*"]
     }
   },
   "include": ["src"],

@@ -5,12 +5,15 @@ import { useTtsAudioRuntime } from '@/hooks/audioRuntimes/useTtsAudioRuntime'
 export const TtsAudioRuntimeProvider = ({
   children,
   play,
+  onEnd,
 }: {
   children: React.ReactNode
   play?: (args: PlayArgs) => void
+  onEnd?: () => void
 }) => {
   const { ttsAudioRuntime } = useTtsAudioRuntime({
     play,
+    onEnd,
   })
 
   return (

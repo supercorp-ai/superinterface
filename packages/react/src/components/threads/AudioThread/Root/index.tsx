@@ -11,14 +11,11 @@ import { TtsAudioRuntimeProvider } from '@/components/audioRuntimes/TtsAudioRunt
 export type Args = {
   children: React.ReactNode
   play?: (args: PlayArgs) => void
+  onEnd?: () => void
   audioRuntime?: AudioRuntime
 } & StyleProps
 
-const Content = ({
-  children,
-  className,
-  style,
-}: Args) => (
+const Content = ({ children, className, style }: Args) => (
   <Flex
     direction="column"
     flexGrow="1"
@@ -33,9 +30,11 @@ const Content = ({
 const AudioRuntimeProvider = ({
   children,
   play,
+  onEnd,
 }: {
   children: React.ReactNode
   play?: (args: PlayArgs) => void
+  onEnd?: () => void
 }) => {
   const audioThreadContext = useAudioThreadContext()
 
@@ -44,18 +43,16 @@ const AudioRuntimeProvider = ({
   }
 
   return (
-    <TtsAudioRuntimeProvider play={play}>
+    <TtsAudioRuntimeProvider
+      play={play}
+      onEnd={onEnd}
+    >
       {children}
     </TtsAudioRuntimeProvider>
   )
 }
 
-const Provider = ({
-  children,
-  ...rest
-}: {
-  children: React.ReactNode
-}) => {
+const Provider = ({ children, ...rest }: { children: React.ReactNode }) => {
   const audioThreadContext = useAudioThreadContext()
 
   return (
@@ -73,6 +70,7 @@ const Provider = ({
 export const Root = ({
   children,
   play,
+  onEnd,
   className,
   style,
   ...rest
@@ -80,6 +78,7 @@ export const Root = ({
   <Provider {...rest}>
     <AudioRuntimeProvider
       play={play}
+      onEnd={onEnd}
     >
       <ToastsProvider>
         <Content

@@ -8,6 +8,7 @@ import { FileSearchToolCall } from '@/components/toolCalls/FileSearchToolCall'
 import { FallbackToolCall } from '@/components/toolCalls/FallbackToolCall'
 import { TextContent } from '@/components/contents/TextContent'
 import { ImageFileContent } from '@/components/contents/ImageFileContent'
+import { ImageUrlContent } from '@/components/contents/ImageUrlContent'
 import { MessageGroup } from '@/components/messageGroups/MessageGroup'
 import { MessageAttachments } from '@/components/messages/MessageAttachments'
 import { StartingSkeleton } from '@/components/skeletons/StartingSkeleton'
@@ -24,6 +25,7 @@ export const ComponentsContext = createContext({
     FallbackToolCall,
     TextContent,
     ImageFileContent,
+    ImageUrlContent,
     MessageGroup,
     MessageAttachments,
     StartingSkeleton,

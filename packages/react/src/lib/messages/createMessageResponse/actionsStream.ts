@@ -18,17 +18,14 @@ export const actionsStream = async ({
 
   const toolCalls = run.required_action.submit_tool_outputs.tool_calls
 
-  return client.beta.threads.runs.submitToolOutputsStream(
-    run.thread_id,
-    run.id,
-    {
-      tool_outputs: await pMap(toolCalls, (toolCall) => (
-        handleToolCall({
-          toolCall,
-          run,
-          controller,
-        }))
-      ),
-    },
-  )
+  return client.beta.threads.runs.submitToolOutputsStream(run.id, {
+    thread_id: run.thread_id,
+    tool_outputs: await pMap(toolCalls, (toolCall) =>
+      handleToolCall({
+        toolCall,
+        run,
+        controller,
+      }),
+    ),
+  })
 }
