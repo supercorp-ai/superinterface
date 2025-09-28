@@ -14,8 +14,6 @@ type MessageSentence = {
   sentence: string
 }
 
-const FULL_SENTENCE_REGEX = /[\.?!]$/
-
 const getMessageSentences = ({
   messageId,
   input,
@@ -34,13 +32,17 @@ const getMessageSentences = ({
 export const useMessageAudio = ({
   onEnd,
   play: passedPlay,
+  fullSentenceRegex = /[\.?!]$/,
 }: {
   onEnd: () => void
   play?: (args: PlayArgs) => void
+  fullSentenceRegex?: RegExp
 }) => {
   const [isAudioPlayed, setIsAudioPlayed] = useState(false)
   const [stoppedMessageIds, setStoppedMessageIds] = useState<string[]>([])
-  const [playedMessageSentences, setPlayedMessageSentences] = useState<MessageSentence[]>([])
+  const [playedMessageSentences, setPlayedMessageSentences] = useState<
+    MessageSentence[]
+  >([])
   const audioPlayer = useAudioPlayer()
   const nextAudioPlayer = useAudioPlayer()
   const superinterfaceContext = useSuperinterfaceContext()
@@ -51,7 +53,8 @@ export const useMessageAudio = ({
   const unplayedMessageSentences = useMemo(() => {
     if (!latestMessageProps.latestMessage) return []
     if (latestMessageProps.latestMessage.role !== 'assistant') return []
-    if (stoppedMessageIds.includes(latestMessageProps.latestMessage.id)) return []
+    if (stoppedMessageIds.includes(latestMessageProps.latestMessage.id))
+      return []
 
     const input = getInput({
       message: latestMessageProps.latestMessage,
@@ -64,51 +67,71 @@ export const useMessageAudio = ({
       input,
     })
 
-    return messageSentences.filter((ms: { messageId: string, sentence: string }) => (
-      !playedMessageSentences.find((pms) => pms.messageId === ms.messageId && pms.sentence === ms.sentence)
-    ))
+    return messageSentences.filter(
+      (ms: { messageId: string; sentence: string }) =>
+        !playedMessageSentences.find(
+          (pms) =>
+            pms.messageId === ms.messageId && pms.sentence === ms.sentence,
+        ),
+    )
   }, [latestMessageProps, playedMessageSentences])
 
-  const defaultPlay = useCallback(({
-    input,
-    onPlay,
-    onStop,
-    onEnd,
-  }: PlayArgs) => {
-    const searchParams = new URLSearchParams({
-      input,
-      ...superinterfaceContext.variables,
-    })
+  const defaultPlay = useCallback(
+    ({ input, onPlay, onStop, onEnd }: PlayArgs) => {
+      const searchParams = new URLSearchParams({
+        input,
+        ...superinterfaceContext.variables,
+      })
 
-    audioPlayer.load(`${superinterfaceContext.baseUrl}/audio-runtimes/tts?${searchParams}`, {
-      format: 'mp3',
-      autoplay: isAudioPlayed,
-      html5: isHtmlAudioSupported,
-      onplay: onPlay,
-      onstop: onStop,
-      onload: () => {
-        const nextUnplayedMessageSentence = unplayedMessageSentences[1]
-        if (!nextUnplayedMessageSentence) return
-
-        const isNextFullSentence = FULL_SENTENCE_REGEX.test(nextUnplayedMessageSentence.sentence)
-        if (!isNextFullSentence) return
-
-        const nextSearchParams = new URLSearchParams({
-          input: nextUnplayedMessageSentence.sentence,
-          ...superinterfaceContext.variables,
-        })
-
-        nextAudioPlayer.load(`${superinterfaceContext.baseUrl}/audio-runtimes/tts?${nextSearchParams}`, {
+      audioPlayer.load(
+        `${superinterfaceContext.baseUrl}/audio-runtimes/tts?${searchParams}`,
+        {
           format: 'mp3',
-          autoplay: false,
+          autoplay: isAudioPlayed,
           html5: isHtmlAudioSupported,
-        })
-      },
-      onend: onEnd,
-    })
-  }, [superinterfaceContext, unplayedMessageSentences, audioPlayer, nextAudioPlayer, isAudioPlayed])
+          onplay: onPlay,
+          onstop: onStop,
+          onload: () => {
+            const nextUnplayedMessageSentence = unplayedMessageSentences[1]
+            if (!nextUnplayedMessageSentence) return
 
-  const play = useMemo(() => passedPlay || defaultPlay, [passedPlay, defaultPlay])
+            const isNextFullSentence = fullSentenceRegex.test(
+              nextUnplayedMessageSentence.sentence,
+            )
+            if (!isNextFullSentence) return
+
+            const nextSearchParams = new URLSearchParams({
+              input: nextUnplayedMessageSentence.sentence,
+              ...superinterfaceContext.variables,
+            })
+
+            nextAudioPlayer.load(
+              `${superinterfaceContext.baseUrl}/audio-runtimes/tts?${nextSearchParams}`,
+              {
+                format: 'mp3',
+                autoplay: false,
+                html5: isHtmlAudioSupported,
+              },
+            )
+          },
+          onend: onEnd,
+        },
+      )
+    },
+    [
+      superinterfaceContext,
+      unplayedMessageSentences,
+      audioPlayer,
+      nextAudioPlayer,
+      isAudioPlayed,
+      fullSentenceRegex,
+    ],
+  )
+
+  const play = useMemo(
+    () => passedPlay || defaultPlay,
+    [passedPlay, defaultPlay],
+  )
 
   useEffect(() => {
     if (isPlaying) return
@@ -121,9 +144,10 @@ export const useMessageAudio = ({
       return
     }
 
-    const isFullSentence = isOptimistic({ id: latestMessageProps.latestMessage.id }) ||
+    const isFullSentence =
+      isOptimistic({ id: latestMessageProps.latestMessage.id }) ||
       latestMessageProps.latestMessage.status !== 'in_progress' ||
-      FULL_SENTENCE_REGEX.test(firstUnplayedMessageSentence.sentence)
+      fullSentenceRegex.test(firstUnplayedMessageSentence.sentence)
 
     if (!isFullSentence) return
     setIsPlaying(true)
@@ -138,13 +162,19 @@ export const useMessageAudio = ({
         setIsAudioPlayed(true)
       },
       onStop: () => {
-        setStoppedMessageIds((prev) => [...prev, firstUnplayedMessageSentence.messageId])
+        setStoppedMessageIds((prev) => [
+          ...prev,
+          firstUnplayedMessageSentence.messageId,
+        ])
         setIsPlaying(false)
       },
       onEnd: () => {
         setIsPlaying(false)
 
-        if (unplayedMessageSentences.length === 1 && latestMessageProps.latestMessage.status !== 'in_progress') {
+        if (
+          unplayedMessageSentences.length === 1 &&
+          latestMessageProps.latestMessage.status !== 'in_progress'
+        ) {
           onEnd()
         }
       },
@@ -159,6 +189,7 @@ export const useMessageAudio = ({
     playedMessageSentences,
     onEnd,
     play,
+    fullSentenceRegex,
   ])
 
   useEffect(() => {
@@ -184,7 +215,9 @@ export const useMessageAudio = ({
       const audioContext = new AudioContext()
       setAudioEngine({
         // @ts-ignore-next-line
-        source: audioContext.createMediaElementSource(Howler._howls[0]._sounds[0]._node),
+        source: audioContext.createMediaElementSource(
+          Howler._howls[0]._sounds[0]._node,
+        ),
         audioContext,
       })
     } else {
@@ -205,9 +238,13 @@ export const useMessageAudio = ({
     return result
   }, [audioEngine])
 
-  const isPending = useMemo(() => (
-    isPlaying || unplayedMessageSentences.length > 0 || latestMessageProps.latestMessage?.status === 'in_progress'
-  ), [isPlaying, unplayedMessageSentences, latestMessageProps])
+  const isPending = useMemo(
+    () =>
+      isPlaying ||
+      unplayedMessageSentences.length > 0 ||
+      latestMessageProps.latestMessage?.status === 'in_progress',
+    [isPlaying, unplayedMessageSentences, latestMessageProps],
+  )
 
   return {
     isPending,
