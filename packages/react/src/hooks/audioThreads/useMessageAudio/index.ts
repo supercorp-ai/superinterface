@@ -47,8 +47,15 @@ export const useMessageAudio = ({
   const nextAudioPlayer = useAudioPlayer()
   const superinterfaceContext = useSuperinterfaceContext()
   const [isPlaying, setIsPlaying] = useState(false)
+  const isLastSentencePlayedRef = useRef(false)
 
   const latestMessageProps = useLatestMessage()
+
+  useEffect(() => {
+    if (!isPlaying) return
+
+    isLastSentencePlayedRef.current = false
+  }, [isPlaying])
 
   const unplayedMessageSentences = useMemo(() => {
     if (!latestMessageProps.latestMessage) return []
@@ -171,11 +178,14 @@ export const useMessageAudio = ({
       onEnd: () => {
         setIsPlaying(false)
 
+        isLastSentencePlayedRef.current = unplayedMessageSentences.length === 1
+
         if (
-          unplayedMessageSentences.length === 1 &&
+          isLastSentencePlayedRef.current &&
           latestMessageProps.latestMessage.status !== 'in_progress'
         ) {
           onEnd()
+          isLastSentencePlayedRef.current = false
         }
       },
     })
@@ -190,6 +200,23 @@ export const useMessageAudio = ({
     onEnd,
     play,
     fullSentenceRegex,
+  ])
+
+  useEffect(() => {
+    if (
+      isLastSentencePlayedRef.current &&
+      !isPlaying &&
+      unplayedMessageSentences.length === 0 &&
+      latestMessageProps.latestMessage?.status !== 'in_progress'
+    ) {
+      onEnd()
+      isLastSentencePlayedRef.current = false
+    }
+  }, [
+    isPlaying,
+    unplayedMessageSentences.length,
+    latestMessageProps.latestMessage?.status,
+    onEnd,
   ])
 
   useEffect(() => {
