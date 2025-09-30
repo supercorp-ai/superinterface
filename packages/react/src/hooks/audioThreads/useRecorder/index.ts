@@ -1,5 +1,8 @@
 import dayjs, { Dayjs } from 'dayjs'
-import { useAudioCapture, UseAudioCaptureProps } from 'use-audio-capture'
+import {
+  useAudioCapture,
+  UseAudioCaptureProps,
+} from '@supercorp/use-audio-capture'
 import { useMemo, useRef, useState, useCallback, useEffect } from 'react'
 import { useAudioPlayer } from 'react-use-audio-player'
 import { useInterval } from '@/hooks/misc/useInterval'
@@ -9,15 +12,13 @@ type Args = UseAudioCaptureProps & {
   isStopOnSilence: boolean
 }
 
-export const useRecorder = ({
-  isStopOnSilence,
-  onStart,
-  onStop,
-}: Args) => {
+export const useRecorder = ({ isStopOnSilence, onStart, onStop }: Args) => {
   const [silenceStart, setSilenceStart] = useState<Dayjs | null>(null)
   const [noiseStart, setNoiseStart] = useState<Dayjs | null>(null)
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null)
-  const [status, setStatus] = useState<'idle' | 'recording' | 'stopped' | 'paused'>('idle')
+  const [status, setStatus] = useState<
+    'idle' | 'recording' | 'stopped' | 'paused'
+  >('idle')
   const startAudioPlayer = useAudioPlayer()
   const endAudioPlayer = useAudioPlayer()
   const [isLoaded, setIsLoaded] = useState(false)
