@@ -1,6 +1,5 @@
-import {
-  Flex,
-} from '@radix-ui/themes'
+'use client'
+import { Flex } from '@radix-ui/themes'
 import { useFormContext } from 'react-hook-form'
 import { usePrevious } from '@/hooks/misc/usePrevious'
 import { useContext, useMemo, useRef, useEffect } from 'react'
@@ -26,21 +25,22 @@ const Root = ({
   </Flex>
 )
 
-const Input = (props: Omit<StyleProps, 'style'> & {
-  style?: Omit<React.CSSProperties, 'minHeight' | 'maxHeight' | 'height'>
-  placeholder?: string
-}) => {
+const Input = (
+  props: Omit<StyleProps, 'style'> & {
+    style?: Omit<React.CSSProperties, 'minHeight' | 'maxHeight' | 'height'>
+    placeholder?: string
+  },
+) => {
   'use no memo'
   const assistantNameContext = useContext(AssistantNameContext)
-  const {
-    register,
-  } = useFormContext()
+  const { register } = useFormContext()
 
   const { isDisabled, isLoading } = useMessageFormContext()
 
-  const isSubmitDisabled = useMemo(() => (
-    isDisabled || isLoading
-  ), [isDisabled, isLoading])
+  const isSubmitDisabled = useMemo(
+    () => isDisabled || isLoading,
+    [isDisabled, isLoading],
+  )
 
   const isDisabledPrevious = usePrevious(isDisabled)
 
