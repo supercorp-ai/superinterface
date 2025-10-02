@@ -1,4 +1,4 @@
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import pMap from 'p-map'
 
 export const actionsStream = async ({

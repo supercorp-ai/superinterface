@@ -1,4 +1,4 @@
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import { omit } from 'radash'
 import { QueryClient } from '@tanstack/react-query'
 import { data } from './data'
@@ -9,25 +9,18 @@ type Variables = {
   [key: string]: any
 }
 
-export const onMutate = ({
-  queryClient,
-}: {
-  queryClient: QueryClient,
-}) => async (
-  newMessage: Variables,
-) => {
-  const queryKey = ['messages', omit(newMessage, ['content', 'attachments'])]
-  await queryClient.cancelQueries({ queryKey })
+export const onMutate =
+  ({ queryClient }: { queryClient: QueryClient }) =>
+  async (newMessage: Variables) => {
+    const queryKey = ['messages', omit(newMessage, ['content', 'attachments'])]
+    await queryClient.cancelQueries({ queryKey })
 
-  const prevMessages = queryClient.getQueryData(queryKey)
+    const prevMessages = queryClient.getQueryData(queryKey)
 
-  queryClient.setQueryData(
-    queryKey,
-    data({ newMessage })
-  )
+    queryClient.setQueryData(queryKey, data({ newMessage }))
 
-  return {
-    prevMessages,
-    newMessage,
+    return {
+      prevMessages,
+      newMessage,
+    }
   }
-}

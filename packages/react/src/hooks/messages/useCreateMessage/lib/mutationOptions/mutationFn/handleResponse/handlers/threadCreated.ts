@@ -1,4 +1,4 @@
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 
 export const threadCreated = ({

@@ -1,6 +1,6 @@
 import { isArray } from 'radash'
 import dayjs from 'dayjs'
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import { optimisticId } from '@/lib/optimistic/optimisticId'
 
 type NewMessage = {
@@ -12,11 +12,7 @@ type Args = {
   newMessage: NewMessage
 }
 
-const content = ({
-  newMessage,
-}: {
-  newMessage: NewMessage
-}) => {
+const content = ({ newMessage }: { newMessage: NewMessage }) => {
   if (isArray(newMessage.content)) {
     return newMessage.content.map((item) => {
       if (item.type === 'text') {
@@ -44,49 +40,47 @@ const content = ({
   ]
 }
 
-export const data = ({
-  newMessage,
-}: Args) => (prevData: any) => {
-  const message = {
-    id: optimisticId(),
-    role: 'user' as OpenAI.Beta.Threads.Messages.Message['role'],
-    created_at: dayjs().unix(),
-    object: 'thread.message' as OpenAI.Beta.Threads.Messages.Message['object'],
-    content: content({ newMessage }),
-    run_id: null,
-    assistant_id: null,
-    thread_id: null,
-    attachments: newMessage.attachments ?? [],
-    metadata: {},
-    runSteps: [],
-  }
+export const data =
+  ({ newMessage }: Args) =>
+  (prevData: any) => {
+    const message = {
+      id: optimisticId(),
+      role: 'user' as OpenAI.Beta.Threads.Messages.Message['role'],
+      created_at: dayjs().unix(),
+      object:
+        'thread.message' as OpenAI.Beta.Threads.Messages.Message['object'],
+      content: content({ newMessage }),
+      run_id: null,
+      assistant_id: null,
+      thread_id: null,
+      attachments: newMessage.attachments ?? [],
+      metadata: {},
+      runSteps: [],
+    }
 
-  if (!prevData) {
+    if (!prevData) {
+      return {
+        pageParams: [],
+        pages: [
+          {
+            data: [message],
+            hasNextPage: false,
+            lastId: message.id,
+          },
+        ],
+      }
+    }
+
+    const [latestPage, ...pagesRest] = prevData.pages
+
     return {
-      pageParams: [],
+      ...prevData,
       pages: [
         {
-          data: [message],
-          hasNextPage: false,
-          lastId: message.id,
+          ...latestPage,
+          data: [message, ...latestPage.data],
         },
+        ...pagesRest,
       ],
     }
   }
-
-  const [latestPage, ...pagesRest] = prevData.pages
-
-  return {
-    ...prevData,
-    pages: [
-      {
-        ...latestPage,
-        data: [
-          message,
-          ...latestPage.data,
-        ],
-      },
-      ...pagesRest,
-    ],
-  }
-}

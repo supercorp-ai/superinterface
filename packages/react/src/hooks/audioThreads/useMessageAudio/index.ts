@@ -243,6 +243,7 @@ export const useMessageAudio = ({
       setAudioEngine({
         // @ts-ignore-next-line
         source: audioContext.createMediaElementSource(
+          // @ts-ignore-next-line
           Howler._howls[0]._sounds[0]._node,
         ),
         audioContext,

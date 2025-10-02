@@ -1,4 +1,4 @@
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import { Image } from '@/components/images/Image'
 
 export const ImageUrlContent = ({

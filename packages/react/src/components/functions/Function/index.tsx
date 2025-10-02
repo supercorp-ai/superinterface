@@ -1,4 +1,4 @@
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import { FunctionBase } from '@/components/functions/FunctionBase'
 import { title } from './lib/title'
 
@@ -7,10 +7,7 @@ type Args = {
   runStep: OpenAI.Beta.Threads.Runs.RunStep
 }
 
-export const Function = ({
-  fn,
-  runStep,
-}: Args) => (
+export const Function = ({ fn, runStep }: Args) => (
   <FunctionBase
     fn={fn}
     runStep={runStep}

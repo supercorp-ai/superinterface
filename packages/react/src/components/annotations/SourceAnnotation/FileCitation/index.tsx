@@ -1,14 +1,8 @@
 'use client'
 import { useState } from 'react'
-import OpenAI from 'openai'
-import {
-  QuoteIcon,
-} from '@radix-ui/react-icons'
-import {
-  Dialog,
-  VisuallyHidden,
-  IconButton,
-} from '@radix-ui/themes'
+import type OpenAI from 'openai'
+import { QuoteIcon } from '@radix-ui/react-icons'
+import { Dialog, VisuallyHidden, IconButton } from '@radix-ui/themes'
 import { Content } from './Content'
 
 export const FileCitation = ({
@@ -49,17 +43,11 @@ export const FileCitation = ({
             flexDirection: 'column',
           }}
         >
-          <VisuallyHidden
-            asChild
-          >
-            <Dialog.Title>
-              Source
-            </Dialog.Title>
+          <VisuallyHidden asChild>
+            <Dialog.Title>Source</Dialog.Title>
           </VisuallyHidden>
 
-          {activeFileId && <Content
-            fileId={activeFileId}
-          />}
+          {activeFileId && <Content fileId={activeFileId} />}
         </Dialog.Content>
       </Dialog.Root>
     </>

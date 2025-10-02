@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import { getLatestRun } from './getLatestRun'
 import { extendMessage } from '@/lib/messages/extendMessage'
 import { optimisticId } from '@/lib/optimistic/optimisticId'
@@ -17,18 +17,14 @@ const progressStatuses = [
   'cancelling',
 ]
 
-export const runMessages = async ({
-  result,
-  threadId,
-  client,
-}: Args) => {
+export const runMessages = async ({ result, threadId, client }: Args) => {
   const latestRun = await getLatestRun({ threadId, client })
 
   if (!latestRun) {
     return []
   }
 
-  const messageFromLatestRun = result.find(m => m.run_id === latestRun.id)
+  const messageFromLatestRun = result.find((m) => m.run_id === latestRun.id)
 
   if (messageFromLatestRun) {
     return []
@@ -44,7 +40,8 @@ export const runMessages = async ({
         id: optimisticId(),
         role: 'assistant' as OpenAI.Beta.Threads.Messages.Message['role'],
         created_at: dayjs().unix(),
-        object: 'thread.message' as OpenAI.Beta.Threads.Messages.Message['object'],
+        object:
+          'thread.message' as OpenAI.Beta.Threads.Messages.Message['object'],
         incomplete_details: null,
         completed_at: dayjs().unix(),
         incomplete_at: null,

@@ -1,4 +1,4 @@
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import { serializeRunStep } from '@/lib/runSteps/serializeRunStep'
 
 export const serializeMessage = ({
@@ -17,8 +17,8 @@ export const serializeMessage = ({
   thread_id: message.thread_id,
   attachments: message.attachments,
   metadata: message.metadata,
-  runSteps: (message.runSteps ?? []).map((runStep) => (
-    serializeRunStep({ runStep })
-  )),
+  runSteps: (message.runSteps ?? []).map((runStep) =>
+    serializeRunStep({ runStep }),
+  ),
   status: message.status ?? 'completed',
 })

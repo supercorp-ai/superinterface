@@ -1,4 +1,4 @@
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import { serializeMessage } from '@/lib/messages/serializeMessage'
 import { messages } from './messages'
 
@@ -12,13 +12,12 @@ export const data = async ({
   pageParam?: string
   threadId: string
   client: OpenAI
-}) => (
-  (await messages({
-    messagesResponse,
-    pageParam,
-    threadId,
-    client,
-  })).map((message) => (
-    serializeMessage({ message })
-  ))
-)
+}) =>
+  (
+    await messages({
+      messagesResponse,
+      pageParam,
+      threadId,
+      client,
+    })
+  ).map((message) => serializeMessage({ message }))

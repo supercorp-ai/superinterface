@@ -22,6 +22,10 @@
       "@superinterface/root-element/*": ["packages/root-element/src/*"]
     }
   },
-  "include": ["packages/*/src", "types/**/*.d.ts"],
+  "include": [
+    "packages/*/src",
+    "types/**/*.d.ts",
+    "packages/*/types/**/*.d.ts"
+  ],
   "exclude": ["node_modules"]
 }

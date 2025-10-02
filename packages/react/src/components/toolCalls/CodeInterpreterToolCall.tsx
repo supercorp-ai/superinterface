@@ -1,4 +1,4 @@
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import { Popover, Flex, Code, Box } from '@radix-ui/themes'
 import { ToolCallBase } from '@/components/toolCalls/ToolCallBase'
 import { ToolCallTitle } from '@/components/toolCalls/ToolCallBase/ToolCallTitle'

@@ -1,4 +1,4 @@
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import { AvatarType, IconAvatarName } from '@/enums'
 
 export type SerializedRunStep = Pick<

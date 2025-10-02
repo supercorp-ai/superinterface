@@ -1,4 +1,4 @@
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import React, { useState, useEffect, useMemo } from 'react'
 import { Badge } from '@radix-ui/themes'
 import { compile } from '@mdx-js/mdx'
@@ -9,36 +9,38 @@ import { useMarkdownContext } from '@/hooks/markdown/useMarkdownContext'
 import { escapeInvalidTagNames } from '@/lib/markdown/escapeInvalidTagNames'
 import { ErrorBoundary } from 'react-error-boundary'
 
-const evaluate = async ({
-  code,
-}: {
-  code: string
-}) => {
+const evaluate = async ({ code }: { code: string }) => {
   const fn = new Function('runtime', 'useMDXComponents', code)
   return fn({ ...runtime, useMDXComponents })
 }
 
 export const TextContent = ({
-  content
+  content,
 }: {
-  content: OpenAI.Beta.Threads.Messages.TextContentBlock;
+  content: OpenAI.Beta.Threads.Messages.TextContentBlock
 }) => {
   const { getRemarkPlugins, components } = useMarkdownContext()
-  const remarkPlugins = useMemo(() => getRemarkPlugins({ content }), [content, getRemarkPlugins])
+  const remarkPlugins = useMemo(
+    () => getRemarkPlugins({ content }),
+    [content, getRemarkPlugins],
+  )
 
-  const [MDXComponent, setMDXComponent] = useState<React.ComponentType | null>(null)
+  const [MDXComponent, setMDXComponent] = useState<React.ComponentType | null>(
+    null,
+  )
 
   useEffect(() => {
     const compileMDX = async () => {
       try {
-        const compiled = await compile(escapeInvalidTagNames(content.text.value), {
-          outputFormat: 'function-body',
-          remarkPlugins,
-          recmaPlugins: [
-            recmaFallbackComponentPlugin,
-          ],
-          providerImportSource: '@mdx-js/react',
-        })
+        const compiled = await compile(
+          escapeInvalidTagNames(content.text.value),
+          {
+            outputFormat: 'function-body',
+            remarkPlugins,
+            recmaPlugins: [recmaFallbackComponentPlugin],
+            providerImportSource: '@mdx-js/react',
+          },
+        )
 
         const code = String(compiled)
 
@@ -47,8 +49,7 @@ export const TextContent = ({
         const { default: MDXContent } = module
 
         setMDXComponent(() => MDXContent)
-      } catch (error) {
-      }
+      } catch (error) {}
     }
 
     compileMDX()
@@ -58,18 +59,16 @@ export const TextContent = ({
 
   return (
     <ErrorBoundary
-      fallback={(
+      fallback={
         <Badge
           color="red"
           mb="2"
         >
           Could not render message.
         </Badge>
-      )}
+      }
     >
-      <MDXProvider
-        components={components}
-      >
+      <MDXProvider components={components}>
         <MDXComponent />
       </MDXProvider>
     </ErrorBoundary>

@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import { MessagesPage } from '@/types'
 import { data } from './data'
 import { limit } from './limit'

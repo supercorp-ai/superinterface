@@ -1,4 +1,4 @@
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import { isNumber } from 'radash'
 import type { Node, Literal, Position } from 'unist'
 import type { Text, Link } from 'mdast'
@@ -22,8 +22,7 @@ const sortedAnnotations = ({
   content,
 }: {
   content: OpenAI.Beta.Threads.Messages.TextContentBlock
-}) =>
-  content.text.annotations.sort((a, b) => a.start_index - b.start_index)
+}) => content.text.annotations.sort((a, b) => a.start_index - b.start_index)
 
 export const remarkAnnotation = ({
   content,
@@ -84,12 +83,14 @@ const processNodeWithAnnotations = ({
     //   1 char for '('.
     // So the URL portion starts at:
     const linkStart = linkNode.position.start.offset!
-    const urlStartOffset = linkStart + 1 + labelLength + 1 + 1  // = linkStart + labelLength + 3
+    const urlStartOffset = linkStart + 1 + labelLength + 1 + 1 // = linkStart + labelLength + 3
     // And the URL portion ends at the link node’s end offset minus 1 (to drop the closing ')'):
     const urlEndOffset = linkNode.position.end.offset! - 1
 
-    const matchingURLAnnotations = annotations.filter(annotation =>
-      annotation.start_index >= urlStartOffset && annotation.end_index <= urlEndOffset
+    const matchingURLAnnotations = annotations.filter(
+      (annotation) =>
+        annotation.start_index >= urlStartOffset &&
+        annotation.end_index <= urlEndOffset,
     )
 
     if (matchingURLAnnotations.length > 0) {
@@ -140,13 +141,24 @@ const processTextNode = ({
     const start = Math.max(nodeStart, annotationStart)
     const end = Math.min(nodeEnd, annotationEnd)
     if (lastIndex < start) {
-      newNodes.push(createTextNode({ node, startOffset: lastIndex, endOffset: start }))
+      newNodes.push(
+        createTextNode({ node, startOffset: lastIndex, endOffset: start }),
+      )
     }
-    newNodes.push(createAnnotationNode({ node, startOffset: start, endOffset: end, annotation }))
+    newNodes.push(
+      createAnnotationNode({
+        node,
+        startOffset: start,
+        endOffset: end,
+        annotation,
+      }),
+    )
     lastIndex = end
   })
   if (lastIndex < nodeEnd) {
-    newNodes.push(createTextNode({ node, startOffset: lastIndex, endOffset: nodeEnd }))
+    newNodes.push(
+      createTextNode({ node, startOffset: lastIndex, endOffset: nodeEnd }),
+    )
   }
   return newNodes
 }

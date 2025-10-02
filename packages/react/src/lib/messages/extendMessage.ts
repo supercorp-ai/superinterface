@@ -1,4 +1,4 @@
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import { getRunSteps } from '@/lib/runSteps/getRunSteps'
 
 type Args = {
@@ -6,10 +6,7 @@ type Args = {
   client: OpenAI
 }
 
-export const extendMessage = async ({
-  message,
-  client,
-}: Args) => {
+export const extendMessage = async ({ message, client }: Args) => {
   if (!message.run_id) {
     return {
       ...message,

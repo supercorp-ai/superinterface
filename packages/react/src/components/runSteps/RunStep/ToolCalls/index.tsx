@@ -1,7 +1,5 @@
-import OpenAI from 'openai'
-import {
-  Flex,
-} from '@radix-ui/themes'
+import type OpenAI from 'openai'
+import { Flex } from '@radix-ui/themes'
 import type { SerializedRunStep, StyleProps } from '@/types'
 import { ToolCall } from './ToolCall'
 import { useComponents } from '@/hooks/components/useComponents'
@@ -29,29 +27,18 @@ const Root = ({
 
 const StartingToolCalls = () => {
   const {
-    components: {
-      StartingToolCalls,
-    },
+    components: { StartingToolCalls },
   } = useComponents()
 
-  return (
-    <StartingToolCalls />
-  )
+  return <StartingToolCalls />
 }
 
-export const ToolCalls = ({
-  stepDetails,
-  runStep,
-  className,
-  style,
-}: Args) => (
+export const ToolCalls = ({ stepDetails, runStep, className, style }: Args) => (
   <Root
     className={className}
     style={style}
   >
-    {!stepDetails.tool_calls.length && (
-      <StartingToolCalls />
-    )}
+    {!stepDetails.tool_calls.length && <StartingToolCalls />}
     {stepDetails.tool_calls.map((toolCall) => (
       <ToolCall
         key={toolCall.id}

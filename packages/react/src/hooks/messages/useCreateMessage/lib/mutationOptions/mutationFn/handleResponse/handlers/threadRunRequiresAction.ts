@@ -1,6 +1,6 @@
 import { ToolCall } from '@/types'
 import _ from 'lodash'
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import { map } from 'radash'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 
@@ -23,7 +23,8 @@ export const threadRunRequiresAction = async ({
   // @ts-ignore-next-line
   if (value.data.required_action.type === 'submit_client_tool_outputs') {
     // @ts-ignore-next-line
-    const toolCalls = value.data.required_action.submit_client_tool_outputs.tool_calls
+    const toolCalls =
+      value.data.required_action.submit_client_tool_outputs.tool_calls
 
     const toolOutputs = await map(toolCalls, async (toolCall: ToolCall) => {
       if (toolCall.type !== 'function') {
@@ -49,7 +50,7 @@ export const threadRunRequiresAction = async ({
       let output
 
       try {
-        output = await fn(parsedArgs) ?? ''
+        output = (await fn(parsedArgs)) ?? ''
       } catch (error: any) {
         output = `Error: ${error.message}`
       }
@@ -72,15 +73,18 @@ export const threadRunRequiresAction = async ({
       }
     })
 
-    return fetch(`${superinterfaceContext.baseUrl}/threads/runs/submit-client-tool-outputs`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    return fetch(
+      `${superinterfaceContext.baseUrl}/threads/runs/submit-client-tool-outputs`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          toolOutputs,
+          ...superinterfaceContext.variables,
+        }),
       },
-      body: JSON.stringify({
-        toolOutputs,
-        ...superinterfaceContext.variables,
-      })
-    })
+    )
   }
 }

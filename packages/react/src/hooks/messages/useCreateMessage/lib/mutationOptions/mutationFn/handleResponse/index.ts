@@ -1,7 +1,5 @@
-import OpenAI from 'openai'
-import {
-  useQueryClient,
-} from '@tanstack/react-query'
+import type OpenAI from 'openai'
+import { useQueryClient } from '@tanstack/react-query'
 import { MessagesQueryKey } from '@/types'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { handlers } from './handlers'

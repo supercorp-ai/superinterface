@@ -1,6 +1,6 @@
 'use client'
 
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { Link } from '@/contexts/markdown/MarkdownContext/lib/components/Link'
 

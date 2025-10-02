@@ -1,8 +1,5 @@
-import OpenAI from 'openai'
-import {
-  Popover,
-  Flex,
-} from '@radix-ui/themes'
+import type OpenAI from 'openai'
+import { Popover, Flex } from '@radix-ui/themes'
 import { ToolCallBase } from '@/components/toolCalls/ToolCallBase'
 import { ToolCallTitle } from '@/components/toolCalls/ToolCallBase/ToolCallTitle'
 import { ToolCallIcon } from '@/components/toolCalls/ToolCallBase/ToolCallIcon'
@@ -14,19 +11,13 @@ type Args = {
   title: string
 }
 
-export const FunctionBase = ({
-  fn,
-  runStep,
-  title,
-}: Args) => (
+export const FunctionBase = ({ fn, runStep, title }: Args) => (
   <Popover.Root>
     <Popover.Trigger>
       <Flex>
         <ToolCallBase>
           <ToolCallIcon runStep={runStep} />
-          <ToolCallTitle>
-            {title}
-          </ToolCallTitle>
+          <ToolCallTitle>{title}</ToolCallTitle>
         </ToolCallBase>
       </Flex>
     </Popover.Trigger>

@@ -1,4 +1,4 @@
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import {
   CircleIcon,
   CircleBackslashIcon,
@@ -9,20 +9,16 @@ type Args = {
   runStep: OpenAI.Beta.Threads.Runs.RunStep
 }
 
-export const Icon = ({
-  runStep,
-}: Args) => {
+export const Icon = ({ runStep }: Args) => {
   if (runStep.completed_at) {
-    return (
-      <CheckCircledIcon />
-    )
-  } else if (runStep.cancelled_at || runStep.failed_at || runStep.status === 'expired') {
-    return (
-      <CircleBackslashIcon />
-    )
+    return <CheckCircledIcon />
+  } else if (
+    runStep.cancelled_at ||
+    runStep.failed_at ||
+    runStep.status === 'expired'
+  ) {
+    return <CircleBackslashIcon />
   } else {
-    return (
-      <CircleIcon />
-    )
+    return <CircleIcon />
   }
 }

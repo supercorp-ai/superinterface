@@ -1,6 +1,6 @@
 'use client'
 import { useContext } from 'react'
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import type { SerializedRunStep } from '@/types'
 import { FunctionComponentsContext } from '@/contexts/functions/FunctionComponentsContext'
 import { ComponentsContext } from '@/contexts/components/ComponentsContext'

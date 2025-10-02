@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query'
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import _ from 'lodash'
 import { omit } from 'radash'
 import { MessagesQueryKey } from '@/types'
@@ -15,7 +15,12 @@ const updatedContentPart = ({
     return omit(delta, ['index'])
   }
 
-  if (delta.type === 'text' && delta.text && prevContentPart.type == 'text' && prevContentPart.text) {
+  if (
+    delta.type === 'text' &&
+    delta.text &&
+    prevContentPart.type == 'text' &&
+    prevContentPart.text
+  ) {
     return {
       ...prevContentPart,
       text: {
@@ -24,7 +29,7 @@ const updatedContentPart = ({
         annotations: [
           ...(prevContentPart.text.annotations ?? []),
           ...(delta.text.annotations ?? []),
-        ]
+        ],
       },
     }
   }
@@ -43,14 +48,16 @@ const updatedContent = ({
 
   const result = _.cloneDeep(content)
 
-  value.data.delta.content.forEach((delta: OpenAI.Beta.Threads.Messages.MessageContentDelta) => {
-    // @ts-ignore-next-line
-    result[delta.index] = updatedContentPart({
+  value.data.delta.content.forEach(
+    (delta: OpenAI.Beta.Threads.Messages.MessageContentDelta) => {
       // @ts-ignore-next-line
-      prevContentPart: result[delta.index],
-      delta,
-    })
-  })
+      result[delta.index] = updatedContentPart({
+        // @ts-ignore-next-line
+        prevContentPart: result[delta.index],
+        delta,
+      })
+    },
+  )
 
   return result
 }
@@ -63,42 +70,41 @@ export const threadMessageDelta = ({
   value: OpenAI.Beta.Assistants.AssistantStreamEvent.ThreadMessageDelta
   messagesQueryKey: MessagesQueryKey
   queryClient: QueryClient
-}) => (
-  queryClient.setQueryData(
-    messagesQueryKey,
-    (prevData: any) => {
-      if (!prevData) {
-        return {
-          pageParams: [],
-          pages: [
-            {
-              data: [],
-              hasNextPage: false,
-              lastId: null,
-            },
-          ],
-        }
-      }
-
-      const [latestPage, ...pagesRest] = prevData.pages
-      const [latestMessage, ...messagesRest] = latestPage.data
-
+}) =>
+  queryClient.setQueryData(messagesQueryKey, (prevData: any) => {
+    if (!prevData) {
       return {
-        ...prevData,
+        pageParams: [],
         pages: [
           {
-            ...latestPage,
-            data: [
-              {
-                ...latestMessage,
-                content: updatedContent({ content: latestMessage.content, value }),
-              },
-              ...messagesRest,
-            ],
+            data: [],
+            hasNextPage: false,
+            lastId: null,
           },
-          ...pagesRest,
         ],
       }
     }
-  )
-)
+
+    const [latestPage, ...pagesRest] = prevData.pages
+    const [latestMessage, ...messagesRest] = latestPage.data
+
+    return {
+      ...prevData,
+      pages: [
+        {
+          ...latestPage,
+          data: [
+            {
+              ...latestMessage,
+              content: updatedContent({
+                content: latestMessage.content,
+                value,
+              }),
+            },
+            ...messagesRest,
+          ],
+        },
+        ...pagesRest,
+      ],
+    }
+  })

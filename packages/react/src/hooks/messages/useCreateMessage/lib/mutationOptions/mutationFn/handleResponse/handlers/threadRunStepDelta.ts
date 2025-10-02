@@ -1,8 +1,13 @@
 import { QueryClient } from '@tanstack/react-query'
 import _ from 'lodash'
 import { omit } from 'radash'
-import OpenAI from 'openai'
-import { SerializedMessage, SerializedRunStep, ThreadRunStepDeltaEvent, MessagesQueryKey } from '@/types'
+import type OpenAI from 'openai'
+import {
+  SerializedMessage,
+  SerializedRunStep,
+  ThreadRunStepDeltaEvent,
+  MessagesQueryKey,
+} from '@/types'
 
 const updatedToolCall = ({
   toolCall,
@@ -15,7 +20,12 @@ const updatedToolCall = ({
     return omit(delta, ['index'])
   }
 
-  if (delta.type === 'function' && delta.function && toolCall.type === 'function' && toolCall.function) {
+  if (
+    delta.type === 'function' &&
+    delta.function &&
+    toolCall.type === 'function' &&
+    toolCall.function
+  ) {
     const result = _.cloneDeep(toolCall)
 
     for (const [key, value] of Object.entries(delta.function)) {
@@ -45,12 +55,13 @@ const updatedRunStep = ({
     // @ts-ignore-next-line
     const newToolCalls = _.cloneDeep(runStep.step_details.tool_calls)
 
-    value.data.delta.step_details.tool_calls.forEach((delta: OpenAI.Beta.Threads.Runs.ToolCallDelta) => (
-      newToolCalls[delta.index] = updatedToolCall({
-        toolCall: newToolCalls[delta.index],
-        delta,
-      })
-    ))
+    value.data.delta.step_details.tool_calls.forEach(
+      (delta: OpenAI.Beta.Threads.Runs.ToolCallDelta) =>
+        (newToolCalls[delta.index] = updatedToolCall({
+          toolCall: newToolCalls[delta.index],
+          delta,
+        })),
+    )
 
     return {
       ...runStep,
@@ -65,7 +76,6 @@ const updatedRunStep = ({
   }
 }
 
-
 export const threadRunStepDelta = ({
   value,
   queryClient,
@@ -74,39 +84,35 @@ export const threadRunStepDelta = ({
   value: ThreadRunStepDeltaEvent
   messagesQueryKey: MessagesQueryKey
   queryClient: QueryClient
-}) => (
-  queryClient.setQueryData(
-    messagesQueryKey,
-    (prevData: any) => {
-      if (!prevData) return prevData
+}) =>
+  queryClient.setQueryData(messagesQueryKey, (prevData: any) => {
+    if (!prevData) return prevData
 
-      const [latestPage, ...pagesRest] = prevData.pages
+    const [latestPage, ...pagesRest] = prevData.pages
 
-      return {
-        ...prevData,
-        pages: [
-          {
-            ...latestPage,
-            data: latestPage.data.map((m: SerializedMessage) => {
-              if (m.run_id === value.data.run_id) {
-                return {
-                  ...m,
-                  runSteps: m.runSteps.map((rs: SerializedRunStep) => {
-                    if (rs.id === value.data.id) {
-                      return updatedRunStep({ runStep: rs, value })
-                    }
+    return {
+      ...prevData,
+      pages: [
+        {
+          ...latestPage,
+          data: latestPage.data.map((m: SerializedMessage) => {
+            if (m.run_id === value.data.run_id) {
+              return {
+                ...m,
+                runSteps: m.runSteps.map((rs: SerializedRunStep) => {
+                  if (rs.id === value.data.id) {
+                    return updatedRunStep({ runStep: rs, value })
+                  }
 
-                    return rs
-                  }),
-                }
+                  return rs
+                }),
               }
+            }
 
-              return m
-            }),
-          },
-          ...pagesRest,
-        ],
-      }
+            return m
+          }),
+        },
+        ...pagesRest,
+      ],
     }
-  )
-)
+  })

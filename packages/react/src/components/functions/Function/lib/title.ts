@@ -1,14 +1,11 @@
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 
 type Args = {
   fn: OpenAI.Beta.Threads.Runs.FunctionToolCall.Function
   runStep: OpenAI.Beta.Threads.Runs.RunStep
 }
 
-export const title = ({
-  fn,
-  runStep,
-}: Args) => {
+export const title = ({ fn, runStep }: Args) => {
   if (runStep.completed_at) {
     return `Finished ${fn.name}`
   } else if (runStep.cancelled_at) {

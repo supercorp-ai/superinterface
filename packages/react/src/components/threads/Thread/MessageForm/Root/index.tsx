@@ -1,5 +1,5 @@
 'use client'
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import { useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState, useCallback } from 'react'
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form'

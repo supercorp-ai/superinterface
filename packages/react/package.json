@@ -1,10 +1,10 @@
 {
   "name": "@superinterface/react",
-  "version": "5.1.3",
+  "version": "5.2.0",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
-  "types": "./dist/index.d.cts",
+  "types": "./types/index.d.ts",
   "exports": {
     ".": "./dist/index.js",
     "./*": "./dist/*.js",
@@ -12,11 +12,13 @@
     "./types": "./dist/types/index.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "types"
   ],
   "keywords": [],
   "license": "ISC",
   "scripts": {
+    "prebuild": "node ./scripts/sync-openai-types.mjs",
     "build": "tsup",
     "lint": "tsc --noEmit"
   },
@@ -27,6 +29,7 @@
     "@radix-ui/react-icons": "^1.3.2",
     "@radix-ui/react-toast": "^1.2.6",
     "@streamparser/json-whatwg": "^0.0.22",
+    "@supercorp/use-audio-capture": "^1.0.1",
     "@vidstack/react": "1.12.13",
     "compromise": "^14.14.4",
     "dayjs": "^1.11.13",
@@ -36,7 +39,6 @@
     "howler": "^2.2.4",
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",
-    "openai": "^5.22.0",
     "p-map": "^7.0.3",
     "radash": "^12.1.0",
     "react-children-utilities": "^2.10.0",
@@ -50,7 +52,6 @@
     "unified": "^11.0.5",
     "unist-util-flatmap": "^1.0.0",
     "unist-util-visit": "^5.0.0",
-    "@supercorp/use-audio-capture": "^1.0.1",
     "zod": "^3.24.2"
   },
   "peerDependencies": {
@@ -77,6 +78,7 @@
     "babel-plugin-react-compiler": "^19.0.0-beta-e993439-20250328",
     "esbuild-plugin-babel": "^0.2.3",
     "react": "19.1",
-    "tsup": "^8.4.0"
+    "tsup": "^8.4.0",
+    "openai": "^6.0.1"
   }
 }

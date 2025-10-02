@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query'
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import { MessagesQueryKey } from '@/types'
 
 export const threadRunFailed = ({
@@ -11,5 +11,7 @@ export const threadRunFailed = ({
   messagesQueryKey: MessagesQueryKey
   queryClient: QueryClient
 }) => {
-  throw new Error('Failed to send your message, try again. If you are the owner, check the logs.')
+  throw new Error(
+    'Failed to send your message, try again. If you are the owner, check the logs.',
+  )
 }

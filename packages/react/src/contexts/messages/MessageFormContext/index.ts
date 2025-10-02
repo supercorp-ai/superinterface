@@ -1,5 +1,5 @@
 'use client'
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import { createContext, Dispatch, SetStateAction } from 'react'
 
 export const MessageFormContext = createContext({

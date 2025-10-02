@@ -1,4 +1,4 @@
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import { limit } from './limit'
 
 export const hasNextPage = ({
