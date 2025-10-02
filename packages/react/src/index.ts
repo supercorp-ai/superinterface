@@ -1,3 +1,5 @@
+'use client'
+
 export { SuperinterfaceProvider } from '@/components/core/SuperinterfaceProvider'
 export { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 
