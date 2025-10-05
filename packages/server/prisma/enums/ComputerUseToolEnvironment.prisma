@@ -1,0 +1,6 @@
+enum ComputerUseToolEnvironment {
+  LINUX
+  WINDOWS
+  MACOS
+  BROWSER
+}

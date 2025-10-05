@@ -1,0 +1,10 @@
+model CreateTaskHandler {
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  keyTemplate String @default("")
+  handlerId String @db.Uuid @unique
+  handler Handler @relation(fields: [handlerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([handlerId])
+}

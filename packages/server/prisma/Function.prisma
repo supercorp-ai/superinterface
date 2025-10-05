@@ -1,0 +1,13 @@
+model Function {
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  /// [OpenapiSpec]
+  openapiSpec Json
+  assistantId String @db.Uuid
+  assistant Assistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+  handler Handler?
+  importOpenApiSchema String?
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([assistantId])
+}

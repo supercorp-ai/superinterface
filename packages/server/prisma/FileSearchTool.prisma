@@ -1,0 +1,9 @@
+model FileSearchTool {
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  vectorStoreIds String[] @default([])
+  maxNumResults Int @default(20)
+  toolId String @db.Uuid @unique
+  tool Tool @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+}

@@ -1,0 +1,15 @@
+model Invitation {
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email String
+  roleType UserRoleType @default(ADMIN)
+  createdByUserId String
+  createdByUser User @relation(fields: [createdByUserId], references: [id], onDelete: Cascade)
+  workspaceId String @db.Uuid
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([createdByUserId])
+  @@index([workspaceId])
+  @@unique([workspaceId, email])
+}

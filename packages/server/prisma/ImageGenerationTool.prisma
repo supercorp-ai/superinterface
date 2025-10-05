@@ -1,0 +1,11 @@
+model ImageGenerationTool {
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  outputFormat ImageGenerationToolOutputFormat @default(PNG)
+  partialImages Int @default(0)
+  quality ImageGenerationToolQuality @default(AUTO)
+  size ImageGenerationToolSize @default(AUTO)
+  toolId String @db.Uuid @unique
+  tool Tool @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+}

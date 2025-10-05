@@ -1,0 +1,34 @@
+model Assistant {
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name String @default("")
+  instructions String @default("")
+  description String @default("")
+  workspaceId String @db.Uuid
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  modelSlug String
+  modelProviderId String @db.Uuid
+  modelProvider ModelProvider @relation(fields: [modelProviderId], references: [id])
+  storageProviderType StorageProviderType @default(OPENAI)
+  openaiAssistantId String?
+  openaiAssistantFileSearchEnabled Boolean @default(false)
+  openaiAssistantCodeInterpreterEnabled Boolean @default(false)
+  theme Theme?
+  avatar Avatar?
+  threads Thread[]
+  runs Run[]
+  runSteps RunStep[]
+  messages Message[]
+  initialMessages InitialMessage[]
+  functions Function[]
+  mcpServers McpServer[]
+  webpage Webpage?
+  assistantHandlers AssistantHandler[]
+  logs Log[]
+  groupAssistants GroupAssistant[]
+  interfaces Interface[]
+  tools Tool[]
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([workspaceId])
+}

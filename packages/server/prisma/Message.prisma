@@ -1,0 +1,30 @@
+model Message {
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  threadId String @db.Uuid
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  role MessageRole
+  /// [MessageContent]
+  content Json
+  status MessageStatus @default(COMPLETED)
+  assistantId String? @db.Uuid
+  assistant Assistant? @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+  runId String? @db.Uuid
+  run Run? @relation(fields: [runId], references: [id], onDelete: Cascade)
+  completedAt DateTime? @db.Timestamptz(6)
+  incompleteAt DateTime? @db.Timestamptz(6)
+  /// [IncompleteDetails]
+  incompleteDetails Json?
+  /// [MessageAttachment]
+  attachments Json[] @default([])
+  /// [MessageMetadata]
+  metadata Json?
+  /// [MessageToolCalls]
+  toolCalls Json?
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([threadId])
+  @@index([assistantId])
+  @@index([createdAt(sort: Desc)])
+  @@index([runId])
+}

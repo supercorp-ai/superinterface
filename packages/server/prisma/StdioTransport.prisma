@@ -1,0 +1,11 @@
+model StdioTransport {
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  mcpServerId String @db.Uuid @unique
+  mcpServer McpServer @relation(fields: [mcpServerId], references: [id], onDelete: Cascade)
+  command String
+  args String
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([mcpServerId])
+}

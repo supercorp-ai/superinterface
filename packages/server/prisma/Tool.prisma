@@ -1,0 +1,13 @@
+model Tool {
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type ToolType
+  assistantId String @db.Uuid
+  assistant Assistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+  fileSearchTool FileSearchTool?
+  webSearchTool WebSearchTool?
+  codeInterpreterTool CodeInterpreterTool?
+  imageGenerationTool ImageGenerationTool?
+  computerUseTool ComputerUseTool?
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+}

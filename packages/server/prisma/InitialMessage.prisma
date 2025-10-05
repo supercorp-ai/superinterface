@@ -1,0 +1,17 @@
+model InitialMessage {
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  assistantId String? @db.Uuid
+  assistant Assistant? @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+  role MessageRole
+  orderNumber Int
+  content String
+  /// [MessageAttachment]
+  attachments Json[] @default([])
+  /// [MessageMetadata]
+  metadata Json?
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([assistantId])
+  @@index([orderNumber])
+}
