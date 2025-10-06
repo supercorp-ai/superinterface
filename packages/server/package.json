@@ -10,10 +10,14 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
+    "prisma:migrate": "npx prisma migrate dev",
     "lint": "eslint"
   },
   "dependencies": {
+    "@prisma/adapter-neon": "^6.16.3",
+    "@prisma/client": "^6.16.3",
     "next": "15.5.4",
+    "prisma-json-types-generator": "^3.6.2",
     "react": "19.1.1",
     "react-dom": "19.1.1"
   },

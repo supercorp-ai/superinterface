@@ -6,11 +6,8 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  feedbacks Feedback[]
   userRoles UserRole[]
   invitations Invitation[]
-  organizationUserRoles OrganizationUserRole[]
-  organizationInvitations OrganizationInvitation[]
 
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @db.Timestamptz(6)

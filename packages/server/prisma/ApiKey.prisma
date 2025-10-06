@@ -5,7 +5,6 @@ model ApiKey {
   value String @default(dbgenerated("gen_random_uuid()")) @unique @db.Uuid
   workspaceId String @db.Uuid
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  webpages Webpage[]
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
 

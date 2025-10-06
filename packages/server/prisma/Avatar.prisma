@@ -1,0 +1,10 @@
+model Avatar {
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type AvatarType
+  iconAvatar IconAvatar?
+  imageAvatar ImageAvatar?
+  assistantId String @db.Uuid @unique
+  assistant Assistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+}

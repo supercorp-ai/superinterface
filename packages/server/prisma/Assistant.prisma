@@ -12,7 +12,6 @@ model Assistant {
   openaiAssistantId String?
   openaiAssistantFileSearchEnabled Boolean @default(false)
   openaiAssistantCodeInterpreterEnabled Boolean @default(false)
-  theme Theme?
   avatar Avatar?
   threads Thread[]
   runs Run[]
@@ -21,11 +20,8 @@ model Assistant {
   initialMessages InitialMessage[]
   functions Function[]
   mcpServers McpServer[]
-  webpage Webpage?
   assistantHandlers AssistantHandler[]
   logs Log[]
-  groupAssistants GroupAssistant[]
-  interfaces Interface[]
   tools Tool[]
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
