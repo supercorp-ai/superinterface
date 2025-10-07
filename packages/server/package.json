@@ -27,7 +27,10 @@
   "dependencies": {
     "@prisma/adapter-neon": "^6.16.3",
     "@prisma/client": "^6.16.3",
+    "@vercel/functions": "^3.1.1",
+    "p-iteration": "^1.1.8",
     "prisma-json-types-generator": "^3.6.2",
+    "supercompat": "^3.8.0",
     "uuid": "^13.0.0"
   },
   "peerDependencies": {
