@@ -1,5 +1,13 @@
 import type { OpenAI } from 'openai'
-import type { StorageProviderType, ModelProviderType } from '@prisma/client'
+import type {
+  StorageProviderType,
+  ModelProviderType,
+  FirecrawlHandlerType,
+  ReplicateHandlerType,
+  ClientToolHandlerType,
+  HandlerType,
+  MethodType,
+} from '@prisma/client'
 import type { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import type { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js'
 
@@ -32,6 +40,47 @@ export type RecurrenceRule = {
   count?: number
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any
+}
+
+export type HandlerInput = {
+  type: HandlerType
+  requestHandler?: {
+    method: MethodType
+    url: string
+    headers: string
+    body: string
+  } | null
+  firecrawlHandler?: {
+    type: FirecrawlHandlerType
+    apiKey: string
+    body: string
+  } | null
+  assistantHandler?: {
+    assistantId: string
+  } | null
+  replicateHandler?: {
+    type: ReplicateHandlerType
+    identifier: string
+    apiKey: string
+    body: string
+  } | null
+  clientToolHandler?: {
+    type: ClientToolHandlerType
+    name: string
+    arguments: string
+  } | null
+  createTaskHandler?: {
+    keyTemplate: string
+  } | null
+  listTasksHandler?: {
+    keyTemplate: string
+  } | null
+  updateTaskHandler?: {
+    keyTemplate: string
+  } | null
+  deleteTaskHandler?: {
+    keyTemplate: string
+  } | null
 }
 
 declare global {
