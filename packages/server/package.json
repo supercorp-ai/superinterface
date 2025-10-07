@@ -19,6 +19,16 @@
       "types": "./dist/app/api/messages/*.d.ts",
       "import": "./dist/app/api/messages/*.js",
       "default": "./dist/app/api/messages/*.js"
+    },
+    "./next/api/api-keys/*": {
+      "types": "./dist/app/api/api-keys/*.d.ts",
+      "import": "./dist/app/api/api-keys/*.js",
+      "default": "./dist/app/api/api-keys/*.js"
+    },
+    "./next/api/api-keys/[apiKeyId]/*": {
+      "types": "./dist/app/api/api-keys/[apiKeyId]/*.d.ts",
+      "import": "./dist/app/api/api-keys/[apiKeyId]/*.js",
+      "default": "./dist/app/api/api-keys/[apiKeyId]/*.js"
     }
   },
   "scripts": {

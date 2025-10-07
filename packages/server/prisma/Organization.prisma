@@ -1,9 +1,8 @@
 model Organization {
   id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name String @default("")
-  organizationUserRoles OrganizationUserRole[]
-  planType PlanType
   workspaces Workspace[]
+  organizationUserRoles OrganizationUserRole[]
   organizationInvitations OrganizationInvitation[]
   organizationApiKeys OrganizationApiKey[]
   createdAt DateTime @default(now()) @db.Timestamptz(6)
