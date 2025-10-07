@@ -4,11 +4,22 @@
   "private": true,
   "exports": {
     "./prisma/enums/*": "./prisma/enums/*",
-    "./prisma/*": "./prisma/*"
+    "./prisma/*": "./prisma/*",
+    "./next/api/assistants/*": {
+      "types": "./dist/app/api/assistants/*.d.ts",
+      "import": "./dist/app/api/assistants/*.js",
+      "default": "./dist/app/api/assistants/*.js"
+    },
+    "./next/api/assistants/[assistantId]/*": {
+      "types": "./dist/app/api/assistants/[assistantId]/*.d.ts",
+      "import": "./dist/app/api/assistants/[assistantId]/*.js",
+      "default": "./dist/app/api/assistants/[assistantId]/*.js"
+    }
   },
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "build": "npm run build:lib && next build --turbopack",
+    "build:lib": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "start": "next start",
     "prisma:migrate": "npx prisma migrate dev",
     "lint": "eslint"
@@ -16,11 +27,13 @@
   "dependencies": {
     "@prisma/adapter-neon": "^6.16.3",
     "@prisma/client": "^6.16.3",
-    "next": "15.5.4",
     "prisma-json-types-generator": "^3.6.2",
-    "react": "19.1.1",
-    "react-dom": "19.1.1",
     "uuid": "^13.0.0"
+  },
+  "peerDependencies": {
+    "next": "15.5.4",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -29,7 +42,11 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
+    "next": "15.5.4",
     "prisma": "^6.16.3",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "tsc-alias": "^1.8.12",
     "typescript": "^5"
   }
 }
