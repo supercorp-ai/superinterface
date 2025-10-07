@@ -84,6 +84,21 @@
       "types": "./dist/app/api/providers/[modelProviderId]/assistants/*.d.ts",
       "import": "./dist/app/api/providers/[modelProviderId]/assistants/*.js",
       "default": "./dist/app/api/providers/[modelProviderId]/assistants/*.js"
+    },
+    "./next/api/tasks/*": {
+      "types": "./dist/app/api/tasks/*.d.ts",
+      "import": "./dist/app/api/tasks/*.js",
+      "default": "./dist/app/api/tasks/*.js"
+    },
+    "./next/api/tasks/[taskId]/*": {
+      "types": "./dist/app/api/tasks/[taskId]/*.d.ts",
+      "import": "./dist/app/api/tasks/[taskId]/*.js",
+      "default": "./dist/app/api/tasks/[taskId]/*.js"
+    },
+    "./next/api/tasks/callback/*": {
+      "types": "./dist/app/api/tasks/callback/*.d.ts",
+      "import": "./dist/app/api/tasks/callback/*.js",
+      "default": "./dist/app/api/tasks/callback/*.js"
     }
   },
   "scripts": {
