@@ -23,6 +23,8 @@ model Assistant {
   assistantHandlers AssistantHandler[]
   logs Log[]
   tools Tool[]
+  truncationType TruncationType @default(AUTO)
+  truncationLastMessagesCount Int?
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
 

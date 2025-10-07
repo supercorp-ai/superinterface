@@ -1,0 +1,5 @@
+enum TruncationType {
+  AUTO
+  LAST_MESSAGES
+  DISABLED
+}
