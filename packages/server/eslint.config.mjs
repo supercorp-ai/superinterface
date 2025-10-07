@@ -20,6 +20,11 @@ const eslintConfig = [
       'next-env.d.ts',
     ],
   },
+  {
+    rules: {
+      '@typescript-eslint/no-namespace': ['error', { allowDeclarations: true }],
+    },
+  },
 ]
 
 export default eslintConfig

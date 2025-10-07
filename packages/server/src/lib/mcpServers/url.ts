@@ -5,7 +5,6 @@ import {
   LogLevel,
   TransportType,
 } from '@prisma/client'
-// import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { interpolateFunctionValue } from '@/lib/functions/interpolateFunctionValue'
 import { createLog } from '@/lib/logs/createLog'
 
@@ -41,6 +40,7 @@ const interpolatedTransportUrl = ({
     }
   }>
   thread: Thread
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: Record<string, any>
   assistant: Assistant
 }) => {

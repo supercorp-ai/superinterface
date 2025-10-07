@@ -7,6 +7,7 @@ import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/
 import type { McpConnection } from '@/types'
 import { headers as getHeaders } from '@/lib/mcpServers/headers'
 import { url as getUrl } from '@/lib/mcpServers/url'
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 ;(global as any).EventSource = EventSource
 
 const fetchWithHeaders =

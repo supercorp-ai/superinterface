@@ -25,11 +25,21 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.65.0",
+    "@mendable/firecrawl-js": "^1.22.0",
+    "@mistralai/mistralai": "^1.10.0",
+    "@modelcontextprotocol/sdk": "^1.19.1",
     "@prisma/adapter-neon": "^6.16.3",
     "@prisma/client": "^6.16.3",
+    "@upstash/qstash": "^2.8.3",
+    "@upstash/redis": "^1.35.5",
+    "@upstash/workflow": "^0.2.20",
     "@vercel/functions": "^3.1.1",
+    "dayjs": "^1.11.18",
+    "groq-sdk": "^0.33.0",
     "p-iteration": "^1.1.8",
     "prisma-json-types-generator": "^3.6.2",
+    "replicate": "^1.2.0",
     "supercompat": "^3.8.0",
     "uuid": "^13.0.0"
   },

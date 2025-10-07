@@ -1,0 +1,90 @@
+import dayjs from 'dayjs'
+import type OpenAI from 'openai'
+import { map } from 'p-iteration'
+import {
+  Prisma,
+  Assistant,
+  StorageProviderType,
+  MessageRole,
+} from '@prisma/client'
+import { optimisticId, serializeMessage } from '@superinterface/react/utils'
+import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
+import { isResponsesStorageProvider } from '@/lib/storageProviders/isResponsesStorageProvider'
+
+const assistantId = ({ assistant }: { assistant: Assistant }) => {
+  if (
+    isOpenaiAssistantsStorageProvider({
+      storageProviderType: assistant.storageProviderType,
+    })
+  ) {
+    return assistant.openaiAssistantId
+  }
+
+  if (
+    isResponsesStorageProvider({
+      storageProviderType: assistant.storageProviderType,
+    })
+  ) {
+    return assistant.id
+  }
+
+  if (
+    assistant.storageProviderType === StorageProviderType.SUPERINTERFACE_CLOUD
+  ) {
+    return assistant.id
+  }
+
+  throw new Error('Invalid storage type')
+}
+
+export const initialMessagesResponse = async ({
+  assistant,
+}: {
+  assistant: Prisma.AssistantGetPayload<{
+    include: {
+      initialMessages: true
+    }
+  }>
+}) => {
+  const threadId = optimisticId()
+  const initialCreatedAt = dayjs().unix()
+
+  return {
+    data: await map(assistant.initialMessages, async (message, index) =>
+      serializeMessage({
+        message: {
+          id: optimisticId(),
+          role: message.role.toLowerCase() as OpenAI.Beta.Threads.Messages.Message['role'],
+          created_at: initialCreatedAt - index - 1,
+          object:
+            'thread.message' as OpenAI.Beta.Threads.Messages.Message['object'],
+          content: [
+            {
+              type: 'text',
+              text: {
+                annotations: [],
+                value: message.content,
+              },
+            } as OpenAI.Beta.Threads.Messages.TextContentBlock,
+          ],
+          run_id: null,
+          assistant_id:
+            message.role === MessageRole.ASSISTANT
+              ? assistantId({ assistant })
+              : null,
+          thread_id: threadId,
+          attachments:
+            message.attachments as OpenAI.Beta.Threads.Messages.Message['attachments'],
+          metadata: message.metadata,
+          completed_at: initialCreatedAt - index - 1,
+          incomplete_at: null,
+          incomplete_details: null,
+          status: 'completed',
+          runSteps: [],
+        },
+      }),
+    ),
+    hasNextPage: false,
+    lastId: null,
+  }
+}

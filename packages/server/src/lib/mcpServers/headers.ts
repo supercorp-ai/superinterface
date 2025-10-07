@@ -6,11 +6,6 @@ import {
   TransportType,
 } from '@prisma/client'
 import { dash } from 'radash'
-import { Client } from '@modelcontextprotocol/sdk/client/index.js'
-// import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
-import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js'
-import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
-import type { McpConnection } from '@/types'
 import { interpolateFunctionValue } from '@/lib/functions/interpolateFunctionValue'
 import { createLog } from '@/lib/logs/createLog'
 
@@ -46,6 +41,7 @@ const interpolatedTransportHeaders = ({
     }
   }>
   thread: Thread
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: Record<string, any>
   assistant: Assistant
 }) => {

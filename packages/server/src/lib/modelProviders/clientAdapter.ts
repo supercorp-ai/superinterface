@@ -34,15 +34,14 @@ export const clientAdapter = ({
 
   if (modelProvider.type === ModelProviderType.PERPLEXITY) {
     return perplexityClientAdapter({
-      // @ts-ignore-next-line
       perplexity: new OpenAI({
         apiKey: modelProvider.apiKey,
         baseURL: 'https://api.perplexity.ai/',
-        // @ts-ignore-next-line
+        // @ts-expect-error duplex is not yet in the types
         fetch: (url: RequestInfo, init?: RequestInit): Promise<Response> =>
           fetch(url, {
             ...(init || {}),
-            // @ts-ignore-next-line
+            // @ts-expect-error duplex is not yet in the types
             duplex: 'half',
           }),
       }),
@@ -51,7 +50,6 @@ export const clientAdapter = ({
 
   if (modelProvider.type === ModelProviderType.TOGETHER) {
     return togetherClientAdapter({
-      // @ts-ignore-next-line
       together: new OpenAI({
         apiKey: modelProvider.apiKey,
         baseURL: 'https://api.together.xyz/v1',
@@ -100,7 +98,6 @@ export const clientAdapter = ({
 
   if (modelProvider.type === ModelProviderType.HUMIRIS) {
     return humirisClientAdapter({
-      // @ts-ignore-next-line
       humiris: new OpenAI({
         apiKey: modelProvider.apiKey,
         baseURL: 'https://moai-service-app.humiris.ai/api/openai/v1/',
@@ -113,7 +110,6 @@ export const clientAdapter = ({
 
   if (modelProvider.type === ModelProviderType.GOOGLE) {
     return googleClientAdapter({
-      // @ts-ignore-next-line
       google: new OpenAI({
         apiKey: modelProvider.apiKey,
         baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/',

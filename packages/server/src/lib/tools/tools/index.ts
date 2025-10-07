@@ -150,6 +150,7 @@ const nativeTools = ({
     .filter(Boolean) as OpenAI.Beta.Assistants.AssistantTool[]
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const serializeTool = ({ tool }: { tool: any }) => ({
   name: tool.name,
   description: tool.description,
