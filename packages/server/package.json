@@ -40,6 +40,16 @@
       "import": "./dist/app/api/assistants/[assistantId]/mcp-servers/[mcpServerId]/*.js",
       "default": "./dist/app/api/assistants/[assistantId]/mcp-servers/[mcpServerId]/*.js"
     },
+    "./next/api/files/*": {
+      "types": "./dist/app/api/files/*.d.ts",
+      "import": "./dist/app/api/files/*.js",
+      "default": "./dist/app/api/files/*.js"
+    },
+    "./next/api/files/[fileId]/contents*": {
+      "types": "./dist/app/api/files/[fileId]/contents/*.d.ts",
+      "import": "./dist/app/api/files/[fileId]/contents/*.js",
+      "default": "./dist/app/api/files/[fileId]/contents/*.js"
+    },
     "./next/api/messages/*": {
       "types": "./dist/app/api/messages/*.d.ts",
       "import": "./dist/app/api/messages/*.js",
