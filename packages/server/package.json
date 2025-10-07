@@ -64,6 +64,26 @@
       "types": "./dist/app/api/api-keys/[apiKeyId]/*.d.ts",
       "import": "./dist/app/api/api-keys/[apiKeyId]/*.js",
       "default": "./dist/app/api/api-keys/[apiKeyId]/*.js"
+    },
+    "./next/api/providers/*": {
+      "types": "./dist/app/api/providers/*.d.ts",
+      "import": "./dist/app/api/providers/*.js",
+      "default": "./dist/app/api/providers/*.js"
+    },
+    "./next/api/providers/[modelProviderId]/*": {
+      "types": "./dist/app/api/providers/[modelProviderId]/*.d.ts",
+      "import": "./dist/app/api/providers/[modelProviderId]/*.js",
+      "default": "./dist/app/api/providers/[modelProviderId]/*.js"
+    },
+    "./next/api/providers/[modelProviderId]/models/*": {
+      "types": "./dist/app/api/providers/[modelProviderId]/models/*.d.ts",
+      "import": "./dist/app/api/providers/[modelProviderId]/models/*.js",
+      "default": "./dist/app/api/providers/[modelProviderId]/models/*.js"
+    },
+    "./next/api/providers/[modelProviderId]/assistants/*": {
+      "types": "./dist/app/api/providers/[modelProviderId]/assistants/*.d.ts",
+      "import": "./dist/app/api/providers/[modelProviderId]/assistants/*.js",
+      "default": "./dist/app/api/providers/[modelProviderId]/assistants/*.js"
     }
   },
   "scripts": {

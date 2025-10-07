@@ -18,7 +18,7 @@ export const buildGET =
     }: {
       file: OpenAI.Files.FileObject
       workspaceAccessWhere: Prisma.WorkspaceWhereInput
-    }) => NextResponse
+    }) => Promise<NextResponse> | NextResponse
   }) =>
   async (
     request: NextRequest,
