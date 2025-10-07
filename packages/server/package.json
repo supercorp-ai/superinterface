@@ -15,6 +15,16 @@
       "import": "./dist/app/api/assistants/[assistantId]/*.js",
       "default": "./dist/app/api/assistants/[assistantId]/*.js"
     },
+    "./next/api/assistants/[assistantId]/mcp-servers/*": {
+      "types": "./dist/app/api/assistants/[assistantId]/mcp-servers/*.d.ts",
+      "import": "./dist/app/api/assistants/[assistantId]/mcp-servers/*.js",
+      "default": "./dist/app/api/assistants/[assistantId]/mcp-servers/*.js"
+    },
+    "./next/api/assistants/[assistantId]/mcp-servers/[mcpServerId]/*": {
+      "types": "./dist/app/api/assistants/[assistantId]/mcp-servers/[mcpServerId]/*.d.ts",
+      "import": "./dist/app/api/assistants/[assistantId]/mcp-servers/[mcpServerId]/*.js",
+      "default": "./dist/app/api/assistants/[assistantId]/mcp-servers/[mcpServerId]/*.js"
+    },
     "./next/api/messages/*": {
       "types": "./dist/app/api/messages/*.d.ts",
       "import": "./dist/app/api/messages/*.js",
