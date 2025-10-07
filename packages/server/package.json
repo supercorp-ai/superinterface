@@ -99,6 +99,21 @@
       "types": "./dist/app/api/tasks/callback/*.d.ts",
       "import": "./dist/app/api/tasks/callback/*.js",
       "default": "./dist/app/api/tasks/callback/*.js"
+    },
+    "./next/api/threads/runs/submit-client-tool-outputs/*": {
+      "types": "./dist/app/api/threads/runs/submit-client-tool-outputs/*.d.ts",
+      "import": "./dist/app/api/threads/runs/submit-client-tool-outputs/*.js",
+      "default": "./dist/app/api/threads/runs/submit-client-tool-outputs/*.js"
+    },
+    "./next/api/workspaces/*": {
+      "types": "./dist/app/api/workspaces/*.d.ts",
+      "import": "./dist/app/api/workspaces/*.js",
+      "default": "./dist/app/api/workspaces/*.js"
+    },
+    "./next/api/workspaces/[workspaceId]/*": {
+      "types": "./dist/app/api/workspaces/[workspaceId]/*.d.ts",
+      "import": "./dist/app/api/workspaces/[workspaceId]/*.js",
+      "default": "./dist/app/api/workspaces/[workspaceId]/*.js"
     }
   },
   "scripts": {
