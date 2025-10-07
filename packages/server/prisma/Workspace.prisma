@@ -7,6 +7,8 @@ model Workspace {
   apiKeys ApiKey[]
   logs Log[]
   invitations Invitation[]
+  organizationId String? @db.Uuid
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
 }

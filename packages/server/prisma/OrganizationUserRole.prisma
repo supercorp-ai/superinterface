@@ -1,0 +1,14 @@
+model OrganizationUserRole {
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type OrganizationUserRoleType @default(ADMIN)
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String @db.Uuid
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([userId])
+  @@index([organizationId])
+  @@unique([organizationId, userId])
+}
