@@ -15,6 +15,11 @@
       "import": "./dist/app/api/assistants/[assistantId]/*.js",
       "default": "./dist/app/api/assistants/[assistantId]/*.js"
     },
+    "./next/api/assistants/[assistantId]/initial-messages/*": {
+      "types": "./dist/app/api/assistants/[assistantId]/initial-messages/*.d.ts",
+      "import": "./dist/app/api/assistants/[assistantId]/initial-messages/*.js",
+      "default": "./dist/app/api/assistants/[assistantId]/initial-messages/*.js"
+    },
     "./next/api/assistants/[assistantId]/mcp-servers/*": {
       "types": "./dist/app/api/assistants/[assistantId]/mcp-servers/*.d.ts",
       "import": "./dist/app/api/assistants/[assistantId]/mcp-servers/*.js",
