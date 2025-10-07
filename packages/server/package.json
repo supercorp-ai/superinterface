@@ -19,7 +19,8 @@
     "next": "15.5.4",
     "prisma-json-types-generator": "^3.6.2",
     "react": "19.1.1",
-    "react-dom": "19.1.1"
+    "react-dom": "19.1.1",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
