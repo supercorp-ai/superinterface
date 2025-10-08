@@ -1,6 +1,6 @@
 {
   "name": "@superinterface/server",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "type": "module",
   "bin": {
     "superinterface-server": "./bin/index.cjs"
@@ -58,7 +58,7 @@
       "import": "./dist/app/api/files/*.js",
       "default": "./dist/app/api/files/*.js"
     },
-    "./next/api/files/[fileId]/contents*": {
+    "./next/api/files/[fileId]/contents/*": {
       "types": "./dist/app/api/files/[fileId]/contents/*.d.ts",
       "import": "./dist/app/api/files/[fileId]/contents/*.js",
       "default": "./dist/app/api/files/[fileId]/contents/*.js"
