@@ -1,6 +1,6 @@
 {
   "name": "@superinterface/server",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "bin": {
     "superinterface-server": "./bin/index.cjs"
   },
@@ -159,8 +159,8 @@
   },
   "peerDependencies": {
     "next": "15.5.4",
-    "react": "19.1.1",
-    "react-dom": "19.1.1"
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -171,8 +171,8 @@
     "eslint-config-next": "15.5.4",
     "next": "15.5.4",
     "prisma": "^6.16.3",
-    "react": "19.1.1",
-    "react-dom": "19.1.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "tsc-alias": "^1.8.12",
     "typescript": "^5"
   }
