@@ -7,6 +7,7 @@ import { createOrganizationApiKey } from './commands/organizations/api-keys/crea
 import { runServer } from './commands/run/server'
 import { CliError } from './utils/errors'
 import { ensureEnv, ensureDatabaseUrl } from './utils/env'
+import { loadPrismaClient } from './utils/loadPrisma'
 
 const program = new Command()
   .name('@superinterface/server')
@@ -37,8 +38,7 @@ const withAction = <Options extends Record<string, unknown>>(
       await ensureEnv()
       ensureDatabaseUrl()
 
-      const prismaModule = await import('../src/lib/prisma')
-      prisma = prismaModule.prisma
+      prisma = await loadPrismaClient()
 
       const actionOptions = { ...options, prisma } as ActionOptions<Options>
 
