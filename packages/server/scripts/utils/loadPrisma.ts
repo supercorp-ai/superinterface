@@ -1,3 +1,7 @@
+import { spawn } from 'node:child_process'
+import { createRequire } from 'node:module'
+import process from 'node:process'
+import { fileURLToPath } from 'node:url'
 import type { PrismaClient } from '@prisma/client'
 import { CliError } from './errors'
 
@@ -9,6 +13,12 @@ const prismaModuleCandidates = [
 type PrismaModule = {
   prisma?: PrismaClient
 }
+
+const packageRoot = fileURLToPath(new URL('../..', import.meta.url))
+const schemaPath = fileURLToPath(
+  new URL('../../prisma/schema.prisma', import.meta.url),
+)
+const nodeRequire = createRequire(import.meta.url)
 
 const isModuleNotFoundError = (error: unknown, modulePath: string) => {
   if (!(error instanceof Error)) return false
@@ -30,10 +40,61 @@ const isModuleNotFoundError = (error: unknown, modulePath: string) => {
   )
 }
 
+const isPrismaClientNotGeneratedError = (error: unknown) => {
+  if (!(error instanceof Error)) return false
+  return /prisma\s+client\s+did\s+not\s+initialize|Please\s+run\s+"prisma\s+generate"/i.test(
+    error.message,
+  )
+}
+
+const generatePrismaClient = async () => {
+  let prismaCliPath: string
+
+  try {
+    prismaCliPath = nodeRequire.resolve('prisma/build/index.js', {
+      paths: [packageRoot],
+    })
+  } catch (error) {
+    throw new CliError(
+      'Unable to resolve Prisma CLI. Install `prisma` dependency.',
+      {
+        cause: error,
+      },
+    )
+  }
+
+  await new Promise<void>((resolve, reject) => {
+    const child = spawn(
+      process.execPath,
+      [prismaCliPath, 'generate', '--schema', schemaPath],
+      {
+        cwd: packageRoot,
+        stdio: 'inherit',
+        env: process.env,
+      },
+    )
+
+    child.once('error', (error) => {
+      reject(new CliError('Failed to run `prisma generate`.', { cause: error }))
+    })
+
+    child.once('exit', (code) => {
+      if (typeof code === 'number' && code !== 0) {
+        reject(new CliError(`prisma generate exited with code ${code}.`))
+        return
+      }
+
+      resolve()
+    })
+  })
+}
+
 export const loadPrismaClient = async (): Promise<PrismaClient> => {
   let lastError: unknown
+  let attemptedGenerate = false
 
-  for (const candidate of prismaModuleCandidates) {
+  for (let index = 0; index < prismaModuleCandidates.length; index += 1) {
+    const candidate = prismaModuleCandidates[index]
     try {
       const module = (await import(candidate)) as PrismaModule
       if (module?.prisma) {
@@ -44,6 +105,19 @@ export const loadPrismaClient = async (): Promise<PrismaClient> => {
         `Module "${candidate}" does not export a prisma client.`,
       )
     } catch (error) {
+      if (isPrismaClientNotGeneratedError(error)) {
+        if (attemptedGenerate) {
+          throw new CliError('Prisma client failed to initialize.', {
+            cause: error,
+          })
+        }
+
+        await generatePrismaClient()
+        attemptedGenerate = true
+        index -= 1
+        continue
+      }
+
       if (isModuleNotFoundError(error, candidate)) {
         lastError = error
         continue
