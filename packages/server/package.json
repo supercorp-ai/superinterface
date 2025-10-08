@@ -137,6 +137,7 @@
     "@modelcontextprotocol/sdk": "^1.19.1",
     "@prisma/adapter-neon": "^6.16.3",
     "@prisma/client": "^6.16.3",
+    "@superinterface/react": "^5.2.2",
     "@upstash/qstash": "^2.8.3",
     "@upstash/redis": "^1.35.5",
     "@upstash/workflow": "^0.2.20",
