@@ -114,6 +114,11 @@
       "types": "./dist/app/api/workspaces/[workspaceId]/*.d.ts",
       "import": "./dist/app/api/workspaces/[workspaceId]/*.js",
       "default": "./dist/app/api/workspaces/[workspaceId]/*.js"
+    },
+    "./lib/assistants/serializeApiAssistant": {
+      "types": "./dist/lib/assistants/serializeApiAssistant.d.ts",
+      "import": "./dist/lib/assistants/serializeApiAssistant.js",
+      "default": "./dist/lib/assistants/serializeApiAssistant.js"
     }
   },
   "scripts": {
