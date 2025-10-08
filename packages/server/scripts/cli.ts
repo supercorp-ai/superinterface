@@ -5,6 +5,7 @@ import { Command } from 'commander'
 import { createOrganization } from './commands/organizations/create'
 import { createOrganizationApiKey } from './commands/organizations/api-keys/create'
 import { runServer } from './commands/run/server'
+import { prismaDeploy } from './commands/prisma/deploy'
 import { CliError } from './utils/errors'
 import { ensureEnv, ensureDatabaseUrl } from './utils/env'
 import { loadPrismaClient } from './utils/loadPrisma'
@@ -96,6 +97,20 @@ run
         runtime: options.runtime,
         port: parsedPort,
       })
+    } catch (error) {
+      handleCliError(error)
+    }
+  })
+
+const prisma = program.command('prisma').description('Prisma utilities')
+
+prisma
+  .command('deploy')
+  .description('Run prisma migrate deploy')
+  .option('--schema <path>', 'Path to prisma schema file')
+  .action(async (options: { schema?: string }) => {
+    try {
+      await prismaDeploy({ schema: options.schema })
     } catch (error) {
       handleCliError(error)
     }

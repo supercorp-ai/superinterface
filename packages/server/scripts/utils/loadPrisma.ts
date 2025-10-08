@@ -54,7 +54,7 @@ export const loadPrismaClient = async (): Promise<PrismaClient> => {
   }
 
   throw new CliError(
-    'Prisma client module not found. Run `npm run build:lib` before using this command.',
+    'Prisma client module not found. Run `prisma generate` (after `npm run build:lib`) before using this command.',
     { cause: lastError },
   )
 }
