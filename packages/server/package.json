@@ -1,9 +1,18 @@
 {
   "name": "@superinterface/server",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "bin": {
     "superinterface-server": "./bin/index.cjs"
   },
+  "files": [
+    "bin",
+    "dist",
+    ".next",
+    "prisma",
+    "public",
+    "scripts",
+    "types"
+  ],
   "exports": {
     "./prisma/enums/*": "./prisma/enums/*",
     "./prisma/*": "./prisma/*",
