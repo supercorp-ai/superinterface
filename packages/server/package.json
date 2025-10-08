@@ -127,7 +127,8 @@
     "build:lib": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "start": "next start",
     "prisma:migrate": "npx prisma migrate dev",
-    "lint": "eslint"
+    "lint": "eslint",
+    "cli": "tsx scripts/cli.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",
@@ -165,6 +166,11 @@
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "tsc-alias": "^1.8.12",
-    "typescript": "^5"
+    "typescript": "^5",
+    "@clack/prompts": "^0.11.0",
+    "dotenv": "^16.4.5",
+    "tsx": "^4.11.0",
+    "zod": "^3.23.8",
+    "commander": "^14.0.1"
   }
 }
