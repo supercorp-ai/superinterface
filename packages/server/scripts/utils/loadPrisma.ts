@@ -89,6 +89,37 @@ const generatePrismaClient = async () => {
   })
 }
 
+const clearPrismaClientCache = () => {
+  const requests = [
+    '@prisma/client',
+    '@prisma/client/index.js',
+    '.prisma/client/index.js',
+    '.prisma/client/default.js',
+  ] as const
+
+  for (const request of requests) {
+    try {
+      const resolved = nodeRequire.resolve(request, { paths: [packageRoot] })
+      delete nodeRequire.cache[resolved]
+    } catch (error) {
+      // ignore cache misses
+    }
+  }
+}
+
+const importPrismaModule = async (
+  candidate: string,
+  forceReload: boolean,
+): Promise<PrismaModule> => {
+  const url = new URL(candidate, import.meta.url)
+
+  if (forceReload) {
+    url.searchParams.set('ts', Date.now().toString())
+  }
+
+  return (await import(url.href)) as PrismaModule
+}
+
 export const loadPrismaClient = async (): Promise<PrismaClient> => {
   let lastError: unknown
   let attemptedGenerate = false
@@ -96,7 +127,7 @@ export const loadPrismaClient = async (): Promise<PrismaClient> => {
   for (let index = 0; index < prismaModuleCandidates.length; index += 1) {
     const candidate = prismaModuleCandidates[index]
     try {
-      const module = (await import(candidate)) as PrismaModule
+      const module = await importPrismaModule(candidate, attemptedGenerate)
       if (module?.prisma) {
         return module.prisma
       }
@@ -113,6 +144,7 @@ export const loadPrismaClient = async (): Promise<PrismaClient> => {
         }
 
         await generatePrismaClient()
+        clearPrismaClientCache()
         attemptedGenerate = true
         index -= 1
         continue
