@@ -112,7 +112,9 @@ export const POST = async (request: Request) => {
 
   if (!parseResult.success) {
     return NextResponse.json(
-      { error: 'Missing required fields' },
+      {
+        error: `Missing required fields. ${JSON.stringify(parseResult.error.format())}`,
+      },
       { status: 400 },
     )
   }
