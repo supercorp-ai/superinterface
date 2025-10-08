@@ -1,6 +1,6 @@
 {
   "name": "@superinterface/server",
-  "version": "1.0.7",
+  "version": "1.0.17",
   "type": "module",
   "bin": {
     "superinterface-server": "./bin/index.cjs"
@@ -10,6 +10,7 @@
     "dist",
     ".next",
     "prisma",
+    "prisma.config.ts",
     "public",
     "scripts",
     "types"
