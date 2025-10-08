@@ -1,6 +1,9 @@
 {
   "name": "@superinterface/server",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "bin": {
+    "superinterface-server": "./bin/index.cjs"
+  },
   "exports": {
     "./prisma/enums/*": "./prisma/enums/*",
     "./prisma/*": "./prisma/*",
@@ -131,6 +134,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",
+    "@clack/prompts": "^0.11.0",
     "@mendable/firecrawl-js": "^1.22.0",
     "@mistralai/mistralai": "^1.10.0",
     "@modelcontextprotocol/sdk": "^1.19.1",
@@ -141,13 +145,17 @@
     "@upstash/redis": "^1.35.5",
     "@upstash/workflow": "^0.2.20",
     "@vercel/functions": "^3.1.1",
+    "commander": "^14.0.1",
     "dayjs": "^1.11.18",
+    "dotenv": "^16.4.5",
     "groq-sdk": "^0.33.0",
     "p-iteration": "^1.1.8",
     "prisma-json-types-generator": "^3.6.2",
     "replicate": "^1.2.0",
     "supercompat": "^3.8.0",
-    "uuid": "^13.0.0"
+    "tsx": "^4.11.0",
+    "uuid": "^13.0.0",
+    "zod": "^3.23.8"
   },
   "peerDependencies": {
     "next": "15.5.4",
@@ -166,11 +174,6 @@
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "tsc-alias": "^1.8.12",
-    "typescript": "^5",
-    "@clack/prompts": "^0.11.0",
-    "dotenv": "^16.4.5",
-    "tsx": "^4.11.0",
-    "zod": "^3.23.8",
-    "commander": "^14.0.1"
+    "typescript": "^5"
   }
 }

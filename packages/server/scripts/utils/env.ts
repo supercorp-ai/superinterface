@@ -10,15 +10,25 @@ export const ensureEnv = async () => {
   if (envLoaded) return
 
   const proc = process as ProcessWithLoadEnvFile
+  let handled = false
 
   if (typeof proc.loadEnvFile === 'function') {
-    proc.loadEnvFile()
-    envLoaded = true
-    return
+    try {
+      proc.loadEnvFile()
+      handled = true
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException | undefined)?.code
+      if (code && code !== 'ENOENT') {
+        throw error
+      }
+    }
   }
 
-  const dotenv = await import('dotenv')
-  dotenv.config({ path: '.env' })
+  if (!handled) {
+    const dotenv = await import('dotenv')
+    dotenv.config({ path: '.env' })
+  }
+
   envLoaded = true
 }
 
