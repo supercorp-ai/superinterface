@@ -6,9 +6,9 @@ import {
   LogLevel,
   Assistant,
   Thread,
+  type PrismaClient,
 } from '@prisma/client'
 import { createMessageResponse } from '@superinterface/react/server'
-import { prisma } from '@/lib/prisma'
 import { assistantClientAdapter } from '@/lib/assistants/assistantClientAdapter'
 import { createThread } from '@/lib/threads/createThread'
 import { managedOpenaiThreadId } from '@/lib/threads/managedOpenaiThreadId'
@@ -30,6 +30,7 @@ export const handleAssistant = async ({
   run,
   assistant: parentAssistant,
   thread: parentThread,
+  prisma,
 }: {
   assistantHandler: AssistantHandler
   toolCall: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall
@@ -37,6 +38,7 @@ export const handleAssistant = async ({
   run: OpenAI.Beta.Threads.Runs.Run
   assistant: Assistant
   thread: Thread
+  prisma: PrismaClient
 }) => {
   let args
 
@@ -55,6 +57,7 @@ export const handleAssistant = async ({
         assistantId: parentAssistant.id,
         threadId: parentThread.id,
       },
+      prisma,
     })
 
     return {
@@ -125,6 +128,7 @@ export const handleAssistant = async ({
         assistantId: parentAssistant.id,
         threadId: parentThread.id,
       },
+      prisma,
     })
 
     return {
@@ -155,6 +159,7 @@ export const handleAssistant = async ({
         workspaceId: assistant.workspaceId,
         assistantId: assistant.id,
       },
+      prisma,
     })
 
     return {
@@ -182,6 +187,7 @@ export const handleAssistant = async ({
         assistantId: assistant.id,
         threadId: thread.id,
       },
+      prisma,
     })
 
     return {
@@ -200,6 +206,7 @@ export const handleAssistant = async ({
       storageThreadId = await managedOpenaiThreadId({
         assistant,
         threadId: thread.id,
+        prisma,
       })
       // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
     } catch (e: any) {
@@ -214,6 +221,7 @@ export const handleAssistant = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {
@@ -235,6 +243,7 @@ export const handleAssistant = async ({
         assistantId: assistant.id,
         threadId: thread.id,
       },
+      prisma,
     })
 
     return {
@@ -272,6 +281,7 @@ export const handleAssistant = async ({
         assistantId: assistant.id,
         threadId: thread.id,
       },
+      prisma,
     })
 
     return {
@@ -285,6 +295,7 @@ export const handleAssistant = async ({
   const runOpts = await createRunOpts({
     assistant,
     thread,
+    prisma,
   })
 
   try {
@@ -305,6 +316,7 @@ export const handleAssistant = async ({
         assistantId: assistant.id,
         threadId: thread.id,
       },
+      prisma,
     })
 
     return {
@@ -319,6 +331,7 @@ export const handleAssistant = async ({
     handleToolCall: handleToolCall({
       assistant,
       thread,
+      prisma,
     }),
   })
 

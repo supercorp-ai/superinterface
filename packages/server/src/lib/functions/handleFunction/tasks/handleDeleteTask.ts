@@ -1,6 +1,10 @@
 import OpenAI from 'openai'
-import { DeleteTaskHandler, Assistant, Thread } from '@prisma/client'
-import { prisma } from '@/lib/prisma'
+import {
+  DeleteTaskHandler,
+  Assistant,
+  Thread,
+  PrismaClient,
+} from '@prisma/client'
 import { serializeTask } from '@/lib/tasks/serializeTask'
 import { deleteTaskSchema } from '@/lib/tasks/schemas'
 import { parseTaskToolArgs } from '@/lib/tasks/parseTaskToolArgs'
@@ -12,13 +16,15 @@ export const handleDeleteTask = async ({
   toolCall,
   assistant,
   thread,
+  prisma,
 }: {
   taskHandler: DeleteTaskHandler
   toolCall: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall
   assistant: Assistant
   thread: Thread
+  prisma: PrismaClient
 }) => {
-  const parsedArgs = parseTaskToolArgs({ toolCall, assistant, thread })
+  const parsedArgs = parseTaskToolArgs({ toolCall, assistant, thread, prisma })
   if (!parsedArgs.ok)
     return { tool_call_id: toolCall.id, output: parsedArgs.error }
 
@@ -31,6 +37,7 @@ export const handleDeleteTask = async ({
     thread,
     assistant,
     keyTemplate: taskHandler.keyTemplate,
+    prisma,
   })
 
   if (!ok) return { tool_call_id: toolCall.id, output: error }

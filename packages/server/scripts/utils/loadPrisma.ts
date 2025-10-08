@@ -52,7 +52,6 @@ const generatePrismaClient = async () => {
 const createPrismaClient = async (bustCache = false) => {
   // Dynamically import PrismaClient and PrismaNeon after generation
   let PrismaClientConstructor: typeof PrismaClient
-  let PrismaNeonConstructor: any
 
   if (bustCache) {
     // After generation, import directly from the file path to bypass Node's module cache
@@ -75,7 +74,7 @@ const createPrismaClient = async (bustCache = false) => {
   }
 
   const { PrismaNeon } = await import('@prisma/adapter-neon')
-  PrismaNeonConstructor = PrismaNeon
+  const PrismaNeonConstructor = PrismaNeon
 
   const connectionString = `${process.env.DATABASE_URL}`
 

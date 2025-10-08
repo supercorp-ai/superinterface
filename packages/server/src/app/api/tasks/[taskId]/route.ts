@@ -1,10 +1,10 @@
 import { headers } from 'next/headers'
-import { ApiKeyType } from '@prisma/client'
+import { ApiKeyType, type PrismaClient } from '@prisma/client'
 import { NextResponse, type NextRequest } from 'next/server'
 import { z } from 'zod'
 import { validate } from 'uuid'
 import { cacheHeaders } from '@/lib/cache/cacheHeaders'
-import { prisma } from '@/lib/prisma'
+import { prisma as defaultPrisma } from '@/lib/prisma'
 import { serializeTask } from '@/lib/tasks/serializeTask'
 import { validateSchedule } from '@/lib/tasks/validateSchedule'
 import { getApiKey } from '@/lib/apiKeys/getApiKey'
@@ -18,191 +18,206 @@ const updateTaskSchema = z.object({
   key: z.string().optional(),
 })
 
-export const GET = async (
-  _request: NextRequest,
-  props: { params: Promise<{ taskId: string }> },
-) => {
-  const { taskId } = await props.params
+export const buildGET =
+  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  async (
+    _request: NextRequest,
+    props: { params: Promise<{ taskId: string }> },
+  ) => {
+    const { taskId } = await props.params
 
-  const headersList = await headers()
-  const authorization = headersList.get('authorization')
-  if (!authorization) {
+    const headersList = await headers()
+    const authorization = headersList.get('authorization')
+    if (!authorization) {
+      return NextResponse.json(
+        { error: 'No authorization header found' },
+        { status: 400 },
+      )
+    }
+
+    const privateApiKey = await getApiKey({
+      authorization,
+      type: ApiKeyType.PRIVATE,
+      prisma,
+    })
+
+    if (!privateApiKey) {
+      return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })
+    }
+
+    if (!taskId) {
+      return NextResponse.json({ error: 'No task id found' }, { status: 400 })
+    }
+
+    if (!validate(taskId)) {
+      return NextResponse.json({ error: 'Invalid task id' }, { status: 400 })
+    }
+
+    const task = await prisma.task.findFirst({
+      where: {
+        id: taskId,
+        thread: { assistant: { workspaceId: privateApiKey.workspaceId } },
+      },
+    })
+
+    if (!task) {
+      return NextResponse.json({ error: 'No task found' }, { status: 400 })
+    }
+
     return NextResponse.json(
-      { error: 'No authorization header found' },
-      { status: 400 },
+      { task: serializeTask({ task }) },
+      { headers: cacheHeaders },
     )
   }
 
-  const privateApiKey = await getApiKey({
-    authorization,
-    type: ApiKeyType.PRIVATE,
-  })
+export const GET = buildGET()
 
-  if (!privateApiKey) {
-    return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })
-  }
+export const buildPATCH =
+  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  async (
+    request: NextRequest,
+    props: { params: Promise<{ taskId: string }> },
+  ) => {
+    const { taskId } = await props.params
 
-  if (!taskId) {
-    return NextResponse.json({ error: 'No task id found' }, { status: 400 })
-  }
+    const headersList = await headers()
+    const authorization = headersList.get('authorization')
+    if (!authorization) {
+      return NextResponse.json(
+        { error: 'No authorization header found' },
+        { status: 400 },
+      )
+    }
 
-  if (!validate(taskId)) {
-    return NextResponse.json({ error: 'Invalid task id' }, { status: 400 })
-  }
+    const privateApiKey = await getApiKey({
+      authorization,
+      type: ApiKeyType.PRIVATE,
+      prisma,
+    })
 
-  const task = await prisma.task.findFirst({
-    where: {
-      id: taskId,
-      thread: { assistant: { workspaceId: privateApiKey.workspaceId } },
-    },
-  })
+    if (!privateApiKey) {
+      return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })
+    }
 
-  if (!task) {
-    return NextResponse.json({ error: 'No task found' }, { status: 400 })
-  }
+    if (!taskId) {
+      return NextResponse.json({ error: 'No task id found' }, { status: 400 })
+    }
 
-  return NextResponse.json(
-    { task: serializeTask({ task }) },
-    { headers: cacheHeaders },
-  )
-}
+    if (!validate(taskId)) {
+      return NextResponse.json({ error: 'Invalid task id' }, { status: 400 })
+    }
 
-export const PATCH = async (
-  request: NextRequest,
-  props: { params: Promise<{ taskId: string }> },
-) => {
-  const { taskId } = await props.params
+    const parsed = updateTaskSchema.safeParse(await request.json())
 
-  const headersList = await headers()
-  const authorization = headersList.get('authorization')
-  if (!authorization) {
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
+    }
+
+    const updateData = {
+      ...(parsed.data.title !== undefined ? { title: parsed.data.title } : {}),
+      ...(parsed.data.message !== undefined
+        ? { message: parsed.data.message }
+        : {}),
+      ...(parsed.data.schedule !== undefined
+        ? {
+            ...(validateSchedule(parsed.data.schedule)
+              ? { schedule: parsed.data.schedule }
+              : {}),
+          }
+        : {}),
+      ...(parsed.data.key !== undefined ? { key: parsed.data.key } : {}),
+    }
+
+    if (
+      parsed.data.schedule !== undefined &&
+      !validateSchedule(parsed.data.schedule)
+    ) {
+      return NextResponse.json({ error: 'Invalid schedule' }, { status: 400 })
+    }
+
+    const existingTask = await prisma.task.findFirst({
+      where: {
+        id: taskId,
+        thread: { assistant: { workspaceId: privateApiKey.workspaceId } },
+      },
+    })
+
+    if (!existingTask) {
+      return NextResponse.json({ error: 'No task found' }, { status: 400 })
+    }
+
+    const task = await prisma.task.update({
+      where: { id: existingTask.id },
+      data: updateData,
+    })
+
+    await scheduleTask({ task, prisma })
+
     return NextResponse.json(
-      { error: 'No authorization header found' },
-      { status: 400 },
+      { task: serializeTask({ task }) },
+      { headers: cacheHeaders },
     )
   }
 
-  const privateApiKey = await getApiKey({
-    authorization,
-    type: ApiKeyType.PRIVATE,
-  })
+export const PATCH = buildPATCH()
 
-  if (!privateApiKey) {
-    return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })
-  }
+export const buildDELETE =
+  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  async (
+    _request: NextRequest,
+    props: { params: Promise<{ taskId: string }> },
+  ) => {
+    const { taskId } = await props.params
 
-  if (!taskId) {
-    return NextResponse.json({ error: 'No task id found' }, { status: 400 })
-  }
+    const headersList = await headers()
+    const authorization = headersList.get('authorization')
+    if (!authorization) {
+      return NextResponse.json(
+        { error: 'No authorization header found' },
+        { status: 400 },
+      )
+    }
 
-  if (!validate(taskId)) {
-    return NextResponse.json({ error: 'Invalid task id' }, { status: 400 })
-  }
+    const privateApiKey = await getApiKey({
+      authorization,
+      type: ApiKeyType.PRIVATE,
+      prisma,
+    })
 
-  const parsed = updateTaskSchema.safeParse(await request.json())
+    if (!privateApiKey) {
+      return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })
+    }
 
-  if (!parsed.success) {
-    return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
-  }
+    if (!taskId) {
+      return NextResponse.json({ error: 'No task id found' }, { status: 400 })
+    }
 
-  const updateData = {
-    ...(parsed.data.title !== undefined ? { title: parsed.data.title } : {}),
-    ...(parsed.data.message !== undefined
-      ? { message: parsed.data.message }
-      : {}),
-    ...(parsed.data.schedule !== undefined
-      ? {
-          ...(validateSchedule(parsed.data.schedule)
-            ? { schedule: parsed.data.schedule }
-            : {}),
-        }
-      : {}),
-    ...(parsed.data.key !== undefined ? { key: parsed.data.key } : {}),
-  }
+    if (!validate(taskId)) {
+      return NextResponse.json({ error: 'Invalid task id' }, { status: 400 })
+    }
 
-  if (
-    parsed.data.schedule !== undefined &&
-    !validateSchedule(parsed.data.schedule)
-  ) {
-    return NextResponse.json({ error: 'Invalid schedule' }, { status: 400 })
-  }
+    const existingTask = await prisma.task.findFirst({
+      where: {
+        id: taskId,
+        thread: { assistant: { workspaceId: privateApiKey.workspaceId } },
+      },
+    })
 
-  const existingTask = await prisma.task.findFirst({
-    where: {
-      id: taskId,
-      thread: { assistant: { workspaceId: privateApiKey.workspaceId } },
-    },
-  })
+    if (!existingTask) {
+      return NextResponse.json({ error: 'No task found' }, { status: 400 })
+    }
 
-  if (!existingTask) {
-    return NextResponse.json({ error: 'No task found' }, { status: 400 })
-  }
+    await cancelScheduledTask({ task: existingTask })
 
-  const task = await prisma.task.update({
-    where: { id: existingTask.id },
-    data: updateData,
-  })
+    const task = await prisma.task.delete({ where: { id: existingTask.id } })
 
-  await scheduleTask({ task })
-
-  return NextResponse.json(
-    { task: serializeTask({ task }) },
-    { headers: cacheHeaders },
-  )
-}
-
-export const DELETE = async (
-  _request: NextRequest,
-  props: { params: Promise<{ taskId: string }> },
-) => {
-  const { taskId } = await props.params
-
-  const headersList = await headers()
-  const authorization = headersList.get('authorization')
-  if (!authorization) {
     return NextResponse.json(
-      { error: 'No authorization header found' },
-      { status: 400 },
+      { task: serializeTask({ task }) },
+      { headers: cacheHeaders },
     )
   }
 
-  const privateApiKey = await getApiKey({
-    authorization,
-    type: ApiKeyType.PRIVATE,
-  })
-
-  if (!privateApiKey) {
-    return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })
-  }
-
-  if (!taskId) {
-    return NextResponse.json({ error: 'No task id found' }, { status: 400 })
-  }
-
-  if (!validate(taskId)) {
-    return NextResponse.json({ error: 'Invalid task id' }, { status: 400 })
-  }
-
-  const existingTask = await prisma.task.findFirst({
-    where: {
-      id: taskId,
-      thread: { assistant: { workspaceId: privateApiKey.workspaceId } },
-    },
-  })
-
-  if (!existingTask) {
-    return NextResponse.json({ error: 'No task found' }, { status: 400 })
-  }
-
-  await cancelScheduledTask({ task: existingTask })
-
-  const task = await prisma.task.delete({ where: { id: existingTask.id } })
-
-  return NextResponse.json(
-    { task: serializeTask({ task }) },
-    { headers: cacheHeaders },
-  )
-}
+export const DELETE = buildDELETE()
 
 export const OPTIONS = () =>
   NextResponse.json(

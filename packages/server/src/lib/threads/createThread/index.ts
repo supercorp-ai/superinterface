@@ -24,6 +24,7 @@ export const createThread = async ({
   const serializedMetadata = serializeMetadata({
     variables,
     workspaceId: assistant.workspaceId,
+    prisma,
   })
 
   let thread

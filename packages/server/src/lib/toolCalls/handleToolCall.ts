@@ -1,5 +1,5 @@
 import OpenAI from 'openai'
-import { Prisma, Thread } from '@prisma/client'
+import { Prisma, Thread, type PrismaClient } from '@prisma/client'
 import { handleFunction } from '@/lib/functions/handleFunction'
 import { handleComputerCall } from '@/lib/computerCalls/handleComputerCall'
 import { LogRequestMethod, LogRequestRoute, LogLevel } from '@prisma/client'
@@ -9,6 +9,7 @@ export const handleToolCall =
   ({
     assistant,
     thread,
+    prisma,
   }: {
     assistant: Prisma.AssistantGetPayload<{
       include: {
@@ -55,6 +56,7 @@ export const handleToolCall =
       }
     }>
     thread: Thread
+    prisma: PrismaClient
   }) =>
   async ({
     toolCall,
@@ -78,6 +80,7 @@ export const handleToolCall =
             assistantId: assistant.id,
             threadId: thread.id,
           },
+          prisma,
         })
 
         return {
@@ -92,12 +95,14 @@ export const handleToolCall =
         controller,
         run,
         thread,
+        prisma,
       })
     } else if (toolCall.type === 'computer_call') {
       return handleComputerCall({
         assistant,
         toolCall,
         thread,
+        prisma,
       })
     } else {
       createLog({
@@ -111,6 +116,7 @@ export const handleToolCall =
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {

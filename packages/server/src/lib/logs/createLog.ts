@@ -1,8 +1,13 @@
-import { type Prisma } from '@prisma/client'
+import { type Prisma, type PrismaClient } from '@prisma/client'
 import { waitUntil } from '@vercel/functions'
-import { prisma } from '@/lib/prisma'
 
-export const createLog = ({ log }: { log: Prisma.LogUncheckedCreateInput }) =>
+export const createLog = ({
+  log,
+  prisma,
+}: {
+  log: Prisma.LogUncheckedCreateInput
+  prisma: PrismaClient
+}) =>
   waitUntil(
     new Promise(async (resolve) => {
       console.log('Logging error.')

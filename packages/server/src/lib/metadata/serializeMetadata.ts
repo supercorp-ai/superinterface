@@ -1,13 +1,20 @@
-import { LogRequestMethod, LogRequestRoute, LogLevel } from '@prisma/client'
+import {
+  LogRequestMethod,
+  LogRequestRoute,
+  LogLevel,
+  type PrismaClient,
+} from '@prisma/client'
 import { createLog } from '@/lib/logs/createLog'
 
 export const serializeMetadata = ({
   variables,
   workspaceId,
+  prisma,
 }: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   variables: Record<string, any>
   workspaceId: string
+  prisma: PrismaClient
 }): Record<string, string> => {
   const metadata: Record<string, string> = {}
 
@@ -26,6 +33,7 @@ export const serializeMetadata = ({
           }`,
           workspaceId,
         },
+        prisma,
       })
     }
   }

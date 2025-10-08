@@ -6,6 +6,7 @@ import {
   LogRequestMethod,
   LogRequestRoute,
   LogLevel,
+  type PrismaClient,
 } from '@prisma/client'
 import { createLog } from '@/lib/logs/createLog'
 import { getFunction } from './getFunction'
@@ -28,6 +29,7 @@ export const handleFunction = async ({
   controller,
   run,
   thread,
+  prisma,
 }: {
   assistant: Prisma.AssistantGetPayload<{
     include: {
@@ -61,6 +63,7 @@ export const handleFunction = async ({
   controller: ReadableStreamDefaultController
   run: OpenAI.Beta.Threads.Runs.Run
   thread: Thread
+  prisma: PrismaClient
 }) => {
   const fn = getFunction({
     toolCall,
@@ -72,6 +75,7 @@ export const handleFunction = async ({
       toolCall,
       assistant,
       thread,
+      prisma,
     })
 
     if (!mcpConnection) {
@@ -86,6 +90,7 @@ export const handleFunction = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {
@@ -111,6 +116,7 @@ export const handleFunction = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {
@@ -152,6 +158,7 @@ export const handleFunction = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {
@@ -173,6 +180,7 @@ export const handleFunction = async ({
         assistantId: assistant.id,
         threadId: thread.id,
       },
+      prisma,
     })
 
     return {
@@ -194,6 +202,7 @@ export const handleFunction = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {
@@ -207,6 +216,7 @@ export const handleFunction = async ({
       toolCall,
       assistant,
       thread,
+      prisma,
     })
   }
 
@@ -223,6 +233,7 @@ export const handleFunction = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {
@@ -238,6 +249,7 @@ export const handleFunction = async ({
       assistant,
       thread,
       run,
+      prisma,
     })
   }
 
@@ -254,6 +266,7 @@ export const handleFunction = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {
@@ -267,6 +280,7 @@ export const handleFunction = async ({
       toolCall,
       assistant,
       thread,
+      prisma,
     })
   }
 
@@ -283,6 +297,7 @@ export const handleFunction = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {
@@ -296,6 +311,7 @@ export const handleFunction = async ({
       toolCall,
       assistant,
       thread,
+      prisma,
     })
   }
 
@@ -312,6 +328,7 @@ export const handleFunction = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {
@@ -327,6 +344,7 @@ export const handleFunction = async ({
       run,
       assistant,
       thread,
+      prisma,
     })
   }
 
@@ -345,6 +363,7 @@ export const handleFunction = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {
@@ -358,6 +377,7 @@ export const handleFunction = async ({
       toolCall,
       assistant,
       thread,
+      prisma,
     })
   }
 
@@ -376,6 +396,7 @@ export const handleFunction = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {
@@ -389,6 +410,7 @@ export const handleFunction = async ({
       toolCall,
       assistant,
       thread,
+      prisma,
     })
   }
 
@@ -407,6 +429,7 @@ export const handleFunction = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {
@@ -420,6 +443,7 @@ export const handleFunction = async ({
       toolCall,
       assistant,
       thread,
+      prisma,
     })
   }
 
@@ -438,6 +462,7 @@ export const handleFunction = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {
@@ -451,6 +476,7 @@ export const handleFunction = async ({
       toolCall,
       assistant,
       thread,
+      prisma,
     })
   }
 
@@ -465,6 +491,7 @@ export const handleFunction = async ({
       assistantId: assistant.id,
       threadId: thread.id,
     },
+    prisma,
   })
 
   return {

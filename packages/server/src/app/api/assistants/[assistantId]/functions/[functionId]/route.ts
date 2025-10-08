@@ -1,240 +1,274 @@
 import { headers } from 'next/headers'
-import { ApiKeyType } from '@prisma/client'
+import { ApiKeyType, type PrismaClient } from '@prisma/client'
 import { NextResponse, type NextRequest } from 'next/server'
 import { cacheHeaders } from '@/lib/cache/cacheHeaders'
-import { prisma } from '@/lib/prisma'
+import { prisma as defaultPrisma } from '@/lib/prisma'
 import { getApiKey } from '@/lib/apiKeys/getApiKey'
 import { validate } from 'uuid'
 import { serializeApiFunction } from '@/lib/functions/serializeApiFunction'
 import { functionSchema } from '@/lib/functions/functionSchema'
 import { updateFunction } from '@/lib/functions/updateFunction'
 
-export const GET = async (
-  _request: NextRequest,
-  props: { params: Promise<{ assistantId: string; functionId: string }> },
-) => {
-  const { assistantId, functionId } = await props.params
+export const buildGET =
+  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  async (
+    _request: NextRequest,
+    props: { params: Promise<{ assistantId: string; functionId: string }> },
+  ) => {
+    const { assistantId, functionId } = await props.params
 
-  const headersList = await headers()
-  const authorization = headersList.get('authorization')
-  if (!authorization) {
+    const headersList = await headers()
+    const authorization = headersList.get('authorization')
+    if (!authorization) {
+      return NextResponse.json(
+        { error: 'No authorization header found' },
+        { status: 400 },
+      )
+    }
+
+    const privateApiKey = await getApiKey({
+      type: ApiKeyType.PRIVATE,
+      authorization,
+      prisma,
+    })
+
+    if (!privateApiKey) {
+      return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })
+    }
+
+    if (!validate(assistantId)) {
+      return NextResponse.json(
+        { error: 'Invalid assistant id' },
+        { status: 400 },
+      )
+    }
+
+    if (!validate(functionId)) {
+      return NextResponse.json(
+        { error: 'Invalid function id' },
+        { status: 400 },
+      )
+    }
+
+    const fn = await prisma.function.findFirst({
+      where: {
+        id: functionId,
+        assistant: {
+          id: assistantId,
+          workspaceId: privateApiKey.workspaceId,
+        },
+      },
+      include: {
+        handler: {
+          include: {
+            requestHandler: true,
+            firecrawlHandler: true,
+            replicateHandler: true,
+            clientToolHandler: true,
+            assistantHandler: true,
+            createTaskHandler: true,
+            listTasksHandler: true,
+            updateTaskHandler: true,
+            deleteTaskHandler: true,
+          },
+        },
+      },
+    })
+
+    if (!fn) {
+      return NextResponse.json({ error: 'No function found' }, { status: 400 })
+    }
+
     return NextResponse.json(
-      { error: 'No authorization header found' },
-      { status: 400 },
+      {
+        function: serializeApiFunction({ fn }),
+      },
+      { headers: cacheHeaders },
     )
   }
 
-  const privateApiKey = await getApiKey({
-    type: ApiKeyType.PRIVATE,
-    authorization,
-  })
+export const GET = buildGET()
 
-  if (!privateApiKey) {
-    return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })
-  }
+export const buildPATCH =
+  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  async (
+    request: NextRequest,
+    props: { params: Promise<{ assistantId: string; functionId: string }> },
+  ) => {
+    const { assistantId, functionId } = await props.params
 
-  if (!validate(assistantId)) {
-    return NextResponse.json({ error: 'Invalid assistant id' }, { status: 400 })
-  }
+    const headersList = await headers()
+    const authorization = headersList.get('authorization')
+    if (!authorization) {
+      return NextResponse.json(
+        { error: 'No authorization header found' },
+        { status: 400 },
+      )
+    }
 
-  if (!validate(functionId)) {
-    return NextResponse.json({ error: 'Invalid function id' }, { status: 400 })
-  }
+    const privateApiKey = await getApiKey({
+      authorization,
+      type: ApiKeyType.PRIVATE,
+      prisma,
+    })
 
-  const fn = await prisma.function.findFirst({
-    where: {
-      id: functionId,
-      assistant: {
-        id: assistantId,
-        workspaceId: privateApiKey.workspaceId,
-      },
-    },
-    include: {
-      handler: {
-        include: {
-          requestHandler: true,
-          firecrawlHandler: true,
-          replicateHandler: true,
-          clientToolHandler: true,
-          assistantHandler: true,
-          createTaskHandler: true,
-          listTasksHandler: true,
-          updateTaskHandler: true,
-          deleteTaskHandler: true,
+    if (!privateApiKey) {
+      return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })
+    }
+
+    if (!validate(assistantId)) {
+      return NextResponse.json(
+        { error: 'Invalid assistant id' },
+        { status: 400 },
+      )
+    }
+
+    if (!validate(functionId)) {
+      return NextResponse.json(
+        { error: 'Invalid function id' },
+        { status: 400 },
+      )
+    }
+
+    const body = await request.json()
+
+    const parsed = functionSchema.safeParse(body)
+
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
+    }
+
+    const fn = await prisma.function.findFirst({
+      where: {
+        id: functionId,
+        assistant: {
+          id: assistantId,
+          workspaceId: privateApiKey.workspaceId,
         },
       },
-    },
-  })
+      include: {
+        assistant: true,
+      },
+    })
 
-  if (!fn) {
-    return NextResponse.json({ error: 'No function found' }, { status: 400 })
-  }
+    if (!fn) {
+      return NextResponse.json({ error: 'No function found' }, { status: 400 })
+    }
 
-  return NextResponse.json(
-    {
-      function: serializeApiFunction({ fn }),
-    },
-    { headers: cacheHeaders },
-  )
-}
+    const updatedFunction = await updateFunction({
+      fn,
+      parsedInput: parsed.data,
+      include: {
+        handler: {
+          include: {
+            requestHandler: true,
+            firecrawlHandler: true,
+            replicateHandler: true,
+            clientToolHandler: true,
+            assistantHandler: true,
+            createTaskHandler: true,
+            listTasksHandler: true,
+            updateTaskHandler: true,
+            deleteTaskHandler: true,
+          },
+        },
+      },
+      prisma,
+    })
 
-export const PATCH = async (
-  request: NextRequest,
-  props: { params: Promise<{ assistantId: string; functionId: string }> },
-) => {
-  const { assistantId, functionId } = await props.params
-
-  const headersList = await headers()
-  const authorization = headersList.get('authorization')
-  if (!authorization) {
     return NextResponse.json(
-      { error: 'No authorization header found' },
-      { status: 400 },
+      {
+        function: serializeApiFunction({ fn: updatedFunction }),
+      },
+      { headers: cacheHeaders },
     )
   }
 
-  const privateApiKey = await getApiKey({
-    authorization,
-    type: ApiKeyType.PRIVATE,
-  })
+export const PATCH = buildPATCH()
 
-  if (!privateApiKey) {
-    return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })
-  }
+export const buildDELETE =
+  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  async (
+    _request: NextRequest,
+    props: { params: Promise<{ assistantId: string; functionId: string }> },
+  ) => {
+    const { assistantId, functionId } = await props.params
 
-  if (!validate(assistantId)) {
-    return NextResponse.json({ error: 'Invalid assistant id' }, { status: 400 })
-  }
+    const headersList = await headers()
+    const authorization = headersList.get('authorization')
+    if (!authorization) {
+      return NextResponse.json(
+        { error: 'No authorization header found' },
+        { status: 400 },
+      )
+    }
 
-  if (!validate(functionId)) {
-    return NextResponse.json({ error: 'Invalid function id' }, { status: 400 })
-  }
+    const privateApiKey = await getApiKey({
+      authorization,
+      type: ApiKeyType.PRIVATE,
+      prisma,
+    })
 
-  const body = await request.json()
+    if (!privateApiKey) {
+      return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })
+    }
 
-  const parsed = functionSchema.safeParse(body)
+    if (!validate(assistantId)) {
+      return NextResponse.json(
+        { error: 'Invalid assistant id' },
+        { status: 400 },
+      )
+    }
 
-  if (!parsed.success) {
-    return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
-  }
+    if (!validate(functionId)) {
+      return NextResponse.json(
+        { error: 'Invalid function id' },
+        { status: 400 },
+      )
+    }
 
-  const fn = await prisma.function.findFirst({
-    where: {
-      id: functionId,
-      assistant: {
-        id: assistantId,
-        workspaceId: privateApiKey.workspaceId,
-      },
-    },
-    include: {
-      assistant: true,
-    },
-  })
-
-  if (!fn) {
-    return NextResponse.json({ error: 'No function found' }, { status: 400 })
-  }
-
-  const updatedFunction = await updateFunction({
-    fn,
-    parsedInput: parsed.data,
-    include: {
-      handler: {
-        include: {
-          requestHandler: true,
-          firecrawlHandler: true,
-          replicateHandler: true,
-          clientToolHandler: true,
-          assistantHandler: true,
-          createTaskHandler: true,
-          listTasksHandler: true,
-          updateTaskHandler: true,
-          deleteTaskHandler: true,
+    const fn = await prisma.function.findFirst({
+      where: {
+        id: functionId,
+        assistant: {
+          id: assistantId,
+          workspaceId: privateApiKey.workspaceId,
         },
       },
-    },
-  })
+    })
 
-  return NextResponse.json(
-    {
-      function: serializeApiFunction({ fn: updatedFunction }),
-    },
-    { headers: cacheHeaders },
-  )
-}
+    if (!fn) {
+      return NextResponse.json({ error: 'No function found' }, { status: 400 })
+    }
 
-export const DELETE = async (
-  _request: NextRequest,
-  props: { params: Promise<{ assistantId: string; functionId: string }> },
-) => {
-  const { assistantId, functionId } = await props.params
+    const deletedFunction = await prisma.function.delete({
+      where: { id: fn.id },
+      include: {
+        handler: {
+          include: {
+            requestHandler: true,
+            firecrawlHandler: true,
+            replicateHandler: true,
+            clientToolHandler: true,
+            assistantHandler: true,
+            createTaskHandler: true,
+            listTasksHandler: true,
+            updateTaskHandler: true,
+            deleteTaskHandler: true,
+          },
+        },
+      },
+    })
 
-  const headersList = await headers()
-  const authorization = headersList.get('authorization')
-  if (!authorization) {
     return NextResponse.json(
-      { error: 'No authorization header found' },
-      { status: 400 },
+      {
+        mcpServer: serializeApiFunction({ fn: deletedFunction }),
+      },
+      { headers: cacheHeaders },
     )
   }
 
-  const privateApiKey = await getApiKey({
-    authorization,
-    type: ApiKeyType.PRIVATE,
-  })
-
-  if (!privateApiKey) {
-    return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })
-  }
-
-  if (!validate(assistantId)) {
-    return NextResponse.json({ error: 'Invalid assistant id' }, { status: 400 })
-  }
-
-  if (!validate(functionId)) {
-    return NextResponse.json({ error: 'Invalid function id' }, { status: 400 })
-  }
-
-  const fn = await prisma.function.findFirst({
-    where: {
-      id: functionId,
-      assistant: {
-        id: assistantId,
-        workspaceId: privateApiKey.workspaceId,
-      },
-    },
-  })
-
-  if (!fn) {
-    return NextResponse.json({ error: 'No function found' }, { status: 400 })
-  }
-
-  const deletedFunction = await prisma.function.delete({
-    where: { id: fn.id },
-    include: {
-      handler: {
-        include: {
-          requestHandler: true,
-          firecrawlHandler: true,
-          replicateHandler: true,
-          clientToolHandler: true,
-          assistantHandler: true,
-          createTaskHandler: true,
-          listTasksHandler: true,
-          updateTaskHandler: true,
-          deleteTaskHandler: true,
-        },
-      },
-    },
-  })
-
-  return NextResponse.json(
-    {
-      mcpServer: serializeApiFunction({ fn: deletedFunction }),
-    },
-    { headers: cacheHeaders },
-  )
-}
+export const DELETE = buildDELETE()
 
 export const OPTIONS = () =>
   NextResponse.json(

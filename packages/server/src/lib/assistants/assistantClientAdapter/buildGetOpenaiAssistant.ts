@@ -1,5 +1,11 @@
 import type { OpenAI } from 'openai'
-import { Prisma, Thread, Assistant, TruncationType } from '@prisma/client'
+import {
+  Prisma,
+  Thread,
+  Assistant,
+  TruncationType,
+  PrismaClient,
+} from '@prisma/client'
 import dayjs from 'dayjs'
 import { tools as getTools } from '@/lib/tools/tools'
 
@@ -41,6 +47,7 @@ export const buildGetOpenaiAssistant =
   ({
     assistant,
     thread,
+    prisma,
   }: {
     assistant: Prisma.AssistantGetPayload<{
       include: {
@@ -66,6 +73,7 @@ export const buildGetOpenaiAssistant =
       }
     }>
     thread: Thread | null
+    prisma: PrismaClient
   }) =>
   async ({ select: { id = false } = {} }: Args = {}) => {
     const args: NormalizedArgs = { select: { id } }
@@ -85,7 +93,7 @@ export const buildGetOpenaiAssistant =
       instructions: assistant.instructions,
       description: null,
       tools: thread
-        ? ((await getTools({ assistant, thread }))?.tools ?? [])
+        ? ((await getTools({ assistant, thread, prisma }))?.tools ?? [])
         : [],
       metadata: {},
       top_p: 1.0,

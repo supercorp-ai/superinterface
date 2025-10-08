@@ -1,12 +1,13 @@
-import { MessageRole, InitialMessage } from '@prisma/client'
-import { prisma } from '@/lib/prisma'
+import { MessageRole, InitialMessage, type PrismaClient } from '@prisma/client'
 
 export const updateInitialMessages = async ({
   assistantId,
   initialMessages,
+  prisma,
 }: {
   assistantId: string
   initialMessages: { role: MessageRole; content: string }[]
+  prisma: PrismaClient
 }) => {
   const messages: InitialMessage[] = await prisma.$transaction(async (tx) => {
     await tx.initialMessage.deleteMany({

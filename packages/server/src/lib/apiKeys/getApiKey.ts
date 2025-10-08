@@ -1,13 +1,14 @@
-import { ApiKeyType, ApiKey } from '@prisma/client'
+import { ApiKeyType, ApiKey, type PrismaClient } from '@prisma/client'
 import { validate } from 'uuid'
-import { prisma } from '@/lib/prisma'
 
 export const getApiKey = async ({
   authorization,
   type,
+  prisma,
 }: {
   authorization: string | null
   type: ApiKeyType
+  prisma: PrismaClient
 }): Promise<ApiKey | null> => {
   if (!authorization) {
     return null

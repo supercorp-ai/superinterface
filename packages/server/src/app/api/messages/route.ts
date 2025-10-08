@@ -1,6 +1,11 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
-import { LogRequestMethod, LogRequestRoute, LogLevel } from '@prisma/client'
+import {
+  LogRequestMethod,
+  LogRequestRoute,
+  LogLevel,
+  type PrismaClient,
+} from '@prisma/client'
 import type { Thread } from '@prisma/client'
 import {
   messagesResponse,
@@ -18,7 +23,7 @@ import { createRunOpts } from '@/lib/runs/createRunOpts'
 import { handleToolCall } from '@/lib/toolCalls/handleToolCall'
 import { createThread } from '@/lib/threads/createThread'
 import { managedOpenaiThreadId } from '@/lib/threads/managedOpenaiThreadId'
-import { prisma } from '@/lib/prisma'
+import { prisma as defaultPrisma } from '@/lib/prisma'
 import { createLog } from '@/lib/logs/createLog'
 import { serializeThread } from './lib/serializeThread'
 import { getWorkspaceId } from './lib/getWorkspaceId'
@@ -30,181 +35,191 @@ import { serializeError } from '@/lib/errors/serializeError'
 
 export const maxDuration = 800
 
-export const GET = async (request: NextRequest) => {
-  const paramsResult = z
-    .object({
-      publicApiKey: z.string().optional(),
-      assistantId: z.string().optional(),
-      threadId: z.string().optional(),
-      pageParam: z.string().optional(),
-    })
-    .parse(Object.fromEntries(request.nextUrl.searchParams.entries()))
+export const buildGET =
+  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  async (request: NextRequest) => {
+    const paramsResult = z
+      .object({
+        publicApiKey: z.string().optional(),
+        assistantId: z.string().optional(),
+        threadId: z.string().optional(),
+        pageParam: z.string().optional(),
+      })
+      .parse(Object.fromEntries(request.nextUrl.searchParams.entries()))
 
-  const workspaceAccessWhere = await getWorkspaceAccessWhere({
-    publicApiKey: paramsResult.publicApiKey ?? null,
-  })
-
-  if (!workspaceAccessWhere) {
-    return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })
-  }
-
-  const assistantId = paramsResult.assistantId
-
-  if (!assistantId) {
-    createLog({
-      log: {
-        requestMethod: LogRequestMethod.POST,
-        requestRoute: LogRequestRoute.MESSAGES,
-        level: LogLevel.ERROR,
-        status: 400,
-        message: 'No assistantId found.',
-        workspaceId: await getWorkspaceId({ workspaceAccessWhere, prisma }),
-      },
+    const workspaceAccessWhere = await getWorkspaceAccessWhere({
+      publicApiKey: paramsResult.publicApiKey ?? null,
+      prisma,
     })
 
-    return NextResponse.json(
-      { error: 'No assistant id found' },
-      { status: 400 },
-    )
-  }
+    if (!workspaceAccessWhere) {
+      return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })
+    }
 
-  const { threadId, pageParam } = paramsResult
+    const assistantId = paramsResult.assistantId
 
-  const assistant = await prisma.assistant.findFirst({
-    where: {
-      id: assistantId,
-      workspace: workspaceAccessWhere,
-    },
-    include: {
-      threads: {
-        where: {
-          id: validThreadId({ threadId: threadId ?? null }),
+    if (!assistantId) {
+      createLog({
+        log: {
+          requestMethod: LogRequestMethod.POST,
+          requestRoute: LogRequestRoute.MESSAGES,
+          level: LogLevel.ERROR,
+          status: 400,
+          message: 'No assistantId found.',
+          workspaceId: await getWorkspaceId({ workspaceAccessWhere, prisma }),
         },
-        take: 1,
-        include: {
-          assistant: {
-            select: {
-              storageProviderType: true,
+        prisma,
+      })
+
+      return NextResponse.json(
+        { error: 'No assistant id found' },
+        { status: 400 },
+      )
+    }
+
+    const { threadId, pageParam } = paramsResult
+
+    const assistant = await prisma.assistant.findFirst({
+      where: {
+        id: assistantId,
+        workspace: workspaceAccessWhere,
+      },
+      include: {
+        threads: {
+          where: {
+            id: validThreadId({ threadId: threadId ?? null }),
+          },
+          take: 1,
+          include: {
+            assistant: {
+              select: {
+                storageProviderType: true,
+              },
             },
           },
         },
-      },
-      workspace: {
-        include: {
-          modelProviders: true,
+        workspace: {
+          include: {
+            modelProviders: true,
+          },
         },
-      },
-      modelProvider: true,
-      initialMessages: {
-        orderBy: {
-          orderNumber: 'desc',
+        modelProvider: true,
+        initialMessages: {
+          orderBy: {
+            orderNumber: 'desc',
+          },
         },
-      },
-      mcpServers: {
-        include: {
-          computerUseTool: true,
-          stdioTransport: true,
-          sseTransport: true,
-          httpTransport: true,
+        mcpServers: {
+          include: {
+            computerUseTool: true,
+            stdioTransport: true,
+            sseTransport: true,
+            httpTransport: true,
+          },
         },
-      },
-      tools: {
-        include: {
-          fileSearchTool: true,
-          webSearchTool: true,
-          imageGenerationTool: true,
-          codeInterpreterTool: true,
-          computerUseTool: true,
+        tools: {
+          include: {
+            fileSearchTool: true,
+            webSearchTool: true,
+            imageGenerationTool: true,
+            codeInterpreterTool: true,
+            computerUseTool: true,
+          },
         },
-      },
-      functions: true,
-    },
-  })
-
-  if (!assistant) {
-    createLog({
-      log: {
-        requestMethod: LogRequestMethod.POST,
-        requestRoute: LogRequestRoute.MESSAGES,
-        level: LogLevel.ERROR,
-        status: 400,
-        message: 'No assistant found.',
-        workspaceId: await getWorkspaceId({ workspaceAccessWhere, prisma }),
+        functions: true,
       },
     })
 
-    return NextResponse.json({ error: 'No assistant found' }, { status: 400 })
-  }
+    if (!assistant) {
+      createLog({
+        log: {
+          requestMethod: LogRequestMethod.POST,
+          requestRoute: LogRequestRoute.MESSAGES,
+          level: LogLevel.ERROR,
+          status: 400,
+          message: 'No assistant found.',
+          workspaceId: await getWorkspaceId({ workspaceAccessWhere, prisma }),
+        },
+        prisma,
+      })
 
-  if (!threadId) {
-    return NextResponse.json(await initialMessagesResponse({ assistant }), {
-      headers: cacheHeaders,
-    })
-  }
+      return NextResponse.json({ error: 'No assistant found' }, { status: 400 })
+    }
 
-  const thread = assistant.threads[0]
-
-  if (!thread) {
-    return NextResponse.json(await initialMessagesResponse({ assistant }), {
-      headers: cacheHeaders,
-    })
-  }
-
-  const client = assistantClientAdapter({ assistant, prisma, thread })
-
-  const storageThreadId = getStorageThreadId({
-    thread,
-  })
-
-  if (!storageThreadId) {
-    return NextResponse.json(await initialMessagesResponse({ assistant }), {
-      headers: cacheHeaders,
-    })
-  }
-
-  try {
-    return NextResponse.json(
-      await messagesResponse({
-        threadId: storageThreadId,
-        client,
-        ...(pageParam ? { pageParam } : {}),
-      }),
-      {
+    if (!threadId) {
+      return NextResponse.json(await initialMessagesResponse({ assistant }), {
         headers: cacheHeaders,
-      },
-    )
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    console.dir({ error }, { depth: null })
-    createLog({
-      log: {
-        requestMethod: LogRequestMethod.GET,
-        requestRoute: LogRequestRoute.MESSAGES,
-        level: LogLevel.ERROR,
-        status: 500,
-        message: `Failed to load messages: ${error.message}`,
-        workspaceId: assistant.workspaceId,
-        assistantId: assistant.id,
-        threadId: thread.id,
-      },
+      })
+    }
+
+    const thread = assistant.threads[0]
+
+    if (!thread) {
+      return NextResponse.json(await initialMessagesResponse({ assistant }), {
+        headers: cacheHeaders,
+      })
+    }
+
+    const client = assistantClientAdapter({ assistant, prisma, thread })
+
+    const storageThreadId = getStorageThreadId({
+      thread,
     })
-    return NextResponse.json(
-      { error: 'Failed to load messages.' },
-      { status: 500 },
-    )
+
+    if (!storageThreadId) {
+      return NextResponse.json(await initialMessagesResponse({ assistant }), {
+        headers: cacheHeaders,
+      })
+    }
+
+    try {
+      return NextResponse.json(
+        await messagesResponse({
+          threadId: storageThreadId,
+          client,
+          ...(pageParam ? { pageParam } : {}),
+        }),
+        {
+          headers: cacheHeaders,
+        },
+      )
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.dir({ error }, { depth: null })
+      createLog({
+        log: {
+          requestMethod: LogRequestMethod.GET,
+          requestRoute: LogRequestRoute.MESSAGES,
+          level: LogLevel.ERROR,
+          status: 500,
+          message: `Failed to load messages: ${error.message}`,
+          workspaceId: assistant.workspaceId,
+          assistantId: assistant.id,
+          threadId: thread.id,
+        },
+        prisma,
+      })
+      return NextResponse.json(
+        { error: 'Failed to load messages.' },
+        { status: 500 },
+      )
+    }
   }
-}
+
+export const GET = buildGET()
 
 export const buildPOST =
   ({
+    prisma = defaultPrisma,
     onSuccessCreateThread = () => void 0,
   }: {
+    prisma?: PrismaClient
     onSuccessCreateThread?: ({
       thread,
     }: {
       thread: Thread
     }) => void | Promise<void>
-  }) =>
+  } = {}) =>
   async (request: NextRequest) => {
     const bodyResult = z
       .object({
@@ -229,6 +244,7 @@ export const buildPOST =
 
     const workspaceAccessWhere = await getWorkspaceAccessWhere({
       publicApiKey: publicApiKey ?? null,
+      prisma,
     })
 
     if (!workspaceAccessWhere) {
@@ -245,6 +261,7 @@ export const buildPOST =
           message: 'No assistantId found.',
           workspaceId: await getWorkspaceId({ workspaceAccessWhere, prisma }),
         },
+        prisma,
       })
 
       return NextResponse.json(
@@ -263,6 +280,7 @@ export const buildPOST =
           message: 'No content found.',
           workspaceId: await getWorkspaceId({ workspaceAccessWhere, prisma }),
         },
+        prisma,
       })
 
       return NextResponse.json({ error: 'No content found.' }, { status: 400 })
@@ -355,6 +373,7 @@ export const buildPOST =
           message: 'No assistant found.',
           workspaceId: await getWorkspaceId({ workspaceAccessWhere, prisma }),
         },
+        prisma,
       })
 
       return NextResponse.json(
@@ -379,6 +398,7 @@ export const buildPOST =
           workspaceId: assistant.workspaceId,
           assistantId: assistant.id,
         },
+        prisma,
       })
 
       return NextResponse.json(
@@ -415,6 +435,7 @@ export const buildPOST =
             workspaceId: assistant.workspaceId,
             assistantId: assistant.id,
           },
+          prisma,
         })
 
         return NextResponse.json(
@@ -445,6 +466,7 @@ export const buildPOST =
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return NextResponse.json(
@@ -466,6 +488,7 @@ export const buildPOST =
         storageThreadId = await managedOpenaiThreadId({
           assistant,
           threadId: thread.id,
+          prisma,
         })
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
@@ -480,6 +503,7 @@ export const buildPOST =
             assistantId: assistant.id,
             threadId: thread.id,
           },
+          prisma,
         })
 
         return NextResponse.json(
@@ -501,6 +525,7 @@ export const buildPOST =
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return NextResponse.json(
@@ -531,6 +556,7 @@ export const buildPOST =
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return NextResponse.json(
@@ -553,6 +579,7 @@ export const buildPOST =
         metadata: serializeMetadata({
           variables,
           workspaceId: assistant.workspaceId,
+          prisma,
         }),
       })
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -569,6 +596,7 @@ export const buildPOST =
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return NextResponse.json(
@@ -582,7 +610,7 @@ export const buildPOST =
     try {
       createRunStream = await client.beta.threads.runs.create(
         storageThreadId,
-        await createRunOpts({ assistant, thread }),
+        await createRunOpts({ assistant, thread, prisma }),
       )
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -598,6 +626,7 @@ export const buildPOST =
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return NextResponse.json(
@@ -613,7 +642,7 @@ export const buildPOST =
       createMessageResponse({
         client,
         createRunStream,
-        handleToolCall: handleToolCall({ assistant, thread }),
+        handleToolCall: handleToolCall({ assistant, thread, prisma }),
         onStart: ({
           controller,
         }: {
@@ -645,6 +674,7 @@ export const buildPOST =
               assistantId: assistant.id,
               threadId: thread.id,
             },
+            prisma,
           })
 
           // if (latestInProgressRunData) {
@@ -667,6 +697,7 @@ export const buildPOST =
                 assistantId: assistant.id,
                 threadId: thread.id,
               },
+              prisma,
             })
           } else if (event === 'thread.run.in_progress') {
             latestInProgressRunData = data

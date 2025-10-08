@@ -1,19 +1,20 @@
-import { HandlerType } from '@prisma/client'
+import { HandlerType, type PrismaClient } from '@prisma/client'
 import type { Assistant } from '@prisma/client'
 import type { HandlerInput } from '@/types'
-import { prisma } from '@/lib/prisma'
 import { ValidationError } from '@/lib/errors'
 
 export const handlerPrismaInput = async ({
   parsedInput,
   action,
   assistant,
+  prisma,
 }: {
   parsedInput: {
     handler: HandlerInput
   }
   action: 'create' | 'update'
   assistant: Assistant
+  prisma: PrismaClient
 }) => {
   if (parsedInput.handler.type === HandlerType.REQUEST) {
     if (!parsedInput.handler.requestHandler)

@@ -1,5 +1,5 @@
 import OpenAI from 'openai'
-import { Prisma, Thread } from '@prisma/client'
+import { Prisma, Thread, PrismaClient } from '@prisma/client'
 import { forEach } from 'p-iteration'
 import { connectMcpServer } from '@/lib/mcpServers/connectMcpServer'
 import type { McpConnection } from '@/types'
@@ -9,6 +9,7 @@ export const getToolCallMcpServer = async ({
   assistant,
   toolCall,
   thread,
+  prisma,
 }: {
   assistant: Prisma.AssistantGetPayload<{
     include: {
@@ -23,6 +24,7 @@ export const getToolCallMcpServer = async ({
   }>
   toolCall: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall
   thread: Thread
+  prisma: PrismaClient
 }) => {
   let mcpConnection: McpConnection | null = null
 
@@ -33,6 +35,7 @@ export const getToolCallMcpServer = async ({
       mcpServer,
       thread,
       assistant,
+      prisma,
     })
 
     const listToolsResponse =

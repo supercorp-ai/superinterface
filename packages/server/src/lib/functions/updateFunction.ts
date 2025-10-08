@@ -1,6 +1,5 @@
-import type { Prisma } from '@prisma/client'
+import type { Prisma, PrismaClient } from '@prisma/client'
 import type { HandlerInput } from '@/types'
-import { prisma } from '@/lib/prisma'
 import { handlerPrismaInput } from '@/lib/handlers/handlerPrismaInput'
 
 export async function updateFunction<
@@ -13,8 +12,9 @@ export async function updateFunction<
   }>
   parsedInput: { openapiSpec: string; handler: HandlerInput }
   include: TInclude
+  prisma: PrismaClient
 }): Promise<Prisma.FunctionGetPayload<{ include: TInclude }>> {
-  const { fn, parsedInput, include } = params
+  const { fn, parsedInput, include, prisma } = params
 
   return prisma.$transaction(async (tx) => {
     await tx.handler.deleteMany({
@@ -32,6 +32,7 @@ export async function updateFunction<
               parsedInput,
               action: 'create',
               assistant: fn.assistant,
+              prisma: tx as unknown as PrismaClient,
             })),
           },
         },

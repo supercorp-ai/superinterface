@@ -1,11 +1,11 @@
-import { Prisma, StorageProviderType } from '@prisma/client'
+import { Prisma, StorageProviderType, type PrismaClient } from '@prisma/client'
 import { assistantClientAdapter } from '@/lib/assistants/assistantClientAdapter'
-import { prisma } from '@/lib/prisma'
 import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
 
 export const managedOpenaiThreadId = async ({
   assistant,
   threadId,
+  prisma,
 }: {
   assistant: Prisma.AssistantGetPayload<{
     include: {
@@ -31,6 +31,7 @@ export const managedOpenaiThreadId = async ({
     }
   }>
   threadId: string
+  prisma: PrismaClient
 }) => {
   const newStorageThread = await assistantClientAdapter({
     assistant,

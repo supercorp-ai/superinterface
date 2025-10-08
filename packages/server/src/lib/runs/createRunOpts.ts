@@ -1,5 +1,11 @@
 import type { OpenAI } from 'openai'
-import { Prisma, Thread, Assistant, TruncationType } from '@prisma/client'
+import {
+  Prisma,
+  Thread,
+  Assistant,
+  TruncationType,
+  PrismaClient,
+} from '@prisma/client'
 import { storageAssistantId } from '@/lib/assistants/storageAssistantId'
 import { tools } from '@/lib/tools/tools'
 import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
@@ -45,6 +51,7 @@ const truncationStrategy = ({ assistant }: { assistant: Assistant }) => {
 export const createRunOpts = async ({
   assistant,
   thread,
+  prisma,
 }: {
   assistant: Prisma.AssistantGetPayload<{
     include: {
@@ -70,11 +77,12 @@ export const createRunOpts = async ({
     }
   }>
   thread: Thread
+  prisma: PrismaClient
 }) => ({
   stream: true,
   assistant_id: storageAssistantId({ assistant }),
   ...instructions({ assistant }),
   model: assistant.modelSlug,
   truncation_strategy: truncationStrategy({ assistant }),
-  ...(await tools({ assistant, thread })),
+  ...(await tools({ assistant, thread, prisma })),
 })

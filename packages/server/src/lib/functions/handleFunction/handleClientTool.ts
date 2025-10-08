@@ -6,6 +6,7 @@ import {
   LogRequestMethod,
   LogRequestRoute,
   LogLevel,
+  type PrismaClient,
 } from '@prisma/client'
 import { createLog } from '@/lib/logs/createLog'
 import { enqueueJson } from '@superinterface/react/utils'
@@ -18,6 +19,7 @@ export const handleClientTool = async ({
   thread,
   controller,
   run,
+  prisma,
 }: {
   clientToolHandler: ClientToolHandler
   toolCall: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall
@@ -25,6 +27,7 @@ export const handleClientTool = async ({
   thread: Thread
   controller: ReadableStreamDefaultController
   run: OpenAI.Beta.Threads.Runs.Run
+  prisma: PrismaClient
 }) => {
   let args = {}
 
@@ -46,6 +49,7 @@ export const handleClientTool = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {

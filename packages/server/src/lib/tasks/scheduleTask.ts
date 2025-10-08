@@ -3,14 +3,19 @@ import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
 
 import { qstash } from '@/lib/upstash/qstash'
-import { prisma } from '@/lib/prisma'
-import { type Task } from '@prisma/client'
+import { type Task, type PrismaClient } from '@prisma/client'
 import { getNextOccurrence } from './getNextOccurrence'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
-export const scheduleTask = async ({ task }: { task: Task }) => {
+export const scheduleTask = async ({
+  task,
+  prisma,
+}: {
+  task: Task
+  prisma: PrismaClient
+}) => {
   if (!task.schedule || typeof task.schedule !== 'object') return
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

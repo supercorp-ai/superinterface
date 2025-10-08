@@ -1,4 +1,4 @@
-import type { Prisma, Thread, Assistant } from '@prisma/client'
+import type { Prisma, Thread, Assistant, PrismaClient } from '@prisma/client'
 import {
   LogRequestMethod,
   LogRequestRoute,
@@ -66,6 +66,7 @@ export const headers = ({
   thread,
   mcpServer,
   assistant,
+  prisma,
 }: {
   thread: Thread
   mcpServer: Prisma.McpServerGetPayload<{
@@ -75,6 +76,7 @@ export const headers = ({
     }
   }>
   assistant: Assistant
+  prisma: PrismaClient
 }) => {
   const { headers, missing } = interpolatedTransportHeaders({
     mcpServer,
@@ -97,6 +99,7 @@ export const headers = ({
         assistantId: assistant.id,
         threadId: thread.id,
       },
+      prisma,
     })
 
     throw new Error(message)

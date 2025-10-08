@@ -1,4 +1,4 @@
-import type { Prisma, Thread, Assistant } from '@prisma/client'
+import type { Prisma, Thread, Assistant, PrismaClient } from '@prisma/client'
 import {
   LogRequestMethod,
   LogRequestRoute,
@@ -58,6 +58,7 @@ export const url = ({
   thread,
   mcpServer,
   assistant,
+  prisma,
 }: {
   thread: Thread
   mcpServer: Prisma.McpServerGetPayload<{
@@ -67,6 +68,7 @@ export const url = ({
     }
   }>
   assistant: Assistant
+  prisma: PrismaClient
 }) => {
   const { url, missing } = interpolatedTransportUrl({
     mcpServer,
@@ -89,6 +91,7 @@ export const url = ({
         assistantId: assistant.id,
         threadId: thread.id,
       },
+      prisma,
     })
 
     throw new Error(message)

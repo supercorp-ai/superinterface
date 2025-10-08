@@ -1,6 +1,5 @@
-import type { Assistant, Prisma } from '@prisma/client'
+import type { Assistant, Prisma, PrismaClient } from '@prisma/client'
 import type { HandlerInput } from '@/types'
-import { prisma } from '@/lib/prisma'
 import { handlerPrismaInput } from '@/lib/handlers/handlerPrismaInput'
 
 export async function createFunction<
@@ -9,8 +8,9 @@ export async function createFunction<
   assistant: Assistant
   parsedInput: { openapiSpec: string; handler: HandlerInput }
   include: TInclude // ← required
+  prisma: PrismaClient
 }): Promise<Prisma.FunctionGetPayload<{ include: TInclude }>> {
-  const { assistant, parsedInput, include } = params
+  const { assistant, parsedInput, include, prisma } = params
 
   return prisma.function.create({
     data: {
@@ -23,6 +23,7 @@ export async function createFunction<
             parsedInput,
             action: 'create',
             assistant,
+            prisma,
           })),
         },
       },

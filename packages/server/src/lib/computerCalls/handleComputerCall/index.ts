@@ -6,6 +6,7 @@ import {
   LogRequestRoute,
   LogLevel,
   ToolType,
+  type PrismaClient,
 } from '@prisma/client'
 import { createLog } from '@/lib/logs/createLog'
 import { closeMcpConnection } from '@/lib/mcpServers/closeMcpConnection'
@@ -36,6 +37,7 @@ export const handleComputerCall = async ({
   assistant,
   toolCall,
   thread,
+  prisma,
 }: {
   assistant: Prisma.AssistantGetPayload<{
     include: {
@@ -58,6 +60,7 @@ export const handleComputerCall = async ({
   }>
   toolCall: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall
   thread: Thread
+  prisma: PrismaClient
 }) => {
   const tool = assistant.tools.find(
     (tool) => tool.type === ToolType.COMPUTER_USE,
@@ -75,6 +78,7 @@ export const handleComputerCall = async ({
         assistantId: assistant.id,
         threadId: thread.id,
       },
+      prisma,
     })
 
     return {
@@ -87,6 +91,7 @@ export const handleComputerCall = async ({
     thread,
     assistant,
     mcpServer: tool.computerUseTool.mcpServer,
+    prisma,
   })
 
   try {
@@ -125,6 +130,7 @@ export const handleComputerCall = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {
@@ -162,6 +168,7 @@ export const handleComputerCall = async ({
         assistantId: assistant.id,
         threadId: thread.id,
       },
+      prisma,
     })
 
     return {

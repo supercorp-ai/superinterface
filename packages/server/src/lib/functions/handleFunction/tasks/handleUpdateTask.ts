@@ -1,6 +1,10 @@
 import OpenAI from 'openai'
-import { UpdateTaskHandler, Assistant, Thread } from '@prisma/client'
-import { prisma } from '@/lib/prisma'
+import {
+  UpdateTaskHandler,
+  Assistant,
+  Thread,
+  PrismaClient,
+} from '@prisma/client'
 import { serializeTask } from '@/lib/tasks/serializeTask'
 import { validateSchedule } from '@/lib/tasks/validateSchedule'
 import { updateTaskSchema } from '@/lib/tasks/schemas'
@@ -13,13 +17,15 @@ export const handleUpdateTask = async ({
   toolCall,
   assistant,
   thread,
+  prisma,
 }: {
   taskHandler: UpdateTaskHandler
   toolCall: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall
   assistant: Assistant
   thread: Thread
+  prisma: PrismaClient
 }) => {
-  const parsedArgs = parseTaskToolArgs({ toolCall, assistant, thread })
+  const parsedArgs = parseTaskToolArgs({ toolCall, assistant, thread, prisma })
   if (!parsedArgs.ok)
     return { tool_call_id: toolCall.id, output: parsedArgs.error }
 
@@ -32,6 +38,7 @@ export const handleUpdateTask = async ({
     thread,
     assistant,
     keyTemplate: taskHandler.keyTemplate,
+    prisma,
   })
 
   if (!ok) return { tool_call_id: toolCall.id, output: error }
@@ -61,7 +68,7 @@ export const handleUpdateTask = async ({
     data: updateData,
   })
 
-  await scheduleTask({ task })
+  await scheduleTask({ task, prisma })
 
   return {
     tool_call_id: toolCall.id,

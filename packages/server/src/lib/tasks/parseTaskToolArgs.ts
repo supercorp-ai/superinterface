@@ -5,6 +5,7 @@ import {
   LogRequestMethod,
   LogRequestRoute,
   LogLevel,
+  type PrismaClient,
 } from '@prisma/client'
 import { createLog } from '@/lib/logs/createLog'
 import { scheduleSchema } from './scheduleSchema'
@@ -32,10 +33,12 @@ export const parseTaskToolArgs = ({
   toolCall,
   assistant,
   thread,
+  prisma,
 }: {
   toolCall: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall
   assistant: Assistant
   thread: Thread
+  prisma: PrismaClient
 }) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let args: any = {}
@@ -54,6 +57,7 @@ export const parseTaskToolArgs = ({
         assistantId: assistant.id,
         threadId: thread.id,
       },
+      prisma,
     })
     return { ok: false as const, error: 'Invalid arguments.' }
   }
@@ -72,6 +76,7 @@ export const parseTaskToolArgs = ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
       return { ok: false as const, error: parsed.error.toString() }
     }
@@ -91,6 +96,7 @@ export const parseTaskToolArgs = ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return { ok: false as const, error: message }

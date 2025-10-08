@@ -1,4 +1,4 @@
-import type { Prisma, Thread } from '@prisma/client'
+import type { Prisma, Thread, PrismaClient } from '@prisma/client'
 import {
   TransportType,
   ToolType,
@@ -161,6 +161,7 @@ const mcpServerToolsAsFunction = ({
   mcpServers,
   thread,
   assistant,
+  prisma,
 }: {
   mcpServers: Prisma.McpServerGetPayload<{
     include: {
@@ -183,12 +184,14 @@ const mcpServerToolsAsFunction = ({
       }
     }
   }>
+  prisma: PrismaClient
 }) =>
   map(mcpServers, async (mcpServer) => {
     const { mcpConnection } = await connectMcpServer({
       mcpServer,
       thread,
       assistant,
+      prisma,
     })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const listToolsResponse = (await mcpConnection.client.listTools()) as any
@@ -207,6 +210,7 @@ const mcpServerToolsAsFunction = ({
 const mcpServerTools = async ({
   assistant,
   thread,
+  prisma,
 }: {
   assistant: Prisma.AssistantGetPayload<{
     include: {
@@ -221,6 +225,7 @@ const mcpServerTools = async ({
     }
   }>
   thread: Thread
+  prisma: PrismaClient
 }) => {
   const nonComputerUseMcpServers = assistant.mcpServers.filter(
     (mcpServer) => !mcpServer.computerUseTool,
@@ -240,8 +245,8 @@ const mcpServerTools = async ({
       type: 'mcp',
       mcp: {
         server_label: `mcp-server-${mcpServer.id}`,
-        server_url: url({ thread, mcpServer, assistant }),
-        headers: headers({ thread, mcpServer, assistant }),
+        server_url: url({ thread, mcpServer, assistant, prisma }),
+        headers: headers({ thread, mcpServer, assistant, prisma }),
         require_approval: 'never',
       },
     }))
@@ -252,6 +257,7 @@ const mcpServerTools = async ({
         mcpServers: nonComputerUseMcpServers,
         thread,
         assistant,
+        prisma,
       })),
     ]
   }
@@ -260,6 +266,7 @@ const mcpServerTools = async ({
     mcpServers: nonComputerUseMcpServers,
     thread,
     assistant,
+    prisma,
   })
 
   return flat(result)
@@ -268,6 +275,7 @@ const mcpServerTools = async ({
 export const tools = async ({
   assistant,
   thread,
+  prisma,
 }: {
   assistant: Prisma.AssistantGetPayload<{
     include: {
@@ -293,6 +301,7 @@ export const tools = async ({
     }
   }>
   thread: Thread
+  prisma: PrismaClient
 }) => {
   const modelProviderConfig = modelProviderConfigs.find(
     (config) => config.type === assistant.modelProvider.type,
@@ -305,7 +314,7 @@ export const tools = async ({
 
   return {
     tools: [
-      ...(await mcpServerTools({ assistant, thread })),
+      ...(await mcpServerTools({ assistant, thread, prisma })),
       ...assistant.functions.map((fn) => ({
         type: 'function' as const,
         function: fn.openapiSpec as unknown as OpenAI.FunctionDefinition,

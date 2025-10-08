@@ -1,25 +1,27 @@
 import type { OpenAI } from 'openai'
 import { isString } from 'radash'
-import type { Prisma } from '@prisma/client'
+import { type Prisma, type PrismaClient } from '@prisma/client'
 import { type NextRequest, NextResponse } from 'next/server'
 import { cacheHeaders } from '@/lib/cache/cacheHeaders'
 import { assistantClientAdapter } from '@/lib/assistants/assistantClientAdapter'
 import { workspaceAccessWhere as getWorkspaceAccessWhere } from '@/lib/apiKeys/workspaceAccessWhere'
-import { prisma } from '@/lib/prisma'
+import { prisma as defaultPrisma } from '@/lib/prisma'
 import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
 
 export const buildGET =
   ({
+    prisma = defaultPrisma,
     purposeAssistantsResponse = () =>
       NextResponse.json({ error: 'No file source found' }, { status: 404 }),
   }: {
+    prisma?: PrismaClient
     purposeAssistantsResponse?: ({
       file,
     }: {
       file: OpenAI.Files.FileObject
       workspaceAccessWhere: Prisma.WorkspaceWhereInput
     }) => Promise<NextResponse> | NextResponse
-  }) =>
+  } = {}) =>
   async (
     request: NextRequest,
     props: {
@@ -50,7 +52,10 @@ export const buildGET =
       )
     }
 
-    const workspaceAccessWhere = await getWorkspaceAccessWhere({ publicApiKey })
+    const workspaceAccessWhere = await getWorkspaceAccessWhere({
+      publicApiKey,
+      prisma,
+    })
 
     if (!workspaceAccessWhere) {
       return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })

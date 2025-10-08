@@ -7,6 +7,7 @@ import {
   LogRequestMethod,
   LogRequestRoute,
   LogLevel,
+  type PrismaClient,
 } from '@prisma/client'
 import Replicate from 'replicate'
 import { createLog } from '@/lib/logs/createLog'
@@ -17,11 +18,13 @@ export const handleReplicate = async ({
   toolCall,
   assistant,
   thread,
+  prisma,
 }: {
   replicateHandler: ReplicateHandler
   toolCall: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall
   assistant: Assistant
   thread: Thread
+  prisma: PrismaClient
 }) => {
   let args
 
@@ -40,6 +43,7 @@ export const handleReplicate = async ({
         assistantId: assistant.id,
         threadId: thread.id,
       },
+      prisma,
     })
 
     return {
@@ -77,6 +81,7 @@ export const handleReplicate = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {
@@ -96,6 +101,7 @@ export const handleReplicate = async ({
         assistantId: assistant.id,
         threadId: thread.id,
       },
+      prisma,
     })
 
     return {

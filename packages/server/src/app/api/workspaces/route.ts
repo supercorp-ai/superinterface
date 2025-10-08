@@ -1,9 +1,9 @@
-import type { Organization, Workspace } from '@prisma/client'
+import type { Organization, Workspace, PrismaClient } from '@prisma/client'
 import { headers } from 'next/headers'
 import { NextResponse, type NextRequest } from 'next/server'
 import { z } from 'zod'
 import { cacheHeaders } from '@/lib/cache/cacheHeaders'
-import { prisma } from '@/lib/prisma'
+import { prisma as defaultPrisma } from '@/lib/prisma'
 import { serializeApiWorkspace } from '@/lib/workspaces/serializeApiWorkspace'
 import { getOrganizationApiKey } from '@/lib/organizationApiKeys/getOrganizationApiKey'
 
@@ -11,52 +11,60 @@ const createWorkspaceSchema = z.object({
   name: z.string().optional(),
 })
 
-export const GET = async () => {
-  const headersList = await headers()
-  const authorization = headersList.get('authorization')
+export const buildGET =
+  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  async () => {
+    const headersList = await headers()
+    const authorization = headersList.get('authorization')
 
-  if (!authorization) {
+    if (!authorization) {
+      return NextResponse.json(
+        { error: 'No authorization header found' },
+        { status: 400 },
+      )
+    }
+
+    const organizationApiKey = await getOrganizationApiKey({
+      authorization,
+      prisma,
+    })
+
+    if (!organizationApiKey) {
+      return NextResponse.json(
+        { error: 'Invalid organization api key' },
+        { status: 400 },
+      )
+    }
+
+    const workspaces = await prisma.workspace.findMany({
+      where: {
+        organizationId: organizationApiKey.organizationId,
+      },
+    })
+
     return NextResponse.json(
-      { error: 'No authorization header found' },
-      { status: 400 },
+      {
+        workspaces: workspaces.map((workspace) =>
+          serializeApiWorkspace({ workspace }),
+        ),
+      },
+      { headers: cacheHeaders },
     )
   }
 
-  const organizationApiKey = await getOrganizationApiKey({
-    authorization,
-  })
-
-  if (!organizationApiKey) {
-    return NextResponse.json(
-      { error: 'Invalid organization api key' },
-      { status: 400 },
-    )
-  }
-
-  const workspaces = await prisma.workspace.findMany({
-    where: {
-      organizationId: organizationApiKey.organizationId,
-    },
-  })
-
-  return NextResponse.json(
-    {
-      workspaces: workspaces.map((workspace) =>
-        serializeApiWorkspace({ workspace }),
-      ),
-    },
-    { headers: cacheHeaders },
-  )
-}
+export const GET = buildGET()
 
 export const buildPOST =
   ({
+    prisma = defaultPrisma,
     createWorkspace = ({
       parsedData,
       organization,
+      prisma,
     }: {
       parsedData: z.infer<typeof createWorkspaceSchema>
       organization: Organization
+      prisma: PrismaClient
     }) =>
       prisma.workspace.create({
         data: {
@@ -65,14 +73,17 @@ export const buildPOST =
         },
       }),
   }: {
+    prisma?: PrismaClient
     createWorkspace?: ({
       parsedData,
       organization,
+      prisma,
     }: {
       parsedData: z.infer<typeof createWorkspaceSchema>
       organization: Organization
+      prisma: PrismaClient
     }) => Promise<Workspace>
-  }) =>
+  } = {}) =>
   async (request: NextRequest) => {
     const headersList = await headers()
     const authorization = headersList.get('authorization')
@@ -86,6 +97,7 @@ export const buildPOST =
 
     const organizationApiKey = await getOrganizationApiKey({
       authorization,
+      prisma,
     })
 
     if (!organizationApiKey) {
@@ -118,6 +130,7 @@ export const buildPOST =
     const workspace = await createWorkspace({
       parsedData: parsed.data,
       organization,
+      prisma,
     })
 
     return NextResponse.json(

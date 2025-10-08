@@ -61,6 +61,7 @@ const storageAdapter = ({
 const runAdapter = ({
   assistant,
   thread,
+  prisma,
 }: {
   assistant: Prisma.AssistantGetPayload<{
     include: {
@@ -86,6 +87,7 @@ const runAdapter = ({
     }
   }>
   thread: Thread | null
+  prisma: PrismaClient
 }) => {
   if (
     assistant.storageProviderType === StorageProviderType.SUPERINTERFACE_CLOUD
@@ -107,7 +109,11 @@ const runAdapter = ({
     })
   ) {
     return responsesRunAdapter({
-      getOpenaiAssistant: buildGetOpenaiAssistant({ assistant, thread }),
+      getOpenaiAssistant: buildGetOpenaiAssistant({
+        assistant,
+        thread,
+        prisma,
+      }),
       waitUntil,
     })
   }
@@ -161,5 +167,6 @@ export const assistantClientAdapter = ({
     runAdapter: runAdapter({
       assistant,
       thread,
+      prisma,
     }),
   }) as unknown as OpenAI

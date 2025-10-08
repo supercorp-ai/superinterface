@@ -6,6 +6,7 @@ import {
   LogRequestMethod,
   LogRequestRoute,
   LogLevel,
+  type PrismaClient,
 } from '@prisma/client'
 import { createLog } from '@/lib/logs/createLog'
 import { interpolateFunctionValue } from '../interpolateFunctionValue'
@@ -107,11 +108,13 @@ export const handleRequest = async ({
   toolCall,
   assistant,
   thread,
+  prisma,
 }: {
   requestHandler: RequestHandler
   toolCall: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall
   assistant: Assistant
   thread: Thread
+  prisma: PrismaClient
 }) => {
   let args: Record<string, unknown> = {}
 
@@ -130,6 +133,7 @@ export const handleRequest = async ({
         assistantId: assistant.id,
         threadId: thread.id,
       },
+      prisma,
     })
 
     return {
@@ -160,6 +164,7 @@ export const handleRequest = async ({
         assistantId: assistant.id,
         threadId: thread.id,
       },
+      prisma,
     })
 
     return { tool_call_id: toolCall.id, output: message }
@@ -192,6 +197,7 @@ export const handleRequest = async ({
         assistantId: assistant.id,
         threadId: thread.id,
       },
+      prisma,
     })
 
     return {
@@ -222,6 +228,7 @@ export const handleRequest = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {
@@ -254,6 +261,7 @@ export const handleRequest = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {

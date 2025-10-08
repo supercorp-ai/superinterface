@@ -1,4 +1,4 @@
-import type { Prisma, Thread, Assistant } from '@prisma/client'
+import type { Prisma, Thread, Assistant, PrismaClient } from '@prisma/client'
 import { TransportType } from '@prisma/client'
 import { EventSource } from 'eventsource'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
@@ -28,6 +28,7 @@ export const getTransport = ({
   mcpServer,
   thread,
   assistant,
+  prisma,
 }: {
   mcpServer: Prisma.McpServerGetPayload<{
     include: {
@@ -38,6 +39,7 @@ export const getTransport = ({
   }>
   thread: Thread
   assistant: Assistant
+  prisma: PrismaClient
 }) => {
   if (mcpServer.transportType === TransportType.STDIO) {
     throw new Error('STDIO transport is not supported.')
@@ -48,8 +50,9 @@ export const getTransport = ({
       thread,
       mcpServer,
       assistant,
+      prisma,
     })
-    const url = getUrl({ thread, mcpServer, assistant })
+    const url = getUrl({ thread, mcpServer, assistant, prisma })
 
     return new StreamableHTTPClientTransport(new URL(url), {
       requestInit: {
@@ -59,12 +62,13 @@ export const getTransport = ({
   }
 
   if (mcpServer.transportType === TransportType.SSE) {
-    const url = getUrl({ thread, mcpServer, assistant })
+    const url = getUrl({ thread, mcpServer, assistant, prisma })
 
     const headers = getHeaders({
       thread,
       mcpServer,
       assistant,
+      prisma,
     })
 
     return new SSEClientTransport(new URL(url), {
@@ -84,6 +88,7 @@ export const connectMcpServer = async ({
   mcpServer,
   thread,
   assistant,
+  prisma,
 }: {
   mcpServer: Prisma.McpServerGetPayload<{
     include: {
@@ -94,6 +99,7 @@ export const connectMcpServer = async ({
   }>
   thread: Thread
   assistant: Assistant
+  prisma: PrismaClient
 }) => {
   const client = new Client(
     {
@@ -105,7 +111,7 @@ export const connectMcpServer = async ({
     },
   )
 
-  const transport = getTransport({ mcpServer, thread, assistant })
+  const transport = getTransport({ mcpServer, thread, assistant, prisma })
   await client.connect(transport)
 
   return {

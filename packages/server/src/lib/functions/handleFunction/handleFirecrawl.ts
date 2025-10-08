@@ -7,6 +7,7 @@ import {
   LogRequestMethod,
   LogRequestRoute,
   LogLevel,
+  type PrismaClient,
 } from '@prisma/client'
 import FirecrawlApp from '@mendable/firecrawl-js'
 import { omit } from 'radash'
@@ -17,11 +18,13 @@ export const handleFirecrawl = async ({
   toolCall,
   assistant,
   thread,
+  prisma,
 }: {
   firecrawlHandler: FirecrawlHandler
   toolCall: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall
   assistant: Assistant
   thread: Thread
+  prisma: PrismaClient
 }) => {
   let args
 
@@ -40,6 +43,7 @@ export const handleFirecrawl = async ({
         assistantId: assistant.id,
         threadId: thread.id,
       },
+      prisma,
     })
 
     return {
@@ -78,6 +82,7 @@ export const handleFirecrawl = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {
@@ -109,6 +114,7 @@ export const handleFirecrawl = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {
@@ -140,6 +146,7 @@ export const handleFirecrawl = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {
@@ -180,6 +187,7 @@ export const handleFirecrawl = async ({
           assistantId: assistant.id,
           threadId: thread.id,
         },
+        prisma,
       })
 
       return {
@@ -199,6 +207,7 @@ export const handleFirecrawl = async ({
         assistantId: assistant.id,
         threadId: thread.id,
       },
+      prisma,
     })
 
     return {

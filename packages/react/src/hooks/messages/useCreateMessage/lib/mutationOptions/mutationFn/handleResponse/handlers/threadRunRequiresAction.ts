@@ -22,8 +22,8 @@ export const threadRunRequiresAction = async ({
 }) => {
   // @ts-ignore-next-line
   if (value.data.required_action.type === 'submit_client_tool_outputs') {
-    // @ts-ignore-next-line
     const toolCalls =
+      // @ts-ignore-next-line
       value.data.required_action.submit_client_tool_outputs.tool_calls
 
     const toolOutputs = await map(toolCalls, async (toolCall: ToolCall) => {

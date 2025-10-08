@@ -4,6 +4,7 @@ import {
   LogRequestMethod,
   LogRequestRoute,
   LogLevel,
+  PrismaClient,
 } from '@prisma/client'
 import { createLog } from '@/lib/logs/createLog'
 
@@ -11,10 +12,12 @@ export const getTaskToolKey = async ({
   thread,
   assistant,
   keyTemplate,
+  prisma,
 }: {
   thread: Thread
   assistant: Assistant
   keyTemplate: string | null
+  prisma: PrismaClient
 }) => {
   const missing: string[] = []
   const key = (keyTemplate || '').replace(/{{\s*([\w-]+)\s*}}/g, (_, k) => {
@@ -40,6 +43,7 @@ export const getTaskToolKey = async ({
         assistantId: assistant.id,
         threadId: thread.id,
       },
+      prisma,
     })
 
     return { ok: false as const, error: message }
