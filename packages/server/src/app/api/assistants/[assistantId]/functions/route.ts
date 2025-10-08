@@ -2,17 +2,19 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { ApiKeyType, type PrismaClient } from '@prisma/client'
 import { headers } from 'next/headers'
 import { cacheHeaders } from '@/lib/cache/cacheHeaders'
-import { prisma as defaultPrisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { getApiKey } from '@/lib/apiKeys/getApiKey'
 import { serializeApiFunction } from '@/lib/functions/serializeApiFunction'
 import { functionSchema } from '@/lib/functions/functionSchema'
 import { createFunction } from '@/lib/functions/createFunction'
 
 export const buildGET =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (
     _request: NextRequest,
-    props: { params: Promise<{ assistantId: string }> },
+    props: {
+      params: Promise<{ assistantId: string }>
+    },
   ) => {
     const { assistantId } = await props.params
 
@@ -83,10 +85,12 @@ export const buildGET =
 export const GET = buildGET()
 
 export const buildPOST =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (
     request: NextRequest,
-    props: { params: Promise<{ assistantId: string }> },
+    props: {
+      params: Promise<{ assistantId: string }>
+    },
   ) => {
     const { assistantId } = await props.params
 

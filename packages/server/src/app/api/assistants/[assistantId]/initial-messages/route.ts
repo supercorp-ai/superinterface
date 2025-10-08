@@ -2,17 +2,19 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { ApiKeyType, InitialMessage, type PrismaClient } from '@prisma/client'
 import { headers } from 'next/headers'
 import { cacheHeaders } from '@/lib/cache/cacheHeaders'
-import { prisma as defaultPrisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { serializeApiInitialMessage } from '@/lib/initialMessages/serializeApiInitialMessage'
 import { initialMessagesSchema } from '@/lib/initialMessages/schema'
 import { updateInitialMessages } from '@/lib/initialMessages/updateInitialMessages'
 import { getApiKey } from '@/lib/apiKeys/getApiKey'
 
 export const buildGET =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (
     _request: NextRequest,
-    props: { params: Promise<{ assistantId: string }> },
+    props: {
+      params: Promise<{ assistantId: string }>
+    },
   ) => {
     const { assistantId } = await props.params
 
@@ -66,10 +68,12 @@ export const buildGET =
 export const GET = buildGET()
 
 export const buildPUT =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (
     request: NextRequest,
-    props: { params: Promise<{ assistantId: string }> },
+    props: {
+      params: Promise<{ assistantId: string }>
+    },
   ) => {
     const { assistantId } = await props.params
 

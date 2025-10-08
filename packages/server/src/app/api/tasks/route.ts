@@ -3,14 +3,14 @@ import { ApiKeyType, type PrismaClient } from '@prisma/client'
 import { NextResponse, type NextRequest } from 'next/server'
 import { createTaskSchema } from '@/lib/tasks/schemas'
 import { cacheHeaders } from '@/lib/cache/cacheHeaders'
-import { prisma as defaultPrisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { serializeTask } from '@/lib/tasks/serializeTask'
 import { validateSchedule } from '@/lib/tasks/validateSchedule'
 import { getApiKey } from '@/lib/apiKeys/getApiKey'
 import { scheduleTask } from '@/lib/tasks/scheduleTask'
 
 export const buildGET =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (request: NextRequest) => {
     const headersList = await headers()
     const authorization = headersList.get('authorization')
@@ -52,7 +52,7 @@ export const buildGET =
 export const GET = buildGET()
 
 export const buildPOST =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (request: NextRequest) => {
     const headersList = await headers()
     const authorization = headersList.get('authorization')

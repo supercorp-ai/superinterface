@@ -2,16 +2,18 @@ import { headers } from 'next/headers'
 import { ApiKeyType, type PrismaClient } from '@prisma/client'
 import { NextResponse, type NextRequest } from 'next/server'
 import { cacheHeaders } from '@/lib/cache/cacheHeaders'
-import { prisma as defaultPrisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { getApiKey } from '@/lib/apiKeys/getApiKey'
 import { getModels } from '@/lib/models/getModels'
 import { serializeApiModel } from '@/lib/models/serializeApiModel'
 
 export const buildGET =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (
     _request: NextRequest,
-    props: { params: Promise<{ modelProviderId: string }> },
+    props: {
+      params: Promise<{ modelProviderId: string }>
+    },
   ) => {
     const { modelProviderId } = await props.params
 

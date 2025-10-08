@@ -2,14 +2,14 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { ApiKeyType, type PrismaClient } from '@prisma/client'
 import { headers } from 'next/headers'
 import { cacheHeaders } from '@/lib/cache/cacheHeaders'
-import { prisma as defaultPrisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { serializeApiKey } from '@/lib/apiKeys/serializeApiKey'
 import { z } from 'zod'
 import { getApiKey } from '@/lib/apiKeys/getApiKey'
 import { validate } from 'uuid'
 
 export const buildGET =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (
     request: NextRequest,
     props: {
@@ -63,10 +63,12 @@ export const buildGET =
 export const GET = buildGET()
 
 export const buildPATCH =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (
     request: NextRequest,
-    props: { params: Promise<{ apiKeyId: string }> },
+    props: {
+      params: Promise<{ apiKeyId: string }>
+    },
   ) => {
     const params = await props.params
     const { apiKeyId } = params
@@ -130,10 +132,12 @@ export const buildPATCH =
 export const PATCH = buildPATCH()
 
 export const buildDELETE =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (
     request: NextRequest,
-    props: { params: Promise<{ apiKeyId: string }> },
+    props: {
+      params: Promise<{ apiKeyId: string }>
+    },
   ) => {
     const params = await props.params
     const { apiKeyId } = params

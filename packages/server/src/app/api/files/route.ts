@@ -5,11 +5,11 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { cacheHeaders } from '@/lib/cache/cacheHeaders'
 import { assistantClientAdapter } from '@/lib/assistants/assistantClientAdapter'
 import { workspaceAccessWhere as getWorkspaceAccessWhere } from '@/lib/apiKeys/workspaceAccessWhere'
-import { prisma as defaultPrisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
 
 export const buildPOST =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (request: NextRequest) => {
     const formData = await request.formData()
     const assistantId = formData.get('assistantId')
@@ -96,11 +96,11 @@ export const buildPOST =
       )
     }
 
-    const client = assistantClientAdapter({ assistant, prisma })
+    const assistantClient = assistantClientAdapter({ assistant, prisma })
     const purpose =
       (formData.get('purpose') as OpenAI.FilePurpose) ?? 'assistants'
 
-    const createFileResponse = await client.files.create({
+    const createFileResponse = await assistantClient.files.create({
       // @ts-expect-error file is Uploadable
       file,
       purpose,

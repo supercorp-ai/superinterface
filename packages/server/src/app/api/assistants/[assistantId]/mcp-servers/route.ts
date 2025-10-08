@@ -2,16 +2,18 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { ApiKeyType, TransportType, type PrismaClient } from '@prisma/client'
 import { headers } from 'next/headers'
 import { cacheHeaders } from '@/lib/cache/cacheHeaders'
-import { prisma as defaultPrisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { getApiKey } from '@/lib/apiKeys/getApiKey'
 import { serializeApiMcpServer } from '@/lib/mcpServers/serializeApiMcpServer'
 import { mcpServerSchema } from '@/lib/mcpServers/mcpServerSchema'
 
 export const buildGET =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (
     _request: NextRequest,
-    props: { params: Promise<{ assistantId: string }> },
+    props: {
+      params: Promise<{ assistantId: string }>
+    },
   ) => {
     const { assistantId } = await props.params
 
@@ -72,10 +74,12 @@ export const buildGET =
 export const GET = buildGET()
 
 export const buildPOST =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (
     request: NextRequest,
-    props: { params: Promise<{ assistantId: string }> },
+    props: {
+      params: Promise<{ assistantId: string }>
+    },
   ) => {
     const { assistantId } = await props.params
 

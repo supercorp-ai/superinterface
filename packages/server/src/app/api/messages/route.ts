@@ -23,7 +23,7 @@ import { createRunOpts } from '@/lib/runs/createRunOpts'
 import { handleToolCall } from '@/lib/toolCalls/handleToolCall'
 import { createThread } from '@/lib/threads/createThread'
 import { managedOpenaiThreadId } from '@/lib/threads/managedOpenaiThreadId'
-import { prisma as defaultPrisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { createLog } from '@/lib/logs/createLog'
 import { serializeThread } from './lib/serializeThread'
 import { getWorkspaceId } from './lib/getWorkspaceId'
@@ -36,7 +36,7 @@ import { serializeError } from '@/lib/errors/serializeError'
 export const maxDuration = 800
 
 export const buildGET =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (request: NextRequest) => {
     const paramsResult = z
       .object({
@@ -160,7 +160,11 @@ export const buildGET =
       })
     }
 
-    const client = assistantClientAdapter({ assistant, prisma, thread })
+    const assistantClient = assistantClientAdapter({
+      assistant,
+      prisma,
+      thread,
+    })
 
     const storageThreadId = getStorageThreadId({
       thread,
@@ -176,7 +180,7 @@ export const buildGET =
       return NextResponse.json(
         await messagesResponse({
           threadId: storageThreadId,
-          client,
+          client: assistantClient,
           ...(pageParam ? { pageParam } : {}),
         }),
         {
@@ -210,7 +214,7 @@ export const GET = buildGET()
 
 export const buildPOST =
   ({
-    prisma = defaultPrisma,
+    prisma = getPrisma(),
     onSuccessCreateThread = () => void 0,
   }: {
     prisma?: PrismaClient
@@ -565,14 +569,14 @@ export const buildPOST =
       )
     }
 
-    const client = assistantClientAdapter({
+    const assistantClient = assistantClientAdapter({
       assistant,
       prisma,
       thread,
     })
 
     try {
-      await client.beta.threads.messages.create(storageThreadId, {
+      await assistantClient.beta.threads.messages.create(storageThreadId, {
         role: 'user',
         content,
         ...(attachments?.length ? { attachments } : {}),
@@ -608,7 +612,7 @@ export const buildPOST =
     let createRunStream
 
     try {
-      createRunStream = await client.beta.threads.runs.create(
+      createRunStream = await assistantClient.beta.threads.runs.create(
         storageThreadId,
         await createRunOpts({ assistant, thread, prisma }),
       )
@@ -640,7 +644,7 @@ export const buildPOST =
 
     return new Response(
       createMessageResponse({
-        client,
+        client: assistantClient,
         createRunStream,
         handleToolCall: handleToolCall({ assistant, thread, prisma }),
         onStart: ({
@@ -678,7 +682,7 @@ export const buildPOST =
           })
 
           // if (latestInProgressRunData) {
-          //   await client.beta.threads.runs.cancel(
+          //   await assistantClient.beta.threads.runs.cancel(
           //     latestInProgressRunData.thread_id,
           //     latestInProgressRunData.id,
           //   )
@@ -715,9 +719,12 @@ export const buildPOST =
             return
 
           if (latestInProgressRunData) {
-            await client.beta.threads.runs.cancel(latestInProgressRunData.id, {
-              thread_id: latestInProgressRunData.thread_id,
-            })
+            await assistantClient.beta.threads.runs.cancel(
+              latestInProgressRunData.id,
+              {
+                thread_id: latestInProgressRunData.thread_id,
+              },
+            )
           }
         },
       }),

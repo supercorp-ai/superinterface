@@ -7,7 +7,7 @@ import {
   LogLevel,
   type PrismaClient,
 } from '@prisma/client'
-import { prisma as defaultPrisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { assistantClientAdapter } from '@/lib/assistants/assistantClientAdapter'
 import { createRunOpts } from '@/lib/runs/createRunOpts'
 import { scheduleTask } from '@/lib/tasks/scheduleTask'
@@ -23,7 +23,7 @@ import { serializeMetadata } from '@/lib/metadata/serializeMetadata'
 export const maxDuration = 800
 
 const buildPostHandler =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (request: Request) => {
     const { taskId } = await request.json()
     const task = await prisma.task.findUnique({
@@ -91,7 +91,7 @@ const buildPostHandler =
 
     const assistant = task.thread.assistant
     const thread = task.thread
-    const client = assistantClientAdapter({ assistant, prisma })
+    const assistantClient = assistantClientAdapter({ assistant, prisma })
 
     let storageThreadId
 
@@ -178,7 +178,7 @@ const buildPostHandler =
     }
 
     try {
-      await client.beta.threads.messages.create(storageThreadId, {
+      await assistantClient.beta.threads.messages.create(storageThreadId, {
         role: 'user',
         content: task.message,
         metadata: serializeMetadata({
@@ -214,7 +214,7 @@ const buildPostHandler =
 
     let createRunStream
     try {
-      createRunStream = await client.beta.threads.runs.create(
+      createRunStream = await assistantClient.beta.threads.runs.create(
         storageThreadId,
         await createRunOpts({ assistant, thread, prisma }),
       )
@@ -241,7 +241,7 @@ const buildPostHandler =
     }
 
     const messageResponse = createMessageResponse({
-      client,
+      client: assistantClient,
       createRunStream,
       handleToolCall: handleToolCall({ assistant, thread, prisma }),
     })

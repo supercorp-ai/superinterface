@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { map } from 'p-iteration'
 import { redis } from '@/lib/redis'
-import { prisma as defaultPrisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { type PrismaClient } from '@prisma/client'
 import { workspaceAccessWhere as getWorkspaceAccessWhere } from '@/lib/apiKeys/workspaceAccessWhere'
 
 export const buildPOST =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (request: NextRequest) => {
     const body = await request.json()
 

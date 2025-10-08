@@ -7,12 +7,12 @@ import {
 import { NextResponse, type NextRequest } from 'next/server'
 import { z } from 'zod'
 import { cacheHeaders } from '@/lib/cache/cacheHeaders'
-import { prisma as defaultPrisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { serializeModelProvider } from '@/lib/modelProviders/serializeModelProvider'
 import { getApiKey } from '@/lib/apiKeys/getApiKey'
 
 export const buildGET =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async () => {
     const headersList = await headers()
     const authorization = headersList.get('authorization')
@@ -52,7 +52,7 @@ export const buildGET =
 export const GET = buildGET()
 
 export const buildPOST =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (request: NextRequest) => {
     const headersList = await headers()
     const authorization = headersList.get('authorization')

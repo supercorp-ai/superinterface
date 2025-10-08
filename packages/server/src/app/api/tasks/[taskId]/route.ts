@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { z } from 'zod'
 import { validate } from 'uuid'
 import { cacheHeaders } from '@/lib/cache/cacheHeaders'
-import { prisma as defaultPrisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { serializeTask } from '@/lib/tasks/serializeTask'
 import { validateSchedule } from '@/lib/tasks/validateSchedule'
 import { getApiKey } from '@/lib/apiKeys/getApiKey'
@@ -19,7 +19,7 @@ const updateTaskSchema = z.object({
 })
 
 export const buildGET =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (
     _request: NextRequest,
     props: { params: Promise<{ taskId: string }> },
@@ -73,7 +73,7 @@ export const buildGET =
 export const GET = buildGET()
 
 export const buildPATCH =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (
     request: NextRequest,
     props: { params: Promise<{ taskId: string }> },
@@ -162,7 +162,7 @@ export const buildPATCH =
 export const PATCH = buildPATCH()
 
 export const buildDELETE =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (
     _request: NextRequest,
     props: { params: Promise<{ taskId: string }> },

@@ -3,7 +3,7 @@ import { headers } from 'next/headers'
 import { NextResponse, type NextRequest } from 'next/server'
 import { z } from 'zod'
 import { cacheHeaders } from '@/lib/cache/cacheHeaders'
-import { prisma as defaultPrisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { serializeApiWorkspace } from '@/lib/workspaces/serializeApiWorkspace'
 import { getOrganizationApiKey } from '@/lib/organizationApiKeys/getOrganizationApiKey'
 
@@ -12,7 +12,7 @@ const createWorkspaceSchema = z.object({
 })
 
 export const buildGET =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async () => {
     const headersList = await headers()
     const authorization = headersList.get('authorization')
@@ -56,7 +56,7 @@ export const GET = buildGET()
 
 export const buildPOST =
   ({
-    prisma = defaultPrisma,
+    prisma = getPrisma(),
     createWorkspace = ({
       parsedData,
       organization,

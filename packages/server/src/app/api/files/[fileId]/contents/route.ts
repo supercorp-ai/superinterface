@@ -5,12 +5,12 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { cacheHeaders } from '@/lib/cache/cacheHeaders'
 import { assistantClientAdapter } from '@/lib/assistants/assistantClientAdapter'
 import { workspaceAccessWhere as getWorkspaceAccessWhere } from '@/lib/apiKeys/workspaceAccessWhere'
-import { prisma as defaultPrisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
 
 export const buildGET =
   ({
-    prisma = defaultPrisma,
+    prisma = getPrisma(),
     purposeAssistantsResponse = () =>
       NextResponse.json({ error: 'No file source found' }, { status: 404 }),
   }: {
@@ -112,9 +112,9 @@ export const buildGET =
       )
     }
 
-    const client = assistantClientAdapter({ assistant, prisma })
+    const assistantClient = assistantClientAdapter({ assistant, prisma })
 
-    const file = await client.files.retrieve(fileId)
+    const file = await assistantClient.files.retrieve(fileId)
 
     if (!file) {
       return NextResponse.json({ error: 'No file found' }, { status: 404 })
@@ -124,7 +124,7 @@ export const buildGET =
       return purposeAssistantsResponse({ file, workspaceAccessWhere })
     }
 
-    const fileContentResponse = await client.files.content(fileId)
+    const fileContentResponse = await assistantClient.files.content(fileId)
     const fileData = await fileContentResponse.arrayBuffer()
 
     return new NextResponse(fileData, {

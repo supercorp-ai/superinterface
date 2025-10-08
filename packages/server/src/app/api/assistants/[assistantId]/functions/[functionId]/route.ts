@@ -2,7 +2,7 @@ import { headers } from 'next/headers'
 import { ApiKeyType, type PrismaClient } from '@prisma/client'
 import { NextResponse, type NextRequest } from 'next/server'
 import { cacheHeaders } from '@/lib/cache/cacheHeaders'
-import { prisma as defaultPrisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { getApiKey } from '@/lib/apiKeys/getApiKey'
 import { validate } from 'uuid'
 import { serializeApiFunction } from '@/lib/functions/serializeApiFunction'
@@ -10,10 +10,12 @@ import { functionSchema } from '@/lib/functions/functionSchema'
 import { updateFunction } from '@/lib/functions/updateFunction'
 
 export const buildGET =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (
     _request: NextRequest,
-    props: { params: Promise<{ assistantId: string; functionId: string }> },
+    props: {
+      params: Promise<{ assistantId: string; functionId: string }>
+    },
   ) => {
     const { assistantId, functionId } = await props.params
 
@@ -90,10 +92,12 @@ export const buildGET =
 export const GET = buildGET()
 
 export const buildPATCH =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (
     request: NextRequest,
-    props: { params: Promise<{ assistantId: string; functionId: string }> },
+    props: {
+      params: Promise<{ assistantId: string; functionId: string }>
+    },
   ) => {
     const { assistantId, functionId } = await props.params
 
@@ -187,10 +191,12 @@ export const buildPATCH =
 export const PATCH = buildPATCH()
 
 export const buildDELETE =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (
     _request: NextRequest,
-    props: { params: Promise<{ assistantId: string; functionId: string }> },
+    props: {
+      params: Promise<{ assistantId: string; functionId: string }>
+    },
   ) => {
     const { assistantId, functionId } = await props.params
 

@@ -3,16 +3,18 @@ import { Prisma, type PrismaClient } from '@prisma/client'
 import { NextResponse, type NextRequest } from 'next/server'
 import { z } from 'zod'
 import { cacheHeaders } from '@/lib/cache/cacheHeaders'
-import { prisma as defaultPrisma } from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { validate } from 'uuid'
 import { getOrganizationApiKey } from '@/lib/organizationApiKeys/getOrganizationApiKey'
 import { serializeApiWorkspace } from '@/lib/workspaces/serializeApiWorkspace'
 
 export const buildGET =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (
     _request: NextRequest,
-    props: { params: Promise<{ workspaceId: string }> },
+    props: {
+      params: Promise<{ workspaceId: string }>
+    },
   ) => {
     const { workspaceId } = await props.params
 
@@ -67,10 +69,12 @@ export const buildGET =
 export const GET = buildGET()
 
 export const buildPATCH =
-  ({ prisma = defaultPrisma }: { prisma?: PrismaClient } = {}) =>
+  ({ prisma = getPrisma() }: { prisma?: PrismaClient } = {}) =>
   async (
     request: NextRequest,
-    props: { params: Promise<{ workspaceId: string }> },
+    props: {
+      params: Promise<{ workspaceId: string }>
+    },
   ) => {
     const { workspaceId } = await props.params
 
