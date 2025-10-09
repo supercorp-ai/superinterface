@@ -5,7 +5,6 @@ import {
   ImageGenerationToolSize,
 } from '@prisma/client'
 import { flat } from 'radash'
-import { map } from 'p-iteration'
 import type OpenAI from 'openai'
 import { modelProviderConfigs } from '@/lib/modelProviders/modelProviderConfigs'
 import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
@@ -186,26 +185,28 @@ const mcpServerToolsAsFunction = ({
   }>
   prisma: PrismaClient
 }) =>
-  map(mcpServers, async (mcpServer) => {
-    const { mcpConnection } = await connectMcpServer({
-      mcpServer,
-      thread,
-      assistant,
-      prisma,
-    })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const listToolsResponse = (await mcpConnection.client.listTools()) as any
+  Promise.all(
+    mcpServers.map(async (mcpServer) => {
+      const { mcpConnection } = await connectMcpServer({
+        mcpServer,
+        thread,
+        assistant,
+        prisma,
+      })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const listToolsResponse = (await mcpConnection.client.listTools()) as any
 
-    await closeMcpConnection({
-      mcpConnection,
-    })
+      await closeMcpConnection({
+        mcpConnection,
+      })
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return listToolsResponse.tools.map((tool: any) => ({
-      type: 'function',
-      function: serializeTool({ tool }),
-    })) as OpenAI.Beta.Assistants.AssistantTool[]
-  })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return listToolsResponse.tools.map((tool: any) => ({
+        type: 'function',
+        function: serializeTool({ tool }),
+      })) as OpenAI.Beta.Assistants.AssistantTool[]
+    }),
+  )
 
 const mcpServerTools = async ({
   assistant,

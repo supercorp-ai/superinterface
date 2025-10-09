@@ -19,10 +19,8 @@ import { createRunOpts } from '@/lib/runs/createRunOpts'
 import { handleToolCall } from '@/lib/toolCalls/handleToolCall'
 import { createLog } from '@/lib/logs/createLog'
 import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
-import { map } from 'p-iteration'
 import { redis } from '@/lib/redis'
 import { waitUntil } from '@vercel/functions'
-
 export const handleAssistant = async ({
   assistantHandler,
   toolCall,
@@ -362,16 +360,17 @@ export const handleAssistant = async ({
             event.event === 'thread.run.requires_action' &&
             event.data?.required_action?.type === 'submit_client_tool_outputs'
           ) {
-            await map(
-              event.data.required_action.submit_client_tool_outputs.tool_calls,
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              async (toolCall: any) => {
-                await redis.set(
-                  `submit-client-tool-outputs:output:${toolCall.id}`,
-                  'Client tools cannot be used during async assistant calls',
-                  { ex: 60 * 60 * 24 * 7 },
-                )
-              },
+            await Promise.all(
+              event.data.required_action.submit_client_tool_outputs.tool_calls.map(
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                async (toolCall: any) => {
+                  await redis.set(
+                    `submit-client-tool-outputs:output:${toolCall.id}`,
+                    'Client tools cannot be used during async assistant calls',
+                    { ex: 60 * 60 * 24 * 7 },
+                  )
+                },
+              ),
             )
           }
         }
@@ -397,6 +396,7 @@ export const handleAssistant = async ({
     messageResponse,
     controller,
     run,
+    prisma,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onThreadMessageCompleted: ({ message }: { message: any }) => {
       messages.push(message)

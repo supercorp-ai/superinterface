@@ -1,7 +1,7 @@
 import type OpenAI from 'openai'
 import { validate } from 'uuid'
+import type { PrismaClient } from '@prisma/client'
 import { enqueueJson } from '@superinterface/react/utils'
-import { prisma } from '@/lib/prisma'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const deltaContent = ({ data }: { data: any }) => {
@@ -26,6 +26,7 @@ export const streamOutput = async ({
   onThreadMessageCompleted = () => {},
   onThreadRunStepCompleted = () => {},
   controller,
+  prisma,
 }: {
   toolCall: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall
   run: OpenAI.Beta.Threads.Runs.Run
@@ -36,6 +37,7 @@ export const streamOutput = async ({
   onThreadMessageCompleted?: ({ message }: { message: any }) => void
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onThreadRunStepCompleted?: ({ runStep }: { runStep: any }) => void
+  prisma: PrismaClient
 }) => {
   // TODO figure out how to stream non-prisma runs
   if (!validate(run.id)) {

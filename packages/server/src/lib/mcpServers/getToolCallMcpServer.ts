@@ -1,6 +1,5 @@
 import OpenAI from 'openai'
 import { Prisma, Thread, PrismaClient } from '@prisma/client'
-import { forEach } from 'p-iteration'
 import { connectMcpServer } from '@/lib/mcpServers/connectMcpServer'
 import type { McpConnection } from '@/types'
 import { closeMcpConnection } from '@/lib/mcpServers/closeMcpConnection'
@@ -28,9 +27,8 @@ export const getToolCallMcpServer = async ({
 }) => {
   let mcpConnection: McpConnection | null = null
 
-  await forEach(assistant.mcpServers, async (mcpServer) => {
-    if (mcpConnection) return false
-
+  for (const mcpServer of assistant.mcpServers) {
+    if (mcpConnection) break
     const { mcpConnection: innerMcpConnection } = await connectMcpServer({
       mcpServer,
       thread,
@@ -51,13 +49,12 @@ export const getToolCallMcpServer = async ({
       await closeMcpConnection({
         mcpConnection: innerMcpConnection,
       })
-      return false
+      continue
     }
 
     mcpConnection = innerMcpConnection
-
-    return true
-  })
+    break
+  }
 
   return {
     mcpConnection: mcpConnection as McpConnection | null,
