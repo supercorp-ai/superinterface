@@ -1,0 +1,5 @@
+enum ImageGenerationToolBackground {
+  AUTO
+  TRANSPARENT
+  OPAQUE
+}

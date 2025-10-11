@@ -111,6 +111,11 @@ const nativeTools = ({
         return {
           type: 'image_generation' as const,
           image_generation: {
+            model: tool.imageGenerationTool!.model,
+            background: tool.imageGenerationTool!.background.toLowerCase() as
+              | 'transparent'
+              | 'opaque'
+              | 'auto',
             quality: tool.imageGenerationTool!.quality.toLowerCase() as
               | 'auto'
               | 'low'

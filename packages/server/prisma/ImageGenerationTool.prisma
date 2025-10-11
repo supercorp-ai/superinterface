@@ -4,6 +4,8 @@ model ImageGenerationTool {
   partialImages Int @default(0)
   quality ImageGenerationToolQuality @default(AUTO)
   size ImageGenerationToolSize @default(AUTO)
+  background ImageGenerationToolBackground @default(AUTO)
+  model String @default("gpt-image-1")
   toolId String @db.Uuid @unique
   tool Tool @relation(fields: [toolId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now()) @db.Timestamptz(6)
