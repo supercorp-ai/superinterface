@@ -670,7 +670,7 @@ export const buildPOST =
               requestRoute: LogRequestRoute.MESSAGES,
               level: LogLevel.ERROR,
               status: 500,
-              message: `Thread Run failed: ${error.message}`,
+              message: `Thread Run failed: ${serializeError({ error })}`,
               workspaceId: assistant.workspaceId,
               assistantId: assistant.id,
               threadId: thread.id,
