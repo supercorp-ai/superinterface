@@ -241,7 +241,7 @@ const mcpServerTools = async ({
     isResponsesStorageProvider({
       storageProviderType: assistant.storageProviderType,
     }) &&
-    assistant.modelSlug.match('computer-use')
+    !assistant.modelSlug.match('computer-use')
   ) {
     const httpMcpServers = nonComputerUseMcpServers.filter(
       (mcpServer) => mcpServer.transportType === TransportType.HTTP,
