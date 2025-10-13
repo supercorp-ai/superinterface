@@ -257,14 +257,20 @@ const mcpServerTools = async ({
       },
     }))
 
+    const sseMcpServers = nonComputerUseMcpServers.filter(
+      (mcpServer) => mcpServer.transportType === TransportType.SSE,
+    )
+
     return [
       ...nativeMcpServerTools,
-      ...(await mcpServerToolsAsFunction({
-        mcpServers: nonComputerUseMcpServers,
-        thread,
-        assistant,
-        prisma,
-      })),
+      ...flat(
+        await mcpServerToolsAsFunction({
+          mcpServers: sseMcpServers,
+          thread,
+          assistant,
+          prisma,
+        }),
+      ),
     ]
   }
 
