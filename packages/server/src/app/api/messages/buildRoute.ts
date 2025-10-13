@@ -663,6 +663,7 @@ export const buildPOST =
         },
         onError: async ({ error }) => {
           if (request.signal.aborted) return
+          console.dir({ error }, { depth: null })
 
           createLog({
             log: {
