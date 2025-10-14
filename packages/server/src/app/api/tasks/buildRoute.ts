@@ -7,6 +7,8 @@ import { serializeTask } from '@/lib/tasks/serializeTask'
 import { validateSchedule } from '@/lib/tasks/validateSchedule'
 import { getApiKey } from '@/lib/apiKeys/getApiKey'
 import { scheduleTask } from '@/lib/tasks/scheduleTask'
+import { ensureTaskSchedule } from '@/lib/tasks/ensureTaskSchedule'
+import { TaskScheduleConflictError } from '@/lib/errors'
 
 export const buildGET =
   ({ prisma }: { prisma: PrismaClient }) =>
@@ -95,6 +97,22 @@ export const buildPOST =
       return NextResponse.json({ error: 'Thread not found' }, { status: 400 })
     }
 
+    const key = parsed.data.key ?? ''
+
+    try {
+      await ensureTaskSchedule({
+        prisma,
+        threadId: thread.id,
+        key,
+        schedule,
+      })
+    } catch (error) {
+      if (error instanceof TaskScheduleConflictError) {
+        return NextResponse.json({ error: error.message }, { status: 400 })
+      }
+      throw error
+    }
+
     const task = await prisma.task.create({
       data: {
         title,
@@ -103,7 +121,7 @@ export const buildPOST =
         thread: {
           connect: { id: thread.id },
         },
-        key: parsed.data.key ?? '',
+        key,
       },
     })
 

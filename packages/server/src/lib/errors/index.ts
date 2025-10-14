@@ -7,4 +7,13 @@ export class ValidationError extends Error {
   }
 }
 
-export const publicErrors = [ValidationError]
+export class TaskScheduleConflictError extends ValidationError {
+  static defaultMessage =
+    'Tasks sharing a key and thread must be scheduled at least 15 minutes apart.'
+
+  constructor(message: string = TaskScheduleConflictError.defaultMessage) {
+    super(message)
+  }
+}
+
+export const publicErrors = [ValidationError, TaskScheduleConflictError]

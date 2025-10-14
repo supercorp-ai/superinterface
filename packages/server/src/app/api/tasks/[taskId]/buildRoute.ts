@@ -9,6 +9,8 @@ import { validateSchedule } from '@/lib/tasks/validateSchedule'
 import { getApiKey } from '@/lib/apiKeys/getApiKey'
 import { scheduleTask } from '@/lib/tasks/scheduleTask'
 import { cancelScheduledTask } from '@/lib/tasks/cancelScheduledTask'
+import { ensureTaskSchedule } from '@/lib/tasks/ensureTaskSchedule'
+import { TaskScheduleConflictError } from '@/lib/errors'
 
 const updateTaskSchema = z.object({
   title: z.string().optional(),
@@ -136,6 +138,26 @@ export const buildPATCH =
         : {}),
       ...(parsed.data.key !== undefined ? { key: parsed.data.key } : {}),
     }
+
+    const keyToUse = parsed.data.key ?? existingTask.key
+    const scheduleToUse = parsed.data.schedule ?? existingTask.schedule
+
+    try {
+      await ensureTaskSchedule({
+        prisma,
+        threadId: existingTask.threadId,
+        key: keyToUse,
+        schedule: scheduleToUse,
+        excludeTaskId: existingTask.id,
+      })
+    } catch (error) {
+      if (error instanceof TaskScheduleConflictError) {
+        return NextResponse.json({ error: error.message }, { status: 400 })
+      }
+      throw error
+    }
+
+    await cancelScheduledTask({ task: existingTask })
 
     const task = await prisma.task.update({
       where: { id: existingTask.id },

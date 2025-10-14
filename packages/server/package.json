@@ -1,6 +1,6 @@
 {
   "name": "@superinterface/server",
-  "version": "1.0.36",
+  "version": "1.0.37",
   "type": "module",
   "bin": {
     "superinterface-server": "./bin/index.cjs"
@@ -141,7 +141,9 @@
     "start": "next start",
     "prisma:migrate": "npx prisma migrate dev",
     "lint": "eslint",
-    "cli": "tsx scripts/cli.ts"
+    "cli": "tsx scripts/cli.ts",
+    "test": "node --import tsx scripts/runTests.ts",
+    "tasks:audit": "tsx scripts/cleanupTaskConflicts.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",
@@ -178,6 +180,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "next-test-api-route-handler": "^5.0.3",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "next": "15.5.4",
