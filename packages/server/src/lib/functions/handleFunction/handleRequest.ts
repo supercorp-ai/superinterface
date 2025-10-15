@@ -29,19 +29,31 @@ const url = ({
     assistant,
   })
 
-  if (requestHandler.method === 'GET') {
-    if (!Object.keys(args).length) return { url: value, missing }
-    const params = new URLSearchParams(
-      Object.entries(args).reduce<Record<string, string>>(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (acc, [k, v]) => ({ ...acc, [k]: String(v as any) }),
-        {},
-      ),
-    )
-    return { url: `${value}?${params.toString()}`, missing }
+  if (requestHandler.method !== 'GET') {
+    return { url: value, missing }
   }
 
-  return { url: value, missing }
+  if (!args || !Object.keys(args).length) {
+    return { url: value, missing }
+  }
+
+  const [path, existingQuery = ''] = String(value).split('?')
+  const params = new URLSearchParams(existingQuery)
+
+  for (const [k, v] of Object.entries(args)) {
+    if (Array.isArray(v)) {
+      // Replace existing key with multiple values
+      params.delete(k)
+      for (const item of v) {
+        params.append(k, String(item))
+      }
+    } else {
+      params.set(k, String(v))
+    }
+  }
+
+  const qs = params.toString()
+  return { url: qs ? `${path}?${qs}` : path, missing }
 }
 
 const body = ({
