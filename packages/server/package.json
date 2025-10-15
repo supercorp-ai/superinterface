@@ -1,6 +1,6 @@
 {
   "name": "@superinterface/server",
-  "version": "1.0.37",
+  "version": "1.0.38",
   "type": "module",
   "bin": {
     "superinterface-server": "./bin/index.cjs"
@@ -165,7 +165,7 @@
     "prisma": "^6.16.3",
     "prisma-json-types-generator": "^3.6.2",
     "replicate": "^1.2.0",
-    "supercompat": "^3.9.4",
+    "supercompat": "^3.9.5",
     "tsx": "^4.11.0",
     "uuid": "^13.0.0",
     "zod": "^3.23.8"

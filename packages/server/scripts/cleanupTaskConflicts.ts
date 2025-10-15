@@ -1,9 +1,10 @@
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { PrismaClient } from '@prisma/client'
-import { cancelScheduledTask } from '@/lib/tasks/cancelScheduledTask'
+import { qstash } from '@/lib/upstash/qstash'
 import { FIFTEEN_MINUTES_IN_MS } from '@/lib/tasks/getTaskScheduleConflict'
 import { TaskScheduleConflictError } from '@/lib/errors'
+import { loadPrismaClient } from './utils/loadPrisma'
 
 dayjs.extend(utc)
 
@@ -37,8 +38,50 @@ const getLastTouchedAt = (task: TaskWithDates) => {
   return updated.isAfter(created) ? updated : created
 }
 
+const cancelScheduledMessage = async ({
+  task,
+  dryRunLabel,
+}: {
+  task: TaskWithDates
+  dryRunLabel: string
+}) => {
+  const messageId = task.qstashMessageId
+  if (!messageId) {
+    console.log(
+      `${dryRunLabel} No scheduled message to cancel for task ${task.id}`,
+    )
+    return { status: 'none' as const }
+  }
+
+  if (process.env.NODE_ENV === 'test') {
+    return { status: 'skipped_in_test' as const }
+  }
+
+  try {
+    await qstash.messages.delete(messageId)
+    console.log(
+      `${dryRunLabel} Cancelled scheduled message ${messageId} for task ${task.id}`,
+    )
+    return { status: 'success' as const }
+  } catch (error) {
+    const status = (error as { status?: number }).status
+    const message = (error as { message?: string }).message ?? String(error)
+    if (status === 404 || message.includes('not found')) {
+      console.warn(
+        `${dryRunLabel} Scheduled message already absent (id=${messageId})`,
+      )
+      return { status: 'not_found' as const }
+    }
+    console.error(
+      `${dryRunLabel} Failed to cancel scheduled message ${messageId}:`,
+      message,
+    )
+    return { status: 'error' as const, error }
+  }
+}
+
 const main = async () => {
-  const prisma = new PrismaClient()
+  const prisma = await loadPrismaClient()
   const options = parseCliOptions()
   const dryRunLabel = options.dryRun ? '[DRY RUN]' : '[APPLY]'
 
@@ -170,12 +213,14 @@ const main = async () => {
         if (!options.dryRun) {
           for (const candidate of toDelete) {
             try {
-              if (candidate.task.qstashMessageId) {
-                await cancelScheduledTask({ task: candidate.task })
-              }
+              const cancelResult = await cancelScheduledMessage({
+                task: candidate.task,
+                dryRunLabel,
+              })
+
               await prisma.task.delete({ where: { id: candidate.task.id } })
               console.log(
-                `    Deleted: ${candidate.task.id} (qstash: ${candidate.task.qstashMessageId ?? 'none'})`,
+                `    Deleted: ${candidate.task.id} (qstash: ${candidate.task.qstashMessageId ?? 'none'} | cancel=${cancelResult.status})`,
               )
             } catch (error) {
               console.error(
