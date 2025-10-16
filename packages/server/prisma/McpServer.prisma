@@ -1,6 +1,8 @@
 model McpServer {
   id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   transportType TransportType @default(STDIO)
+  name String?
+  description String?
   assistantId String @db.Uuid
   assistant Assistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
   computerUseTool ComputerUseTool?

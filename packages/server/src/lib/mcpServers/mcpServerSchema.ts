@@ -21,7 +21,11 @@ const httpTransportSchema = z.object({
   }),
 })
 
+const optionalTrimmedString = z.string().trim().min(1).optional().nullable()
+
 export const baseSchema = z.object({
+  name: optionalTrimmedString,
+  description: optionalTrimmedString,
   transportType: z
     .nativeEnum(TransportType)
     .refine((t) => t !== TransportType.STDIO, {

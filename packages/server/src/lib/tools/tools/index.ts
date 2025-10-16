@@ -247,15 +247,22 @@ const mcpServerTools = async ({
       (mcpServer) => mcpServer.transportType === TransportType.HTTP,
     )
 
-    const nativeMcpServerTools = httpMcpServers.map((mcpServer) => ({
-      type: 'mcp',
-      mcp: {
-        server_label: `mcp-server-${mcpServer.id}`,
-        server_url: url({ thread, mcpServer, assistant, prisma }),
-        headers: headers({ thread, mcpServer, assistant, prisma }),
-        require_approval: 'never',
-      },
-    }))
+    const nativeMcpServerTools = httpMcpServers.map((mcpServer) => {
+      const serverLabel = mcpServer.name ?? `mcp-server-${mcpServer.id}`
+
+      return {
+        type: 'mcp',
+        mcp: {
+          server_label: serverLabel,
+          ...(mcpServer.description
+            ? { server_description: mcpServer.description }
+            : {}),
+          server_url: url({ thread, mcpServer, assistant, prisma }),
+          headers: headers({ thread, mcpServer, assistant, prisma }),
+          require_approval: 'never',
+        },
+      }
+    })
 
     const sseMcpServers = nonComputerUseMcpServers.filter(
       (mcpServer) => mcpServer.transportType === TransportType.SSE,

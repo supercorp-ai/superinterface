@@ -35,6 +35,8 @@ export const serializeApiMcpServer = ({
   }>
 }) => ({
   id: mcpServer.id,
+  name: mcpServer.name,
+  description: mcpServer.description,
   transportType: mcpServer.transportType,
   sseTransport: mcpServer.sseTransport
     ? serializeApiSseTransport({

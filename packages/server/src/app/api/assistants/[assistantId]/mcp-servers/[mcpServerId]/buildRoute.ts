@@ -11,6 +11,12 @@ type RouteProps = {
   params: Promise<{ assistantId: string; mcpServerId: string }>
 }
 
+const normalizeOptionalString = (value: string | null | undefined) => {
+  if (value === undefined) return undefined
+  if (value === null) return null
+  return value.trim()
+}
+
 const validateIds = ({
   assistantId,
   mcpServerId,
@@ -123,7 +129,10 @@ export const buildPATCH =
       return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
     }
 
-    const { transportType, sseTransport, httpTransport } = parsed.data
+    const { transportType, sseTransport, httpTransport, name, description } =
+      parsed.data
+    const normalizedName = normalizeOptionalString(name)
+    const normalizedDescription = normalizeOptionalString(description)
 
     const mcpServer = await prisma.mcpServer.findFirst({
       where: {
@@ -148,6 +157,10 @@ export const buildPATCH =
       },
       data: {
         transportType,
+        ...(normalizedName !== undefined ? { name: normalizedName } : {}),
+        ...(normalizedDescription !== undefined
+          ? { description: normalizedDescription }
+          : {}),
         ...(transportType === TransportType.SSE
           ? {
               sseTransport: {
