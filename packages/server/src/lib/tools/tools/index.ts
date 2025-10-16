@@ -14,6 +14,7 @@ import { closeMcpConnection } from '@/lib/mcpServers/closeMcpConnection'
 import { isResponsesStorageProvider } from '@/lib/storageProviders/isResponsesStorageProvider'
 import { url } from '@/lib/mcpServers/url'
 import { headers } from '@/lib/mcpServers/headers'
+import { getMcpServerLabel } from '@/lib/mcpServers/getMcpServerLabel'
 
 const serializeImageGenerationToolSize = ({
   tool,
@@ -248,7 +249,10 @@ const mcpServerTools = async ({
     )
 
     const nativeMcpServerTools = httpMcpServers.map((mcpServer) => {
-      const serverLabel = mcpServer.name ?? `mcp-server-${mcpServer.id}`
+      const serverLabel = getMcpServerLabel({
+        id: mcpServer.id,
+        name: mcpServer.name,
+      })
 
       return {
         type: 'mcp',

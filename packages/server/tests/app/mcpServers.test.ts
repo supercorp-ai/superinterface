@@ -53,7 +53,7 @@ describe('/api/assistants/[assistantId]/mcp-servers', () => {
           method: 'POST',
           headers: { Authorization: `Bearer ${privateKey.value}` },
           body: JSON.stringify({
-            name: 'friendly-mcp',
+            name: 'Friendly MCP',
             description: 'Helpful description',
             transportType: TransportType.HTTP,
             httpTransport: {
@@ -65,13 +65,13 @@ describe('/api/assistants/[assistantId]/mcp-servers', () => {
 
         assert.strictEqual(response.status, 200)
         const data = await response.json()
-        assert.strictEqual(data.mcpServer.name, 'friendly-mcp')
+        assert.strictEqual(data.mcpServer.name, 'Friendly MCP')
         assert.strictEqual(data.mcpServer.description, 'Helpful description')
 
         const stored = await prisma.mcpServer.findUniqueOrThrow({
           where: { id: data.mcpServer.id },
         })
-        assert.strictEqual(stored.name, 'friendly-mcp')
+        assert.strictEqual(stored.name, 'Friendly MCP')
         assert.strictEqual(stored.description, 'Helpful description')
       },
     })
@@ -95,7 +95,7 @@ describe('/api/assistants/[assistantId]/mcp-servers', () => {
           method: 'POST',
           headers: { Authorization: `Bearer ${privateKey.value}` },
           body: JSON.stringify({
-            name: 'invalid name!',
+            name: '!!!',
             transportType: TransportType.HTTP,
             httpTransport: {
               url: 'https://example.com/mcp',
@@ -105,6 +105,100 @@ describe('/api/assistants/[assistantId]/mcp-servers', () => {
         })
 
         assert.strictEqual(response.status, 400)
+      },
+    })
+  })
+
+  it('rejects MCP server names that normalize to duplicates', async () => {
+    const { assistant, workspace } = await createAssistantWithWorkspace()
+    const privateKey = await createTestApiKey({
+      data: { workspaceId: workspace.id, type: ApiKeyType.PRIVATE },
+    })
+
+    const appHandler = await import(
+      '../../src/app/api/assistants/[assistantId]/mcp-servers/route'
+    )
+
+    await testApiHandler({
+      appHandler,
+      params: { assistantId: assistant.id },
+      test: async ({ fetch }) => {
+        const firstResponse = await fetch({
+          method: 'POST',
+          headers: { Authorization: `Bearer ${privateKey.value}` },
+          body: JSON.stringify({
+            name: 'Primary Server',
+            transportType: TransportType.HTTP,
+            httpTransport: {
+              url: 'https://example.com/one',
+              headers: '{}',
+            },
+          }),
+        })
+
+        assert.strictEqual(firstResponse.status, 200)
+
+        const duplicateResponse = await fetch({
+          method: 'POST',
+          headers: { Authorization: `Bearer ${privateKey.value}` },
+          body: JSON.stringify({
+            name: 'primary-server',
+            transportType: TransportType.HTTP,
+            httpTransport: {
+              url: 'https://example.com/two',
+              headers: '{}',
+            },
+          }),
+        })
+
+        assert.strictEqual(duplicateResponse.status, 400)
+      },
+    })
+  })
+
+  it('allows MCP server names with repeated spaces to coexist', async () => {
+    const { assistant, workspace } = await createAssistantWithWorkspace()
+    const privateKey = await createTestApiKey({
+      data: { workspaceId: workspace.id, type: ApiKeyType.PRIVATE },
+    })
+
+    const appHandler = await import(
+      '../../src/app/api/assistants/[assistantId]/mcp-servers/route'
+    )
+
+    await testApiHandler({
+      appHandler,
+      params: { assistantId: assistant.id },
+      test: async ({ fetch }) => {
+        const firstResponse = await fetch({
+          method: 'POST',
+          headers: { Authorization: `Bearer ${privateKey.value}` },
+          body: JSON.stringify({
+            name: 'Primary Server',
+            transportType: TransportType.HTTP,
+            httpTransport: {
+              url: 'https://example.com/one',
+              headers: '{}',
+            },
+          }),
+        })
+
+        assert.strictEqual(firstResponse.status, 200)
+
+        const spacedResponse = await fetch({
+          method: 'POST',
+          headers: { Authorization: `Bearer ${privateKey.value}` },
+          body: JSON.stringify({
+            name: 'primary    server',
+            transportType: TransportType.HTTP,
+            httpTransport: {
+              url: 'https://example.com/two',
+              headers: '{}',
+            },
+          }),
+        })
+
+        assert.strictEqual(spacedResponse.status, 200)
       },
     })
   })
@@ -174,6 +268,112 @@ describe('/api/assistants/[assistantId]/mcp-servers', () => {
     })
   })
 
+  it('prevents MCP server rename collisions on PATCH', async () => {
+    const { assistant, workspace } = await createAssistantWithWorkspace()
+    const privateKey = await createTestApiKey({
+      data: { workspaceId: workspace.id, type: ApiKeyType.PRIVATE },
+    })
+
+    await prisma.mcpServer.create({
+      data: {
+        name: 'Primary Server',
+        transportType: TransportType.HTTP,
+        assistant: { connect: { id: assistant.id } },
+        httpTransport: {
+          create: {
+            url: 'https://example.com/one',
+            headers: {},
+          },
+        },
+      },
+    })
+
+    const conflictingServer = await prisma.mcpServer.create({
+      data: {
+        name: 'Secondary Server',
+        transportType: TransportType.HTTP,
+        assistant: { connect: { id: assistant.id } },
+        httpTransport: {
+          create: {
+            url: 'https://example.com/two',
+            headers: {},
+          },
+        },
+      },
+    })
+
+    const appHandler = await import(
+      '../../src/app/api/assistants/[assistantId]/mcp-servers/[mcpServerId]/route'
+    )
+
+    await testApiHandler({
+      appHandler,
+      params: { assistantId: assistant.id, mcpServerId: conflictingServer.id },
+      test: async ({ fetch }) => {
+        const response = await fetch({
+          method: 'PATCH',
+          headers: { Authorization: `Bearer ${privateKey.value}` },
+          body: JSON.stringify({
+            name: 'primary-server',
+            transportType: TransportType.HTTP,
+            httpTransport: {
+              url: 'https://example.com/two',
+              headers: '{}',
+            },
+          }),
+        })
+
+        assert.strictEqual(response.status, 400)
+      },
+    })
+  })
+
+  it('allows MCP server rename when normalization differs', async () => {
+    const { assistant, workspace } = await createAssistantWithWorkspace()
+    const privateKey = await createTestApiKey({
+      data: { workspaceId: workspace.id, type: ApiKeyType.PRIVATE },
+    })
+
+    const mcpServer = await prisma.mcpServer.create({
+      data: {
+        name: 'Primary Server',
+        transportType: TransportType.HTTP,
+        assistant: { connect: { id: assistant.id } },
+        httpTransport: {
+          create: {
+            url: 'https://example.com/original',
+            headers: {},
+          },
+        },
+      },
+    })
+
+    const appHandler = await import(
+      '../../src/app/api/assistants/[assistantId]/mcp-servers/[mcpServerId]/route'
+    )
+
+    await testApiHandler({
+      appHandler,
+      params: { assistantId: assistant.id, mcpServerId: mcpServer.id },
+      test: async ({ fetch }) => {
+        const response = await fetch({
+          method: 'PATCH',
+          headers: { Authorization: `Bearer ${privateKey.value}` },
+          body: JSON.stringify({
+            name: 'primary    server',
+            transportType: TransportType.HTTP,
+            httpTransport: {
+              url: 'https://example.com/original',
+              headers: '{}',
+            },
+          }),
+        })
+
+        assert.strictEqual(response.status, 200)
+      },
+    })
+  })
+
   it('uses metadata when building native MCP tools', async () => {
     const { assistant } = await createAssistantWithWorkspace()
 
@@ -183,7 +383,7 @@ describe('/api/assistants/[assistantId]/mcp-servers', () => {
 
     await prisma.mcpServer.create({
       data: {
-        name: 'named-server',
+        name: 'Named Server',
         description: 'Server with description',
         transportType: TransportType.HTTP,
         assistant: { connect: { id: assistant.id } },
@@ -247,7 +447,7 @@ describe('/api/assistants/[assistantId]/mcp-servers', () => {
     assert.ok(
       mcpTools.some(
         (tool) =>
-          tool.mcp.server_label === 'named-server' &&
+          tool.mcp.server_label === 'Named-Server' &&
           tool.mcp.server_description === 'Server with description',
       ),
     )

@@ -5,6 +5,8 @@ import { cacheHeaders } from '@/lib/cache/cacheHeaders'
 import { getApiKey } from '@/lib/apiKeys/getApiKey'
 import { serializeApiMcpServer } from '@/lib/mcpServers/serializeApiMcpServer'
 import { mcpServerSchema } from '@/lib/mcpServers/mcpServerSchema'
+import { normalizeMcpServerName } from '@/lib/mcpServers/normalizeMcpServerName'
+import { isMcpServerLabelTaken } from '@/lib/mcpServers/isMcpServerLabelTaken'
 
 type RouteProps = {
   params: Promise<{ assistantId: string }>
@@ -111,6 +113,35 @@ export const buildPOST =
 
     if (!assistant) {
       return NextResponse.json({ error: 'No assistant found' }, { status: 400 })
+    }
+
+    if (typeof name === 'string') {
+      const normalizedName = normalizeMcpServerName(name)
+
+      if (!/[a-zA-Z0-9]/.test(normalizedName)) {
+        return NextResponse.json(
+          {
+            error:
+              'Invalid MCP server name. Use letters, numbers, spaces, or hyphens.',
+          },
+          { status: 400 },
+        )
+      }
+
+      const normalizedLabel = normalizedName
+
+      const isTaken = await isMcpServerLabelTaken({
+        prisma,
+        assistantId,
+        label: normalizedLabel,
+      })
+
+      if (isTaken) {
+        return NextResponse.json(
+          { error: 'An MCP server with that name already exists.' },
+          { status: 400 },
+        )
+      }
     }
 
     const mcpServer = await prisma.mcpServer.create({

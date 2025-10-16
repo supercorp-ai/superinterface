@@ -6,6 +6,8 @@ import { getApiKey } from '@/lib/apiKeys/getApiKey'
 import { validate } from 'uuid'
 import { serializeApiMcpServer } from '@/lib/mcpServers/serializeApiMcpServer'
 import { mcpServerSchema } from '@/lib/mcpServers/mcpServerSchema'
+import { normalizeMcpServerName } from '@/lib/mcpServers/normalizeMcpServerName'
+import { isMcpServerLabelTaken } from '@/lib/mcpServers/isMcpServerLabelTaken'
 
 type RouteProps = {
   params: Promise<{ assistantId: string; mcpServerId: string }>
@@ -126,6 +128,24 @@ export const buildPATCH =
     const { transportType, sseTransport, httpTransport, name, description } =
       parsed.data
 
+    let normalizedLabel: string | null = null
+
+    if (typeof name === 'string') {
+      const normalizedName = normalizeMcpServerName(name)
+
+      if (!/[a-zA-Z0-9]/.test(normalizedName)) {
+        return NextResponse.json(
+          {
+            error:
+              'Invalid MCP server name. Use letters, numbers, spaces, or hyphens.',
+          },
+          { status: 400 },
+        )
+      }
+
+      normalizedLabel = normalizedName
+    }
+
     const mcpServer = await prisma.mcpServer.findFirst({
       where: {
         id: mcpServerId,
@@ -141,6 +161,22 @@ export const buildPATCH =
         { error: 'No MCP server found' },
         { status: 400 },
       )
+    }
+
+    if (normalizedLabel) {
+      const isTaken = await isMcpServerLabelTaken({
+        prisma,
+        assistantId,
+        label: normalizedLabel,
+        excludeMcpServerId: mcpServerId,
+      })
+
+      if (isTaken) {
+        return NextResponse.json(
+          { error: 'An MCP server with that name already exists.' },
+          { status: 400 },
+        )
+      }
     }
 
     const updatedMcpServer = await prisma.mcpServer.update({

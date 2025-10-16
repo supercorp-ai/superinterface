@@ -21,14 +21,7 @@ const httpTransportSchema = z.object({
   }),
 })
 
-const optionalNameString = z
-  .string()
-  .min(1)
-  .regex(/^[a-zA-Z0-9-]+$/, {
-    message: 'Name can only include letters, numbers, and hyphens.',
-  })
-  .optional()
-  .nullable()
+const optionalNameString = z.string().min(1).optional().nullable()
 
 const optionalDescriptionString = z.string().min(1).optional().nullable()
 
