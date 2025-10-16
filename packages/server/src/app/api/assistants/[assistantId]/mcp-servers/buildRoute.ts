@@ -10,12 +10,6 @@ type RouteProps = {
   params: Promise<{ assistantId: string }>
 }
 
-const normalizeOptionalString = (value: string | null | undefined) => {
-  if (value === undefined) return undefined
-  if (value === null) return null
-  return value.trim()
-}
-
 export const buildGET =
   ({ prisma }: { prisma: PrismaClient }) =>
   async (_request: NextRequest, props: RouteProps) => {
@@ -108,8 +102,6 @@ export const buildPOST =
 
     const { transportType, sseTransport, httpTransport, name, description } =
       parsed.data
-    const normalizedName = normalizeOptionalString(name)
-    const normalizedDescription = normalizeOptionalString(description)
 
     const workspaceId = privateApiKey.workspaceId
 
@@ -144,10 +136,8 @@ export const buildPOST =
               },
             }
           : {}),
-        ...(normalizedName !== undefined ? { name: normalizedName } : {}),
-        ...(normalizedDescription !== undefined
-          ? { description: normalizedDescription }
-          : {}),
+        ...(name !== undefined ? { name } : {}),
+        ...(description !== undefined ? { description } : {}),
         assistant: {
           connect: {
             id: assistantId,

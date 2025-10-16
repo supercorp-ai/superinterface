@@ -53,7 +53,7 @@ describe('/api/assistants/[assistantId]/mcp-servers', () => {
           method: 'POST',
           headers: { Authorization: `Bearer ${privateKey.value}` },
           body: JSON.stringify({
-            name: 'Friendly MCP',
+            name: 'friendly-mcp',
             description: 'Helpful description',
             transportType: TransportType.HTTP,
             httpTransport: {
@@ -65,14 +65,46 @@ describe('/api/assistants/[assistantId]/mcp-servers', () => {
 
         assert.strictEqual(response.status, 200)
         const data = await response.json()
-        assert.strictEqual(data.mcpServer.name, 'Friendly MCP')
+        assert.strictEqual(data.mcpServer.name, 'friendly-mcp')
         assert.strictEqual(data.mcpServer.description, 'Helpful description')
 
         const stored = await prisma.mcpServer.findUniqueOrThrow({
           where: { id: data.mcpServer.id },
         })
-        assert.strictEqual(stored.name, 'Friendly MCP')
+        assert.strictEqual(stored.name, 'friendly-mcp')
         assert.strictEqual(stored.description, 'Helpful description')
+      },
+    })
+  })
+
+  it('rejects MCP server names with invalid characters', async () => {
+    const { assistant, workspace } = await createAssistantWithWorkspace()
+    const privateKey = await createTestApiKey({
+      data: { workspaceId: workspace.id, type: ApiKeyType.PRIVATE },
+    })
+
+    const appHandler = await import(
+      '../../src/app/api/assistants/[assistantId]/mcp-servers/route'
+    )
+
+    await testApiHandler({
+      appHandler,
+      params: { assistantId: assistant.id },
+      test: async ({ fetch }) => {
+        const response = await fetch({
+          method: 'POST',
+          headers: { Authorization: `Bearer ${privateKey.value}` },
+          body: JSON.stringify({
+            name: 'invalid name!',
+            transportType: TransportType.HTTP,
+            httpTransport: {
+              url: 'https://example.com/mcp',
+              headers: '{}',
+            },
+          }),
+        })
+
+        assert.strictEqual(response.status, 400)
       },
     })
   })
@@ -85,7 +117,7 @@ describe('/api/assistants/[assistantId]/mcp-servers', () => {
 
     const mcpServer = await prisma.mcpServer.create({
       data: {
-        name: 'Original Name',
+        name: 'original-name',
         description: 'Original description',
         transportType: TransportType.HTTP,
         assistant: { connect: { id: assistant.id } },
@@ -110,7 +142,7 @@ describe('/api/assistants/[assistantId]/mcp-servers', () => {
           method: 'PATCH',
           headers: { Authorization: `Bearer ${privateKey.value}` },
           body: JSON.stringify({
-            name: '  Updated Name  ',
+            name: 'updated-name',
             description: null,
             transportType: TransportType.HTTP,
             httpTransport: {
@@ -122,14 +154,14 @@ describe('/api/assistants/[assistantId]/mcp-servers', () => {
 
         assert.strictEqual(response.status, 200)
         const data = await response.json()
-        assert.strictEqual(data.mcpServer.name, 'Updated Name')
+        assert.strictEqual(data.mcpServer.name, 'updated-name')
         assert.strictEqual(data.mcpServer.description, null)
 
         const stored = await prisma.mcpServer.findUniqueOrThrow({
           where: { id: mcpServer.id },
           include: { httpTransport: true },
         })
-        assert.strictEqual(stored.name, 'Updated Name')
+        assert.strictEqual(stored.name, 'updated-name')
         assert.strictEqual(stored.description, null)
         assert.strictEqual(
           stored.httpTransport!.url,
@@ -151,7 +183,7 @@ describe('/api/assistants/[assistantId]/mcp-servers', () => {
 
     await prisma.mcpServer.create({
       data: {
-        name: 'Named Server',
+        name: 'named-server',
         description: 'Server with description',
         transportType: TransportType.HTTP,
         assistant: { connect: { id: assistant.id } },
@@ -215,7 +247,7 @@ describe('/api/assistants/[assistantId]/mcp-servers', () => {
     assert.ok(
       mcpTools.some(
         (tool) =>
-          tool.mcp.server_label === 'Named Server' &&
+          tool.mcp.server_label === 'named-server' &&
           tool.mcp.server_description === 'Server with description',
       ),
     )

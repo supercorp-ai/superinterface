@@ -21,11 +21,20 @@ const httpTransportSchema = z.object({
   }),
 })
 
-const optionalTrimmedString = z.string().trim().min(1).optional().nullable()
+const optionalNameString = z
+  .string()
+  .min(1)
+  .regex(/^[a-zA-Z0-9-]+$/, {
+    message: 'Name can only include letters, numbers, and hyphens.',
+  })
+  .optional()
+  .nullable()
+
+const optionalDescriptionString = z.string().min(1).optional().nullable()
 
 export const baseSchema = z.object({
-  name: optionalTrimmedString,
-  description: optionalTrimmedString,
+  name: optionalNameString,
+  description: optionalDescriptionString,
   transportType: z
     .nativeEnum(TransportType)
     .refine((t) => t !== TransportType.STDIO, {
