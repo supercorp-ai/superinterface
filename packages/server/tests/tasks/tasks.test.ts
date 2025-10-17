@@ -1,5 +1,6 @@
 import { testApiHandler } from 'next-test-api-route-handler'
 import { beforeEach, describe, it, mock } from 'node:test'
+import type { MockModuleOptions } from 'node:test'
 import assert from 'node:assert'
 import { ApiKeyType, StorageProviderType } from '@prisma/client'
 import { randomUUID } from 'node:crypto'
@@ -22,7 +23,7 @@ const publishJSONCalls: PublishCall[] = []
 const deleteCalls: string[] = []
 let nextPublishMessageId: string | null = null
 
-mock.module('@/lib/upstash/qstash', {
+const qstashModuleMock: MockModuleOptions = {
   namedExports: {
     qstash: {
       publishJSON: async (args: PublishCall['args'][number]) => {
@@ -37,7 +38,9 @@ mock.module('@/lib/upstash/qstash', {
       },
     },
   },
-} as any)
+}
+
+mock.module('@/lib/upstash/qstash', qstashModuleMock)
 
 beforeEach(() => {
   publishJSONCalls.length = 0
