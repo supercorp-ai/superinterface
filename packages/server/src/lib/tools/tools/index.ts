@@ -1,9 +1,5 @@
 import type { Prisma, Thread, PrismaClient } from '@prisma/client'
-import {
-  TransportType,
-  ToolType,
-  ImageGenerationToolSize,
-} from '@prisma/client'
+import { ToolType, ImageGenerationToolSize } from '@prisma/client'
 import { flat } from 'radash'
 import type OpenAI from 'openai'
 import { modelProviderConfigs } from '@/lib/modelProviders/modelProviderConfigs'
@@ -244,11 +240,7 @@ const mcpServerTools = async ({
     }) &&
     !assistant.modelSlug.match('computer-use')
   ) {
-    const httpMcpServers = nonComputerUseMcpServers.filter(
-      (mcpServer) => mcpServer.transportType === TransportType.HTTP,
-    )
-
-    const nativeMcpServerTools = httpMcpServers.map((mcpServer) => {
+    return nonComputerUseMcpServers.map((mcpServer) => {
       const serverLabel = getMcpServerLabel({
         id: mcpServer.id,
         name: mcpServer.name,
@@ -267,22 +259,6 @@ const mcpServerTools = async ({
         },
       }
     })
-
-    const sseMcpServers = nonComputerUseMcpServers.filter(
-      (mcpServer) => mcpServer.transportType === TransportType.SSE,
-    )
-
-    return [
-      ...nativeMcpServerTools,
-      ...flat(
-        await mcpServerToolsAsFunction({
-          mcpServers: sseMcpServers,
-          thread,
-          assistant,
-          prisma,
-        }),
-      ),
-    ]
   }
 
   const result = await mcpServerToolsAsFunction({
