@@ -79,7 +79,6 @@ const generateWeeklyOccurrences = ({
   startLocal,
   rule,
   timeZone,
-  nowLocal,
   lookAheadEnd,
   earliestAllowed,
   limit,
@@ -87,7 +86,6 @@ const generateWeeklyOccurrences = ({
   startLocal: Dayjs
   rule: RecurrenceRule
   timeZone: string
-  nowLocal: Dayjs
   lookAheadEnd: Dayjs
   earliestAllowed: Dayjs
   limit: number
@@ -147,7 +145,6 @@ const generateWeeklyOccurrences = ({
 
             const { shouldContinue, produced: nextProduced } =
               handleCountAndUntil({
-                occurrences,
                 candidate,
                 countLimit,
                 produced,
@@ -182,7 +179,6 @@ const generateSimpleSeries = ({
   startLocal,
   rule,
   unit,
-  nowLocal,
   lookAheadEnd,
   earliestAllowed,
   limit,
@@ -191,7 +187,6 @@ const generateSimpleSeries = ({
   startLocal: Dayjs
   rule: RecurrenceRule
   unit: 'day' | 'hour' | 'minute' | 'month' | 'year'
-  nowLocal: Dayjs
   lookAheadEnd: Dayjs
   earliestAllowed: Dayjs
   limit: number
@@ -244,7 +239,6 @@ const generateSimpleSeries = ({
 
           const { shouldContinue, produced: nextProduced } =
             handleCountAndUntil({
-              occurrences,
               candidate,
               countLimit,
               produced,
@@ -276,7 +270,6 @@ const generateOccurrencesForRule = ({
   startLocal,
   rule,
   timeZone,
-  nowLocal,
   lookAheadEnd,
   earliestAllowed,
   limit,
@@ -284,7 +277,6 @@ const generateOccurrencesForRule = ({
   startLocal: Dayjs
   rule: RecurrenceRule
   timeZone: string
-  nowLocal: Dayjs
   lookAheadEnd: Dayjs
   earliestAllowed: Dayjs
   limit: number
@@ -296,7 +288,6 @@ const generateOccurrencesForRule = ({
       startLocal,
       rule,
       timeZone,
-      nowLocal,
       lookAheadEnd,
       earliestAllowed,
       limit,
@@ -308,7 +299,6 @@ const generateOccurrencesForRule = ({
       startLocal,
       rule,
       unit: 'day',
-      nowLocal,
       lookAheadEnd,
       earliestAllowed,
       limit,
@@ -321,7 +311,6 @@ const generateOccurrencesForRule = ({
       startLocal,
       rule,
       unit: 'month',
-      nowLocal,
       lookAheadEnd,
       earliestAllowed,
       limit,
@@ -334,7 +323,6 @@ const generateOccurrencesForRule = ({
       startLocal,
       rule,
       unit: 'year',
-      nowLocal,
       lookAheadEnd,
       earliestAllowed,
       limit,
@@ -347,7 +335,6 @@ const generateOccurrencesForRule = ({
       startLocal,
       rule,
       unit: 'hour',
-      nowLocal,
       lookAheadEnd,
       earliestAllowed,
       limit,
@@ -360,7 +347,6 @@ const generateOccurrencesForRule = ({
       startLocal,
       rule,
       unit: 'minute',
-      nowLocal,
       lookAheadEnd,
       earliestAllowed,
       limit,
@@ -422,7 +408,6 @@ export const getScheduleOccurrences = (
       startLocal,
       rule,
       timeZone,
-      nowLocal,
       lookAheadEnd,
       earliestAllowed,
       limit: effectiveMaxOccurrences,
