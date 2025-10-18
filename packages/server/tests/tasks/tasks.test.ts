@@ -335,6 +335,98 @@ describe('/api/tasks', () => {
       })
     })
 
+    it('rejects duplicate recurring tasks that overlap within 15 minutes', async () => {
+      const workspace = await createTestWorkspace()
+      const modelProvider = await createTestModelProvider({
+        data: { workspaceId: workspace.id },
+      })
+      const assistant = await createTestAssistant({
+        data: {
+          workspaceId: workspace.id,
+          modelProviderId: modelProvider.id,
+          modelSlug: 'gpt-4o-mini',
+          storageProviderType: StorageProviderType.SUPERINTERFACE_CLOUD,
+        },
+      })
+      const thread = await prisma.thread.create({
+        data: { assistantId: assistant.id },
+      })
+      const privateKey = await createTestApiKey({
+        data: { workspaceId: workspace.id, type: ApiKeyType.PRIVATE },
+      })
+
+      const getUpcomingWeekdayAtHour = (weekday: number, hour: number) => {
+        const now = new Date()
+        const start = new Date(now)
+        start.setUTCMinutes(0, 0, 0)
+        const dayDiff = (weekday - start.getUTCDay() + 7) % 7
+        if (dayDiff === 0 && start.getUTCHours() >= hour) {
+          start.setUTCDate(start.getUTCDate() + 7)
+        } else {
+          start.setUTCDate(start.getUTCDate() + dayDiff)
+        }
+        start.setUTCHours(hour, 0, 0, 0)
+        return start
+      }
+
+      const mondayStart = getUpcomingWeekdayAtHour(1, 13) // Monday 13:00 UTC
+      const wednesdayStart = new Date(
+        mondayStart.getTime() + 2 * 24 * 60 * 60 * 1000,
+      )
+
+      const recurringSchedule = {
+        timeZone: 'UTC',
+        recurrenceRules: [
+          {
+            frequency: 'weekly',
+            byDay: ['MO', 'WE', 'FR'],
+            interval: 1,
+          },
+        ],
+      }
+
+      await createTestTask({
+        data: {
+          threadId: thread.id,
+          key: 'recurring-dup',
+          schedule: {
+            ...recurringSchedule,
+            start: mondayStart.toISOString(),
+          },
+        },
+      })
+
+      await testApiHandler({
+        appHandler,
+        test: async ({ fetch }) => {
+          const response = await fetch({
+            method: 'POST',
+            body: JSON.stringify({
+              title: 'Recurring duplicate',
+              message: 'Should conflict',
+              schedule: {
+                ...recurringSchedule,
+                start: wednesdayStart.toISOString(),
+              },
+              threadId: thread.id,
+              key: 'recurring-dup',
+            }),
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${privateKey.value}`,
+            },
+          })
+          const data = await response.json()
+
+          assert.strictEqual(response.status, 400)
+          assert.strictEqual(
+            data.error,
+            TaskScheduleConflictError.defaultMessage,
+          )
+        },
+      })
+    })
+
     it('creates task when schedule is at least 15 minutes apart', async () => {
       const workspace = await createTestWorkspace()
       const modelProvider = await createTestModelProvider({

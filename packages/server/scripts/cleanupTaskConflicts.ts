@@ -3,6 +3,7 @@ import utc from 'dayjs/plugin/utc'
 import { PrismaClient } from '@prisma/client'
 import { qstash } from '@/lib/upstash/qstash'
 import { FIFTEEN_MINUTES_IN_MS } from '@/lib/tasks/getTaskScheduleConflict'
+import { getScheduleOccurrences } from '@/lib/tasks/getScheduleOccurrences'
 import { TaskScheduleConflictError } from '@/lib/errors'
 import { loadPrismaClient } from './utils/loadPrisma'
 
@@ -25,12 +26,8 @@ type TaskWithDates = Awaited<
   ReturnType<PrismaClient['task']['findMany']>
 >[number]
 
-const getScheduleStart = (task: TaskWithDates) => {
-  const start = (task.schedule as { start?: unknown } | null)?.start
-  if (typeof start !== 'string') return null
-  const parsed = dayjs(start).utc()
-  return parsed.isValid() ? parsed : null
-}
+const LOOKAHEAD_DAYS = 365
+const MAX_OCCURRENCES = 120
 
 const getLastTouchedAt = (task: TaskWithDates) => {
   const updated = dayjs(task.updatedAt).utc()
@@ -85,6 +82,15 @@ const main = async () => {
   const options = parseCliOptions()
   const dryRunLabel = options.dryRun ? '[DRY RUN]' : '[APPLY]'
 
+  if (!options.dryRun && !process.env.QSTASH_TOKEN) {
+    console.error(
+      `${dryRunLabel} Missing required environment variable QSTASH_TOKEN. Aborting.`,
+    )
+    await prisma.$disconnect()
+    process.exitCode = 1
+    return
+  }
+
   console.log(
     `${dryRunLabel} Starting duplicate task audit – ` +
       `${TaskScheduleConflictError.defaultMessage}`,
@@ -95,6 +101,11 @@ const main = async () => {
       orderBy: { createdAt: 'asc' },
     })
 
+    if (!tasks.length) {
+      console.log(`${dryRunLabel} No tasks found – nothing to audit.`)
+      return
+    }
+
     const groups = new Map<string, TaskWithDates[]>()
     for (const task of tasks) {
       const key = `${task.threadId}::${task.key}`
@@ -103,35 +114,60 @@ const main = async () => {
       groups.set(key, list)
     }
 
+    console.log(
+      `${dryRunLabel} Loaded ${tasks.length} task(s) across ${groups.size} group(s).`,
+    )
+
     let conflictGroupCount = 0
     let candidateDeleteCount = 0
+    let processedTasks = 0
+    let processedGroups = 0
 
     for (const [groupKey, taskGroup] of groups.entries()) {
+      processedGroups += 1
+      processedTasks += taskGroup.length
+
+      const percentComplete = Math.round((processedTasks / tasks.length) * 100)
+      if (
+        processedGroups === 1 ||
+        processedGroups === groups.size ||
+        processedGroups % 10 === 0
+      ) {
+        console.log(
+          `${dryRunLabel} Progress: ${processedTasks}/${tasks.length} task(s) checked (${percentComplete}%).`,
+        )
+      }
+
       if (taskGroup.length < 2) continue
 
-      const sortedByStart = taskGroup
-        .map((task) => ({
-          task,
-          start: getScheduleStart(task),
-        }))
-        .sort((a, b) => {
-          if (!a.start && !b.start) return 0
-          if (!a.start) return 1
-          if (!b.start) return -1
-          return a.start.valueOf() - b.start.valueOf()
-        })
+      const occurrencesMap = new Map<string, dayjs.Dayjs[]>()
 
-      const validEntries = sortedByStart
-        .map((entry, index) => ({ ...entry, index }))
-        .filter((entry): entry is typeof entry & { start: dayjs.Dayjs } => {
-          if (!entry.start) {
-            console.log(
-              `${dryRunLabel} Skipping task without valid start: ${entry.task.id}`,
-            )
-            return false
+      const taskEntries = taskGroup
+        .map((task) => {
+          const occurrences = getScheduleOccurrences(
+            task.schedule as PrismaJson.TaskSchedule,
+            {
+              lookAheadDays: LOOKAHEAD_DAYS,
+              maxOccurrences: MAX_OCCURRENCES,
+            },
+          )
+          occurrencesMap.set(task.id, occurrences)
+          return {
+            task,
+            occurrences,
           }
-          return true
         })
+        .map((entry, index) => ({ ...entry, index }))
+
+      const validEntries = taskEntries.filter((entry) => {
+        if (!entry.occurrences.length) {
+          console.log(
+            `${dryRunLabel} Skipping task without upcoming occurrences: ${entry.task.id}`,
+          )
+          return false
+        }
+        return true
+      })
 
       if (validEntries.length < 2) continue
 
@@ -148,13 +184,28 @@ const main = async () => {
         parent[rootB] = rootA
       }
 
+      const hasConflictWithinWindow = (a: dayjs.Dayjs[], b: dayjs.Dayjs[]) => {
+        let i = 0
+        let j = 0
+        while (i < a.length && j < b.length) {
+          const diff = a[i].valueOf() - b[j].valueOf()
+          if (Math.abs(diff) < FIFTEEN_MINUTES_IN_MS) return true
+          if (diff < 0) {
+            i += 1
+          } else {
+            j += 1
+          }
+        }
+        return false
+      }
+
       for (let i = 0; i < validEntries.length; i += 1) {
         const current = validEntries[i]
         for (let j = i + 1; j < validEntries.length; j += 1) {
           const compare = validEntries[j]
-          const diffMs = compare.start.diff(current.start)
-          if (diffMs >= FIFTEEN_MINUTES_IN_MS) break
-          if (Math.abs(diffMs) < FIFTEEN_MINUTES_IN_MS) {
+          if (
+            hasConflictWithinWindow(current.occurrences, compare.occurrences)
+          ) {
             union(i, j)
           }
         }
@@ -180,7 +231,7 @@ const main = async () => {
       for (const cluster of overlapping) {
         const evaluatedCluster = cluster.map((task) => ({
           task,
-          start: getScheduleStart(task),
+          occurrences: occurrencesMap.get(task.id) ?? [],
           lastTouchedAt: getLastTouchedAt(task),
         }))
 
@@ -203,9 +254,15 @@ const main = async () => {
         )
         console.log('  Conflicting tasks:')
         for (const item of evaluatedCluster) {
+          const nextOccurrence = item.occurrences[0]?.toISOString() ?? 'n/a'
+          const preview =
+            item.occurrences
+              .slice(0, 3)
+              .map((occurrence) => occurrence.toISOString())
+              .join(', ') || 'n/a'
           const statusSuffix = '⚠️ violates window'
           console.log(
-            `    • ${item.task.id} | start=${item.start?.toISOString() ?? 'n/a'} | ` +
+            `    • ${item.task.id} | next=${nextOccurrence} | upcoming=[${preview}] | ` +
               `createdAt=${item.task.createdAt.toISOString()} | updatedAt=${item.task.updatedAt.toISOString()} ${statusSuffix}`,
           )
         }
@@ -218,6 +275,12 @@ const main = async () => {
                 dryRunLabel,
               })
 
+              if (cancelResult.status === 'error') {
+                throw new Error(
+                  'QStash cancellation failed; rerun after resolving token/availability issues.',
+                )
+              }
+
               await prisma.task.delete({ where: { id: candidate.task.id } })
               console.log(
                 `    Deleted: ${candidate.task.id} (qstash: ${candidate.task.qstashMessageId ?? 'none'} | cancel=${cancelResult.status})`,
@@ -227,6 +290,7 @@ const main = async () => {
                 `    Failed to delete ${candidate.task.id}:`,
                 (error as Error).message,
               )
+              throw error
             }
           }
         } else {

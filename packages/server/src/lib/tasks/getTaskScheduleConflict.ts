@@ -1,8 +1,6 @@
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
 import type { PrismaClient } from '@prisma/client'
 
-dayjs.extend(utc)
+import { getScheduleOccurrences } from './getScheduleOccurrences'
 
 export const FIFTEEN_MINUTES_IN_MS = 15 * 60 * 1000
 
@@ -12,15 +10,8 @@ export enum TaskScheduleConflictStatus {
 }
 
 type ScheduleLike = PrismaJson.TaskSchedule | null | undefined
-
-const getScheduleStart = ({ schedule }: { schedule: ScheduleLike }) => {
-  if (!schedule || typeof schedule !== 'object') return null
-  const start = (schedule as { start?: unknown }).start
-  if (typeof start !== 'string') return null
-  const parsed = dayjs(start).utc()
-  if (!parsed.isValid()) return null
-  return parsed
-}
+const LOOKAHEAD_DAYS = 365
+const MAX_OCCURRENCES = 120
 
 export const getTaskScheduleConflict = async ({
   prisma,
@@ -35,8 +26,11 @@ export const getTaskScheduleConflict = async ({
   schedule: ScheduleLike
   excludeTaskId?: string
 }) => {
-  const target = getScheduleStart({ schedule })
-  if (!target) {
+  const targetOccurrences = getScheduleOccurrences(schedule, {
+    lookAheadDays: LOOKAHEAD_DAYS,
+    maxOccurrences: MAX_OCCURRENCES,
+  }).map((occurrence) => occurrence.valueOf())
+  if (!targetOccurrences.length) {
     return { status: TaskScheduleConflictStatus.NONE as const }
   }
 
@@ -53,16 +47,26 @@ export const getTaskScheduleConflict = async ({
   })
 
   for (const task of tasks) {
-    const existing = getScheduleStart({
-      schedule: task.schedule as ScheduleLike,
-    })
-    if (!existing) continue
-    const diffMs = Math.abs(existing.diff(target))
-    if (diffMs < FIFTEEN_MINUTES_IN_MS) {
-      return {
-        status: TaskScheduleConflictStatus.CONFLICT as const,
-        conflictingTaskId: task.id,
-      }
+    const existingOccurrences = getScheduleOccurrences(
+      task.schedule as ScheduleLike,
+      {
+        lookAheadDays: LOOKAHEAD_DAYS,
+        maxOccurrences: MAX_OCCURRENCES,
+      },
+    ).map((occurrence) => occurrence.valueOf())
+    if (!existingOccurrences.length) continue
+
+    const hasConflict = targetOccurrences.some((targetMs) =>
+      existingOccurrences.some(
+        (existingMs) => Math.abs(existingMs - targetMs) < FIFTEEN_MINUTES_IN_MS,
+      ),
+    )
+
+    if (!hasConflict) continue
+
+    return {
+      status: TaskScheduleConflictStatus.CONFLICT as const,
+      conflictingTaskId: task.id,
     }
   }
 
