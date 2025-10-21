@@ -146,7 +146,7 @@
     "tasks:audit": "tsx scripts/cleanupTaskConflicts.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.65.0",
+    "@anthropic-ai/sdk": "^0.67.0",
     "@clack/prompts": "^0.11.0",
     "@mendable/firecrawl-js": "^1.22.0",
     "@mistralai/mistralai": "^1.10.0",
@@ -165,7 +165,7 @@
     "prisma": "^6.16.3",
     "prisma-json-types-generator": "^3.6.2",
     "replicate": "^1.2.0",
-    "supercompat": "^3.9.5",
+    "supercompat": "^3.10.0",
     "tsx": "^4.11.0",
     "uuid": "^13.0.0",
     "zod": "^3.23.8"
