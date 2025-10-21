@@ -1,11 +1,14 @@
 import type { Prisma, Thread, PrismaClient } from '@prisma/client'
-import { ToolType, ImageGenerationToolSize } from '@prisma/client'
+import {
+  ToolType,
+  ImageGenerationToolSize,
+  ModelProviderType,
+} from '@prisma/client'
 import { flat } from 'radash'
 import type OpenAI from 'openai'
 import { modelProviderConfigs } from '@/lib/modelProviders/modelProviderConfigs'
 import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
 import { connectMcpServer } from '@/lib/mcpServers/connectMcpServer'
-import type { ModelProviderConfig } from '@/types'
 import { closeMcpConnection } from '@/lib/mcpServers/closeMcpConnection'
 import { isResponsesStorageProvider } from '@/lib/storageProviders/isResponsesStorageProvider'
 import { url } from '@/lib/mcpServers/url'
@@ -41,6 +44,7 @@ const nativeTools = ({
 }: {
   assistant: Prisma.AssistantGetPayload<{
     include: {
+      modelProvider: true
       tools: {
         include: {
           fileSearchTool: true
@@ -52,20 +56,8 @@ const nativeTools = ({
       }
     }
   }>
-  modelProviderConfig: ModelProviderConfig
-}): OpenAI.Beta.Assistants.AssistantTool[] => {
-  if (
-    !isOpenaiAssistantsStorageProvider({
-      storageProviderType: assistant.storageProviderType,
-    }) &&
-    !isResponsesStorageProvider({
-      storageProviderType: assistant.storageProviderType,
-    })
-  ) {
-    return []
-  }
-
-  return assistant.tools
+}): OpenAI.Beta.Assistants.AssistantTool[] =>
+  assistant.tools
     .map((tool) => {
       if (tool.type === ToolType.FILE_SEARCH) {
         if (
@@ -78,13 +70,21 @@ const nativeTools = ({
           }
         }
 
-        return {
-          type: 'file_search' as const,
-          file_search: {
-            vector_store_ids: tool.fileSearchTool!.vectorStoreIds,
-            max_num_results: tool.fileSearchTool!.maxNumResults,
-          },
+        if (
+          isResponsesStorageProvider({
+            storageProviderType: assistant.storageProviderType,
+          })
+        ) {
+          return {
+            type: 'file_search' as const,
+            file_search: {
+              vector_store_ids: tool.fileSearchTool!.vectorStoreIds,
+              max_num_results: tool.fileSearchTool!.maxNumResults,
+            },
+          }
         }
+
+        return null
       } else if (tool.type === ToolType.CODE_INTERPRETER) {
         if (
           isOpenaiAssistantsStorageProvider({
@@ -96,60 +96,120 @@ const nativeTools = ({
           }
         }
 
-        return {
-          type: 'code_interpreter' as const,
-          code_interpreter: {
-            container: {
-              type: 'auto' as const,
+        if (
+          isResponsesStorageProvider({
+            storageProviderType: assistant.storageProviderType,
+          })
+        ) {
+          return {
+            type: 'code_interpreter' as const,
+            code_interpreter: {
+              container: {
+                type: 'auto' as const,
+              },
             },
-          },
+          }
         }
+
+        if (assistant.modelProvider.type === ModelProviderType.ANTHROPIC) {
+          return {
+            type: 'code_execution_20250825' as const,
+            code_execution_20250825: {
+              name: 'code_execution',
+            },
+          }
+        }
+
+        return null
       } else if (tool.type === ToolType.IMAGE_GENERATION) {
-        return {
-          type: 'image_generation' as const,
-          image_generation: {
-            model: tool.imageGenerationTool!.model,
-            background: tool.imageGenerationTool!.background.toLowerCase() as
-              | 'transparent'
-              | 'opaque'
-              | 'auto',
-            quality: tool.imageGenerationTool!.quality.toLowerCase() as
-              | 'auto'
-              | 'low'
-              | 'medium'
-              | 'high',
-            output_format:
-              tool.imageGenerationTool!.outputFormat.toLowerCase() as
-                | 'png'
-                | 'jpeg'
-                | 'webp',
-            size: serializeImageGenerationToolSize({ tool }),
-            partial_images: tool.imageGenerationTool!.partialImages,
-          },
+        if (
+          isResponsesStorageProvider({
+            storageProviderType: assistant.storageProviderType,
+          })
+        ) {
+          return {
+            type: 'image_generation' as const,
+            image_generation: {
+              model: tool.imageGenerationTool!.model,
+              background: tool.imageGenerationTool!.background.toLowerCase() as
+                | 'transparent'
+                | 'opaque'
+                | 'auto',
+              quality: tool.imageGenerationTool!.quality.toLowerCase() as
+                | 'auto'
+                | 'low'
+                | 'medium'
+                | 'high',
+              output_format:
+                tool.imageGenerationTool!.outputFormat.toLowerCase() as
+                  | 'png'
+                  | 'jpeg'
+                  | 'webp',
+              size: serializeImageGenerationToolSize({ tool }),
+              partial_images: tool.imageGenerationTool!.partialImages,
+            },
+          }
         }
+
+        return null
       } else if (tool.type === ToolType.WEB_SEARCH) {
-        return {
-          type: 'web_search' as const,
+        if (
+          isResponsesStorageProvider({
+            storageProviderType: assistant.storageProviderType,
+          })
+        ) {
+          return {
+            type: 'web_search' as const,
+          }
         }
+
+        if (assistant.modelProvider.type === ModelProviderType.ANTHROPIC) {
+          return {
+            type: 'web_search_20250305' as const,
+            web_search_20250305: {
+              name: 'web_search',
+            },
+          }
+        }
+
+        return null
       } else if (tool.type === ToolType.COMPUTER_USE) {
         if (!tool.computerUseTool!.mcpServerId) {
           return null
         }
 
-        return {
-          type: 'computer_use_preview',
-          computer_use_preview: {
-            environment: tool.computerUseTool!.environment.toLowerCase(),
-            display_width: tool.computerUseTool!.displayWidth,
-            display_height: tool.computerUseTool!.displayHeight,
-          },
+        if (
+          isResponsesStorageProvider({
+            storageProviderType: assistant.storageProviderType,
+          })
+        ) {
+          return {
+            type: 'computer_use_preview',
+            computer_use_preview: {
+              environment: tool.computerUseTool!.environment.toLowerCase(),
+              display_width: tool.computerUseTool!.displayWidth,
+              display_height: tool.computerUseTool!.displayHeight,
+            },
+          }
         }
+
+        if (assistant.modelProvider.type === ModelProviderType.ANTHROPIC) {
+          return {
+            type: 'computer_20250124' as const,
+            computer_20250124: {
+              name: 'computer',
+              display_width_px: tool.computerUseTool!.displayWidth,
+              display_height_px: tool.computerUseTool!.displayHeight,
+            },
+          }
+        }
+
+        return null
       }
 
       return null
     })
     .filter(Boolean) as OpenAI.Beta.Assistants.AssistantTool[]
-}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const serializeTool = ({ tool }: { tool: any }) => ({
@@ -318,7 +378,7 @@ export const tools = async ({
         type: 'function' as const,
         function: fn.openapiSpec as unknown as OpenAI.FunctionDefinition,
       })),
-      ...nativeTools({ assistant, modelProviderConfig }),
+      ...nativeTools({ assistant }),
     ] as OpenAI.Beta.Assistants.AssistantTool[],
   }
 }

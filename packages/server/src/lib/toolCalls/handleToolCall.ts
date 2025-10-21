@@ -13,6 +13,7 @@ export const handleToolCall =
   }: {
     assistant: Prisma.AssistantGetPayload<{
       include: {
+        modelProvider: true
         tools: {
           include: {
             computerUseTool: {

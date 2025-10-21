@@ -1,5 +1,6 @@
 import OpenAI from 'openai'
 import {
+  ModelProviderType,
   Prisma,
   Thread,
   LogRequestMethod,
@@ -33,6 +34,36 @@ const getImageUrl = ({
   return `data:${content.mimeType};base64,${content.data}`
 }
 
+const serializeOutput = ({
+  assistant,
+  imageUrl,
+}: {
+  assistant: Prisma.AssistantGetPayload<{
+    include: {
+      modelProvider: true
+    }
+  }>
+  imageUrl: string
+}) => {
+  if (assistant.modelProvider.type === ModelProviderType.ANTHROPIC) {
+    return [
+      {
+        type: 'image',
+        source: {
+          type: 'base64',
+          media_type: 'image/png',
+          data: imageUrl.split(',')[1],
+        },
+      },
+    ]
+  }
+
+  return JSON.stringify({
+    type: 'computer_screenshot',
+    image_url: imageUrl,
+  })
+}
+
 export const handleComputerCall = async ({
   assistant,
   toolCall,
@@ -41,6 +72,7 @@ export const handleComputerCall = async ({
 }: {
   assistant: Prisma.AssistantGetPayload<{
     include: {
+      modelProvider: true
       tools: {
         include: {
           computerUseTool: {
@@ -148,9 +180,9 @@ export const handleComputerCall = async ({
 
     return {
       tool_call_id: toolCall.id,
-      output: JSON.stringify({
-        type: 'computer_screenshot',
-        image_url: imageUrl,
+      output: serializeOutput({
+        imageUrl,
+        assistant,
       }),
       acknowledged_safety_checks: acknowledgedSafetyChecks,
     }
