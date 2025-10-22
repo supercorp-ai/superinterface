@@ -21,6 +21,8 @@ import { createLog } from '@/lib/logs/createLog'
 import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
 import { redis } from '@/lib/redis'
 import { waitUntil } from '@vercel/functions'
+import { omit } from 'radash'
+
 export const handleAssistant = async ({
   assistantHandler,
   toolCall,
@@ -143,7 +145,10 @@ export const handleAssistant = async ({
       client: createThreadClient,
       assistant,
       prisma,
-      variables: parentThread.metadata ?? {},
+      variables: {
+        ...omit(parentThread.metadata ?? {}, ['assistantId', 'threadId']),
+        assistantId: assistant.id,
+      },
     })
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
   } catch (e: any) {
