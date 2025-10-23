@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState, useEffect, useCallback } from 'react'
-import nlp from 'compromise'
+import nlp from 'compromise' // kept in case you want to switch back
 import { Howler } from 'howler'
 import { useAudioPlayer } from 'react-use-audio-player'
 import { useMessages } from '@/hooks/messages/useMessages'
@@ -13,15 +13,52 @@ type AudioMessage = {
   id: string
   status: 'in_progress' | string // adapt to your real union
   sentences: string[]
-  nextIndex: number // next sentence to play for this message
+  nextIndex: number
   stopped: boolean
 }
 
-const segment = (input: string) =>
-  nlp(input)
-    .sentences()
-    .json()
-    .map((s: { text: string }) => s.text)
+/** Super light sentence splitter (fast, GC-friendly) */
+const splitSentencesFast = (text: string): string[] => {
+  // Normalize whitespace once to stabilize results
+  const t = text.replace(/\s+/g, ' ').trim()
+  if (!t) return []
+  // Split on end punctuation followed by space. Good enough for TTS cadence.
+  const parts = t.split(/(?<=[.!?])\s+(?=[^\s])/g)
+  return parts
+}
+
+/** Incremental segmentation cache: only re-segment the appended tail. */
+type SegCacheEntry = { input: string; sentences: string[] }
+const getIncrementalSentences = (
+  prev: SegCacheEntry | undefined,
+  nextInput: string,
+): SegCacheEntry => {
+  if (!prev) {
+    // first time
+    return { input: nextInput, sentences: splitSentencesFast(nextInput) }
+  }
+  if (nextInput === prev.input) {
+    // unchanged
+    return prev
+  }
+  // If text only appended, re-segment just the tail + previous last.
+  if (nextInput.startsWith(prev.input)) {
+    const prevLast = prev.sentences[prev.sentences.length - 1] ?? ''
+    const baseLen = prev.input.length - prevLast.length
+    if (baseLen >= 0 && prev.input.slice(baseLen) === prevLast) {
+      // Re-segment the "tail" consisting of the previous last sentence plus the appended text.
+      const tail = nextInput.slice(baseLen)
+      const tailSegments = splitSentencesFast(tail)
+      const merged =
+        prev.sentences.length > 0
+          ? [...prev.sentences.slice(0, -1), ...tailSegments]
+          : tailSegments
+      return { input: nextInput, sentences: merged }
+    }
+  }
+  // Fallback: full re-segmentation (rare: edits, tool rewrites, etc.)
+  return { input: nextInput, sentences: splitSentencesFast(nextInput) }
+}
 
 export const useMessageAudio = ({
   onEnd,
@@ -47,7 +84,6 @@ export const useMessageAudio = ({
 
   // prevents double-pick during rapid re-renders while starting playback
   const pickLockRef = useRef(false)
-
   const currentSentenceRef = useRef<{
     messageId: string
     index: number
@@ -55,35 +91,74 @@ export const useMessageAudio = ({
 
   const messagesProps = useMessages()
 
-  // Mirror assistant messages -> audioQueue (preserve progress), ensure oldest->newest order
+  // Segmentation cache per messageId
+  const segCacheRef = useRef<Map<string, SegCacheEntry>>(new Map())
+
+  // Mirror assistant messages -> audioQueue (preserve progress),
+  // **incremental** segmentation, and **no-op** if nothing actually changed.
   useEffect(() => {
     const assistantsDesc = messagesProps.messages.filter(
       (m: any) => m.role === 'assistant',
     )
-    const assistantsAsc = [...assistantsDesc].reverse() // your store is DESC; we want ASC
+    const assistantsAsc = [...assistantsDesc].reverse() // store oldest -> newest
 
     setAudioQueue((prev) => {
       const prevById = new Map(prev.map((p) => [p.id, p]))
+
+      let changed = false
       const next: AudioMessage[] = []
 
       for (const m of assistantsAsc) {
         const inp = getInput({ message: m })
         if (inp == null) continue
 
-        const sentences = segment(inp)
-        const existing = prevById.get(m.id)
+        const prevSeg = segCacheRef.current.get(m.id)
+        const nextSeg = getIncrementalSentences(prevSeg, inp)
+        // Update cache only if it changed
+        if (!prevSeg || nextSeg.input !== prevSeg.input) {
+          segCacheRef.current.set(m.id, nextSeg)
+        }
 
-        next.push({
-          id: m.id,
-          status: m.status,
-          sentences,
-          // keep progress; clamp if segmentation shrank
-          nextIndex: Math.min(existing?.nextIndex ?? 0, sentences.length),
-          stopped: existing?.stopped ?? false,
-        })
+        const existing = prevById.get(m.id)
+        const sentences = nextSeg.sentences
+        const nextIndex = Math.min(existing?.nextIndex ?? 0, sentences.length)
+        const stopped = existing?.stopped ?? false
+
+        // Reuse existing object if nothing material changed to avoid renders.
+        const reuseExisting =
+          !!existing &&
+          existing.status === m.status &&
+          existing.sentences === sentences && // same array ref -> no change
+          existing.nextIndex === nextIndex &&
+          existing.stopped === stopped
+
+        if (reuseExisting) {
+          next.push(existing)
+        } else {
+          next.push({
+            id: m.id,
+            status: m.status,
+            sentences,
+            nextIndex,
+            stopped,
+          })
+          changed = true
+        }
       }
 
-      return next
+      // If the number of messages changed, or order/ids changed, mark changed.
+      if (next.length !== prev.length) {
+        changed = true
+      } else {
+        for (let i = 0; i < next.length; i++) {
+          if (next[i] !== prev[i]) {
+            changed = true
+            break
+          }
+        }
+      }
+
+      return changed ? next : prev
     })
   }, [messagesProps.messages])
 
@@ -98,7 +173,7 @@ export const useMessageAudio = ({
         `${superinterfaceContext.baseUrl}/audio-runtimes/tts?${searchParams}`,
         {
           format: 'mp3',
-          autoplay: isAudioPlayed, // first call false, subsequent true for gapless feel
+          autoplay: isAudioPlayed, // first call false; then true for snappier chaining
           html5: isHtmlAudioSupported,
           onplay: onPlay,
           onstop: onStop,
@@ -149,7 +224,6 @@ export const useMessageAudio = ({
     if (audioPlayer.playing) return
     if (pickLockRef.current) return
 
-    // find first eligible sentence
     let candidate: {
       messageId: string
       sentence: string
@@ -157,12 +231,19 @@ export const useMessageAudio = ({
       ownerStatus: AudioMessage['status']
     } | null = null
 
+    // O(ldest)->N(ewest)
     for (const msg of audioQueue) {
       if (msg.stopped) continue
-      const sentence = msg.sentences[msg.nextIndex]
+
+      // Skip obviously empty/whitespace fragments to avoid " - " stalls
+      let sentence = msg.sentences[msg.nextIndex]
+      while (sentence && !/\S/.test(sentence)) {
+        // advance over empty segments (no audio/calls)
+        msg.nextIndex++
+        sentence = msg.sentences[msg.nextIndex]
+      }
       if (!sentence) continue
 
-      // IMPORTANT: gate using THIS MESSAGE'S status
       const isFull =
         isOptimistic({ id: msg.id }) ||
         msg.status !== 'in_progress' ||
@@ -181,7 +262,6 @@ export const useMessageAudio = ({
 
     if (!candidate) return
 
-    // lock the pick so a render in between can't pick again
     pickLockRef.current = true
     setIsPlaying(true)
     currentSentenceRef.current = {
@@ -189,7 +269,7 @@ export const useMessageAudio = ({
       index: candidate.index,
     }
 
-    // increment progress immediately (prevents duplicates)
+    // Increment progress immediately (prevents duplicates)
     setAudioQueue((prev) =>
       prev.map((m) =>
         m.id === candidate!.messageId
@@ -200,11 +280,8 @@ export const useMessageAudio = ({
 
     play({
       input: candidate.sentence,
-      onPlay: () => {
-        setIsAudioPlayed(true)
-      },
+      onPlay: () => setIsAudioPlayed(true),
       onStop: () => {
-        // stop this message from further playback
         setAudioQueue((prev) =>
           prev.map((m) =>
             m.id === candidate!.messageId ? { ...m, stopped: true } : m,
@@ -263,7 +340,7 @@ export const useMessageAudio = ({
         // @ts-ignore-next-line
         source: audioContext.createMediaElementSource(
           // @ts-ignore-next-line
-          Howler._howls[0]._sounds[0]._node,
+          Howler._howls[0]?._sounds[0]?._node,
         ),
         audioContext,
       })
