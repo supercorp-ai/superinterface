@@ -30,9 +30,34 @@ const hasLetters = (s: string): boolean => {
   return false
 }
 
+const isSentencePunct = (ch: string) =>
+  ch === '.' ||
+  ch === '!' ||
+  ch === '?' ||
+  ch === '。' ||
+  ch === '！' ||
+  ch === '？'
+
+/** Ensure a space after sentence punctuation when followed by a letter; avoids "now.Perfect!" merging. */
+const normalizeBoundaries = (text: string): string => {
+  let out = ''
+  for (let i = 0; i < text.length; i++) {
+    const ch = text.charAt(i)
+    out += ch
+    if (isSentencePunct(ch)) {
+      const next = text.charAt(i + 1)
+      if (next && next !== ' ' && hasLetters(next)) {
+        out += ' '
+      }
+    }
+  }
+  return out
+}
+
 /** very fast, GC-friendly splitter; returns ONLY sentences with letters */
-const splitSentencesFast = (text: string): string[] => {
-  const t = text.replace(/\s+/g, ' ').trim()
+const splitSentencesFast = (raw: string): string[] => {
+  // normalize whitespace, then fix missing spaces after punctuation-before-letters
+  const t = normalizeBoundaries(raw.replace(/\s+/g, ' ').trim())
   if (!t) return []
   // Split after ., !, ? followed by space. Keeps punctuation with the sentence.
   const parts = t.split(/(?<=[.!?])\s+(?=[^\s])/g)
@@ -70,7 +95,8 @@ const getIncrementalSentences = (
     const baseLen = prev.input.length - prevLast.length
 
     if (baseLen >= 0 && prev.input.slice(baseLen) === prevLast) {
-      const tail = nextInput.slice(baseLen)
+      // Re-segment the last sentence + appended tail together
+      const tail = nextInput.slice(baseLen) // starts at prevLast
       const tailSegments = splitSentencesFast(tail)
       const merged =
         prevSentences.length > 0
@@ -80,7 +106,7 @@ const getIncrementalSentences = (
     }
   }
 
-  // Edits/rewrites: full re-seg
+  // Edits/insertions/rewrites: full re-seg
   return {
     input: nextInput,
     sentences: splitSentencesFast(nextInput),
@@ -418,7 +444,7 @@ export const useMessageAudio = ({
     onEnd,
   ])
 
-  /** Cross-origin for HTML5 audio element (optional chaining is fine) */
+  /** Cross-origin for HTML5 audio element */
   useEffect(() => {
     if (isHtmlAudioSupported) {
       // @ts-ignore-next-line
