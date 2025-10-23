@@ -2,32 +2,26 @@ import { useMemo, useRef, useState, useEffect, useCallback } from 'react'
 import nlp from 'compromise'
 import { Howler } from 'howler'
 import { useAudioPlayer } from 'react-use-audio-player'
-import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
+import { useMessages } from '@/hooks/messages/useMessages'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { AudioEngine, type PlayArgs } from '@/types'
 import { isOptimistic } from '@/lib/optimistic/isOptimistic'
 import { input as getInput } from './lib/input'
 import { isHtmlAudioSupported } from './lib/isHtmlAudioSupported'
 
-type MessageSentence = {
-  messageId: string
-  sentence: string
+type AudioMessage = {
+  id: string
+  status: 'in_progress' | string // adapt to your real union
+  sentences: string[]
+  nextIndex: number // next sentence to play for this message
+  stopped: boolean
 }
 
-const getMessageSentences = ({
-  messageId,
-  input,
-}: {
-  messageId: string
-  input: string
-}) => {
-  const sentences = nlp(input).sentences().json()
-
-  return sentences.map((sentence: { text: string }) => ({
-    messageId,
-    sentence: sentence.text,
-  }))
-}
+const segment = (input: string) =>
+  nlp(input)
+    .sentences()
+    .json()
+    .map((s: { text: string }) => s.text)
 
 export const useMessageAudio = ({
   onEnd,
@@ -39,49 +33,59 @@ export const useMessageAudio = ({
   fullSentenceRegex?: RegExp
 }) => {
   const [isAudioPlayed, setIsAudioPlayed] = useState(false)
-  const [stoppedMessageIds, setStoppedMessageIds] = useState<string[]>([])
-  const [playedMessageSentences, setPlayedMessageSentences] = useState<
-    MessageSentence[]
-  >([])
   const audioPlayer = useAudioPlayer()
   const nextAudioPlayer = useAudioPlayer()
   const superinterfaceContext = useSuperinterfaceContext()
   const [isPlaying, setIsPlaying] = useState(false)
-  const isLastSentencePlayedRef = useRef(false)
 
-  const latestMessageProps = useLatestMessage()
-
+  // ----- single source of truth
+  const [audioQueue, setAudioQueue] = useState<AudioMessage[]>([])
+  const audioQueueRef = useRef<AudioMessage[]>([])
   useEffect(() => {
-    if (!isPlaying) return
+    audioQueueRef.current = audioQueue
+  }, [audioQueue])
 
-    isLastSentencePlayedRef.current = false
-  }, [isPlaying])
+  // prevents double-pick during rapid re-renders while starting playback
+  const pickLockRef = useRef(false)
 
-  const unplayedMessageSentences = useMemo(() => {
-    if (!latestMessageProps.latestMessage) return []
-    if (latestMessageProps.latestMessage.role !== 'assistant') return []
-    if (stoppedMessageIds.includes(latestMessageProps.latestMessage.id))
-      return []
+  const currentSentenceRef = useRef<{
+    messageId: string
+    index: number
+  } | null>(null)
 
-    const input = getInput({
-      message: latestMessageProps.latestMessage,
-    })
+  const messagesProps = useMessages()
 
-    if (!input) return []
-
-    const messageSentences = getMessageSentences({
-      messageId: latestMessageProps.latestMessage.id,
-      input,
-    })
-
-    return messageSentences.filter(
-      (ms: { messageId: string; sentence: string }) =>
-        !playedMessageSentences.find(
-          (pms) =>
-            pms.messageId === ms.messageId && pms.sentence === ms.sentence,
-        ),
+  // Mirror assistant messages -> audioQueue (preserve progress), ensure oldest->newest order
+  useEffect(() => {
+    const assistantsDesc = messagesProps.messages.filter(
+      (m: any) => m.role === 'assistant',
     )
-  }, [latestMessageProps, playedMessageSentences])
+    const assistantsAsc = [...assistantsDesc].reverse() // your store is DESC; we want ASC
+
+    setAudioQueue((prev) => {
+      const prevById = new Map(prev.map((p) => [p.id, p]))
+      const next: AudioMessage[] = []
+
+      for (const m of assistantsAsc) {
+        const inp = getInput({ message: m })
+        if (inp == null) continue
+
+        const sentences = segment(inp)
+        const existing = prevById.get(m.id)
+
+        next.push({
+          id: m.id,
+          status: m.status,
+          sentences,
+          // keep progress; clamp if segmentation shrank
+          nextIndex: Math.min(existing?.nextIndex ?? 0, sentences.length),
+          stopped: existing?.stopped ?? false,
+        })
+      }
+
+      return next
+    })
+  }, [messagesProps.messages])
 
   const defaultPlay = useCallback(
     ({ input, onPlay, onStop, onEnd }: PlayArgs) => {
@@ -94,31 +98,31 @@ export const useMessageAudio = ({
         `${superinterfaceContext.baseUrl}/audio-runtimes/tts?${searchParams}`,
         {
           format: 'mp3',
-          autoplay: isAudioPlayed,
+          autoplay: isAudioPlayed, // first call false, subsequent true for gapless feel
           html5: isHtmlAudioSupported,
           onplay: onPlay,
           onstop: onStop,
           onload: () => {
-            const nextUnplayedMessageSentence = unplayedMessageSentences[1]
-            if (!nextUnplayedMessageSentence) return
-
-            const isNextFullSentence = fullSentenceRegex.test(
-              nextUnplayedMessageSentence.sentence,
+            // Preload the next sentence from the SAME message
+            const current = currentSentenceRef.current
+            if (!current) return
+            const msg = audioQueueRef.current.find(
+              (m) => m.id === current.messageId,
             )
-            if (!isNextFullSentence) return
+            if (!msg) return
+
+            const nextSentence = msg.sentences[msg.nextIndex]
+            if (!nextSentence) return
+            if (!fullSentenceRegex.test(nextSentence)) return
 
             const nextSearchParams = new URLSearchParams({
-              input: nextUnplayedMessageSentence.sentence,
+              input: nextSentence,
               ...superinterfaceContext.variables,
             })
 
             nextAudioPlayer.load(
               `${superinterfaceContext.baseUrl}/audio-runtimes/tts?${nextSearchParams}`,
-              {
-                format: 'mp3',
-                autoplay: false,
-                html5: isHtmlAudioSupported,
-              },
+              { format: 'mp3', autoplay: false, html5: isHtmlAudioSupported },
             )
           },
           onend: onEnd,
@@ -127,7 +131,6 @@ export const useMessageAudio = ({
     },
     [
       superinterfaceContext,
-      unplayedMessageSentences,
       audioPlayer,
       nextAudioPlayer,
       isAudioPlayed,
@@ -140,97 +143,113 @@ export const useMessageAudio = ({
     [passedPlay, defaultPlay],
   )
 
+  // Pick the next sentence (earliest assistant message with a playable next sentence)
   useEffect(() => {
     if (isPlaying) return
     if (audioPlayer.playing) return
-    if (!latestMessageProps.latestMessage) return
-    if (latestMessageProps.latestMessage.role !== 'assistant') return
+    if (pickLockRef.current) return
 
-    const firstUnplayedMessageSentence = unplayedMessageSentences[0]
-    if (!firstUnplayedMessageSentence) {
-      return
+    // find first eligible sentence
+    let candidate: {
+      messageId: string
+      sentence: string
+      index: number
+      ownerStatus: AudioMessage['status']
+    } | null = null
+
+    for (const msg of audioQueue) {
+      if (msg.stopped) continue
+      const sentence = msg.sentences[msg.nextIndex]
+      if (!sentence) continue
+
+      // IMPORTANT: gate using THIS MESSAGE'S status
+      const isFull =
+        isOptimistic({ id: msg.id }) ||
+        msg.status !== 'in_progress' ||
+        fullSentenceRegex.test(sentence)
+
+      if (isFull) {
+        candidate = {
+          messageId: msg.id,
+          sentence,
+          index: msg.nextIndex,
+          ownerStatus: msg.status,
+        }
+        break
+      }
     }
 
-    const isFullSentence =
-      isOptimistic({ id: latestMessageProps.latestMessage.id }) ||
-      latestMessageProps.latestMessage.status !== 'in_progress' ||
-      fullSentenceRegex.test(firstUnplayedMessageSentence.sentence)
+    if (!candidate) return
 
-    if (!isFullSentence) return
+    // lock the pick so a render in between can't pick again
+    pickLockRef.current = true
     setIsPlaying(true)
+    currentSentenceRef.current = {
+      messageId: candidate.messageId,
+      index: candidate.index,
+    }
 
-    setPlayedMessageSentences((prev) => [...prev, firstUnplayedMessageSentence])
-
-    const input = firstUnplayedMessageSentence.sentence
+    // increment progress immediately (prevents duplicates)
+    setAudioQueue((prev) =>
+      prev.map((m) =>
+        m.id === candidate!.messageId
+          ? { ...m, nextIndex: m.nextIndex + 1 }
+          : m,
+      ),
+    )
 
     play({
-      input,
+      input: candidate.sentence,
       onPlay: () => {
         setIsAudioPlayed(true)
       },
       onStop: () => {
-        setStoppedMessageIds((prev) => [
-          ...prev,
-          firstUnplayedMessageSentence.messageId,
-        ])
+        // stop this message from further playback
+        setAudioQueue((prev) =>
+          prev.map((m) =>
+            m.id === candidate!.messageId ? { ...m, stopped: true } : m,
+          ),
+        )
         setIsPlaying(false)
+        currentSentenceRef.current = null
+        pickLockRef.current = false
       },
       onEnd: () => {
         setIsPlaying(false)
+        currentSentenceRef.current = null
+        pickLockRef.current = false
 
-        isLastSentencePlayedRef.current = unplayedMessageSentences.length === 1
-
-        if (
-          isLastSentencePlayedRef.current &&
-          latestMessageProps.latestMessage.status !== 'in_progress'
-        ) {
-          onEnd()
-          isLastSentencePlayedRef.current = false
-        }
+        // If nothing pending across the queue, fire onEnd
+        const hasPending = audioQueueRef.current.some((m) => {
+          if (m.stopped) return false
+          const hasMore = m.nextIndex < m.sentences.length
+          const streaming = m.status === 'in_progress'
+          return hasMore || streaming
+        })
+        if (!hasPending) onEnd()
       },
     })
   }, [
-    unplayedMessageSentences,
     isPlaying,
-    superinterfaceContext,
-    latestMessageProps,
-    audioPlayer,
-    nextAudioPlayer,
-    playedMessageSentences,
-    onEnd,
+    audioPlayer.playing,
+    audioQueue,
     play,
     fullSentenceRegex,
-  ])
-
-  useEffect(() => {
-    if (
-      isLastSentencePlayedRef.current &&
-      !isPlaying &&
-      unplayedMessageSentences.length === 0 &&
-      latestMessageProps.latestMessage?.status !== 'in_progress'
-    ) {
-      onEnd()
-      isLastSentencePlayedRef.current = false
-    }
-  }, [
-    isPlaying,
-    unplayedMessageSentences.length,
-    latestMessageProps.latestMessage?.status,
     onEnd,
   ])
 
+  // Cross-origin for HTML5 audio element
   useEffect(() => {
     if (isHtmlAudioSupported) {
       // @ts-ignore-next-line
       if (!Howler?._howls[0]?._sounds[0]?._node) return
-
       // @ts-ignore-next-line
       Howler._howls[0]._sounds[0]._node.crossOrigin = 'anonymous'
     }
   }, [audioPlayer])
 
+  // Visualizer wiring
   const [audioEngine, setAudioEngine] = useState<AudioEngine | null>(null)
-
   const isAudioEngineInited = useRef(false)
 
   useEffect(() => {
@@ -254,24 +273,25 @@ export const useMessageAudio = ({
         audioContext: Howler.ctx,
       })
     }
-  }, [audioPlayer, isAudioEngineInited])
+  }, [audioPlayer])
 
   const visualizationAnalyser = useMemo(() => {
     if (!audioEngine) return null
-
-    const result = audioEngine.audioContext.createAnalyser()
-
+    const analyser = audioEngine.audioContext.createAnalyser()
     audioEngine.source.connect(audioEngine.audioContext.destination)
-    audioEngine.source.connect(result)
-    return result
+    audioEngine.source.connect(analyser)
+    return analyser
   }, [audioEngine])
 
   const isPending = useMemo(
     () =>
       isPlaying ||
-      unplayedMessageSentences.length > 0 ||
-      latestMessageProps.latestMessage?.status === 'in_progress',
-    [isPlaying, unplayedMessageSentences, latestMessageProps],
+      audioQueue.some(
+        (m) =>
+          !m.stopped &&
+          (m.nextIndex < m.sentences.length || m.status === 'in_progress'),
+      ),
+    [isPlaying, audioQueue],
   )
 
   return {
