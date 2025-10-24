@@ -158,6 +158,7 @@ export const useMessageAudio = ({
       pendingMirrorRef.current = true
       return
     }
+
     const run = () => {
       const assistantsDesc = messagesProps.messages.filter(
         (m: any) => m.role === 'assistant',
@@ -168,30 +169,67 @@ export const useMessageAudio = ({
           ? performance.now()
           : Date.now()
 
-      // LRU helpers
-      const segCache = segCacheRef.current
-      const touch = (id: string, entry: SegCacheEntry) => {
-        segCache.set(id, {
-          input: entry.input,
-          sentences: entry.sentences,
-          touched: nowTs,
-        })
-      }
-      const evictLRU = () => {
-        if (segCache.size <= MAX_SEG_CACHE) return
-        const entries = Array.from(segCache.entries())
-        entries.sort((a, b) => a[1].touched - b[1].touched)
-        const toRemove = segCache.size - MAX_SEG_CACHE
-        for (let i = 0; i < toRemove; i++) segCache.delete(entries[i][0])
-      }
+      // ---- NEW: build an include window (last N finished) + always keep unfinished + any streaming
+      const lastNIds = new Set(
+        assistantsAsc
+          .slice(Math.max(0, assistantsAsc.length - KEEP_FINISHED_MESSAGES))
+          .map((m: any) => m.id),
+      )
 
       setAudioQueue((prev) => {
         const prevById = new Map(prev.map((p) => [p.id, p]))
+
+        const prevUnfinishedIds = new Set(
+          prev
+            .filter(
+              (m) =>
+                !m.stopped &&
+                (m.status === 'in_progress' ||
+                  m.nextIndex < m.sentences.length),
+            )
+            .map((m) => m.id),
+        )
+
+        // Include any message that is:
+        // - in the recent window
+        // - OR previously unfinished (was in the queue doing work)
+        // - OR currently streaming (status in_progress), even if older than window
+        const streamingIds = new Set(
+          assistantsAsc
+            .filter((m: any) => m.status === 'in_progress')
+            .map((m: any) => m.id),
+        )
+
+        const includeIds = new Set<string>()
+        lastNIds.forEach((id: any) => includeIds.add(String(id)))
+        prevUnfinishedIds.forEach((id) => includeIds.add(id))
+        streamingIds.forEach((id: any) => includeIds.add(String(id)))
+
+        // LRU helpers (unchanged)
+        const segCache = segCacheRef.current
+        const touch = (id: string, entry: SegCacheEntry) => {
+          segCache.set(id, {
+            input: entry.input,
+            sentences: entry.sentences,
+            touched: nowTs,
+          })
+        }
+        const evictLRU = () => {
+          if (segCache.size <= MAX_SEG_CACHE) return
+          const entries = Array.from(segCache.entries())
+          entries.sort((a, b) => a[1].touched - b[1].touched)
+          const toRemove = segCache.size - MAX_SEG_CACHE
+          for (let i = 0; i < toRemove; i++) segCache.delete(entries[i][0])
+        }
+
         const next: AudioMessage[] = []
         let changed = false
 
+        // ---- Only iterate messages we decided to include
         for (let i = 0; i < assistantsAsc.length; i++) {
           const m: any = assistantsAsc[i]
+          if (!includeIds.has(m.id)) continue
+
           const inp = getInput({ message: m })
           if (inp == null) continue
 
@@ -233,26 +271,25 @@ export const useMessageAudio = ({
           }
         }
 
-        // prune finished messages to avoid unbounded growth
-        const unfinished: AudioMessage[] = []
-        const finished: AudioMessage[] = []
-        for (let i = 0; i < next.length; i++) {
-          const m = next[i]
-          if (
+        // ---- pruning & eviction (unchanged)
+        const unfinished = next.filter(
+          (m) =>
             !m.stopped &&
-            (m.status === 'in_progress' || m.nextIndex < m.sentences.length)
-          ) {
-            unfinished.push(m)
-          } else {
-            finished.push(m)
-          }
-        }
+            (m.status === 'in_progress' || m.nextIndex < m.sentences.length),
+        )
+        const finished = next.filter(
+          (m) =>
+            !(
+              !m.stopped &&
+              (m.status === 'in_progress' || m.nextIndex < m.sentences.length)
+            ),
+        )
         const prunedFinished =
           finished.length > KEEP_FINISHED_MESSAGES
             ? finished.slice(finished.length - KEEP_FINISHED_MESSAGES)
             : finished
 
-        const combined = unfinished.concat(prunedFinished)
+        const combined = [...unfinished, ...prunedFinished]
 
         if (!changed) {
           if (combined.length !== prev.length) changed = true
