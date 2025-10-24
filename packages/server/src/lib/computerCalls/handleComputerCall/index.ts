@@ -145,38 +145,26 @@ export const handleComputerCall = async ({
       mcpConnection,
     })
 
-    const imageUrl = getImageUrl({
-      mcpServerToolOutput,
-    })
-
-    if (!imageUrl) {
-      createLog({
-        log: {
-          requestMethod: LogRequestMethod.POST,
-          requestRoute: LogRequestRoute.MESSAGES,
-          level: LogLevel.ERROR,
-          status: 500,
-          // @ts-expect-error compat
-          message: `Error calling computer_call with action ${JSON.stringify(toolCall.computer_call.action)}: No image in content`,
-          workspaceId: assistant.workspaceId,
-          assistantId: assistant.id,
-          threadId: thread.id,
-        },
-        prisma,
-      })
-
-      return {
-        tool_call_id: toolCall.id,
-        // @ts-expect-error compat
-        output: `Error calling computer_call with action ${JSON.stringify(toolCall.computer_call.action)}: No image in content`,
-      }
-    }
-
     const acknowledgedSafetyChecks =
       // @ts-expect-error compat
       toolCall.computer_call.pending_safety_checks.map((psc) => ({
         id: psc.id,
       }))
+
+    const imageUrl = getImageUrl({
+      mcpServerToolOutput,
+    })
+
+    if (!imageUrl) {
+      return {
+        tool_call_id: toolCall.id,
+        output:
+          mcpServerToolOutput.structuredContent ??
+          mcpServerToolOutput.content ??
+          '',
+        acknowledged_safety_checks: acknowledgedSafetyChecks,
+      }
+    }
 
     return {
       tool_call_id: toolCall.id,
