@@ -19,7 +19,8 @@
       "@superinterface/react": ["packages/react/src"],
       "@superinterface/react/*": ["packages/react/src/*"],
       "@superinterface/root-element": ["packages/root-element/src"],
-      "@superinterface/root-element/*": ["packages/root-element/src/*"]
+      "@superinterface/root-element/*": ["packages/root-element/src/*"],
+      "@superinterface/server/prisma/*": ["packages/server/prisma/*"]
     }
   },
   "include": [

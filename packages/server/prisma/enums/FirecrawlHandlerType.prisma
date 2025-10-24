@@ -1,0 +1,6 @@
+enum FirecrawlHandlerType {
+  SCRAPE
+  CRAWL
+  EXTRACT
+  SEARCH
+}

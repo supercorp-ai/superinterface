@@ -1,0 +1,19 @@
+model Handler {
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type HandlerType
+  requestHandler RequestHandler?
+  firecrawlHandler FirecrawlHandler?
+  assistantHandler AssistantHandler?
+  replicateHandler ReplicateHandler?
+  clientToolHandler ClientToolHandler?
+  createTaskHandler CreateTaskHandler?
+  listTasksHandler ListTasksHandler?
+  updateTaskHandler UpdateTaskHandler?
+  deleteTaskHandler DeleteTaskHandler?
+  functionId String @db.Uuid @unique
+  function Function @relation(fields: [functionId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([functionId])
+}

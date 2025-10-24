@@ -1,0 +1,8 @@
+model IconAvatar {
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name IconAvatarName
+  avatarId String @db.Uuid @unique
+  avatar Avatar @relation(fields: [avatarId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+}

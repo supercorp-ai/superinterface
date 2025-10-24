@@ -1,0 +1,14 @@
+enum IconAvatarName {
+  BACKPACK
+  ROCKET
+  MAGIC_WAND
+  CUBE
+  TARGET
+  DISC
+  GLOBE
+  STAR
+  LIGHTNING_BOLT
+  FACE
+  PERSON
+  HEART
+}

@@ -1,0 +1,36 @@
+model Run {
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  threadId String @db.Uuid
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  assistantId String @db.Uuid
+  assistant Assistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+  status RunStatus
+  /// [RunRequiredAction]
+  requiredAction Json?
+  /// [RunLastError]
+  lastError Json?
+  expiresAt Int
+  startedAt Int?
+  cancelledAt Int?
+  failedAt Int?
+  completedAt Int?
+  model String
+  instructions String
+  /// [RunTools]
+  tools Json[] @default([])
+  /// [RunMetadata]
+  metadata Json?
+  /// [RunUsage]
+  usage Json?
+  /// [RunTruncationStrategy]
+  truncationStrategy Json @default("{ \"type\": \"auto\" }")
+  /// [RunResponseFormat]
+  responseFormat Json @default("{ \"type\": \"text\" }")
+  runSteps RunStep[]
+  messages Message[]
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([assistantId])
+  @@index([threadId])
+}

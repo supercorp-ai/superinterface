@@ -1,0 +1,5 @@
+enum ImageGenerationToolOutputFormat {
+  PNG
+  WEBP
+  JPEG
+}

@@ -1,0 +1,13 @@
+model ApiKey {
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type ApiKeyType @default(PUBLIC)
+  name String @default("")
+  value String @default(dbgenerated("gen_random_uuid()")) @unique @db.Uuid
+  workspaceId String @db.Uuid
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([value])
+  @@index([workspaceId])
+}

@@ -1,0 +1,6 @@
+enum ImageGenerationToolQuality {
+  AUTO
+  LOW
+  MEDIUM
+  HIGH
+}

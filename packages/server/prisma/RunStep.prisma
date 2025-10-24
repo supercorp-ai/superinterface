@@ -1,0 +1,30 @@
+model RunStep {
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  threadId String @db.Uuid
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  assistantId String @db.Uuid
+  assistant Assistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+  runId String @db.Uuid
+  run Run @relation(fields: [runId], references: [id], onDelete: Cascade)
+  type RunStepType
+  status RunStepStatus
+  /// [RunStepStepDetails]
+  stepDetails Json
+  /// [RunStepLastError]
+  lastError Json?
+  expiredAt Int?
+  cancelledAt Int?
+  failedAt Int?
+  completedAt Int?
+  /// [RunStepMetadata]
+  metadata Json?
+  /// [RunStepUsage]
+  usage Json?
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([threadId, runId, type, status])
+  @@index([createdAt(sort: Asc)])
+  @@index([assistantId])
+  @@index([runId])
+}

@@ -1,0 +1,4 @@
+enum RunStepType {
+  MESSAGE_CREATION
+  TOOL_CALLS
+}

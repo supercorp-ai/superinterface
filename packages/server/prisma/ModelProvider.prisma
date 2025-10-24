@@ -1,0 +1,15 @@
+model ModelProvider {
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type ModelProviderType
+  name String @default("")
+  apiKey String
+  endpoint String?
+  apiVersion String?
+  assistants Assistant[]
+  workspaceId String @db.Uuid
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([workspaceId])
+}

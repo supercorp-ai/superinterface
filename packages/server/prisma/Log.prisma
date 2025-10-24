@@ -1,0 +1,21 @@
+model Log {
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  level LogLevel
+  requestMethod LogRequestMethod
+  requestRoute LogRequestRoute
+  status Int
+  message String
+  workspaceId String? @db.Uuid
+  workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  assistantId String? @db.Uuid
+  assistant Assistant? @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+  threadId String? @db.Uuid
+  thread Thread? @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([workspaceId])
+  @@index([assistantId])
+  @@index([threadId])
+  @@index([createdAt(sort: Desc)])
+}

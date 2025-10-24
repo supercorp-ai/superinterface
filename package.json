@@ -8,7 +8,9 @@
     "build": "turbo run build --force",
     "dev": "turbo run build --force -- --watch",
     "lint": "turbo run lint --force",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test": "npm --workspace @superinterface/server run test",
+    "tasks:audit": "npm --workspace @superinterface/server run tasks:audit"
   },
   "dependencies": {
     "react-error-boundary": "^4.1.2",

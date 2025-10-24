@@ -1,0 +1,5 @@
+enum AvatarType {
+  ICON
+  IMAGE
+  EMOJI
+}

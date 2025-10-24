@@ -1,0 +1,6 @@
+enum LogRequestRoute {
+  ASSISTANTS
+  MESSAGES
+  FILES
+  TTS
+}

@@ -1,0 +1,12 @@
+model ComputerUseTool {
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  displayHeight Int @default(720)
+  displayWidth Int @default(1280)
+  environment ComputerUseToolEnvironment @default(LINUX)
+  mcpServerId String? @db.Uuid @unique
+  mcpServer McpServer? @relation(fields: [mcpServerId], references: [id], onDelete: Cascade)
+  toolId String @db.Uuid @unique
+  tool Tool @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+}

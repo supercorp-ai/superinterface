@@ -1,0 +1,20 @@
+model Thread {
+  id  String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  openaiThreadId String?
+  openaiConversationId String?
+  azureOpenaiConversationId String?
+  assistantId String @db.Uuid
+  assistant Assistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+  /// [ThreadMetadata]
+  metadata Json?
+  messages Message[]
+  runs Run[]
+  runSteps RunStep[]
+  logs Log[]
+  tasks Task[]
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([assistantId])
+  @@index([createdAt(sort: Desc)])
+}
