@@ -576,7 +576,8 @@ export const useMessageAudio = <TSegment = DefaultAudioSegment>({
   }, [checkForCompletion])
 
   useEffect(() => {
-    if (isPlaying) return
+    const allowParallel = Boolean(providedPlaySegments)
+    if (!allowParallel && (isPlaying || audioPlayer.playing)) return
     if (pickLockRef.current) return
     if (audioQueue.length === 0) return
 
@@ -607,20 +608,24 @@ export const useMessageAudio = <TSegment = DefaultAudioSegment>({
     if (!candidate || candidate.segments.length === 0) return
 
     pickLockRef.current = true
-    setIsPlaying(true)
+    if (!allowParallel) setIsPlaying(true)
 
     setAudioQueue((prev) =>
       prev.map((m) =>
         m.id === candidate!.messageId
-          ? { ...m, nextIndex: m.segments.length }
+          ? {
+              ...m,
+              nextIndex: candidate!.startIndex + candidate!.segments.length,
+            }
           : m,
       ),
     )
 
-    const runPlayback = async () => {
+    const runPlayback = () => {
       let nextIndex = candidate!.startIndex
-      try {
-        await playSegmentsImpl({
+
+      const launch = () =>
+        playSegmentsImpl({
           segments: candidate!.segments,
           startIndex: candidate!.startIndex,
           message: candidate!.message,
@@ -638,15 +643,27 @@ export const useMessageAudio = <TSegment = DefaultAudioSegment>({
             })
           },
         })
+
+      try {
+        Promise.resolve(launch())
+          .catch((error) => {
+            handleStop(candidate!.messageId)
+            console.error(error)
+          })
+          .finally(() => {
+            checkForCompletion()
+          })
       } catch (error) {
         handleStop(candidate!.messageId)
         console.error(error)
-      } finally {
         checkForCompletion()
       }
     }
 
     runPlayback()
+    if (allowParallel) {
+      pickLockRef.current = false
+    }
   }, [
     audioQueue,
     isPlaying,
@@ -655,6 +672,8 @@ export const useMessageAudio = <TSegment = DefaultAudioSegment>({
     handleStop,
     handleSegmentEnd,
     checkForCompletion,
+    providedPlaySegments,
+    audioPlayer.playing,
   ])
 
   useEffect(() => {

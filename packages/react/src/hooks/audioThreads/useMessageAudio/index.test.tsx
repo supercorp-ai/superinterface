@@ -69,6 +69,20 @@ vi.mock('howler', () => ({
 
 import { useMessageAudio } from './index'
 
+type LocaleSegment = {
+  locale: string
+  text: string
+}
+
+const collapse = (value: string) => value.replace(/\s+/g, ' ').trim()
+const parseLocaleSegments = (raw: string): LocaleSegment[] =>
+  Array.from(raw.matchAll(/<([^>]+)>([\s\S]*?)<\/\1>/g)).map(
+    ([, locale, text]) => ({
+      locale: locale.trim().toLowerCase(),
+      text: collapse(text),
+    }),
+  )
+
 const TestHarness = ({
   onEnd,
   options,
@@ -281,5 +295,79 @@ describe('useMessageAudio', () => {
       { text: 'Another line.' },
     ])
     expect(onEnd).toHaveBeenCalledTimes(1)
+  })
+
+  test('custom playSegments can enqueue new batches while previous is active', async () => {
+    const onEnd = vi.fn()
+    const playCalls: Array<{ input: any }> = []
+    const pending: Array<() => void> = []
+
+    const play = vi.fn(({ input, onPlay, onEnd }: any) => {
+      playCalls.push({ input })
+      onPlay()
+      return new Promise<void>((resolve) => {
+        pending.push(() => {
+          onEnd()
+          resolve()
+        })
+      })
+    })
+
+    const playSegments = vi.fn(
+      async ({
+        segments,
+        play: playSegment,
+      }: {
+        segments: LocaleSegment[]
+        play: (segment: LocaleSegment) => Promise<void>
+      }) => {
+        // fire each segment without awaiting (parallel lanes)
+        segments.forEach((segment) => {
+          void playSegment(segment)
+        })
+      },
+    )
+
+    await act(async () => {
+      mockMessages.splice(
+        0,
+        mockMessages.length,
+        createAssistantMessage('msg-5', '<en>Hello.</en>', 'in_progress'),
+      )
+    })
+
+    render(
+      <TestHarness
+        onEnd={onEnd}
+        options={{
+          play,
+          playSegments,
+          getSegments: ({ input }: { input: string }) =>
+            parseLocaleSegments(input),
+        }}
+      />,
+    )
+
+    for (let i = 0; i < 5; i++) await flushTimers()
+    expect(playSegments).toHaveBeenCalledTimes(1)
+    expect(play).toHaveBeenCalledTimes(1)
+    expect(pending).toHaveLength(1)
+
+    await act(async () => {
+      mockMessages.splice(
+        0,
+        mockMessages.length,
+        createAssistantMessage('msg-5', '<en>Hello.</en><es>Hola.</es>'),
+      )
+    })
+
+    for (let i = 0; i < 5; i++) await flushTimers()
+    expect(playSegments).toHaveBeenCalledTimes(2)
+    expect(play).toHaveBeenCalledTimes(2)
+    expect(pending).toHaveLength(2)
+
+    pending.splice(0).forEach((resolve) => resolve())
+    for (let i = 0; i < 5; i++) await flushTimers()
+    expect(onEnd).toHaveBeenCalled()
   })
 })
