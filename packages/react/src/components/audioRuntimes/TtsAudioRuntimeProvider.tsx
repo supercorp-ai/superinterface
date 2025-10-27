@@ -1,19 +1,18 @@
 import { AudioThreadContext } from '@/contexts/threads/AudioThreadContext'
-import type { PlayArgs } from '@/types'
+import type { MessageAudioOverrides, DefaultAudioSegment } from '@/types'
 import { useTtsAudioRuntime } from '@/hooks/audioRuntimes/useTtsAudioRuntime'
 
-export const TtsAudioRuntimeProvider = ({
+export const TtsAudioRuntimeProvider = <TSegment = DefaultAudioSegment,>({
   children,
-  play,
   onEnd,
+  ...overrides
 }: {
   children: React.ReactNode
-  play?: (args: PlayArgs) => void
   onEnd?: () => void
-}) => {
-  const { ttsAudioRuntime } = useTtsAudioRuntime({
-    play,
+} & MessageAudioOverrides<TSegment>) => {
+  const { ttsAudioRuntime } = useTtsAudioRuntime<TSegment>({
     onEnd,
+    ...overrides,
   })
 
   return (

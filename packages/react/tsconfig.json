@@ -4,6 +4,7 @@
     "outDir": "./dist",
     "declaration": true,
     "noEmit": false,
+    "typeRoots": ["./node_modules/@types"],
     "paths": {
       "@/*": [
         "./packages/react/src/*",
@@ -13,9 +14,15 @@
       "@superinterface/react": ["./packages/react/src"],
       "@superinterface/react/*": ["./packages/react/src/*"],
       "@superinterface/root-element": ["./packages/root-element/src"],
-      "@superinterface/root-element/*": ["./packages/root-element/src/*"]
+      "@superinterface/root-element/*": ["./packages/root-element/src/*"],
+      "@testing-library/react/node_modules/@types/react": [
+        "./node_modules/@types/react"
+      ],
+      "@testing-library/react/node_modules/@types/react/index": [
+        "./node_modules/@types/react/index"
+      ]
     }
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "src/**/*.test.ts", "src/**/*.test.tsx"]
 }

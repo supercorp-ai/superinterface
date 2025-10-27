@@ -1,6 +1,6 @@
 {
   "name": "@superinterface/react",
-  "version": "5.3.0-beta.7",
+  "version": "5.3.0-beta.13",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -20,7 +20,8 @@
   "scripts": {
     "prebuild": "node ./scripts/sync-openai-types.mjs",
     "build": "tsup",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -67,6 +68,7 @@
     "@babel/preset-react": "^7.26.3",
     "@babel/preset-typescript": "^7.27.0",
     "@tanstack/react-query": ">=5.71.10",
+    "@testing-library/react": "^16.3.0",
     "@types/howler": "^2.2.12",
     "@types/js-cookie": "^3.0.6",
     "@types/lodash": "^4.17.16",
@@ -76,8 +78,11 @@
     "@types/unist": "^3.0.3",
     "babel-plugin-react-compiler": "^19.0.0-beta-e993439-20250328",
     "esbuild-plugin-babel": "^0.2.3",
+    "jsdom": "^23.2.0",
     "openai": "^6.0.1",
     "react": "19.1",
-    "tsup": "^8.4.0"
+    "react-dom": "^19.1.1",
+    "tsup": "^8.4.0",
+    "vitest": "^1.6.0"
   }
 }

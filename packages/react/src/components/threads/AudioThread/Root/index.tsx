@@ -5,12 +5,20 @@ import _ from 'lodash'
 import { AudioThreadContext } from '@/contexts/threads/AudioThreadContext'
 import { useAudioThreadContext } from '@/hooks/threads/useAudioThreadContext'
 import { ToastsProvider } from '@/components/toasts/ToastsProvider'
-import type { StyleProps, PlayArgs, AudioRuntime } from '@/types'
+import type {
+  StyleProps,
+  AudioRuntime,
+  MessageAudioOverrides,
+  DefaultAudioSegment,
+  PlayArgs,
+} from '@/types'
 import { TtsAudioRuntimeProvider } from '@/components/audioRuntimes/TtsAudioRuntimeProvider'
 
-export type Args = {
+export type Args<TSegment = DefaultAudioSegment> = {
   children: React.ReactNode
-  play?: (args: PlayArgs) => void
+  play?: (args: PlayArgs<TSegment>) => Promise<void> | void
+  playSegments?: MessageAudioOverrides<TSegment>['playSegments']
+  getSegments?: MessageAudioOverrides<TSegment>['getSegments']
   onEnd?: () => void
   audioRuntime?: AudioRuntime
 } & StyleProps
@@ -27,14 +35,18 @@ const Content = ({ children, className, style }: Args) => (
   </Flex>
 )
 
-const AudioRuntimeProvider = ({
+const AudioRuntimeProvider = <TSegment,>({
   children,
-  play,
   onEnd,
+  play,
+  playSegments,
+  getSegments,
 }: {
   children: React.ReactNode
-  play?: (args: PlayArgs) => void
   onEnd?: () => void
+  play?: (args: PlayArgs<TSegment>) => Promise<void> | void
+  playSegments?: MessageAudioOverrides<TSegment>['playSegments']
+  getSegments?: MessageAudioOverrides<TSegment>['getSegments']
 }) => {
   const audioThreadContext = useAudioThreadContext()
 
@@ -43,9 +55,11 @@ const AudioRuntimeProvider = ({
   }
 
   return (
-    <TtsAudioRuntimeProvider
-      play={play}
+    <TtsAudioRuntimeProvider<TSegment>
       onEnd={onEnd}
+      play={play}
+      playSegments={playSegments}
+      getSegments={getSegments}
     >
       {children}
     </TtsAudioRuntimeProvider>
@@ -67,27 +81,33 @@ const Provider = ({ children, ...rest }: { children: React.ReactNode }) => {
   )
 }
 
-export const Root = ({
+export const Root = <TSegment = DefaultAudioSegment,>({
   children,
   play,
+  playSegments,
+  getSegments,
   onEnd,
   className,
   style,
   ...rest
-}: Args) => (
-  <Provider {...rest}>
-    <AudioRuntimeProvider
-      play={play}
-      onEnd={onEnd}
-    >
-      <ToastsProvider>
-        <Content
-          className={className}
-          style={style}
-        >
-          {children}
-        </Content>
-      </ToastsProvider>
-    </AudioRuntimeProvider>
-  </Provider>
-)
+}: Args<TSegment>) => {
+  return (
+    <Provider {...rest}>
+      <AudioRuntimeProvider
+        onEnd={onEnd}
+        play={play}
+        playSegments={playSegments}
+        getSegments={getSegments}
+      >
+        <ToastsProvider>
+          <Content
+            className={className}
+            style={style}
+          >
+            {children}
+          </Content>
+        </ToastsProvider>
+      </AudioRuntimeProvider>
+    </Provider>
+  )
+}
