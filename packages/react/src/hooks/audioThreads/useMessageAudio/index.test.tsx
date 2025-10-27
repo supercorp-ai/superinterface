@@ -1,4 +1,4 @@
-import { act, render, waitFor } from '@testing-library/react'
+import { act, render } from '@testing-library/react'
 import { useRef } from 'react'
 import { vi, describe, beforeEach, afterEach, expect, test } from 'vitest'
 import type { SerializedMessage } from '@/types'
@@ -99,6 +99,13 @@ const flushTimers = async () => {
     vi.advanceTimersByTime(100)
     await Promise.resolve()
   })
+}
+
+const advanceUntil = async (predicate: () => boolean, limit = 20) => {
+  for (let i = 0; i < limit; i++) {
+    await flushTimers()
+    if (predicate()) return
+  }
 }
 
 const createAssistantMessage = (
@@ -218,6 +225,7 @@ describe('useMessageAudio', () => {
       await flushTimers()
     }
 
+    await advanceUntil(() => onEnd.mock.calls.length >= 1)
     expect(onEnd).toHaveBeenCalledTimes(1)
   })
 
@@ -250,6 +258,7 @@ describe('useMessageAudio', () => {
 
     expect(play).toHaveBeenCalledTimes(2)
     expect(inputs).toEqual(['First sentence.', 'Second sentence.'])
+    await advanceUntil(() => onEnd.mock.calls.length >= 1)
     expect(onEnd).toHaveBeenCalledTimes(1)
   })
 
@@ -349,9 +358,16 @@ describe('useMessageAudio', () => {
     )
 
     for (let i = 0; i < 5; i++) await flushTimers()
+    await advanceUntil(() => playSegments.mock.calls.length >= 1)
     expect(playSegments).toHaveBeenCalledTimes(1)
+    await advanceUntil(() => play.mock.calls.length >= 1)
     expect(play).toHaveBeenCalledTimes(1)
     expect(pending).toHaveLength(1)
+    expect(
+      playSegments.mock.calls[0][0].segments.map(
+        (segment: LocaleSegment) => segment.locale,
+      ),
+    ).toEqual(['en'])
 
     await act(async () => {
       mockMessages.splice(
@@ -362,12 +378,135 @@ describe('useMessageAudio', () => {
     })
 
     for (let i = 0; i < 5; i++) await flushTimers()
+    await advanceUntil(() => playSegments.mock.calls.length >= 2)
     expect(playSegments).toHaveBeenCalledTimes(2)
+    await advanceUntil(() => play.mock.calls.length >= 2)
     expect(play).toHaveBeenCalledTimes(2)
     expect(pending).toHaveLength(2)
+    expect(
+      playSegments.mock.calls[1][0].segments.map(
+        (segment: LocaleSegment) => segment.locale,
+      ),
+    ).toEqual(['es'])
 
-    pending.splice(0).forEach((resolve) => resolve())
+    await act(async () => {
+      pending.splice(0).forEach((resolve) => resolve())
+    })
     for (let i = 0; i < 5; i++) await flushTimers()
+    await advanceUntil(() => onEnd.mock.calls.length >= 1)
     expect(onEnd).toHaveBeenCalled()
+  })
+
+  test('custom playSegments awaiting playSegment still schedules later segments', async () => {
+    const onEnd = vi.fn()
+    const playInputs: Array<LocaleSegment | string> = []
+    const pending: Array<() => void> = []
+
+    const play = vi.fn(
+      ({
+        input,
+        onPlay,
+        onEnd: handleEnd,
+      }: {
+        input: LocaleSegment
+        onPlay: () => void
+        onEnd: () => void
+      }) => {
+        playInputs.push(input)
+        onPlay()
+        return new Promise<void>((resolve) => {
+          pending.push(() => {
+            handleEnd()
+            resolve()
+          })
+        })
+      },
+    )
+
+    const playSegments = vi.fn(
+      async ({
+        segments,
+        play: playSegment,
+      }: {
+        segments: LocaleSegment[]
+        play: (segment: LocaleSegment) => Promise<void>
+      }) => {
+        await Promise.all(segments.map(async (segment) => playSegment(segment)))
+      },
+    )
+
+    await act(async () => {
+      mockMessages.splice(
+        0,
+        mockMessages.length,
+        createAssistantMessage('msg-6', '<en>Hello.</en>', 'in_progress'),
+      )
+    })
+
+    render(
+      <TestHarness
+        onEnd={onEnd}
+        options={{
+          play,
+          playSegments,
+          getSegments: ({ input }: { input: string }) =>
+            parseLocaleSegments(input),
+        }}
+      />,
+    )
+
+    for (let i = 0; i < 5; i++) await flushTimers()
+    await advanceUntil(() => playSegments.mock.calls.length >= 1)
+    expect(playSegments).toHaveBeenCalledTimes(1)
+    await advanceUntil(() => play.mock.calls.length >= 1)
+    expect(play).toHaveBeenCalledTimes(1)
+    expect(pending).toHaveLength(1)
+    expect(
+      playSegments.mock.calls[0][0].segments.map(
+        (segment: LocaleSegment) => segment.locale,
+      ),
+    ).toEqual(['en'])
+
+    await act(async () => {
+      mockMessages.splice(
+        0,
+        mockMessages.length,
+        createAssistantMessage(
+          'msg-6',
+          '<en>Hello.</en><es>Hola.</es>',
+          'in_progress',
+        ),
+      )
+    })
+
+    for (let i = 0; i < 5; i++) await flushTimers()
+    await advanceUntil(() => playSegments.mock.calls.length >= 1)
+    expect(playSegments).toHaveBeenCalledTimes(1)
+    expect(pending).toHaveLength(1)
+
+    await act(async () => {
+      pending.splice(0, 1).forEach((resolve) => resolve())
+    })
+    for (let i = 0; i < 5; i++) await flushTimers()
+
+    await advanceUntil(() => playSegments.mock.calls.length >= 2)
+    expect(playSegments).toHaveBeenCalledTimes(2)
+    await advanceUntil(() => play.mock.calls.length >= 2)
+    expect(play).toHaveBeenCalledTimes(2)
+    expect(
+      playSegments.mock.calls[1][0].segments.map(
+        (segment: LocaleSegment) => segment.locale,
+      ),
+    ).toEqual(['es'])
+
+    await act(async () => {
+      pending.splice(0, 1).forEach((resolve) => resolve())
+    })
+    for (let i = 0; i < 5; i++) await flushTimers()
+    await advanceUntil(() => onEnd.mock.calls.length >= 1)
+    expect(onEnd).toHaveBeenCalled()
+    expect(
+      playInputs.map((segment) => (segment as LocaleSegment).locale),
+    ).toEqual(['en', 'es'])
   })
 })

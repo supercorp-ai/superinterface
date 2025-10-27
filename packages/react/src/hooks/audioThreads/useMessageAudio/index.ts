@@ -179,6 +179,29 @@ export const useMessageAudio = <TSegment = DefaultAudioSegment>({
   const [isPlaying, setIsPlaying] = useState(false)
 
   const [audioQueue, setAudioQueue] = useState<AudioMessage<TSegment>[]>([])
+  const commitAudioQueue = useCallback(
+    (
+      next:
+        | AudioMessage<TSegment>[]
+        | ((prev: AudioMessage<TSegment>[]) => AudioMessage<TSegment>[]),
+    ) => {
+      if (typeof next === 'function') {
+        setAudioQueue((prev) => {
+          const computed = (
+            next as (
+              prevQueue: AudioMessage<TSegment>[],
+            ) => AudioMessage<TSegment>[]
+          )(prev)
+          audioQueueRef.current = computed
+          return computed
+        })
+      } else {
+        audioQueueRef.current = next
+        setAudioQueue(next)
+      }
+    },
+    [],
+  )
   const audioQueueRef = useRef<AudioMessage<TSegment>[]>([])
   useEffect(() => {
     audioQueueRef.current = audioQueue
@@ -209,9 +232,7 @@ export const useMessageAudio = <TSegment = DefaultAudioSegment>({
   const checkForCompletion = useCallback(() => {
     if (activeSegmentsRef.current > 0) return
     const hasPending = audioQueueRef.current.some(
-      (m) =>
-        !m.stopped &&
-        (m.nextIndex < m.segments.length || m.status === 'in_progress'),
+      (m) => !m.stopped && m.nextIndex < m.segments.length,
     )
     if (hasPending) {
       onEndPendingRef.current = true
@@ -354,16 +375,10 @@ export const useMessageAudio = <TSegment = DefaultAudioSegment>({
       }
 
       const unfinished = nextQueue.filter(
-        (m) =>
-          !m.stopped &&
-          (m.status === 'in_progress' || m.nextIndex < m.segments.length),
+        (m) => !m.stopped && m.nextIndex < m.segments.length,
       )
       const finished = nextQueue.filter(
-        (m) =>
-          !(
-            !m.stopped &&
-            (m.status === 'in_progress' || m.nextIndex < m.segments.length)
-          ),
+        (m) => !(!m.stopped && m.nextIndex < m.segments.length),
       )
       const prunedFinished =
         finished.length > KEEP_FINISHED_MESSAGES
@@ -373,11 +388,8 @@ export const useMessageAudio = <TSegment = DefaultAudioSegment>({
       const combined = [...unfinished, ...prunedFinished]
 
       if (
-        combined.some(
-          (m) =>
-            !m.stopped &&
-            (m.nextIndex < m.segments.length || m.status === 'in_progress'),
-        )
+        combined.some((m) => !m.stopped && m.nextIndex < m.segments.length) ||
+        activeSegmentsRef.current > 0
       ) {
         onEndPendingRef.current = true
       }
@@ -403,7 +415,7 @@ export const useMessageAudio = <TSegment = DefaultAudioSegment>({
         if (!idsInQueue.has(id)) messagesByIdRef.current.delete(id)
       }
 
-      if (changed) setAudioQueue(combined)
+      if (changed) commitAudioQueue(combined)
 
       if (segCache.size > MAX_SEG_CACHE) {
         const entries = Array.from(segCache.entries())
@@ -553,7 +565,7 @@ export const useMessageAudio = <TSegment = DefaultAudioSegment>({
 
   const handleStop = useCallback(
     (messageId: string) => {
-      setAudioQueue((prev) =>
+      commitAudioQueue((prev) =>
         prev.map((m) => (m.id === messageId ? { ...m, stopped: true } : m)),
       )
       activeSegmentsRef.current = 0
@@ -570,7 +582,6 @@ export const useMessageAudio = <TSegment = DefaultAudioSegment>({
     if (activeSegmentsRef.current === 0) {
       setIsPlaying(false)
       currentSegmentRef.current = null
-      pickLockRef.current = false
       checkForCompletion()
     }
   }, [checkForCompletion])
@@ -610,60 +621,91 @@ export const useMessageAudio = <TSegment = DefaultAudioSegment>({
     pickLockRef.current = true
     if (!allowParallel) setIsPlaying(true)
 
-    setAudioQueue((prev) =>
+    const selected = candidate
+    commitAudioQueue((prev) =>
       prev.map((m) =>
-        m.id === candidate!.messageId
+        m.id === selected!.messageId
           ? {
               ...m,
-              nextIndex: candidate!.startIndex + candidate!.segments.length,
+              nextIndex: selected!.startIndex,
             }
           : m,
       ),
     )
 
-    const runPlayback = () => {
-      let nextIndex = candidate!.startIndex
+    const runPlayback = async () => {
+      let launchedCount = 0
 
-      const launch = () =>
-        playSegmentsImpl({
-          segments: candidate!.segments,
-          startIndex: candidate!.startIndex,
-          message: candidate!.message,
-          play: async (segment) => {
-            activeSegmentsRef.current += 1
-            nextIndex += 1
-            currentSegmentRef.current = {
-              messageId: candidate!.messageId,
-              nextIndex,
-            }
-            await playInternal(segment, {
-              onPlay: () => {},
-              onStop: () => handleStop(candidate!.messageId),
-              onEnd: () => handleSegmentEnd(),
-            })
-          },
-        })
+      await playSegmentsImpl({
+        segments: selected!.segments,
+        startIndex: selected!.startIndex,
+        message: selected!.message,
+        play: async (segment) => {
+          activeSegmentsRef.current += 1
+          launchedCount += 1
+          const advanceTo = selected!.startIndex + launchedCount
+          onEndPendingRef.current = true
+          commitAudioQueue((prev) =>
+            prev.map((m) =>
+              m.id === selected!.messageId
+                ? {
+                    ...m,
+                    nextIndex:
+                      m.nextIndex >= advanceTo ? m.nextIndex : advanceTo,
+                  }
+                : m,
+            ),
+          )
+          currentSegmentRef.current = {
+            messageId: selected!.messageId,
+            nextIndex: advanceTo,
+          }
+          await playInternal(segment, {
+            onPlay: () => {},
+            onStop: () => handleStop(selected!.messageId),
+            onEnd: () => {
+              commitAudioQueue((prev) =>
+                prev.map((m) =>
+                  m.id === selected!.messageId
+                    ? {
+                        ...m,
+                        nextIndex:
+                          m.nextIndex >= advanceTo ? m.nextIndex : advanceTo,
+                      }
+                    : m,
+                ),
+              )
+              handleSegmentEnd()
+            },
+          })
+        },
+      })
+    }
 
-      try {
-        Promise.resolve(launch())
-          .catch((error) => {
-            handleStop(candidate!.messageId)
-            console.error(error)
-          })
-          .finally(() => {
-            checkForCompletion()
-          })
-      } catch (error) {
-        handleStop(candidate!.messageId)
+    Promise.resolve(runPlayback())
+      .catch((error) => {
+        handleStop(selected!.messageId)
         console.error(error)
-        checkForCompletion()
-      }
-    }
+      })
+      .finally(() => {
+        const finalNextIndex = selected!.startIndex + selected!.segments.length
 
-    runPlayback()
-    if (allowParallel) {
-      pickLockRef.current = false
-    }
+        commitAudioQueue(
+          audioQueueRef.current.map((m) =>
+            m.id === selected!.messageId
+              ? {
+                  ...m,
+                  nextIndex:
+                    m.nextIndex >= finalNextIndex
+                      ? m.nextIndex
+                      : finalNextIndex,
+                }
+              : m,
+          ),
+        )
+        pickLockRef.current = false
+        checkForCompletion()
+      })
   }, [
     audioQueue,
     isPlaying,
