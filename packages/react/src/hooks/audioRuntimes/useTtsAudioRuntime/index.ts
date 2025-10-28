@@ -7,19 +7,15 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
 import { useToasts } from '@/hooks/toasts/useToasts'
 import { createMessageDefaultOnError } from '@/lib/errors/createMessageDefaultOnError'
-import type {
-  AudioRuntime,
-  MessageAudioOverrides,
-  DefaultAudioSegment,
-} from '@/types'
+import type { AudioRuntime, MessageAudioOverrides } from '@/types'
 import { blobToData } from './blobToData'
 
-export const useTtsAudioRuntime = <TSegment = DefaultAudioSegment>({
+export const useTtsAudioRuntime = ({
   onEnd: passedOnEnd,
   ...overrides
 }: {
   onEnd?: () => void
-} & MessageAudioOverrides<TSegment>): { ttsAudioRuntime: AudioRuntime } => {
+} & MessageAudioOverrides): { ttsAudioRuntime: AudioRuntime } => {
   const { addToast } = useToasts()
   const queryClient = useQueryClient()
   const threadContext = useThreadContext()
@@ -62,7 +58,7 @@ export const useTtsAudioRuntime = <TSegment = DefaultAudioSegment>({
     }
   }, [passedOnEnd, microphonePermission, recorderProps])
 
-  const messageAudioProps = useMessageAudio<TSegment>({
+  const messageAudioProps = useMessageAudio({
     onEnd,
     ...overrides,
   })

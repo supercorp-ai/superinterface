@@ -5,20 +5,12 @@ import _ from 'lodash'
 import { AudioThreadContext } from '@/contexts/threads/AudioThreadContext'
 import { useAudioThreadContext } from '@/hooks/threads/useAudioThreadContext'
 import { ToastsProvider } from '@/components/toasts/ToastsProvider'
-import type {
-  StyleProps,
-  AudioRuntime,
-  MessageAudioOverrides,
-  DefaultAudioSegment,
-  PlayArgs,
-} from '@/types'
+import type { StyleProps, AudioRuntime, PlayArgs } from '@/types'
 import { TtsAudioRuntimeProvider } from '@/components/audioRuntimes/TtsAudioRuntimeProvider'
 
-export type Args<TSegment = DefaultAudioSegment> = {
+export type Args = {
   children: React.ReactNode
-  play?: (args: PlayArgs<TSegment>) => Promise<void> | void
-  playSegments?: MessageAudioOverrides<TSegment>['playSegments']
-  getSegments?: MessageAudioOverrides<TSegment>['getSegments']
+  play?: (args: PlayArgs) => Promise<void> | void
   onEnd?: () => void
   audioRuntime?: AudioRuntime
 } & StyleProps
@@ -35,18 +27,14 @@ const Content = ({ children, className, style }: Args) => (
   </Flex>
 )
 
-const AudioRuntimeProvider = <TSegment,>({
+const AudioRuntimeProvider = ({
   children,
   onEnd,
   play,
-  playSegments,
-  getSegments,
 }: {
   children: React.ReactNode
   onEnd?: () => void
-  play?: (args: PlayArgs<TSegment>) => Promise<void> | void
-  playSegments?: MessageAudioOverrides<TSegment>['playSegments']
-  getSegments?: MessageAudioOverrides<TSegment>['getSegments']
+  play?: (args: PlayArgs) => Promise<void> | void
 }) => {
   const audioThreadContext = useAudioThreadContext()
 
@@ -55,11 +43,9 @@ const AudioRuntimeProvider = <TSegment,>({
   }
 
   return (
-    <TtsAudioRuntimeProvider<TSegment>
+    <TtsAudioRuntimeProvider
       onEnd={onEnd}
       play={play}
-      playSegments={playSegments}
-      getSegments={getSegments}
     >
       {children}
     </TtsAudioRuntimeProvider>
@@ -81,23 +67,19 @@ const Provider = ({ children, ...rest }: { children: React.ReactNode }) => {
   )
 }
 
-export const Root = <TSegment = DefaultAudioSegment,>({
+export const Root = ({
   children,
   play,
-  playSegments,
-  getSegments,
   onEnd,
   className,
   style,
   ...rest
-}: Args<TSegment>) => {
+}: Args) => {
   return (
     <Provider {...rest}>
       <AudioRuntimeProvider
         onEnd={onEnd}
         play={play}
-        playSegments={playSegments}
-        getSegments={getSegments}
       >
         <ToastsProvider>
           <Content

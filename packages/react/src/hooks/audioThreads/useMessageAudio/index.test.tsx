@@ -1,13 +1,22 @@
 import { act, render } from '@testing-library/react'
 import { useRef } from 'react'
-import { vi, describe, beforeEach, afterEach, expect, test } from 'vitest'
-import type { SerializedMessage } from '@/types'
+import {
+  vi,
+  describe,
+  beforeEach,
+  afterEach,
+  expect,
+  test,
+  beforeAll,
+  afterAll,
+} from 'vitest'
+import type { SerializedMessage, PlayArgs } from '@/types'
 
-const mockMessages = vi.hoisted(() => [] as SerializedMessage[])
+const messagesList = vi.hoisted(() => [] as SerializedMessage[])
 
 const useMessagesMock = vi.hoisted(() =>
   vi.fn(() => ({
-    messages: [...mockMessages],
+    messages: [...messagesList],
   })),
 )
 
@@ -69,43 +78,21 @@ vi.mock('howler', () => ({
 
 import { useMessageAudio } from './index'
 
-type LocaleSegment = {
-  locale: string
-  text: string
-}
-
-const collapse = (value: string) => value.replace(/\s+/g, ' ').trim()
-const parseLocaleSegments = (raw: string): LocaleSegment[] =>
-  Array.from(raw.matchAll(/<([^>]+)>([\s\S]*?)<\/\1>/g)).map(
-    ([, locale, text]) => ({
-      locale: locale.trim().toLowerCase(),
-      text: collapse(text),
-    }),
-  )
-
 const TestHarness = ({
   onEnd,
-  options,
+  play,
 }: {
   onEnd: () => void
-  options?: Record<string, any>
+  play?: Parameters<typeof useMessageAudio>[0]['play']
 }) => {
-  useMessageAudio({ onEnd, ...(options || {}) })
+  useMessageAudio({ onEnd, play })
   return null
 }
 
-const flushTimers = async () => {
+const flushEffects = async () => {
   await act(async () => {
-    vi.advanceTimersByTime(100)
     await Promise.resolve()
   })
-}
-
-const advanceUntil = async (predicate: () => boolean, limit = 20) => {
-  for (let i = 0; i < limit; i++) {
-    await flushTimers()
-    if (predicate()) return
-  }
 }
 
 const createAssistantMessage = (
@@ -145,9 +132,8 @@ describe('useMessageAudio', () => {
   })
 
   beforeEach(() => {
-    vi.useFakeTimers()
-    mockMessages.splice(0, mockMessages.length)
     audioPlayerInstances.length = 0
+    messagesList.length = 0
     useMessagesMock.mockClear()
     superinterfaceContextValue = {
       baseUrl: 'https://example.com',
@@ -156,357 +142,149 @@ describe('useMessageAudio', () => {
   })
 
   afterEach(() => {
-    vi.clearAllTimers()
-    vi.useRealTimers()
+    vi.clearAllMocks()
   })
 
-  test('default play loads first sentence and preloads the next', async () => {
+  test('default play speaks buffered sentences in order', async () => {
     const onEnd = vi.fn()
-    mockMessages.splice(
-      0,
-      mockMessages.length,
+    messagesList.push(
       createAssistantMessage('msg-1', 'First sentence. Second sentence.'),
     )
 
     render(<TestHarness onEnd={onEnd} />)
-
-    await flushTimers()
+    await flushEffects()
 
     expect(audioPlayerInstances).toHaveLength(2)
-    const [primaryPlayer, preloadPlayer] = audioPlayerInstances
 
+    const [primaryPlayer, preloadPlayer] = audioPlayerInstances
     expect(primaryPlayer.load).toHaveBeenCalledTimes(1)
-    const [firstUrl, firstOptions] = primaryPlayer.load.mock.calls[0]
+    const [firstUrl, firstOpts] = primaryPlayer.load.mock.calls[0]
     expect(firstUrl).toBe(
       'https://example.com/audio-runtimes/tts?input=First+sentence.&voice=nova',
     )
-    expect(firstOptions.autoplay).toBe(false)
+    expect(firstOpts.autoplay).toBe(false)
 
     await act(async () => {
-      firstOptions.onload?.()
+      firstOpts.onload?.()
     })
 
     expect(preloadPlayer.load).toHaveBeenCalledTimes(1)
-    const [preloadUrl] = preloadPlayer.load.mock.calls[0]
-    expect(preloadUrl).toBe(
-      'https://example.com/audio-runtimes/tts?input=Second+sentence.&voice=nova',
-    )
 
     await act(async () => {
-      firstOptions.onplay?.()
+      firstOpts.onplay?.()
+      firstOpts.onend?.()
     })
-
-    await act(async () => {
-      firstOptions.onend?.()
-    })
-
-    await flushTimers()
-
-    for (let i = 0; i < 3; i++) {
-      await flushTimers()
-    }
+    await flushEffects()
 
     expect(primaryPlayer.load).toHaveBeenCalledTimes(2)
-    const [secondUrl, secondOptions] = primaryPlayer.load.mock.calls[1]
+    const [secondUrl, secondOpts] = primaryPlayer.load.mock.calls[1]
     expect(secondUrl).toBe(
       'https://example.com/audio-runtimes/tts?input=Second+sentence.&voice=nova',
     )
-    expect(secondOptions.autoplay).toBe(true)
 
     await act(async () => {
-      secondOptions.onplay?.()
+      secondOpts.onplay?.()
+      secondOpts.onend?.()
     })
+    await flushEffects()
 
-    await act(async () => {
-      secondOptions.onend?.()
-    })
-
-    for (let i = 0; i < 3; i++) {
-      await flushTimers()
-    }
-
-    await advanceUntil(() => onEnd.mock.calls.length >= 1)
     expect(onEnd).toHaveBeenCalledTimes(1)
   })
 
-  test('custom play receives normalized sentences', async () => {
+  test('default play flushes leftovers on completion', async () => {
     const onEnd = vi.fn()
-    const inputs: string[] = []
+    messagesList.push(
+      createAssistantMessage('msg-2', 'Trailing fragment', 'completed'),
+    )
 
-    const play = vi.fn(async ({ input, onPlay, onEnd }: any) => {
-      onPlay()
-      inputs.push(input)
-      onEnd()
+    render(<TestHarness onEnd={onEnd} />)
+    await flushEffects()
+
+    const player = audioPlayerInstances[0]
+    const [, opts] = player.load.mock.calls[0]
+
+    await act(async () => {
+      opts.onplay?.()
+      opts.onend?.()
     })
+    await flushEffects()
 
-    mockMessages.splice(
-      0,
-      mockMessages.length,
-      createAssistantMessage('msg-3', 'First sentence. Second sentence.'),
-    )
-
-    render(
-      <TestHarness
-        onEnd={onEnd}
-        options={{ play }}
-      />,
-    )
-
-    for (let i = 0; i < 5; i++) {
-      await flushTimers()
-    }
-
-    expect(play).toHaveBeenCalledTimes(2)
-    expect(inputs).toEqual(['First sentence.', 'Second sentence.'])
-    await advanceUntil(() => onEnd.mock.calls.length >= 1)
     expect(onEnd).toHaveBeenCalledTimes(1)
   })
 
-  test('segmentToText turns custom segment objects into inputs', async () => {
+  test('custom play receives incremental updates', async () => {
     const onEnd = vi.fn()
-    const inputs: any[] = []
-
-    const getSegments = vi.fn(() => [
-      { text: 'Hello world.' },
-      { text: 'Another line.' },
-    ])
-
-    const play = vi.fn(async ({ input, onPlay, onEnd }: any) => {
-      onPlay()
-      inputs.push(input)
-      onEnd()
-    })
-
-    mockMessages.splice(
-      0,
-      mockMessages.length,
-      createAssistantMessage('msg-4', 'ignored'),
-    )
-
-    render(
-      <TestHarness
-        onEnd={onEnd}
-        options={{
-          getSegments,
-          play,
-        }}
-      />,
-    )
-
-    for (let i = 0; i < 5; i++) {
-      await flushTimers()
-    }
-
-    expect(getSegments).toHaveBeenCalled()
-    expect(play).toHaveBeenCalledTimes(2)
-    expect(inputs).toEqual([
-      { text: 'Hello world.' },
-      { text: 'Another line.' },
-    ])
-    expect(onEnd).toHaveBeenCalledTimes(1)
-  })
-
-  test('custom playSegments can enqueue new batches while previous is active', async () => {
-    const onEnd = vi.fn()
-    const playCalls: Array<{ input: any }> = []
-    const pending: Array<() => void> = []
-
-    const play = vi.fn(({ input, onPlay, onEnd }: any) => {
-      playCalls.push({ input })
-      onPlay()
-      return new Promise<void>((resolve) => {
-        pending.push(() => {
-          onEnd()
-          resolve()
-        })
-      })
-    })
-
-    const playSegments = vi.fn(
-      async ({
-        segments,
-        play: playSegment,
-      }: {
-        segments: LocaleSegment[]
-        play: (segment: LocaleSegment) => Promise<void>
-      }) => {
-        // fire each segment without awaiting (parallel lanes)
-        segments.forEach((segment) => {
-          void playSegment(segment)
-        })
-      },
-    )
-
-    await act(async () => {
-      mockMessages.splice(
-        0,
-        mockMessages.length,
-        createAssistantMessage('msg-5', '<en>Hello.</en>', 'in_progress'),
-      )
-    })
-
-    render(
-      <TestHarness
-        onEnd={onEnd}
-        options={{
-          play,
-          playSegments,
-          getSegments: ({ input }: { input: string }) =>
-            parseLocaleSegments(input),
-        }}
-      />,
-    )
-
-    for (let i = 0; i < 5; i++) await flushTimers()
-    await advanceUntil(() => playSegments.mock.calls.length >= 1)
-    expect(playSegments).toHaveBeenCalledTimes(1)
-    await advanceUntil(() => play.mock.calls.length >= 1)
-    expect(play).toHaveBeenCalledTimes(1)
-    expect(pending).toHaveLength(1)
-    expect(
-      playSegments.mock.calls[0][0].segments.map(
-        (segment: LocaleSegment) => segment.locale,
-      ),
-    ).toEqual(['en'])
-
-    await act(async () => {
-      mockMessages.splice(
-        0,
-        mockMessages.length,
-        createAssistantMessage('msg-5', '<en>Hello.</en><es>Hola.</es>'),
-      )
-    })
-
-    for (let i = 0; i < 5; i++) await flushTimers()
-    await advanceUntil(() => playSegments.mock.calls.length >= 2)
-    expect(playSegments).toHaveBeenCalledTimes(2)
-    await advanceUntil(() => play.mock.calls.length >= 2)
-    expect(play).toHaveBeenCalledTimes(2)
-    expect(pending).toHaveLength(2)
-    expect(
-      playSegments.mock.calls[1][0].segments.map(
-        (segment: LocaleSegment) => segment.locale,
-      ),
-    ).toEqual(['es'])
-
-    await act(async () => {
-      pending.splice(0).forEach((resolve) => resolve())
-    })
-    for (let i = 0; i < 5; i++) await flushTimers()
-    await advanceUntil(() => onEnd.mock.calls.length >= 1)
-    expect(onEnd).toHaveBeenCalled()
-  })
-
-  test('custom playSegments awaiting playSegment still schedules later segments', async () => {
-    const onEnd = vi.fn()
-    const playInputs: Array<LocaleSegment | string> = []
-    const pending: Array<() => void> = []
-
     const play = vi.fn(
-      ({
-        input,
-        onPlay,
-        onEnd: handleEnd,
-      }: {
-        input: LocaleSegment
-        onPlay: () => void
-        onEnd: () => void
-      }) => {
-        playInputs.push(input)
-        onPlay()
-        return new Promise<void>((resolve) => {
-          pending.push(() => {
-            handleEnd()
-            resolve()
-          })
-        })
+      ({ onEnd: chunkEnd }: PlayArgs & { message?: SerializedMessage }) => {
+        chunkEnd()
       },
     )
 
-    const playSegments = vi.fn(
-      async ({
-        segments,
-        play: playSegment,
-      }: {
-        segments: LocaleSegment[]
-        play: (segment: LocaleSegment) => Promise<void>
-      }) => {
-        await Promise.all(segments.map(async (segment) => playSegment(segment)))
-      },
-    )
-
-    await act(async () => {
-      mockMessages.splice(
-        0,
-        mockMessages.length,
-        createAssistantMessage('msg-6', '<en>Hello.</en>', 'in_progress'),
-      )
-    })
-
-    render(
+    const view = render(
       <TestHarness
         onEnd={onEnd}
-        options={{
-          play,
-          playSegments,
-          getSegments: ({ input }: { input: string }) =>
-            parseLocaleSegments(input),
-        }}
+        play={play}
       />,
     )
 
-    for (let i = 0; i < 5; i++) await flushTimers()
-    await advanceUntil(() => playSegments.mock.calls.length >= 1)
-    expect(playSegments).toHaveBeenCalledTimes(1)
-    await advanceUntil(() => play.mock.calls.length >= 1)
+    messagesList.push(createAssistantMessage('msg-a', 'Hello', 'in_progress'))
+    await act(async () =>
+      view.rerender(
+        <TestHarness
+          onEnd={onEnd}
+          play={play}
+        />,
+      ),
+    )
+    await flushEffects()
     expect(play).toHaveBeenCalledTimes(1)
-    expect(pending).toHaveLength(1)
-    expect(
-      playSegments.mock.calls[0][0].segments.map(
-        (segment: LocaleSegment) => segment.locale,
+    expect(play.mock.calls[0][0]).toMatchObject({
+      input: 'Hello',
+      message: expect.objectContaining({ id: 'msg-a' }),
+    })
+
+    messagesList.splice(
+      0,
+      1,
+      createAssistantMessage('msg-a', 'Hello world.', 'in_progress'),
+    )
+    await act(async () =>
+      view.rerender(
+        <TestHarness
+          onEnd={onEnd}
+          play={play}
+        />,
       ),
-    ).toEqual(['en'])
-
-    await act(async () => {
-      mockMessages.splice(
-        0,
-        mockMessages.length,
-        createAssistantMessage(
-          'msg-6',
-          '<en>Hello.</en><es>Hola.</es>',
-          'in_progress',
-        ),
-      )
-    })
-
-    for (let i = 0; i < 5; i++) await flushTimers()
-    await advanceUntil(() => playSegments.mock.calls.length >= 1)
-    expect(playSegments).toHaveBeenCalledTimes(1)
-    expect(pending).toHaveLength(1)
-
-    await act(async () => {
-      pending.splice(0, 1).forEach((resolve) => resolve())
-    })
-    for (let i = 0; i < 5; i++) await flushTimers()
-
-    await advanceUntil(() => playSegments.mock.calls.length >= 2)
-    expect(playSegments).toHaveBeenCalledTimes(2)
-    await advanceUntil(() => play.mock.calls.length >= 2)
+    )
+    await flushEffects()
     expect(play).toHaveBeenCalledTimes(2)
-    expect(
-      playSegments.mock.calls[1][0].segments.map(
-        (segment: LocaleSegment) => segment.locale,
-      ),
-    ).toEqual(['es'])
-
-    await act(async () => {
-      pending.splice(0, 1).forEach((resolve) => resolve())
+    expect(play.mock.calls[1][0]).toMatchObject({
+      input: ' world.',
+      message: expect.objectContaining({ id: 'msg-a' }),
     })
-    for (let i = 0; i < 5; i++) await flushTimers()
-    await advanceUntil(() => onEnd.mock.calls.length >= 1)
-    expect(onEnd).toHaveBeenCalled()
-    expect(
-      playInputs.map((segment) => (segment as LocaleSegment).locale),
-    ).toEqual(['en', 'es'])
+
+    messagesList.splice(
+      0,
+      1,
+      createAssistantMessage('msg-a', 'Hello world.', 'completed'),
+    )
+    await act(async () =>
+      view.rerender(
+        <TestHarness
+          onEnd={onEnd}
+          play={play}
+        />,
+      ),
+    )
+    await flushEffects()
+
+    expect(play).toHaveBeenCalledTimes(3)
+    expect(play.mock.calls[2][0]).toMatchObject({
+      input: '',
+      message: expect.objectContaining({ id: 'msg-a', status: 'completed' }),
+    })
+    await flushEffects()
+
+    expect(onEnd).toHaveBeenCalledTimes(1)
   })
 })

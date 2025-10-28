@@ -147,31 +147,18 @@ export type UseCreateMessageVariables = (
   [key: string]: any
 }
 
-export type DefaultAudioSegment =
-  | string
-  | ({ text: string } & Record<string, any>)
+export type DefaultAudioSegment = string
 
 export type PlayArgs<TInput = string> = {
   input: TInput
+  message?: SerializedMessage
   onPlay: () => void
   onStop: () => void
   onEnd: () => void
 }
 
-export type PlaySegmentsArgs<TInput = DefaultAudioSegment> = {
-  segments: TInput[]
-  startIndex: number
-  message: SerializedMessage
-  play: (segment: TInput) => Promise<void>
-}
-
 export type MessageAudioOverrides<TInput = DefaultAudioSegment> = {
   play?: (args: PlayArgs<TInput>) => Promise<void> | void
-  playSegments?: (args: PlaySegmentsArgs<TInput>) => Promise<void> | void
-  getSegments?: (args: {
-    message: SerializedMessage
-    input: string
-  }) => Promise<TInput[]> | TInput[]
 }
 
 export type UserAudioControls = {
