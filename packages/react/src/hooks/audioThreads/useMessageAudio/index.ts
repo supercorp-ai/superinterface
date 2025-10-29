@@ -1,171 +1,283 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import type { DefaultAudioSegment, PlayArgs, SerializedMessage } from '@/types'
-import { useMessages } from '@/hooks/messages/useMessages'
+import { useMemo, useRef, useState, useEffect, useCallback } from 'react'
+import nlp from 'compromise'
+import { Howler } from 'howler'
+import { useAudioPlayer } from 'react-use-audio-player'
+import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
+import { AudioEngine, type PlayArgs } from '@/types'
+import { isOptimistic } from '@/lib/optimistic/isOptimistic'
 import { input as getInput } from './lib/input'
-import { useDefaultPlay } from './lib/useDefaultPlay'
+import { isHtmlAudioSupported } from './lib/isHtmlAudioSupported'
 
-type ProcessedMessageState = {
-  text: string
-  status?: SerializedMessage['status']
+type MessageSentence = {
+  messageId: string
+  sentence: string
 }
 
-export const useMessageAudio = <TInput = DefaultAudioSegment>({
+const getMessageSentences = ({
+  messageId,
+  input,
+}: {
+  messageId: string
+  input: string
+}) => {
+  const sentences = nlp(input).sentences().json()
+
+  return sentences.map((sentence: { text: string }) => ({
+    messageId,
+    sentence: sentence.text,
+  }))
+}
+
+export const useMessageAudio = ({
   onEnd,
   play: passedPlay,
   fullSentenceRegex = /[\.?!]$/,
 }: {
   onEnd: () => void
-  play?: (args: PlayArgs<TInput>) => Promise<void> | void
+  play?: (args: PlayArgs) => void
   fullSentenceRegex?: RegExp
 }) => {
-  const superinterfaceContext = useSuperinterfaceContext()
-  const messagesProps = useMessages()
-
-  const assistantsAsc = useMemo(() => {
-    const assistantsDesc = messagesProps.messages.filter(
-      (message: SerializedMessage) => message.role === 'assistant',
-    )
-    return assistantsDesc.slice().reverse() as SerializedMessage[]
-  }, [messagesProps.messages])
-
   const [isAudioPlayed, setIsAudioPlayed] = useState(false)
+  const [stoppedMessageIds, setStoppedMessageIds] = useState<string[]>([])
+  const [playedMessageSentences, setPlayedMessageSentences] = useState<
+    MessageSentence[]
+  >([])
+  const audioPlayer = useAudioPlayer()
+  const nextAudioPlayer = useAudioPlayer()
+  const superinterfaceContext = useSuperinterfaceContext()
+  const [isPlaying, setIsPlaying] = useState(false)
+  const isLastSentencePlayedRef = useRef(false)
 
-  const [activeChunks, setActiveChunks] = useState(0)
-  const activeChunksRef = useRef(0)
+  const latestMessageProps = useLatestMessage()
+
   useEffect(() => {
-    activeChunksRef.current = activeChunks
-  }, [activeChunks])
+    if (!isPlaying) return
 
-  const onEndPendingRef = useRef(false)
+    isLastSentencePlayedRef.current = false
+  }, [isPlaying])
 
-  const defaultPlayback = useDefaultPlay({
-    enabled: !passedPlay,
-    fullSentenceRegex,
-    onEnd,
-    superinterfaceContext,
-    isAudioPlayed,
-  })
+  const unplayedMessageSentences = useMemo(() => {
+    if (!latestMessageProps.latestMessage) return []
+    if (latestMessageProps.latestMessage.role !== 'assistant') return []
+    if (stoppedMessageIds.includes(latestMessageProps.latestMessage.id))
+      return []
 
-  const {
-    play: defaultPlayFn,
-    syncMessages,
-    isPending: defaultIsPending,
-    visualizationAnalyser: defaultVisualizer,
-    controls,
-  } = defaultPlayback
+    const input = getInput({
+      message: latestMessageProps.latestMessage,
+    })
 
-  const playImpl = useMemo(
-    () => passedPlay || (defaultPlayFn as (args: PlayArgs<TInput>) => void),
-    [passedPlay, defaultPlayFn],
+    if (!input) return []
+
+    const messageSentences = getMessageSentences({
+      messageId: latestMessageProps.latestMessage.id,
+      input,
+    })
+
+    return messageSentences.filter(
+      (ms: { messageId: string; sentence: string }) =>
+        !playedMessageSentences.find(
+          (pms) =>
+            pms.messageId === ms.messageId && pms.sentence === ms.sentence,
+        ),
+    )
+  }, [latestMessageProps, playedMessageSentences])
+
+  const defaultPlay = useCallback(
+    ({ input, onPlay, onStop, onEnd }: PlayArgs) => {
+      const searchParams = new URLSearchParams({
+        input,
+        ...superinterfaceContext.variables,
+      })
+
+      audioPlayer.load(
+        `${superinterfaceContext.baseUrl}/audio-runtimes/tts?${searchParams}`,
+        {
+          format: 'mp3',
+          autoplay: isAudioPlayed,
+          html5: isHtmlAudioSupported,
+          onplay: onPlay,
+          onstop: onStop,
+          onload: () => {
+            const nextUnplayedMessageSentence = unplayedMessageSentences[1]
+            if (!nextUnplayedMessageSentence) return
+
+            const isNextFullSentence = fullSentenceRegex.test(
+              nextUnplayedMessageSentence.sentence,
+            )
+            if (!isNextFullSentence) return
+
+            const nextSearchParams = new URLSearchParams({
+              input: nextUnplayedMessageSentence.sentence,
+              ...superinterfaceContext.variables,
+            })
+
+            nextAudioPlayer.load(
+              `${superinterfaceContext.baseUrl}/audio-runtimes/tts?${nextSearchParams}`,
+              {
+                format: 'mp3',
+                autoplay: false,
+                html5: isHtmlAudioSupported,
+              },
+            )
+          },
+          onend: onEnd,
+        },
+      )
+    },
+    [
+      superinterfaceContext,
+      unplayedMessageSentences,
+      audioPlayer,
+      nextAudioPlayer,
+      isAudioPlayed,
+      fullSentenceRegex,
+    ],
   )
 
-  const createChunkCallbacks = useCallback(() => {
-    if (passedPlay) {
-      onEndPendingRef.current = true
-      setActiveChunks((prev) => prev + 1)
-    }
-    let finished = false
-    const finish = () => {
-      if (finished) return
-      finished = true
-      if (passedPlay) {
-        setActiveChunks((prev) => Math.max(prev - 1, 0))
-      }
-    }
-    return {
-      onPlay: () => setIsAudioPlayed(true),
-      onStop: () => finish(),
-      onEnd: () => finish(),
-    }
-  }, [passedPlay])
-
-  const processedRef = useRef<Map<string, ProcessedMessageState>>(new Map())
+  const play = useMemo(
+    () => passedPlay || defaultPlay,
+    [passedPlay, defaultPlay],
+  )
 
   useEffect(() => {
-    const seenIds = new Set<string>()
+    if (isPlaying) return
+    if (audioPlayer.playing) return
+    if (!latestMessageProps.latestMessage) return
+    if (latestMessageProps.latestMessage.role !== 'assistant') return
 
-    for (let idx = 0; idx < assistantsAsc.length; idx++) {
-      const message = assistantsAsc[idx]
-      const id = String(message.id)
-      const input = getInput({ message })
-      if (input == null) continue
+    const firstUnplayedMessageSentence = unplayedMessageSentences[0]
+    if (!firstUnplayedMessageSentence) {
+      return
+    }
 
-      const prev = processedRef.current.get(id)
-      const prevText = prev?.text ?? ''
-      const prevStatus = prev?.status
+    const isFullSentence =
+      isOptimistic({ id: latestMessageProps.latestMessage.id }) ||
+      latestMessageProps.latestMessage.status !== 'in_progress' ||
+      fullSentenceRegex.test(firstUnplayedMessageSentence.sentence)
 
-      const hasSamePrefix =
-        prevText.length > 0 && input.startsWith(prevText) && prevText !== input
+    if (!isFullSentence) return
+    setIsPlaying(true)
 
-      let delta: string
-      if (hasSamePrefix) {
-        delta = input.slice(prevText.length)
-      } else if (input === prevText) {
-        delta = ''
-      } else {
-        delta = input
-      }
+    setPlayedMessageSentences((prev) => [...prev, firstUnplayedMessageSentence])
 
-      const statusChanged = prevStatus !== message.status
+    const input = firstUnplayedMessageSentence.sentence
 
-      if (delta.length > 0 || statusChanged) {
-        const callbacks = createChunkCallbacks()
-        try {
-          playImpl({
-            input: delta as unknown as TInput,
-            message,
-            onPlay: callbacks.onPlay,
-            onStop: callbacks.onStop,
-            onEnd: callbacks.onEnd,
-          })
-        } catch (error) {
-          callbacks.onEnd()
-          throw error
+    play({
+      input,
+      onPlay: () => {
+        setIsAudioPlayed(true)
+      },
+      onStop: () => {
+        setStoppedMessageIds((prev) => [
+          ...prev,
+          firstUnplayedMessageSentence.messageId,
+        ])
+        setIsPlaying(false)
+      },
+      onEnd: () => {
+        setIsPlaying(false)
+
+        isLastSentencePlayedRef.current = unplayedMessageSentences.length === 1
+
+        if (
+          isLastSentencePlayedRef.current &&
+          latestMessageProps.latestMessage.status !== 'in_progress'
+        ) {
+          onEnd()
+          isLastSentencePlayedRef.current = false
         }
-      }
-
-      processedRef.current.set(id, { text: input, status: message.status })
-      seenIds.add(id)
-    }
-
-    for (const id of Array.from(processedRef.current.keys())) {
-      if (!seenIds.has(id)) {
-        processedRef.current.delete(id)
-      }
-    }
-
-    if (!passedPlay) {
-      syncMessages(assistantsAsc)
-    }
-  }, [assistantsAsc, playImpl, passedPlay, createChunkCallbacks, syncMessages])
+      },
+    })
+  }, [
+    unplayedMessageSentences,
+    isPlaying,
+    superinterfaceContext,
+    latestMessageProps,
+    audioPlayer,
+    nextAudioPlayer,
+    playedMessageSentences,
+    onEnd,
+    play,
+    fullSentenceRegex,
+  ])
 
   useEffect(() => {
-    if (!passedPlay) return
-    if (!onEndPendingRef.current) return
-    if (activeChunksRef.current !== 0) return
-
-    const hasStreaming = assistantsAsc.some(
-      (message) => message.status === 'in_progress',
-    )
-
-    if (!hasStreaming) {
+    if (
+      isLastSentencePlayedRef.current &&
+      !isPlaying &&
+      unplayedMessageSentences.length === 0 &&
+      latestMessageProps.latestMessage?.status !== 'in_progress'
+    ) {
       onEnd()
-      onEndPendingRef.current = false
+      isLastSentencePlayedRef.current = false
     }
-  }, [passedPlay, assistantsAsc, onEnd, activeChunks])
+  }, [
+    isPlaying,
+    unplayedMessageSentences.length,
+    latestMessageProps.latestMessage?.status,
+    onEnd,
+  ])
 
-  const isPending = passedPlay
-    ? activeChunks > 0 ||
-      assistantsAsc.some((message) => message.status === 'in_progress')
-    : defaultIsPending
+  useEffect(() => {
+    if (isHtmlAudioSupported) {
+      // @ts-ignore-next-line
+      if (!Howler?._howls[0]?._sounds[0]?._node) return
 
-  const visualizationAnalyser = passedPlay ? null : defaultVisualizer
+      // @ts-ignore-next-line
+      Howler._howls[0]._sounds[0]._node.crossOrigin = 'anonymous'
+    }
+  }, [audioPlayer])
+
+  const [audioEngine, setAudioEngine] = useState<AudioEngine | null>(null)
+
+  const isAudioEngineInited = useRef(false)
+
+  useEffect(() => {
+    if (!audioPlayer.playing) return
+    if (isAudioEngineInited.current) return
+    isAudioEngineInited.current = true
+
+    if (isHtmlAudioSupported) {
+      const audioContext = new AudioContext()
+      setAudioEngine({
+        // @ts-ignore-next-line
+        source: audioContext.createMediaElementSource(
+          // @ts-ignore-next-line
+          Howler._howls[0]._sounds[0]._node,
+        ),
+        audioContext,
+      })
+    } else {
+      setAudioEngine({
+        source: Howler.masterGain,
+        audioContext: Howler.ctx,
+      })
+    }
+  }, [audioPlayer, isAudioEngineInited])
+
+  const visualizationAnalyser = useMemo(() => {
+    if (!audioEngine) return null
+
+    const result = audioEngine.audioContext.createAnalyser()
+
+    audioEngine.source.connect(audioEngine.audioContext.destination)
+    audioEngine.source.connect(result)
+    return result
+  }, [audioEngine])
+
+  const isPending = useMemo(
+    () =>
+      isPlaying ||
+      unplayedMessageSentences.length > 0 ||
+      latestMessageProps.latestMessage?.status === 'in_progress',
+    [isPlaying, unplayedMessageSentences, latestMessageProps],
+  )
 
   return {
     isPending,
     isAudioPlayed,
-    ...controls,
+    ...audioPlayer,
     visualizationAnalyser,
   }
 }
