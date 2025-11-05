@@ -27,7 +27,7 @@ const queryClient = new QueryClient({
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState<'thread' | 'code' | 'preview'>(
-    'preview',
+    'thread',
   )
   const [code, setCode] = useState(`<!DOCTYPE html>
 <html>
