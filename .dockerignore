@@ -1,0 +1,10 @@
+.git
+node_modules
+*.log
+.DS_Store
+.turbo
+packages/*/node_modules
+packages/*/.next
+packages/*/dist
+packages/*/tsconfig*.tsbuildinfo
+examples

@@ -40,9 +40,9 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ```bash
 cd /Users/domas/Developer/supercorp/superinterface
 npm install
-docker buildx bake server-release --set TAG=1.1.4
-docker push supercorp/superinterface-server:1.1.4
+docker buildx bake server-release   --set server-release.tags=supercorp/superinterface-server:<version>,supercorp/superinterface-server:latest
+docker push supercorp/superinterface-server:<version>
 docker push supercorp/superinterface-server:latest
 ```
 
-Replace the tag as needed for future releases.
+Replace `<version>` with the published npm version.
