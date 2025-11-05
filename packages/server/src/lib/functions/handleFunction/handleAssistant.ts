@@ -19,8 +19,6 @@ import { createRunOpts } from '@/lib/runs/createRunOpts'
 import { handleToolCall } from '@/lib/toolCalls/handleToolCall'
 import { createLog } from '@/lib/logs/createLog'
 import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
-import { redis } from '@/lib/redis'
-import { waitUntil } from '@vercel/functions'
 import { omit } from 'radash'
 
 export const handleAssistant = async ({
@@ -337,61 +335,6 @@ export const handleAssistant = async ({
       prisma,
     }),
   })
-
-  if (assistant.id === 'a606a15d-c9a2-45d3-8e54-ee088a500008') {
-    waitUntil(
-      new Promise(async (resolve) => {
-        const decoder = new TextDecoder()
-        const reader = messageResponse.getReader()
-        // // consume the stream so tool calls are processed
-        // while (!(await reader.read()).done) {}
-        while (true) {
-          const { value, done } = await reader.read()
-          if (done) break
-
-          if (!value) continue
-
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          let event: any
-
-          try {
-            event = JSON.parse(decoder.decode(value))
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          } catch (e) {
-            continue
-          }
-
-          if (
-            event.event === 'thread.run.requires_action' &&
-            event.data?.required_action?.type === 'submit_client_tool_outputs'
-          ) {
-            await Promise.all(
-              event.data.required_action.submit_client_tool_outputs.tool_calls.map(
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                async (toolCall: any) => {
-                  await redis.set(
-                    `submit-client-tool-outputs:output:${toolCall.id}`,
-                    'Client tools cannot be used during async assistant calls',
-                    { ex: 60 * 60 * 24 * 7 },
-                  )
-                },
-              ),
-            )
-          }
-        }
-
-        console.log('Successfully done with async assistant handler.')
-        resolve(true)
-      }),
-    )
-
-    return {
-      tool_call_id: toolCall.id,
-      output: JSON.stringify({
-        status: 'in_progress',
-      }),
-    }
-  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const messages = [] as any[]
