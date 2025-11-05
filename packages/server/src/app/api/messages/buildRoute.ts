@@ -729,6 +729,7 @@ export const buildPOST =
       {
         status: 200,
         headers: {
+          ...cacheHeaders,
           'Content-Type': 'application/json; charset=utf-8',
         },
       },
