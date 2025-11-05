@@ -1,19 +1,49 @@
-import { PrismaNeon } from '@prisma/adapter-neon'
 import { PrismaClient } from '@prisma/client'
+import { PrismaNeon } from '@prisma/adapter-neon'
+
+type SupportedDatabaseAdapter = 'neon' | 'direct'
+
+const resolveDatabaseAdapter = (): SupportedDatabaseAdapter => {
+  const adapter = (process.env.DATABASE_ADAPTER ?? 'neon').toLowerCase().trim()
+
+  if (['direct', 'standard', 'postgres', 'supabase'].includes(adapter)) {
+    return 'direct'
+  }
+
+  if (['neon', 'vercel', 'vercel_postgres'].includes(adapter)) {
+    return 'neon'
+  }
+
+  return 'neon'
+}
 
 const prismaClientSingleton = () => {
   const connectionString = `${process.env.DATABASE_URL}`
+  const databaseAdapter = resolveDatabaseAdapter()
 
   if (process.env.NODE_ENV === 'test') {
     return new PrismaClient()
   }
 
-  const adapter = new PrismaNeon({
-    connectionString,
-  })
+  if (databaseAdapter === 'neon') {
+    const adapter = new PrismaNeon({
+      connectionString,
+    })
+
+    return new PrismaClient({
+      adapter,
+      transactionOptions: {
+        timeout: 15000,
+      },
+    })
+  }
 
   return new PrismaClient({
-    adapter,
+    datasources: {
+      db: {
+        url: connectionString,
+      },
+    },
     transactionOptions: {
       timeout: 15000,
     },

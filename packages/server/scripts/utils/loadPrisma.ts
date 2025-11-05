@@ -9,6 +9,22 @@ import { CliError } from './errors'
 const nodeRequire = createRequire(import.meta.url)
 const packageRoot = fileURLToPath(new URL('../..', import.meta.url))
 
+type SupportedDatabaseAdapter = 'neon' | 'direct'
+
+const resolveDatabaseAdapter = (): SupportedDatabaseAdapter => {
+  const adapter = (process.env.DATABASE_ADAPTER ?? 'neon').toLowerCase().trim()
+
+  if (['direct', 'standard', 'postgres', 'supabase'].includes(adapter)) {
+    return 'direct'
+  }
+
+  if (['neon', 'vercel', 'vercel_postgres'].includes(adapter)) {
+    return 'neon'
+  }
+
+  return 'neon'
+}
+
 const generatePrismaClient = async () => {
   let prismaCliPath: string
 
@@ -50,7 +66,7 @@ const generatePrismaClient = async () => {
 // This function replicates the logic from src/lib/prisma/index.ts
 // Keep this in sync with that file's prismaClientSingleton function
 const createPrismaClient = async (bustCache = false) => {
-  // Dynamically import PrismaClient and PrismaNeon after generation
+  // Dynamically import PrismaClient after generation
   let PrismaClientConstructor: typeof PrismaClient
 
   if (bustCache) {
@@ -73,21 +89,33 @@ const createPrismaClient = async (bustCache = false) => {
     PrismaClientConstructor = prismaModule.PrismaClient
   }
 
-  const { PrismaNeon } = await import('@prisma/adapter-neon')
-  const PrismaNeonConstructor = PrismaNeon
-
   const connectionString = `${process.env.DATABASE_URL}`
+  const databaseAdapter = resolveDatabaseAdapter()
 
   if (process.env.NODE_ENV === 'test') {
     return new PrismaClientConstructor()
   }
 
-  const adapter = new PrismaNeonConstructor({
-    connectionString,
-  })
+  if (databaseAdapter === 'neon') {
+    const { PrismaNeon } = await import('@prisma/adapter-neon')
+    const adapter = new PrismaNeon({
+      connectionString,
+    })
+
+    return new PrismaClientConstructor({
+      adapter,
+      transactionOptions: {
+        timeout: 15000,
+      },
+    })
+  }
 
   return new PrismaClientConstructor({
-    adapter,
+    datasources: {
+      db: {
+        url: connectionString,
+      },
+    },
     transactionOptions: {
       timeout: 15000,
     },
