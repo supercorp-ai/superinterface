@@ -10,16 +10,33 @@ import {
   googleClientAdapter,
   togetherClientAdapter,
   anthropicClientAdapter,
+  azureAiProjectClientAdapter,
 } from 'supercompat'
-import { ModelProvider, ModelProviderType } from '@prisma/client'
+import {
+  ModelProvider,
+  ModelProviderType,
+  StorageProviderType,
+} from '@prisma/client'
 import { buildOpenaiClientAdapter } from '@/lib/modelProviders/buildOpenaiClientAdapter'
 import { buildAzureOpenaiClientAdapter } from '@/lib/modelProviders/buildAzureOpenaiClientAdapter'
+import { getAzureAiProjectClient } from '@/lib/modelProviders/getAzureAiProjectClient'
+import { isAzureAgentsStorageProvider } from '@/lib/storageProviders/isAzureAgentsStorageProvider'
 
 export const clientAdapter = ({
   modelProvider,
+  storageProviderType,
 }: {
   modelProvider: ModelProvider
+  storageProviderType?: StorageProviderType
 }) => {
+  // Azure Agents uses a different client adapter even though model provider is AZURE_OPENAI
+  if (
+    storageProviderType &&
+    isAzureAgentsStorageProvider({ storageProviderType })
+  ) {
+    const azureAiProject = getAzureAiProjectClient({ modelProvider })
+    return azureAiProjectClientAdapter({ azureAiProject })
+  }
   if (modelProvider.type === ModelProviderType.OPENAI) {
     return buildOpenaiClientAdapter({
       modelProvider,
