@@ -183,10 +183,10 @@ describe('Azure Agents Storage Provider', () => {
   })
 
   describe('clientAdapter with Azure Agents', () => {
-    it('returns azureAiProjectClientAdapter for Azure Agents storage provider', () => {
+    it('returns azureAiProjectClientAdapter for AZURE_AI_PROJECT model provider type', () => {
       const modelProvider = {
         id: randomUUID(),
-        type: ModelProviderType.AZURE_OPENAI,
+        type: ModelProviderType.AZURE_AI_PROJECT,
         azureTenantId: 'tenant-id',
         azureClientId: 'client-id',
         azureClientSecret: 'client-secret',
@@ -202,7 +202,7 @@ describe('Azure Agents Storage Provider', () => {
       assert.strictEqual(adapter.type, 'AZURE_AI_PROJECT')
     })
 
-    it('returns regular Azure OpenAI adapter when storage is not Azure Agents', async () => {
+    it('returns regular Azure OpenAI adapter for AZURE_OPENAI model provider', async () => {
       const workspace = await createTestWorkspace()
       const modelProvider = await createTestModelProvider({
         data: {
@@ -220,7 +220,7 @@ describe('Azure Agents Storage Provider', () => {
       })
 
       assert.ok(adapter)
-      assert.notStrictEqual(adapter.type, 'AZURE_AI_PROJECT')
+      assert.strictEqual(adapter.type, 'AZURE_OPENAI')
     })
   })
 
@@ -454,7 +454,7 @@ describe('Azure Agents Storage Provider', () => {
   })
 
   describe('Azure Agents with model provider configs', () => {
-    it('Azure OpenAI model provider supports Azure Agents storage', async () => {
+    it('Azure OpenAI model provider does NOT support Azure Agents storage', async () => {
       const { modelProviderConfigs } = await import(
         '@/lib/modelProviders/modelProviderConfigs'
       )
@@ -465,11 +465,288 @@ describe('Azure Agents Storage Provider', () => {
 
       assert.ok(azureOpenaiConfig, 'Azure OpenAI config should exist')
       assert.ok(
-        azureOpenaiConfig.storageProviderTypes.includes(
+        !azureOpenaiConfig.storageProviderTypes.includes(
           StorageProviderType.AZURE_AGENTS,
         ),
-        'Azure OpenAI should support Azure Agents storage',
+        'Azure OpenAI should NOT support Azure Agents storage after adding dedicated AZURE_AGENTS model provider type',
       )
+    })
+
+    it('Azure AI Project model provider config exists and only supports AZURE_AGENTS storage', async () => {
+      const { modelProviderConfigs } = await import(
+        '@/lib/modelProviders/modelProviderConfigs'
+      )
+
+      const azureAiProjectConfig = modelProviderConfigs.find(
+        (config) => config.type === ModelProviderType.AZURE_AI_PROJECT,
+      )
+
+      assert.ok(azureAiProjectConfig, 'Azure AI Project config should exist')
+      assert.strictEqual(
+        azureAiProjectConfig.slug,
+        'azure-ai-project',
+        'Azure AI Project config should have correct slug',
+      )
+      assert.strictEqual(
+        azureAiProjectConfig.storageProviderTypes.length,
+        1,
+        'Azure AI Project should support exactly one storage type',
+      )
+      assert.ok(
+        azureAiProjectConfig.storageProviderTypes.includes(
+          StorageProviderType.AZURE_AGENTS,
+        ),
+        'Azure AI Project should support AZURE_AGENTS storage',
+      )
+    })
+  })
+
+  describe('clientAdapter routing logic comprehensive tests', () => {
+    it('AZURE_AI_PROJECT model provider with AZURE_AGENTS storage returns Azure AI Project adapter', () => {
+      const modelProvider = {
+        id: randomUUID(),
+        type: ModelProviderType.AZURE_AI_PROJECT,
+        azureTenantId: 'tenant-id',
+        azureClientId: 'client-id',
+        azureClientSecret: 'client-secret',
+        endpoint: 'https://test.cognitiveservices.azure.com/',
+      } as any
+
+      const adapter = clientAdapter({
+        modelProvider,
+        storageProviderType: StorageProviderType.AZURE_AGENTS,
+      })
+
+      assert.ok(adapter)
+      assert.strictEqual(
+        adapter.type,
+        'AZURE_AI_PROJECT',
+        'Should use Azure AI Project adapter',
+      )
+    })
+
+    it('AZURE_AI_PROJECT model provider without storage type returns Azure AI Project adapter', () => {
+      const modelProvider = {
+        id: randomUUID(),
+        type: ModelProviderType.AZURE_AI_PROJECT,
+        azureTenantId: 'tenant-id',
+        azureClientId: 'client-id',
+        azureClientSecret: 'client-secret',
+        endpoint: 'https://test.cognitiveservices.azure.com/',
+      } as any
+
+      const adapter = clientAdapter({
+        modelProvider,
+      })
+
+      assert.ok(adapter)
+      assert.strictEqual(
+        adapter.type,
+        'AZURE_AI_PROJECT',
+        'Should use Azure AI Project adapter even without explicit storage type',
+      )
+    })
+
+    it('AZURE_OPENAI model provider with AZURE_OPENAI storage returns regular Azure OpenAI adapter', async () => {
+      const workspace = await createTestWorkspace()
+      const modelProvider = await createTestModelProvider({
+        data: {
+          workspaceId: workspace.id,
+          type: ModelProviderType.AZURE_OPENAI,
+          apiKey: 'test-key',
+          endpoint: 'https://test.openai.azure.com/',
+          apiVersion: '2024-02-15-preview',
+        },
+      })
+
+      const adapter = clientAdapter({
+        modelProvider,
+        storageProviderType: StorageProviderType.AZURE_OPENAI,
+      })
+
+      assert.ok(adapter)
+      assert.strictEqual(
+        adapter.type,
+        'AZURE_OPENAI',
+        'Should use regular Azure OpenAI adapter',
+      )
+    })
+
+    it('AZURE_OPENAI model provider with SUPERINTERFACE_CLOUD storage returns regular Azure OpenAI adapter', async () => {
+      const workspace = await createTestWorkspace()
+      const modelProvider = await createTestModelProvider({
+        data: {
+          workspaceId: workspace.id,
+          type: ModelProviderType.AZURE_OPENAI,
+          apiKey: 'test-key',
+          endpoint: 'https://test.openai.azure.com/',
+          apiVersion: '2024-02-15-preview',
+        },
+      })
+
+      const adapter = clientAdapter({
+        modelProvider,
+        storageProviderType: StorageProviderType.SUPERINTERFACE_CLOUD,
+      })
+
+      assert.ok(adapter)
+      assert.strictEqual(
+        adapter.type,
+        'AZURE_OPENAI',
+        'Should use regular Azure OpenAI adapter for Superinterface Cloud storage',
+      )
+    })
+  })
+
+  describe('all model provider types return valid adapters', () => {
+    it('OPENAI returns valid adapter', async () => {
+      const workspace = await createTestWorkspace()
+      const modelProvider = await createTestModelProvider({
+        data: {
+          workspaceId: workspace.id,
+          type: ModelProviderType.OPENAI,
+          apiKey: 'test-key',
+        },
+      })
+
+      const adapter = clientAdapter({ modelProvider })
+      assert.ok(adapter, 'OPENAI adapter should be created')
+      assert.ok(adapter.client, 'OPENAI adapter should have client')
+    })
+
+    it('ANTHROPIC returns valid adapter', async () => {
+      const workspace = await createTestWorkspace()
+      const modelProvider = await createTestModelProvider({
+        data: {
+          workspaceId: workspace.id,
+          type: ModelProviderType.ANTHROPIC,
+          apiKey: 'test-key',
+        },
+      })
+
+      const adapter = clientAdapter({ modelProvider })
+      assert.ok(adapter, 'ANTHROPIC adapter should be created')
+      assert.ok(adapter.client, 'ANTHROPIC adapter should have client')
+    })
+
+    it('MISTRAL returns valid adapter', async () => {
+      const workspace = await createTestWorkspace()
+      const modelProvider = await createTestModelProvider({
+        data: {
+          workspaceId: workspace.id,
+          type: ModelProviderType.MISTRAL,
+          apiKey: 'test-key',
+        },
+      })
+
+      const adapter = clientAdapter({ modelProvider })
+      assert.ok(adapter, 'MISTRAL adapter should be created')
+      assert.ok(adapter.client, 'MISTRAL adapter should have client')
+    })
+
+    it('GROQ returns valid adapter', async () => {
+      const workspace = await createTestWorkspace()
+      const modelProvider = await createTestModelProvider({
+        data: {
+          workspaceId: workspace.id,
+          type: ModelProviderType.GROQ,
+          apiKey: 'test-key',
+        },
+      })
+
+      const adapter = clientAdapter({ modelProvider })
+      assert.ok(adapter, 'GROQ adapter should be created')
+      assert.ok(adapter.client, 'GROQ adapter should have client')
+    })
+
+    it('PERPLEXITY returns valid adapter', async () => {
+      const workspace = await createTestWorkspace()
+      const modelProvider = await createTestModelProvider({
+        data: {
+          workspaceId: workspace.id,
+          type: ModelProviderType.PERPLEXITY,
+          apiKey: 'test-key',
+        },
+      })
+
+      const adapter = clientAdapter({ modelProvider })
+      assert.ok(adapter, 'PERPLEXITY adapter should be created')
+      assert.ok(adapter.client, 'PERPLEXITY adapter should have client')
+    })
+
+    it('TOGETHER returns valid adapter', async () => {
+      const workspace = await createTestWorkspace()
+      const modelProvider = await createTestModelProvider({
+        data: {
+          workspaceId: workspace.id,
+          type: ModelProviderType.TOGETHER,
+          apiKey: 'test-key',
+        },
+      })
+
+      const adapter = clientAdapter({ modelProvider })
+      assert.ok(adapter, 'TOGETHER adapter should be created')
+      assert.ok(adapter.client, 'TOGETHER adapter should have client')
+    })
+
+    it('OLLAMA returns valid adapter', async () => {
+      const workspace = await createTestWorkspace()
+      const modelProvider = await createTestModelProvider({
+        data: {
+          workspaceId: workspace.id,
+          type: ModelProviderType.OLLAMA,
+          endpoint: 'http://localhost:11434',
+        },
+      })
+
+      const adapter = clientAdapter({ modelProvider })
+      assert.ok(adapter, 'OLLAMA adapter should be created')
+      assert.ok(adapter.client, 'OLLAMA adapter should have client')
+    })
+
+    it('HUMIRIS returns valid adapter', async () => {
+      const workspace = await createTestWorkspace()
+      const modelProvider = await createTestModelProvider({
+        data: {
+          workspaceId: workspace.id,
+          type: ModelProviderType.HUMIRIS,
+          apiKey: 'test-key',
+        },
+      })
+
+      const adapter = clientAdapter({ modelProvider })
+      assert.ok(adapter, 'HUMIRIS adapter should be created')
+      assert.ok(adapter.client, 'HUMIRIS adapter should have client')
+    })
+
+    it('GOOGLE returns valid adapter', async () => {
+      const workspace = await createTestWorkspace()
+      const modelProvider = await createTestModelProvider({
+        data: {
+          workspaceId: workspace.id,
+          type: ModelProviderType.GOOGLE,
+          apiKey: 'test-key',
+        },
+      })
+
+      const adapter = clientAdapter({ modelProvider })
+      assert.ok(adapter, 'GOOGLE adapter should be created')
+      assert.ok(adapter.client, 'GOOGLE adapter should have client')
+    })
+
+    it('OPEN_ROUTER returns valid adapter', async () => {
+      const workspace = await createTestWorkspace()
+      const modelProvider = await createTestModelProvider({
+        data: {
+          workspaceId: workspace.id,
+          type: ModelProviderType.OPEN_ROUTER,
+          apiKey: 'test-key',
+        },
+      })
+
+      const adapter = clientAdapter({ modelProvider })
+      assert.ok(adapter, 'OPEN_ROUTER adapter should be created')
+      assert.ok(adapter.client, 'OPEN_ROUTER adapter should have client')
     })
   })
 })

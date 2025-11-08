@@ -20,7 +20,6 @@ import {
 import { buildOpenaiClientAdapter } from '@/lib/modelProviders/buildOpenaiClientAdapter'
 import { buildAzureOpenaiClientAdapter } from '@/lib/modelProviders/buildAzureOpenaiClientAdapter'
 import { getAzureAiProjectClient } from '@/lib/modelProviders/getAzureAiProjectClient'
-import { isAzureAgentsStorageProvider } from '@/lib/storageProviders/isAzureAgentsStorageProvider'
 
 export const clientAdapter = ({
   modelProvider,
@@ -29,14 +28,6 @@ export const clientAdapter = ({
   modelProvider: ModelProvider
   storageProviderType?: StorageProviderType
 }) => {
-  // Azure Agents uses a different client adapter even though model provider is AZURE_OPENAI
-  if (
-    storageProviderType &&
-    isAzureAgentsStorageProvider({ storageProviderType })
-  ) {
-    const azureAiProject = getAzureAiProjectClient({ modelProvider })
-    return azureAiProjectClientAdapter({ azureAiProject })
-  }
   if (modelProvider.type === ModelProviderType.OPENAI) {
     return buildOpenaiClientAdapter({
       modelProvider,
@@ -47,6 +38,11 @@ export const clientAdapter = ({
     return buildAzureOpenaiClientAdapter({
       modelProvider,
     })
+  }
+
+  if (modelProvider.type === ModelProviderType.AZURE_AI_PROJECT) {
+    const azureAiProject = getAzureAiProjectClient({ modelProvider })
+    return azureAiProjectClientAdapter({ azureAiProject })
   }
 
   if (modelProvider.type === ModelProviderType.PERPLEXITY) {
