@@ -9,6 +9,7 @@ import {
 import { optimisticId, serializeMessage } from '@superinterface/react/utils'
 import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
 import { isResponsesStorageProvider } from '@/lib/storageProviders/isResponsesStorageProvider'
+import { isAzureAgentsStorageProvider } from '@/lib/storageProviders/isAzureAgentsStorageProvider'
 
 const assistantId = ({ assistant }: { assistant: Assistant }) => {
   if (
@@ -31,6 +32,14 @@ const assistantId = ({ assistant }: { assistant: Assistant }) => {
     assistant.storageProviderType === StorageProviderType.SUPERINTERFACE_CLOUD
   ) {
     return assistant.id
+  }
+
+  if (
+    isAzureAgentsStorageProvider({
+      storageProviderType: assistant.storageProviderType,
+    })
+  ) {
+    return assistant.azureAgentsAgentId
   }
 
   throw new Error('Invalid storage type')
