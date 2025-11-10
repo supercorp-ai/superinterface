@@ -10,10 +10,12 @@ import {
   googleClientAdapter,
   togetherClientAdapter,
   anthropicClientAdapter,
+  azureAiProjectClientAdapter,
 } from 'supercompat'
 import { ModelProvider, ModelProviderType } from '@prisma/client'
 import { buildOpenaiClientAdapter } from '@/lib/modelProviders/buildOpenaiClientAdapter'
 import { buildAzureOpenaiClientAdapter } from '@/lib/modelProviders/buildAzureOpenaiClientAdapter'
+import { getAzureAiProjectClient } from '@/lib/modelProviders/getAzureAiProjectClient'
 
 export const clientAdapter = ({
   modelProvider,
@@ -30,6 +32,11 @@ export const clientAdapter = ({
     return buildAzureOpenaiClientAdapter({
       modelProvider,
     })
+  }
+
+  if (modelProvider.type === ModelProviderType.AZURE_AI_PROJECT) {
+    const azureAiProject = getAzureAiProjectClient({ modelProvider })
+    return azureAiProjectClientAdapter({ azureAiProject })
   }
 
   if (modelProvider.type === ModelProviderType.PERPLEXITY) {

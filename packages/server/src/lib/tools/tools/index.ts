@@ -11,6 +11,7 @@ import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpen
 import { connectMcpServer } from '@/lib/mcpServers/connectMcpServer'
 import { closeMcpConnection } from '@/lib/mcpServers/closeMcpConnection'
 import { isResponsesStorageProvider } from '@/lib/storageProviders/isResponsesStorageProvider'
+import { isAzureAgentsStorageProvider } from '@/lib/storageProviders/isAzureAgentsStorageProvider'
 import { url } from '@/lib/mcpServers/url'
 import { headers } from '@/lib/mcpServers/headers'
 import { getMcpServerLabel } from '@/lib/mcpServers/getMcpServerLabel'
@@ -71,6 +72,16 @@ const nativeTools = ({
         }
 
         if (
+          isAzureAgentsStorageProvider({
+            storageProviderType: assistant.storageProviderType,
+          })
+        ) {
+          return {
+            type: 'file_search' as const,
+          }
+        }
+
+        if (
           isResponsesStorageProvider({
             storageProviderType: assistant.storageProviderType,
           })
@@ -88,6 +99,16 @@ const nativeTools = ({
       } else if (tool.type === ToolType.CODE_INTERPRETER) {
         if (
           isOpenaiAssistantsStorageProvider({
+            storageProviderType: assistant.storageProviderType,
+          })
+        ) {
+          return {
+            type: 'code_interpreter' as const,
+          }
+        }
+
+        if (
+          isAzureAgentsStorageProvider({
             storageProviderType: assistant.storageProviderType,
           })
         ) {

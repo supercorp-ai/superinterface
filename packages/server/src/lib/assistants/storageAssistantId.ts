@@ -1,6 +1,7 @@
 import { Assistant, StorageProviderType } from '@prisma/client'
 import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
 import { isResponsesStorageProvider } from '@/lib/storageProviders/isResponsesStorageProvider'
+import { isAzureAgentsStorageProvider } from '@/lib/storageProviders/isAzureAgentsStorageProvider'
 
 export const storageAssistantId = ({ assistant }: { assistant: Assistant }) => {
   if (
@@ -23,6 +24,14 @@ export const storageAssistantId = ({ assistant }: { assistant: Assistant }) => {
     assistant.storageProviderType === StorageProviderType.SUPERINTERFACE_CLOUD
   ) {
     return assistant.id
+  }
+
+  if (
+    isAzureAgentsStorageProvider({
+      storageProviderType: assistant.storageProviderType,
+    })
+  ) {
+    return assistant.azureAgentsAgentId!
   }
 
   throw new Error('Invalid storage type')

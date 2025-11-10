@@ -28,9 +28,10 @@ export default function Page() {
         scaling="100%"
       >
         <SuperinterfaceProvider
+          baseUrl="http://localhost:3000/api/cloud"
           variables={{
-            publicApiKey: '18d58cdd-96bc-4d01-ab21-1a891a4fd49e',
-            assistantId: '92ad4821-e7cf-49d9-bb93-89f43fb9316f',
+            publicApiKey: 'e6709062-c641-44d0-a9e5-9e1da1099907',
+            assistantId: '816b577b-bd8d-4d1c-8ff2-93a45055c242',
           }}
         >
           <AssistantProvider>

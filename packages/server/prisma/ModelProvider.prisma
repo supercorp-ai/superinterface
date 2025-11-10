@@ -5,6 +5,9 @@ model ModelProvider {
   apiKey String
   endpoint String?
   apiVersion String?
+  azureTenantId String?
+  azureClientId String?
+  azureClientSecret String?
   assistants Assistant[]
   workspaceId String @db.Uuid
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)

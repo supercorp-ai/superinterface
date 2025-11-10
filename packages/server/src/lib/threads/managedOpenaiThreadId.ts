@@ -1,6 +1,7 @@
 import { Prisma, StorageProviderType, type PrismaClient } from '@prisma/client'
 import { assistantClientAdapter } from '@/lib/assistants/assistantClientAdapter'
 import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
+import { isAzureAgentsStorageProvider } from '@/lib/storageProviders/isAzureAgentsStorageProvider'
 
 export const managedOpenaiThreadId = async ({
   assistant,
@@ -64,6 +65,13 @@ export const managedOpenaiThreadId = async ({
       StorageProviderType.AZURE_OPENAI_RESPONSES
         ? {
             azureOpenaiConversationId: newStorageThread.id,
+          }
+        : {}),
+      ...(isAzureAgentsStorageProvider({
+        storageProviderType: assistant.storageProviderType,
+      })
+        ? {
+            azureAgentsThreadId: newStorageThread.id,
           }
         : {}),
     },

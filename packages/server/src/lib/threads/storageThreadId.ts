@@ -1,5 +1,6 @@
 import { Prisma, StorageProviderType } from '@prisma/client'
 import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
+import { isAzureAgentsStorageProvider } from '@/lib/storageProviders/isAzureAgentsStorageProvider'
 
 export const storageThreadId = ({
   thread,
@@ -41,6 +42,14 @@ export const storageThreadId = ({
     StorageProviderType.SUPERINTERFACE_CLOUD
   ) {
     return thread.id
+  }
+
+  if (
+    isAzureAgentsStorageProvider({
+      storageProviderType: thread.assistant.storageProviderType,
+    })
+  ) {
+    return thread.azureAgentsThreadId
   }
 
   throw new Error(

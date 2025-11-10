@@ -3,6 +3,7 @@ model Thread {
   openaiThreadId String?
   openaiConversationId String?
   azureOpenaiConversationId String?
+  azureAgentsThreadId String?
   assistantId String @db.Uuid
   assistant Assistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
   /// [ThreadMetadata]

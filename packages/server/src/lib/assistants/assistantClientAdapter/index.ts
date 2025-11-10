@@ -11,11 +11,15 @@ import {
   completionsRunAdapter,
   responsesRunAdapter,
   responsesStorageAdapter,
+  azureAgentsStorageAdapter,
+  azureAgentsRunAdapter,
 } from 'supercompat'
 import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
 import { isResponsesStorageProvider } from '@/lib/storageProviders/isResponsesStorageProvider'
+import { isAzureAgentsStorageProvider } from '@/lib/storageProviders/isAzureAgentsStorageProvider'
 import { clientAdapter } from '@/lib/modelProviders/clientAdapter'
 import { buildGetOpenaiAssistant } from './buildGetOpenaiAssistant'
+import { getAzureAiProjectClient } from '@/lib/modelProviders/getAzureAiProjectClient'
 import { waitUntil } from '@vercel/functions'
 
 type AssistantWithModelProvider = Prisma.AssistantGetPayload<{
@@ -51,6 +55,17 @@ const storageAdapter = ({
     })
   ) {
     return responsesStorageAdapter()
+  }
+
+  if (
+    isAzureAgentsStorageProvider({
+      storageProviderType: assistant.storageProviderType,
+    })
+  ) {
+    const azureAiProject = getAzureAiProjectClient({
+      modelProvider: assistant.modelProvider,
+    })
+    return azureAgentsStorageAdapter({ azureAiProject })
   }
 
   throw new Error(
@@ -116,6 +131,17 @@ const runAdapter = ({
       }),
       waitUntil,
     })
+  }
+
+  if (
+    isAzureAgentsStorageProvider({
+      storageProviderType: assistant.storageProviderType,
+    })
+  ) {
+    const azureAiProject = getAzureAiProjectClient({
+      modelProvider: assistant.modelProvider,
+    })
+    return azureAgentsRunAdapter({ azureAiProject })
   }
 
   throw new Error(
