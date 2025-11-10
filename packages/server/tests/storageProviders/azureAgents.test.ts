@@ -195,7 +195,6 @@ describe('Azure Agents Storage Provider', () => {
 
       const adapter = clientAdapter({
         modelProvider,
-        storageProviderType: StorageProviderType.AZURE_AGENTS,
       })
 
       assert.ok(adapter)
@@ -514,7 +513,6 @@ describe('Azure Agents Storage Provider', () => {
 
       const adapter = clientAdapter({
         modelProvider,
-        storageProviderType: StorageProviderType.AZURE_AGENTS,
       })
 
       assert.ok(adapter)

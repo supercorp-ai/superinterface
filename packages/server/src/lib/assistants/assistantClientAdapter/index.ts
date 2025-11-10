@@ -13,7 +13,6 @@ import {
   responsesStorageAdapter,
   azureAgentsStorageAdapter,
   azureAgentsRunAdapter,
-  azureAiProjectClientAdapter,
 } from 'supercompat'
 import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
 import { isResponsesStorageProvider } from '@/lib/storageProviders/isResponsesStorageProvider'
@@ -184,7 +183,6 @@ export const assistantClientAdapter = ({
   supercompat({
     client: clientAdapter({
       modelProvider: assistant.modelProvider,
-      storageProviderType: assistant.storageProviderType,
     }),
     // @ts-expect-error - storageAdapter can return undefined
     storage: storageAdapter({
