@@ -65,7 +65,7 @@ const storageAdapter = ({
     const azureAiProject = getAzureAiProjectClient({
       modelProvider: assistant.modelProvider,
     })
-    return azureAgentsStorageAdapter({ azureAiProject })
+    return azureAgentsStorageAdapter({ azureAiProject, prisma })
   }
 
   throw new Error(

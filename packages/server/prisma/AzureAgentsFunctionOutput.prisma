@@ -1,0 +1,12 @@
+model AzureAgentsFunctionOutput {
+  id           String   @id @default(dbgenerated("gen_random_uuid()"))
+  runId        String
+  toolCallId   String
+  output       String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([runId, toolCallId])
+  @@index([runId])
+  @@index([createdAt(sort: Desc)])
+}
