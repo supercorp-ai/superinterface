@@ -77,6 +77,9 @@ export const buildPOST =
       apiKey: z.string().optional(),
       endpoint: z.string().optional().nullable(),
       apiVersion: z.string().optional().nullable(),
+      azureTenantId: z.string().optional().nullable(),
+      azureClientId: z.string().optional().nullable(),
+      azureClientSecret: z.string().optional().nullable(),
     })
 
     const parsed = schema.safeParse(body)
@@ -91,6 +94,9 @@ export const buildPOST =
       apiKey: providerKey,
       endpoint,
       apiVersion,
+      azureTenantId,
+      azureClientId,
+      azureClientSecret,
     } = parsed.data
     const workspaceId = privateApiKey.workspaceId
 
@@ -101,6 +107,9 @@ export const buildPOST =
         apiKey: providerKey ?? '',
         endpoint: endpoint ?? null,
         apiVersion: apiVersion ?? null,
+        azureTenantId: azureTenantId ?? null,
+        azureClientId: azureClientId ?? null,
+        azureClientSecret: azureClientSecret ?? null,
         workspaceId,
       },
     })

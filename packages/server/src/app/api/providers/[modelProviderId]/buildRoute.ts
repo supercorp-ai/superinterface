@@ -104,6 +104,9 @@ export const buildPATCH =
       apiKey: z.string().optional(),
       endpoint: z.string().optional().nullable(),
       apiVersion: z.string().optional().nullable(),
+      azureTenantId: z.string().optional().nullable(),
+      azureClientId: z.string().optional().nullable(),
+      azureClientSecret: z.string().optional().nullable(),
     })
 
     const parsed = schema.safeParse(body)
@@ -118,6 +121,9 @@ export const buildPATCH =
       endpoint,
       apiVersion,
       name,
+      azureTenantId,
+      azureClientId,
+      azureClientSecret,
     } = parsed.data
     const updateData: Prisma.ModelProviderUpdateInput = {
       ...(type ? { type } : {}),
@@ -125,6 +131,9 @@ export const buildPATCH =
       ...(providerKey !== undefined ? { apiKey: providerKey } : {}),
       ...(endpoint !== undefined ? { endpoint } : {}),
       ...(apiVersion !== undefined ? { apiVersion } : {}),
+      ...(azureTenantId !== undefined ? { azureTenantId } : {}),
+      ...(azureClientId !== undefined ? { azureClientId } : {}),
+      ...(azureClientSecret !== undefined ? { azureClientSecret } : {}),
     }
 
     const existingProvider = await prisma.modelProvider.findFirst({
