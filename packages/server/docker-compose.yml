@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: superinterface
+      POSTGRES_PASSWORD: superinterface
+      POSTGRES_DB: superinterface
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U superinterface']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    image: supercorp/superinterface-server:latest
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: ['node', 'bin/index.cjs']
+    command: ['prisma', 'deploy']
+    environment:
+      DATABASE_URL: postgresql://superinterface:superinterface@db:5432/superinterface
+      DIRECT_URL: postgresql://superinterface:superinterface@db:5432/superinterface
+      DATABASE_ADAPTER: direct
+    restart: 'no'
+
+  server:
+    image: supercorp/superinterface-server:latest
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - '3000:3000'
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgresql://superinterface:superinterface@db:5432/superinterface
+      DIRECT_URL: postgresql://superinterface:superinterface@db:5432/superinterface
+      DATABASE_ADAPTER: direct
+      NEXT_PUBLIC_SUPERINTERFACE_BASE_URL: http://localhost:3000
+    restart: unless-stopped
+
+volumes:
+  postgres-data:

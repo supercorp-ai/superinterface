@@ -13,7 +13,7 @@ ARG VERSION
 RUN npm install --omit=dev @superinterface/server@${VERSION} next@15.5.4
 
 WORKDIR /app/node_modules/@superinterface/server
-RUN npx prisma generate --schema prisma/schema.prisma
+RUN npx prisma generate
 
 EXPOSE 3000
 ENTRYPOINT ["node", "bin/index.cjs", "run", "server"]
