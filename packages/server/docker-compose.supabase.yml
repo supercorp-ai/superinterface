@@ -1,7 +1,7 @@
 services:
   migrate:
     image: supercorp/superinterface-server:latest
-    command: ['node', 'bin/index.cjs', 'prisma', 'deploy']
+    entrypoint: ['node', 'bin/index.cjs', 'prisma', 'deploy']
     environment:
       # Defaults to your Supabase credentials; override via env if needed.
       DATABASE_URL: ${SUPABASE_DATABASE_URL:-postgresql://postgres.rczaqlovanqdbeqawcco:your-password@aws-1-eu-north-1.pooler.supabase.com:6543/postgres?pgbouncer=true}
