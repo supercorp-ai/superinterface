@@ -1,9 +1,7 @@
 services:
   migrate:
     image: supercorp/superinterface-server:latest
-    entrypoint:
-      ['node', '--enable-source-maps', '--trace-uncaught', 'bin/index.cjs']
-    command: ['prisma', 'deploy']
+    command: ['node', 'bin/index.cjs', 'prisma', 'deploy']
     environment:
       # Defaults to your Supabase credentials; override via env if needed.
       DATABASE_URL: ${SUPABASE_DATABASE_URL:-postgresql://postgres.rczaqlovanqdbeqawcco:your-password@aws-1-eu-north-1.pooler.supabase.com:6543/postgres?pgbouncer=true}
@@ -16,9 +14,6 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
-    entrypoint:
-      ['node', '--enable-source-maps', '--trace-uncaught', 'bin/index.cjs']
-    command: ['run', 'server', '--port', '${PORT:-3000}']
     ports:
       - '3000:3000'
     environment:
@@ -27,5 +22,4 @@ services:
       DIRECT_URL: ${SUPABASE_DIRECT_URL:-postgresql://postgres.rczaqlovanqdbeqawcco:your-password@aws-1-eu-north-1.pooler.supabase.com:5432/postgres}
       DATABASE_ADAPTER: supabase
       NEXT_PUBLIC_SUPERINTERFACE_BASE_URL: http://localhost:3000
-      NODE_OPTIONS: --trace-uncaught
     restart: unless-stopped
