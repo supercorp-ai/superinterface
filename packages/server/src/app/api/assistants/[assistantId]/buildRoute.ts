@@ -206,11 +206,36 @@ export const buildPATCH =
       fileSearchEnabled,
     } = parseResult.data
 
+    // Fetch existing assistant to determine storage provider type if not provided in update
+    const existingAssistant = await prisma.assistant.findUnique({
+      where: {
+        id: assistantId,
+        workspaceId: privateApiKey.workspaceId,
+      },
+      select: {
+        storageProviderType: true,
+      },
+    })
+
+    if (!existingAssistant) {
+      return NextResponse.json({ error: 'No assistant found' }, { status: 400 })
+    }
+
+    const effectiveStorageProviderType =
+      storageProviderType ?? existingAssistant.storageProviderType
+
     const data: Prisma.AssistantUpdateInput = {
       ...(storageProviderType !== undefined && { storageProviderType }),
-      ...(storageProviderAssistantId !== undefined && {
-        openaiAssistantId: storageProviderAssistantId,
-      }),
+      ...(storageProviderAssistantId !== undefined &&
+        (effectiveStorageProviderType === StorageProviderType.AZURE_AGENTS
+          ? {
+              azureAgentsAgentId: storageProviderAssistantId,
+              openaiAssistantId: null,
+            }
+          : {
+              openaiAssistantId: storageProviderAssistantId,
+              azureAgentsAgentId: null,
+            })),
       ...(modelProviderId !== undefined && {
         modelProvider: { connect: { id: modelProviderId } },
       }),

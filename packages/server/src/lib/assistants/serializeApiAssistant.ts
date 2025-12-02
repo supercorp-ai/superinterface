@@ -1,5 +1,5 @@
 import type { Prisma } from '@prisma/client'
-import { ToolType } from '@prisma/client'
+import { ToolType, StorageProviderType } from '@prisma/client'
 import { serializeAvatar } from '@/lib/avatars/serializeAvatar'
 import { defaultAvatar } from '@/lib/avatars/defaultAvatar'
 
@@ -20,7 +20,10 @@ export const serializeApiAssistant = ({
 }) => ({
   id: assistant.id,
   storageProviderType: assistant.storageProviderType,
-  storageProviderAssistantId: assistant.openaiAssistantId,
+  storageProviderAssistantId:
+    assistant.storageProviderType === StorageProviderType.AZURE_AGENTS
+      ? assistant.azureAgentsAgentId
+      : assistant.openaiAssistantId,
   modelProviderId: assistant.modelProviderId,
   model: assistant.modelSlug,
   name: assistant.name,
