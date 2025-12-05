@@ -5,6 +5,7 @@ import {
   Assistant,
   TruncationType,
   PrismaClient,
+  StorageProviderType,
 } from '@prisma/client'
 import dayjs from 'dayjs'
 import { tools as getTools } from '@/lib/tools/tools'
@@ -81,6 +82,33 @@ export const buildGetOpenaiAssistant =
     if (args.select.id) {
       return {
         id: assistant.id,
+      }
+    }
+
+    if (
+      assistant.storageProviderType ===
+      StorageProviderType.AZURE_AGENTS_RESPONSES
+    ) {
+      return {
+        id: assistant.id,
+        object: 'assistant' as const,
+        created_at: dayjs().unix(),
+        agent: {
+          name: assistant.azureAgentsAgentId ?? assistant.name,
+          type: 'agent_reference',
+        },
+        model: assistant.modelSlug,
+        name: assistant.name,
+        instructions: assistant.instructions,
+        description: null,
+        tools: thread
+          ? ((await getTools({ assistant, thread, prisma }))?.tools ?? [])
+          : [],
+        metadata: {},
+        top_p: 1.0,
+        temperature: 1.0,
+        response_format: { type: 'text' as const },
+        truncation_strategy: truncationStrategy({ assistant }),
       }
     }
 

@@ -65,6 +65,11 @@ export const modelProviderConfigs: ModelProviderConfig[] = [
     logoUrl: '/images/microsoft-azure-logo-square.svg',
     dashboardUrl: 'https://ai.azure.com',
     modelSlugs: [
+      'gpt-5',
+      'gpt-5-preview',
+      'gpt-4.5-preview',
+      'o3-mini',
+      'o1',
       'gpt-4o-mini',
       'gpt-4o-mini-2024-07-18',
       'gpt-4o',
@@ -76,7 +81,10 @@ export const modelProviderConfigs: ModelProviderConfig[] = [
       'o1-mini',
       'o1-mini-2024-09-12',
     ],
-    storageProviderTypes: [StorageProviderType.AZURE_AGENTS],
+    storageProviderTypes: [
+      StorageProviderType.AZURE_AGENTS,
+      StorageProviderType.AZURE_AGENTS_RESPONSES,
+    ],
     isFunctionCallingAvailable: true,
   },
   {

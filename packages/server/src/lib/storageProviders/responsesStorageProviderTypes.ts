@@ -3,4 +3,5 @@ import { StorageProviderType } from '@prisma/client'
 export const responsesStorageProviderTypes: StorageProviderType[] = [
   StorageProviderType.OPENAI_RESPONSES,
   StorageProviderType.AZURE_OPENAI_RESPONSES,
+  StorageProviderType.AZURE_AGENTS_RESPONSES,
 ]
