@@ -1,6 +1,6 @@
 {
   "name": "@superinterface/server",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "type": "module",
   "bin": {
     "superinterface-server": "./bin/index.cjs"
@@ -174,7 +174,7 @@
     "zod": "^3.23.8"
   },
   "peerDependencies": {
-    "next": "15.5.4",
+    "next": "15.5.9",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
@@ -184,8 +184,8 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "15.5.4",
-    "next": "15.5.4",
+    "eslint-config-next": "15.5.9",
+    "next": "15.5.9",
     "next-test-api-route-handler": "^5.0.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
