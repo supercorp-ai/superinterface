@@ -36,25 +36,8 @@ const buildAzureAiProjectClient = () => {
   )
 }
 
-const skipIfMissingAzureCreds = (t: any) => {
-  if (!process.env.TEST_AZURE_AI_PROJECT_ENDPOINT) {
-    t.skip('TEST_AZURE_AI_PROJECT_ENDPOINT env var not set')
-  }
-  if (!process.env.TEST_AZURE_TENANT_ID) {
-    t.skip('TEST_AZURE_TENANT_ID env var not set')
-  }
-  if (!process.env.TEST_AZURE_CLIENT_ID) {
-    t.skip('TEST_AZURE_CLIENT_ID env var not set')
-  }
-  if (!process.env.TEST_AZURE_CLIENT_SECRET) {
-    t.skip('TEST_AZURE_CLIENT_SECRET env var not set')
-  }
-}
-
 describe('Azure Agents Integration Tests', () => {
   it('should handle FILE_SEARCH tool with empty vector store without crashing', async (t) => {
-    skipIfMissingAzureCreds(t)
-
     const azureClient = buildAzureAiProjectClient()
 
     // Create a vector store with NO files (this triggers the bug)

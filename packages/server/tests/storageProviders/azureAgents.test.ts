@@ -195,6 +195,7 @@ describe('Azure Agents Storage Provider', () => {
 
       const adapter = clientAdapter({
         modelProvider,
+        storageProviderType: StorageProviderType.AZURE_AGENTS,
       })
 
       assert.ok(adapter)
@@ -513,6 +514,7 @@ describe('Azure Agents Storage Provider', () => {
 
       const adapter = clientAdapter({
         modelProvider,
+        storageProviderType: StorageProviderType.AZURE_AGENTS,
       })
 
       assert.ok(adapter)
@@ -520,28 +522,6 @@ describe('Azure Agents Storage Provider', () => {
         adapter.type,
         'AZURE_AI_PROJECT',
         'Should use Azure AI Project adapter',
-      )
-    })
-
-    it('AZURE_AI_PROJECT model provider without storage type returns Azure AI Project adapter', () => {
-      const modelProvider = {
-        id: randomUUID(),
-        type: ModelProviderType.AZURE_AI_PROJECT,
-        azureTenantId: 'tenant-id',
-        azureClientId: 'client-id',
-        azureClientSecret: 'client-secret',
-        endpoint: 'https://test.cognitiveservices.azure.com/',
-      } as any
-
-      const adapter = clientAdapter({
-        modelProvider,
-      })
-
-      assert.ok(adapter)
-      assert.strictEqual(
-        adapter.type,
-        'AZURE_AI_PROJECT',
-        'Should use Azure AI Project adapter even without explicit storage type',
       )
     })
 

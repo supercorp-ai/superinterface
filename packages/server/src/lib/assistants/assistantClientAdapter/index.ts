@@ -11,6 +11,7 @@ import {
   completionsRunAdapter,
   responsesRunAdapter,
   responsesStorageAdapter,
+  azureResponsesStorageAdapter,
   azureAgentsStorageAdapter,
   azureAgentsRunAdapter,
 } from 'supercompat'
@@ -50,6 +51,12 @@ const storageAdapter = ({
   }
 
   if (
+    assistant.storageProviderType === StorageProviderType.AZURE_OPENAI_RESPONSES
+  ) {
+    return azureResponsesStorageAdapter()
+  }
+
+  if (
     isResponsesStorageProvider({
       storageProviderType: assistant.storageProviderType,
     })
@@ -64,6 +71,7 @@ const storageAdapter = ({
   ) {
     const azureAiProject = getAzureAiProjectClient({
       modelProvider: assistant.modelProvider,
+      storageProviderType: assistant.storageProviderType,
     })
     return azureAgentsStorageAdapter({ azureAiProject, prisma })
   }
@@ -140,6 +148,7 @@ const runAdapter = ({
   ) {
     const azureAiProject = getAzureAiProjectClient({
       modelProvider: assistant.modelProvider,
+      storageProviderType: assistant.storageProviderType,
     })
     return azureAgentsRunAdapter({ azureAiProject })
   }
@@ -183,6 +192,7 @@ export const assistantClientAdapter = ({
   supercompat({
     client: clientAdapter({
       modelProvider: assistant.modelProvider,
+      storageProviderType: assistant.storageProviderType,
     }),
     // @ts-expect-error - storageAdapter can return undefined
     storage: storageAdapter({

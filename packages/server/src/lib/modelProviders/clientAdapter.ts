@@ -12,15 +12,21 @@ import {
   anthropicClientAdapter,
   azureAiProjectClientAdapter,
 } from 'supercompat'
-import { ModelProvider, ModelProviderType } from '@prisma/client'
+import {
+  ModelProvider,
+  ModelProviderType,
+  StorageProviderType,
+} from '@prisma/client'
 import { buildOpenaiClientAdapter } from '@/lib/modelProviders/buildOpenaiClientAdapter'
 import { buildAzureOpenaiClientAdapter } from '@/lib/modelProviders/buildAzureOpenaiClientAdapter'
 import { getAzureAiProjectClient } from '@/lib/modelProviders/getAzureAiProjectClient'
 
 export const clientAdapter = ({
   modelProvider,
+  storageProviderType,
 }: {
   modelProvider: ModelProvider
+  storageProviderType: StorageProviderType
 }) => {
   if (modelProvider.type === ModelProviderType.OPENAI) {
     return buildOpenaiClientAdapter({
@@ -35,7 +41,10 @@ export const clientAdapter = ({
   }
 
   if (modelProvider.type === ModelProviderType.AZURE_AI_PROJECT) {
-    const azureAiProject = getAzureAiProjectClient({ modelProvider })
+    const azureAiProject = getAzureAiProjectClient({
+      modelProvider,
+      storageProviderType,
+    })
     return azureAiProjectClientAdapter({ azureAiProject })
   }
 
