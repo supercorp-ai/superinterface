@@ -15,6 +15,7 @@ import {
   azureAgentsStorageAdapter,
   azureAgentsRunAdapter,
 } from 'supercompat'
+import { AIProjectClient as AIProjectClientV1 } from '@azure/ai-projects'
 import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
 import { isResponsesStorageProvider } from '@/lib/storageProviders/isResponsesStorageProvider'
 import { isAzureAgentsStorageProvider } from '@/lib/storageProviders/isAzureAgentsStorageProvider'
@@ -73,7 +74,10 @@ const storageAdapter = ({
       modelProvider: assistant.modelProvider,
       storageProviderType: assistant.storageProviderType,
     })
-    return azureAgentsStorageAdapter({ azureAiProject, prisma })
+    return azureAgentsStorageAdapter({
+      azureAiProject: azureAiProject as AIProjectClientV1,
+      prisma,
+    })
   }
 
   throw new Error(
@@ -150,7 +154,9 @@ const runAdapter = ({
       modelProvider: assistant.modelProvider,
       storageProviderType: assistant.storageProviderType,
     })
-    return azureAgentsRunAdapter({ azureAiProject })
+    return azureAgentsRunAdapter({
+      azureAiProject: azureAiProject as AIProjectClientV1,
+    })
   }
 
   throw new Error(

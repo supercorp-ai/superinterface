@@ -1,4 +1,4 @@
-import { ModelProvider } from '@prisma/client'
+import { ModelProvider, StorageProviderType } from '@prisma/client'
 import { clientAdapter } from '@/lib/modelProviders/clientAdapter'
 import { supercompat } from 'supercompat'
 
@@ -10,5 +10,6 @@ export const buildOpenaiClient = ({
   supercompat({
     client: clientAdapter({
       modelProvider,
+      storageProviderType: StorageProviderType.SUPERINTERFACE_CLOUD,
     }),
   })

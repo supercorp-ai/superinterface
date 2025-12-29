@@ -12,6 +12,7 @@ import {
   anthropicClientAdapter,
   azureAiProjectClientAdapter,
 } from 'supercompat'
+import { AIProjectClient as AIProjectClientV1 } from '@azure/ai-projects'
 import {
   ModelProvider,
   ModelProviderType,
@@ -45,7 +46,9 @@ export const clientAdapter = ({
       modelProvider,
       storageProviderType,
     })
-    return azureAiProjectClientAdapter({ azureAiProject })
+    return azureAiProjectClientAdapter({
+      azureAiProject: azureAiProject as AIProjectClientV1,
+    })
   }
 
   if (modelProvider.type === ModelProviderType.PERPLEXITY) {
