@@ -11,7 +11,7 @@
   "dependencies": {
     "@superinterface/react": "file:../../packages/react",
     "@tanstack/react-query": "file:../../packages/react/node_modules/@tanstack/react-query",
-    "next": "14.2.5",
+    "next": "14.2.35",
     "react": "^18",
     "react-dom": "^18"
   },
