@@ -43,13 +43,23 @@ describe('storageAssistantId', () => {
     assert.strictEqual(storageAssistantId({ assistant }), 'local-assistant-id')
   })
 
-  it('returns assistant id for AZURE_OPENAI_RESPONSES storage', () => {
+  it('returns assistant id for AZURE_RESPONSES storage without agent reference', () => {
     const assistant = {
       id: 'local-assistant-id',
-      storageProviderType: StorageProviderType.AZURE_OPENAI_RESPONSES,
+      storageProviderType: StorageProviderType.AZURE_RESPONSES,
     } as any
 
     assert.strictEqual(storageAssistantId({ assistant }), 'local-assistant-id')
+  })
+
+  it('returns azureResponsesAgentName for AZURE_RESPONSES storage with agent reference', () => {
+    const assistant = {
+      id: 'local-assistant-id',
+      storageProviderType: StorageProviderType.AZURE_RESPONSES,
+      azureResponsesAgentName: 'agent_name_123',
+    } as any
+
+    assert.strictEqual(storageAssistantId({ assistant }), 'agent_name_123')
   })
 
   it('returns assistant id for SUPERINTERFACE_CLOUD storage', () => {

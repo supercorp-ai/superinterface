@@ -5,9 +5,11 @@ import {
   Assistant,
   TruncationType,
   PrismaClient,
+  StorageProviderType,
 } from '@prisma/client'
 import dayjs from 'dayjs'
 import { tools as getTools } from '@/lib/tools/tools'
+import { storageAssistantId } from '@/lib/assistants/storageAssistantId'
 
 type Args = {
   select?: {
@@ -19,6 +21,17 @@ type NormalizedArgs = {
   select: {
     id: boolean
   }
+}
+
+const assistantReference = ({ assistant }: { assistant: Assistant }) => {
+  const id = storageAssistantId({ assistant })
+  const name =
+    assistant.storageProviderType === StorageProviderType.AZURE_RESPONSES &&
+    assistant.azureResponsesAgentName
+      ? id
+      : assistant.name
+
+  return { id, name }
 }
 
 const truncationStrategy = ({
@@ -77,19 +90,20 @@ export const buildGetOpenaiAssistant =
   }) =>
   async ({ select: { id = false } = {} }: Args = {}) => {
     const args: NormalizedArgs = { select: { id } }
+    const reference = assistantReference({ assistant })
 
     if (args.select.id) {
       return {
-        id: assistant.id,
+        id: reference.id,
       }
     }
 
     return {
-      id: assistant.id,
+      id: reference.id,
       object: 'assistant' as const,
       created_at: dayjs().unix(),
       model: assistant.modelSlug,
-      name: assistant.name,
+      name: reference.name,
       instructions: assistant.instructions,
       description: null,
       tools: thread

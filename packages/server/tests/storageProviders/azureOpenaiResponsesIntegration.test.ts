@@ -71,15 +71,12 @@ describe('Azure OpenAI Responses API Integration Tests', () => {
         workspaceId: workspace.id,
         modelProviderId: modelProvider.id,
         modelSlug: 'gpt-4.1', // Must match the deployment name
-        storageProviderType: StorageProviderType.AZURE_OPENAI_RESPONSES,
+        storageProviderType: StorageProviderType.AZURE_RESPONSES,
         instructions: 'You are a helpful assistant. Keep responses very brief.',
       },
     })
 
-    console.log(
-      'Created assistant with AZURE_OPENAI_RESPONSES storage:',
-      assistant.id,
-    )
+    console.log('Created assistant with AZURE_RESPONSES storage:', assistant.id)
 
     try {
       // Build the POST handler for messages
@@ -283,7 +280,7 @@ describe('Azure OpenAI Responses API Integration Tests', () => {
           workspaceId: workspace.id,
           modelProviderId: modelProvider.id,
           modelSlug: 'gpt-4.1',
-          storageProviderType: StorageProviderType.AZURE_OPENAI_RESPONSES,
+          storageProviderType: StorageProviderType.AZURE_RESPONSES,
           instructions:
             'You are a helpful assistant. Keep responses very brief.',
         },
@@ -444,7 +441,7 @@ describe('Azure OpenAI Responses API Integration Tests', () => {
           workspaceId: workspace.id,
           modelProviderId: modelProvider.id,
           modelSlug: 'gpt-4.1',
-          storageProviderType: StorageProviderType.AZURE_OPENAI_RESPONSES,
+          storageProviderType: StorageProviderType.AZURE_RESPONSES,
           instructions:
             'You are a helpful assistant. When asked about weather, use the get_weather function.',
         },
@@ -608,7 +605,7 @@ describe('Azure OpenAI Responses API Integration Tests', () => {
           workspaceId: workspace.id,
           modelProviderId: modelProvider.id,
           modelSlug: 'gpt-4.1',
-          storageProviderType: StorageProviderType.AZURE_OPENAI_RESPONSES,
+          storageProviderType: StorageProviderType.AZURE_RESPONSES,
           instructions: 'You are a helpful assistant.',
         },
       })

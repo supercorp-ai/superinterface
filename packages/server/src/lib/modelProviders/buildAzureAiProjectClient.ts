@@ -26,7 +26,7 @@ export const buildAzureAiProjectClient = ({
     azureClientSecret,
   )
 
-  // Use v2 SDK for Responses API (AZURE_OPENAI_RESPONSES), v1 SDK for Azure Agents
+  // Use v2 SDK for Responses API (AZURE_RESPONSES), v1 SDK for Azure Agents
   const useV2 = isResponsesStorageProvider({ storageProviderType })
 
   const azureAiProject = useV2

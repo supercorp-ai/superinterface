@@ -31,8 +31,7 @@ export const storageThreadId = ({
   }
 
   if (
-    thread.assistant.storageProviderType ===
-    StorageProviderType.AZURE_OPENAI_RESPONSES
+    thread.assistant.storageProviderType === StorageProviderType.AZURE_RESPONSES
   ) {
     return thread.azureOpenaiConversationId
   }

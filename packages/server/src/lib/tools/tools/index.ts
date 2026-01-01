@@ -86,10 +86,18 @@ const nativeTools = ({
             storageProviderType: assistant.storageProviderType,
           })
         ) {
+          const vectorStoreIds = tool.fileSearchTool!.vectorStoreIds
+
+          // Azure Responses API requires at least one vector store ID
+          // If empty, don't include the file_search tool at all
+          if (vectorStoreIds.length === 0) {
+            return null
+          }
+
           return {
             type: 'file_search' as const,
             file_search: {
-              vector_store_ids: tool.fileSearchTool!.vectorStoreIds,
+              vector_store_ids: vectorStoreIds,
               max_num_results: tool.fileSearchTool!.maxNumResults,
             },
           }

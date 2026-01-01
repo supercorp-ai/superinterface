@@ -14,9 +14,9 @@ import { storageThreadId } from '@/lib/threads/storageThreadId'
 
 describe('Azure OpenAI Responses Storage Provider', () => {
   describe('isResponsesStorageProvider', () => {
-    it('returns true for AZURE_OPENAI_RESPONSES storage provider type', () => {
+    it('returns true for AZURE_RESPONSES storage provider type', () => {
       const result = isResponsesStorageProvider({
-        storageProviderType: StorageProviderType.AZURE_OPENAI_RESPONSES,
+        storageProviderType: StorageProviderType.AZURE_RESPONSES,
       })
       assert.strictEqual(result, true)
     })
@@ -46,7 +46,7 @@ describe('Azure OpenAI Responses Storage Provider', () => {
   })
 
   describe('responsesStorageProviderTypes', () => {
-    it('includes both OPENAI_RESPONSES and AZURE_OPENAI_RESPONSES types', () => {
+    it('includes both OPENAI_RESPONSES and AZURE_RESPONSES types', () => {
       assert.ok(
         responsesStorageProviderTypes.includes(
           StorageProviderType.OPENAI_RESPONSES,
@@ -55,9 +55,9 @@ describe('Azure OpenAI Responses Storage Provider', () => {
       )
       assert.ok(
         responsesStorageProviderTypes.includes(
-          StorageProviderType.AZURE_OPENAI_RESPONSES,
+          StorageProviderType.AZURE_RESPONSES,
         ),
-        'Should include AZURE_OPENAI_RESPONSES',
+        'Should include AZURE_RESPONSES',
       )
     })
 
@@ -71,7 +71,7 @@ describe('Azure OpenAI Responses Storage Provider', () => {
   })
 
   describe('clientAdapter with Azure OpenAI Responses', () => {
-    it('returns Azure OpenAI adapter for AZURE_OPENAI model provider with AZURE_OPENAI_RESPONSES storage', async () => {
+    it('returns Azure OpenAI adapter for AZURE_OPENAI model provider with AZURE_RESPONSES storage', async () => {
       const workspace = await createTestWorkspace()
       const modelProvider = await createTestModelProvider({
         data: {
@@ -85,7 +85,7 @@ describe('Azure OpenAI Responses Storage Provider', () => {
 
       const adapter = clientAdapter({
         modelProvider,
-        storageProviderType: StorageProviderType.AZURE_OPENAI_RESPONSES,
+        storageProviderType: StorageProviderType.AZURE_RESPONSES,
       })
 
       assert.ok(adapter)
@@ -112,7 +112,7 @@ describe('Azure OpenAI Responses Storage Provider', () => {
 
       const responsesAdapter = clientAdapter({
         modelProvider,
-        storageProviderType: StorageProviderType.AZURE_OPENAI_RESPONSES,
+        storageProviderType: StorageProviderType.AZURE_RESPONSES,
       })
 
       assert.strictEqual(
@@ -125,7 +125,7 @@ describe('Azure OpenAI Responses Storage Provider', () => {
   })
 
   describe('storageAssistantId with Azure OpenAI Responses', () => {
-    it('returns assistant.id for AZURE_OPENAI_RESPONSES storage provider', async () => {
+    it('returns assistant.id for AZURE_RESPONSES storage provider', async () => {
       const workspace = await createTestWorkspace()
       const modelProvider = await createTestModelProvider({
         data: {
@@ -141,7 +141,7 @@ describe('Azure OpenAI Responses Storage Provider', () => {
         data: {
           workspaceId: workspace.id,
           modelProviderId: modelProvider.id,
-          storageProviderType: StorageProviderType.AZURE_OPENAI_RESPONSES,
+          storageProviderType: StorageProviderType.AZURE_RESPONSES,
           modelSlug: 'gpt-4o',
         },
       })
@@ -212,7 +212,7 @@ describe('Azure OpenAI Responses Storage Provider', () => {
   })
 
   describe('storageThreadId with Azure OpenAI Responses', () => {
-    it('returns azureOpenaiConversationId for AZURE_OPENAI_RESPONSES storage provider', async () => {
+    it('returns azureOpenaiConversationId for AZURE_RESPONSES storage provider', async () => {
       const workspace = await createTestWorkspace()
       const modelProvider = await createTestModelProvider({
         data: {
@@ -228,7 +228,7 @@ describe('Azure OpenAI Responses Storage Provider', () => {
         data: {
           workspaceId: workspace.id,
           modelProviderId: modelProvider.id,
-          storageProviderType: StorageProviderType.AZURE_OPENAI_RESPONSES,
+          storageProviderType: StorageProviderType.AZURE_RESPONSES,
           modelSlug: 'gpt-4o',
         },
       })
@@ -334,10 +334,9 @@ describe('Azure OpenAI Responses Storage Provider', () => {
   })
 
   describe('Azure OpenAI Responses with model provider configs', () => {
-    it('Azure OpenAI model provider config supports AZURE_OPENAI_RESPONSES storage', async () => {
-      const { modelProviderConfigs } = await import(
-        '@/lib/modelProviders/modelProviderConfigs'
-      )
+    it('Azure OpenAI model provider config supports AZURE_RESPONSES storage', async () => {
+      const { modelProviderConfigs } =
+        await import('@/lib/modelProviders/modelProviderConfigs')
 
       const azureOpenaiConfig = modelProviderConfigs.find(
         (config) => config.type === ModelProviderType.AZURE_OPENAI,
@@ -346,16 +345,15 @@ describe('Azure OpenAI Responses Storage Provider', () => {
       assert.ok(azureOpenaiConfig, 'Azure OpenAI config should exist')
       assert.ok(
         azureOpenaiConfig.storageProviderTypes.includes(
-          StorageProviderType.AZURE_OPENAI_RESPONSES,
+          StorageProviderType.AZURE_RESPONSES,
         ),
-        'Azure OpenAI should support AZURE_OPENAI_RESPONSES storage',
+        'Azure OpenAI should support AZURE_RESPONSES storage',
       )
     })
 
     it('Azure OpenAI model provider supports all expected storage types', async () => {
-      const { modelProviderConfigs } = await import(
-        '@/lib/modelProviders/modelProviderConfigs'
-      )
+      const { modelProviderConfigs } =
+        await import('@/lib/modelProviders/modelProviderConfigs')
 
       const azureOpenaiConfig = modelProviderConfigs.find(
         (config) => config.type === ModelProviderType.AZURE_OPENAI,
@@ -366,7 +364,7 @@ describe('Azure OpenAI Responses Storage Provider', () => {
       const expectedStorageTypes = [
         StorageProviderType.AZURE_OPENAI, // Assistants API
         StorageProviderType.SUPERINTERFACE_CLOUD, // Managed storage
-        StorageProviderType.AZURE_OPENAI_RESPONSES, // Responses API
+        StorageProviderType.AZURE_RESPONSES, // Responses API
       ]
 
       for (const storageType of expectedStorageTypes) {
@@ -378,9 +376,8 @@ describe('Azure OpenAI Responses Storage Provider', () => {
     })
 
     it('Azure OpenAI model provider does NOT support Azure Agents storage', async () => {
-      const { modelProviderConfigs } = await import(
-        '@/lib/modelProviders/modelProviderConfigs'
-      )
+      const { modelProviderConfigs } =
+        await import('@/lib/modelProviders/modelProviderConfigs')
 
       const azureOpenaiConfig = modelProviderConfigs.find(
         (config) => config.type === ModelProviderType.AZURE_OPENAI,
@@ -409,13 +406,14 @@ describe('Azure OpenAI Responses Storage Provider', () => {
         },
       })
 
-      // Azure Responses API uses assistant.id
+      // Azure Responses API uses agent names when provided
       const azureResponsesAssistant = await createTestAssistant({
         data: {
           workspaceId: workspace.id,
           modelProviderId: modelProvider.id,
-          storageProviderType: StorageProviderType.AZURE_OPENAI_RESPONSES,
+          storageProviderType: StorageProviderType.AZURE_RESPONSES,
           modelSlug: 'gpt-4o',
+          azureResponsesAgentName: 'agent_test_name',
         },
       })
 
@@ -424,8 +422,8 @@ describe('Azure OpenAI Responses Storage Provider', () => {
       })
       assert.strictEqual(
         azureResponsesId,
-        azureResponsesAssistant.id,
-        'Azure Responses API should use assistant.id',
+        azureResponsesAssistant.azureResponsesAgentName,
+        'Azure Responses API should use agent name when provided',
       )
 
       // Create Assistants API assistant for comparison
@@ -471,7 +469,7 @@ describe('Azure OpenAI Responses Storage Provider', () => {
         data: {
           workspaceId: workspace.id,
           modelProviderId: modelProvider.id,
-          storageProviderType: StorageProviderType.AZURE_OPENAI_RESPONSES,
+          storageProviderType: StorageProviderType.AZURE_RESPONSES,
         },
       })
 
@@ -533,7 +531,7 @@ describe('Azure OpenAI Responses Storage Provider', () => {
     })
   })
 
-  describe('AZURE_OPENAI_RESPONSES database field usage', () => {
+  describe('AZURE_RESPONSES database field usage', () => {
     it('uses azureOpenaiConversationId field, not openaiConversationId', async () => {
       const workspace = await createTestWorkspace()
       const modelProvider = await createTestModelProvider({
@@ -550,7 +548,7 @@ describe('Azure OpenAI Responses Storage Provider', () => {
         data: {
           workspaceId: workspace.id,
           modelProviderId: modelProvider.id,
-          storageProviderType: StorageProviderType.AZURE_OPENAI_RESPONSES,
+          storageProviderType: StorageProviderType.AZURE_RESPONSES,
         },
       })
 

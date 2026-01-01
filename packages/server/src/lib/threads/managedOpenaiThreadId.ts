@@ -61,8 +61,7 @@ export const managedOpenaiThreadId = async ({
             openaiConversationId: newStorageThread.id,
           }
         : {}),
-      ...(assistant.storageProviderType ===
-      StorageProviderType.AZURE_OPENAI_RESPONSES
+      ...(assistant.storageProviderType === StorageProviderType.AZURE_RESPONSES
         ? {
             azureOpenaiConversationId: newStorageThread.id,
           }

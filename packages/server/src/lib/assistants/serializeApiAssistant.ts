@@ -23,7 +23,9 @@ export const serializeApiAssistant = ({
   storageProviderAssistantId:
     assistant.storageProviderType === StorageProviderType.AZURE_AGENTS
       ? assistant.azureAgentsAgentId
-      : assistant.openaiAssistantId,
+      : assistant.storageProviderType === StorageProviderType.AZURE_RESPONSES
+        ? assistant.azureResponsesAgentName
+        : assistant.openaiAssistantId,
   modelProviderId: assistant.modelProviderId,
   model: assistant.modelSlug,
   name: assistant.name,

@@ -25,6 +25,12 @@ const assistantId = ({ assistant }: { assistant: Assistant }) => {
       storageProviderType: assistant.storageProviderType,
     })
   ) {
+    if (
+      assistant.storageProviderType === StorageProviderType.AZURE_RESPONSES &&
+      assistant.azureResponsesAgentName
+    ) {
+      return assistant.azureResponsesAgentName
+    }
     return assistant.id
   }
 

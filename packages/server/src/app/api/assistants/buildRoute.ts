@@ -154,7 +154,9 @@ export const buildPOST =
         storageProviderType,
         ...(storageProviderType === StorageProviderType.AZURE_AGENTS
           ? { azureAgentsAgentId: storageProviderAssistantId ?? null }
-          : { openaiAssistantId: storageProviderAssistantId ?? null }),
+          : storageProviderType === StorageProviderType.AZURE_RESPONSES
+            ? { azureResponsesAgentName: storageProviderAssistantId ?? null }
+            : { openaiAssistantId: storageProviderAssistantId ?? null }),
         tools: {
           create: [
             ...(fileSearchEnabled

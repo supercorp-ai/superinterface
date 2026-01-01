@@ -231,11 +231,19 @@ export const buildPATCH =
           ? {
               azureAgentsAgentId: storageProviderAssistantId,
               openaiAssistantId: null,
+              azureResponsesAgentName: null,
             }
-          : {
-              openaiAssistantId: storageProviderAssistantId,
-              azureAgentsAgentId: null,
-            })),
+          : effectiveStorageProviderType === StorageProviderType.AZURE_RESPONSES
+            ? {
+                azureResponsesAgentName: storageProviderAssistantId,
+                openaiAssistantId: null,
+                azureAgentsAgentId: null,
+              }
+            : {
+                openaiAssistantId: storageProviderAssistantId,
+                azureAgentsAgentId: null,
+                azureResponsesAgentName: null,
+              })),
       ...(modelProviderId !== undefined && {
         modelProvider: { connect: { id: modelProviderId } },
       }),

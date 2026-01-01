@@ -29,7 +29,7 @@ describe('Azure Agents Storage Provider', () => {
         StorageProviderType.AZURE_OPENAI,
         StorageProviderType.SUPERINTERFACE_CLOUD,
         StorageProviderType.OPENAI_RESPONSES,
-        StorageProviderType.AZURE_OPENAI_RESPONSES,
+        StorageProviderType.AZURE_RESPONSES,
       ]
 
       for (const type of types) {
@@ -455,9 +455,8 @@ describe('Azure Agents Storage Provider', () => {
 
   describe('Azure Agents with model provider configs', () => {
     it('Azure OpenAI model provider does NOT support Azure Agents storage', async () => {
-      const { modelProviderConfigs } = await import(
-        '@/lib/modelProviders/modelProviderConfigs'
-      )
+      const { modelProviderConfigs } =
+        await import('@/lib/modelProviders/modelProviderConfigs')
 
       const azureOpenaiConfig = modelProviderConfigs.find(
         (config) => config.type === ModelProviderType.AZURE_OPENAI,
@@ -473,9 +472,8 @@ describe('Azure Agents Storage Provider', () => {
     })
 
     it('Azure AI Project model provider config exists and only supports AZURE_AGENTS storage', async () => {
-      const { modelProviderConfigs } = await import(
-        '@/lib/modelProviders/modelProviderConfigs'
-      )
+      const { modelProviderConfigs } =
+        await import('@/lib/modelProviders/modelProviderConfigs')
 
       const azureAiProjectConfig = modelProviderConfigs.find(
         (config) => config.type === ModelProviderType.AZURE_AI_PROJECT,

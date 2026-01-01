@@ -52,7 +52,7 @@ export const modelProviderConfigs: ModelProviderConfig[] = [
     storageProviderTypes: [
       StorageProviderType.AZURE_OPENAI,
       StorageProviderType.SUPERINTERFACE_CLOUD,
-      StorageProviderType.AZURE_OPENAI_RESPONSES,
+      StorageProviderType.AZURE_RESPONSES,
     ],
     isFunctionCallingAvailable: true,
   },

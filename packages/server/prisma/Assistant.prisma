@@ -13,6 +13,7 @@ model Assistant {
   openaiAssistantFileSearchEnabled Boolean @default(false)
   openaiAssistantCodeInterpreterEnabled Boolean @default(false)
   azureAgentsAgentId String?
+  azureResponsesAgentName String?
   avatar Avatar?
   threads Thread[]
   runs Run[]

@@ -5,29 +5,48 @@ import {
   Assistant,
   TruncationType,
   PrismaClient,
+  StorageProviderType,
 } from '@prisma/client'
 import { storageAssistantId } from '@/lib/assistants/storageAssistantId'
 import { tools } from '@/lib/tools/tools'
 import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
+import { isAzureAgentsStorageProvider } from '@/lib/storageProviders/isAzureAgentsStorageProvider'
 
 const instructions = ({ assistant }: { assistant: Assistant }) => {
+  if (
+    assistant.storageProviderType === StorageProviderType.AZURE_RESPONSES &&
+    assistant.azureResponsesAgentName
+  ) {
+    return {}
+  }
+
   if (assistant.instructions.length > 0) {
     return {
       instructions: assistant.instructions,
     }
   }
 
-  if (
-    !isOpenaiAssistantsStorageProvider({
+  // For storage providers that have their own stored instructions
+  // (OpenAI Assistants, Azure Agents, Azure Responses API), omit the field entirely
+  // so the provider uses the stored instructions
+  const hasStoredInstructions =
+    isOpenaiAssistantsStorageProvider({
       storageProviderType: assistant.storageProviderType,
-    })
-  ) {
-    return {
-      instructions: '',
-    }
+    }) ||
+    isAzureAgentsStorageProvider({
+      storageProviderType: assistant.storageProviderType,
+    }) ||
+    assistant.storageProviderType === StorageProviderType.AZURE_RESPONSES
+
+  if (hasStoredInstructions) {
+    return {}
   }
 
-  return {}
+  // For other storage providers (like SUPERINTERFACE_CLOUD or OPENAI_RESPONSES),
+  // send empty string as they don't have stored instructions
+  return {
+    instructions: '',
+  }
 }
 
 const truncationStrategy = ({ assistant }: { assistant: Assistant }) => {
@@ -78,11 +97,15 @@ export const createRunOpts = async ({
   }>
   thread: Thread
   prisma: PrismaClient
-}) => ({
-  stream: true,
-  assistant_id: storageAssistantId({ assistant }),
-  ...instructions({ assistant }),
-  model: assistant.modelSlug,
-  truncation_strategy: truncationStrategy({ assistant }),
-  ...(await tools({ assistant, thread, prisma })),
-})
+}) => {
+  const runOpts = {
+    stream: true,
+    assistant_id: storageAssistantId({ assistant }),
+    ...instructions({ assistant }),
+    model: assistant.modelSlug,
+    truncation_strategy: truncationStrategy({ assistant }),
+    ...(await tools({ assistant, thread, prisma })),
+  }
+
+  return runOpts
+}

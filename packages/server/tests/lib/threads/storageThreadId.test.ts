@@ -52,12 +52,12 @@ describe('storageThreadId', () => {
     assert.strictEqual(storageThreadId({ thread }), 'conv_openai123')
   })
 
-  it('returns azureOpenaiConversationId for AZURE_OPENAI_RESPONSES storage', () => {
+  it('returns azureOpenaiConversationId for AZURE_RESPONSES storage', () => {
     const thread = {
       id: 'local-thread-id',
       azureOpenaiConversationId: 'conv_azure456',
       assistant: {
-        storageProviderType: StorageProviderType.AZURE_OPENAI_RESPONSES,
+        storageProviderType: StorageProviderType.AZURE_RESPONSES,
       },
     } as any
 

@@ -111,7 +111,7 @@ export const createThread = async ({
       },
     })
   } else if (
-    assistant.storageProviderType === StorageProviderType.AZURE_OPENAI_RESPONSES
+    assistant.storageProviderType === StorageProviderType.AZURE_RESPONSES
   ) {
     const newThread = await prisma.thread.create({
       data: {

@@ -51,9 +51,7 @@ const storageAdapter = ({
     return undefined
   }
 
-  if (
-    assistant.storageProviderType === StorageProviderType.AZURE_OPENAI_RESPONSES
-  ) {
+  if (assistant.storageProviderType === StorageProviderType.AZURE_RESPONSES) {
     return azureResponsesStorageAdapter()
   }
 

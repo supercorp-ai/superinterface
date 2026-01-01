@@ -17,6 +17,14 @@ export const storageAssistantId = ({ assistant }: { assistant: Assistant }) => {
       storageProviderType: assistant.storageProviderType,
     })
   ) {
+    // For Azure Responses API with agent references, use the agent ID
+    if (
+      assistant.storageProviderType === StorageProviderType.AZURE_RESPONSES &&
+      assistant.azureResponsesAgentName
+    ) {
+      return assistant.azureResponsesAgentName
+    }
+    // For OpenAI Responses or Azure Responses without agent reference, use internal ID
     return assistant.id
   }
 
