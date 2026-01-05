@@ -1,5 +1,5 @@
 'use client'
-import { useRef } from 'react'
+import { useRef, useMemo } from 'react'
 import { MessagesPage } from '@/types'
 import {
   InfiniteData,
@@ -34,21 +34,28 @@ export const SuperinterfaceProvider = ({
   const superinterfaceContext = useSuperinterfaceContext()
   const createMessageAbortControllerRef = useRef<AbortController | null>(null)
 
-  const value = merge(
-    superinterfaceContext,
-    {
-      ...(baseUrl ? { baseUrl } : {}),
-      ...(variables ? { variables } : {}),
-      ...(defaultOptions ? { defaultOptions } : {}),
-      ...(threadIdStorageOptions ? { threadIdStorageOptions } : {}),
+  // Memoize the merged value to keep it stable across renders
+  const value = useMemo(
+    () =>
+      merge(superinterfaceContext, {
+        ...(baseUrl ? { baseUrl } : {}),
+        ...(variables ? { variables } : {}),
+        ...(defaultOptions ? { defaultOptions } : {}),
+        ...(threadIdStorageOptions ? { threadIdStorageOptions } : {}),
+        createMessageAbortControllerRef,
+      }),
+    [
+      superinterfaceContext,
+      baseUrl,
+      variables,
+      defaultOptions,
+      threadIdStorageOptions,
       createMessageAbortControllerRef,
-    }
+    ],
   )
 
   return (
-    <SuperinterfaceContext.Provider
-      value={value}
-    >
+    <SuperinterfaceContext.Provider value={value}>
       {children}
     </SuperinterfaceContext.Provider>
   )
