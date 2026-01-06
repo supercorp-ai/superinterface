@@ -71,7 +71,7 @@ export const handleFunction = async ({
   })
 
   if (!fn) {
-    const { mcpConnection } = await getToolCallMcpServer({
+    const { mcpConnection, error } = await getToolCallMcpServer({
       toolCall,
       assistant,
       thread,
@@ -79,6 +79,27 @@ export const handleFunction = async ({
     })
 
     if (!mcpConnection) {
+      if (error) {
+        createLog({
+          log: {
+            requestMethod: LogRequestMethod.POST,
+            requestRoute: LogRequestRoute.MESSAGES,
+            level: LogLevel.ERROR,
+            status: 500,
+            message: `Error calling function ${toolCall.function.name}: ${error.message}`,
+            workspaceId: assistant.workspaceId,
+            assistantId: assistant.id,
+            threadId: thread.id,
+          },
+          prisma,
+        })
+
+        return {
+          tool_call_id: toolCall.id,
+          output: `Error calling function ${toolCall.function.name}: ${error.message}`,
+        }
+      }
+
       createLog({
         log: {
           requestMethod: LogRequestMethod.POST,

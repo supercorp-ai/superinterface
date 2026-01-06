@@ -26,37 +26,54 @@ export const getToolCallMcpServer = async ({
   prisma: PrismaClient
 }) => {
   let mcpConnection: McpConnection | null = null
+  let error: Error | null = null
 
   for (const mcpServer of assistant.mcpServers) {
     if (mcpConnection) break
-    const { mcpConnection: innerMcpConnection } = await connectMcpServer({
-      mcpServer,
-      thread,
-      assistant,
-      prisma,
-    })
-
-    const listToolsResponse =
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (await innerMcpConnection.client.listTools()) as any
-
-    const tool = listToolsResponse.tools.find(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (tool: any) => tool.name === toolCall.function.name,
-    )
-
-    if (!tool) {
-      await closeMcpConnection({
-        mcpConnection: innerMcpConnection,
+    let innerMcpConnection: McpConnection | null = null
+    try {
+      const connection = await connectMcpServer({
+        mcpServer,
+        thread,
+        assistant,
+        prisma,
       })
-      continue
-    }
+      innerMcpConnection = connection.mcpConnection
 
-    mcpConnection = innerMcpConnection
-    break
+      const listToolsResponse =
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (await innerMcpConnection.client.listTools()) as any
+
+      const tool = listToolsResponse.tools.find(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (tool: any) => tool.name === toolCall.function.name,
+      )
+
+      if (!tool) {
+        await closeMcpConnection({
+          mcpConnection: innerMcpConnection,
+        })
+        continue
+      }
+
+      mcpConnection = innerMcpConnection
+      break
+    } catch (e) {
+      error = e instanceof Error ? e : new Error(String(e))
+      if (innerMcpConnection) {
+        try {
+          await closeMcpConnection({
+            mcpConnection: innerMcpConnection,
+          })
+        } catch {
+          // Ignore close errors so tool errors propagate.
+        }
+      }
+    }
   }
 
   return {
     mcpConnection: mcpConnection as McpConnection | null,
+    error,
   }
 }

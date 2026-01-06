@@ -16,6 +16,7 @@ import {
   CallToolResult,
 } from '@modelcontextprotocol/sdk/types.js'
 import { connectMcpServer } from '@/lib/mcpServers/connectMcpServer'
+import type { McpConnection } from '@/types'
 
 const getContent = ({
   mcpServerToolOutput,
@@ -119,14 +120,16 @@ export const handleComputerCall = async ({
     }
   }
 
-  const { mcpConnection } = await connectMcpServer({
-    thread,
-    assistant,
-    mcpServer: tool.computerUseTool.mcpServer,
-    prisma,
-  })
-
+  let mcpConnection: McpConnection | null = null
   try {
+    const connection = await connectMcpServer({
+      thread,
+      assistant,
+      mcpServer: tool.computerUseTool.mcpServer,
+      prisma,
+    })
+    mcpConnection = connection.mcpConnection
+
     const mcpServerToolOutput = (await mcpConnection.client.callTool(
       {
         name: 'computer_call',
@@ -140,10 +143,6 @@ export const handleComputerCall = async ({
         timeout: 300000,
       },
     )) as CallToolResult
-
-    await closeMcpConnection({
-      mcpConnection,
-    })
 
     const acknowledgedSafetyChecks =
       // @ts-expect-error compat
@@ -176,6 +175,7 @@ export const handleComputerCall = async ({
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
+    const message = e instanceof Error ? e.message : String(e)
     createLog({
       log: {
         requestMethod: LogRequestMethod.POST,
@@ -183,7 +183,7 @@ export const handleComputerCall = async ({
         level: LogLevel.ERROR,
         status: 500,
         // @ts-expect-error compat
-        message: `Error calling computer_call with action ${JSON.stringify(toolCall.computer_call.action)}: ${e.message}`,
+        message: `Error calling computer_call with action ${JSON.stringify(toolCall.computer_call.action)}: ${message}`,
         workspaceId: assistant.workspaceId,
         assistantId: assistant.id,
         threadId: thread.id,
@@ -194,7 +194,17 @@ export const handleComputerCall = async ({
     return {
       tool_call_id: toolCall.id,
       // @ts-expect-error compat
-      output: `Error calling computer_call with action ${JSON.stringify(toolCall.computer_call.action)}: ${e.message}`,
+      output: `Error calling computer_call with action ${JSON.stringify(toolCall.computer_call.action)}: ${message}`,
+    }
+  } finally {
+    if (mcpConnection) {
+      try {
+        await closeMcpConnection({
+          mcpConnection,
+        })
+      } catch {
+        // Ignore close errors so the tool output is still returned.
+      }
     }
   }
 }
