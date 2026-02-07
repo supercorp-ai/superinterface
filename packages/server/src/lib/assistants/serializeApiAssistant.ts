@@ -37,6 +37,8 @@ export const serializeApiAssistant = ({
   fileSearchEnabled: assistant.tools.some(
     (tool) => tool.type === ToolType.FILE_SEARCH,
   ),
+  truncationType: assistant.truncationType,
+  truncationLastMessagesCount: assistant.truncationLastMessagesCount,
   createdAt: assistant.createdAt.toISOString(),
   updatedAt: assistant.updatedAt.toISOString(),
   avatar: serializeAvatar({

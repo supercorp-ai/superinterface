@@ -1,5 +1,5 @@
 import { testApiHandler } from 'next-test-api-route-handler'
-import { ApiKeyType, StorageProviderType } from '@prisma/client'
+import { ApiKeyType, StorageProviderType, TruncationType } from '@prisma/client'
 import assert from 'node:assert'
 import { describe, it } from 'node:test'
 import { prisma } from '@/lib/prisma'
@@ -172,6 +172,89 @@ describe('/api/assistants', () => {
         },
       })
     })
+
+    it('creates assistant with truncationType and truncationLastMessagesCount', async () => {
+      const workspace = await createTestWorkspace()
+      const modelProvider = await createTestModelProvider({
+        data: { workspaceId: workspace.id },
+      })
+      const privateKey = await createTestApiKey({
+        data: { workspaceId: workspace.id, type: ApiKeyType.PRIVATE },
+      })
+
+      const appHandler = await import('../../src/app/api/assistants/route')
+
+      await testApiHandler({
+        appHandler,
+        test: async ({ fetch }) => {
+          const response = await fetch({
+            method: 'POST',
+            headers: { Authorization: `Bearer ${privateKey.value}` },
+            body: JSON.stringify({
+              storageProviderType: StorageProviderType.SUPERINTERFACE_CLOUD,
+              modelProviderId: modelProvider.id,
+              model: 'gpt-4o-mini',
+              name: 'Test Truncation Assistant',
+              truncationType: 'LAST_MESSAGES',
+              truncationLastMessagesCount: 10,
+            }),
+          })
+
+          assert.strictEqual(response.status, 200)
+          const data = await response.json()
+          assert.strictEqual(data.assistant.truncationType, 'LAST_MESSAGES')
+          assert.strictEqual(data.assistant.truncationLastMessagesCount, 10)
+
+          const stored = await prisma.assistant.findUniqueOrThrow({
+            where: { id: data.assistant.id },
+          })
+          assert.strictEqual(
+            stored.truncationType,
+            TruncationType.LAST_MESSAGES,
+          )
+          assert.strictEqual(stored.truncationLastMessagesCount, 10)
+        },
+      })
+    })
+
+    it('creates assistant with default truncation fields when not provided', async () => {
+      const workspace = await createTestWorkspace()
+      const modelProvider = await createTestModelProvider({
+        data: { workspaceId: workspace.id },
+      })
+      const privateKey = await createTestApiKey({
+        data: { workspaceId: workspace.id, type: ApiKeyType.PRIVATE },
+      })
+
+      const appHandler = await import('../../src/app/api/assistants/route')
+
+      await testApiHandler({
+        appHandler,
+        test: async ({ fetch }) => {
+          const response = await fetch({
+            method: 'POST',
+            headers: { Authorization: `Bearer ${privateKey.value}` },
+            body: JSON.stringify({
+              storageProviderType: StorageProviderType.SUPERINTERFACE_CLOUD,
+              modelProviderId: modelProvider.id,
+              model: 'gpt-4o-mini',
+              name: 'Test Default Truncation',
+            }),
+          })
+
+          assert.strictEqual(response.status, 200)
+          const data = await response.json()
+          assert.strictEqual(data.assistant.truncationType, 'AUTO')
+          assert.strictEqual(data.assistant.truncationLastMessagesCount, null)
+
+          const stored = await prisma.assistant.findUniqueOrThrow({
+            where: { id: data.assistant.id },
+          })
+          assert.strictEqual(stored.truncationType, TruncationType.AUTO)
+          assert.strictEqual(stored.truncationLastMessagesCount, null)
+        },
+      })
+    })
   })
 
   describe('PATCH /api/assistants/[assistantId]', () => {
@@ -194,9 +277,8 @@ describe('/api/assistants', () => {
         },
       })
 
-      const appHandler = await import(
-        '../../src/app/api/assistants/[assistantId]/route'
-      )
+      const appHandler =
+        await import('../../src/app/api/assistants/[assistantId]/route')
 
       await testApiHandler({
         appHandler,
@@ -245,9 +327,8 @@ describe('/api/assistants', () => {
         },
       })
 
-      const appHandler = await import(
-        '../../src/app/api/assistants/[assistantId]/route'
-      )
+      const appHandler =
+        await import('../../src/app/api/assistants/[assistantId]/route')
 
       await testApiHandler({
         appHandler,
@@ -296,9 +377,8 @@ describe('/api/assistants', () => {
         },
       })
 
-      const appHandler = await import(
-        '../../src/app/api/assistants/[assistantId]/route'
-      )
+      const appHandler =
+        await import('../../src/app/api/assistants/[assistantId]/route')
 
       await testApiHandler({
         appHandler,
@@ -352,9 +432,8 @@ describe('/api/assistants', () => {
         },
       })
 
-      const appHandler = await import(
-        '../../src/app/api/assistants/[assistantId]/route'
-      )
+      const appHandler =
+        await import('../../src/app/api/assistants/[assistantId]/route')
 
       await testApiHandler({
         appHandler,
@@ -388,6 +467,104 @@ describe('/api/assistants', () => {
         },
       })
     })
+
+    it('updates truncationType to DISABLED', async () => {
+      const workspace = await createTestWorkspace()
+      const modelProvider = await createTestModelProvider({
+        data: { workspaceId: workspace.id },
+      })
+      const privateKey = await createTestApiKey({
+        data: { workspaceId: workspace.id, type: ApiKeyType.PRIVATE },
+      })
+
+      const assistant = await prisma.assistant.create({
+        data: {
+          workspaceId: workspace.id,
+          modelProviderId: modelProvider.id,
+          modelSlug: 'gpt-4o-mini',
+          storageProviderType: StorageProviderType.SUPERINTERFACE_CLOUD,
+          truncationType: TruncationType.AUTO,
+        },
+      })
+
+      const appHandler =
+        await import('../../src/app/api/assistants/[assistantId]/route')
+
+      await testApiHandler({
+        appHandler,
+        params: { assistantId: assistant.id },
+        test: async ({ fetch }) => {
+          const response = await fetch({
+            method: 'PATCH',
+            headers: { Authorization: `Bearer ${privateKey.value}` },
+            body: JSON.stringify({
+              truncationType: 'DISABLED',
+            }),
+          })
+
+          assert.strictEqual(response.status, 200)
+          const data = await response.json()
+          assert.strictEqual(data.assistant.truncationType, 'DISABLED')
+
+          const stored = await prisma.assistant.findUniqueOrThrow({
+            where: { id: assistant.id },
+          })
+          assert.strictEqual(stored.truncationType, TruncationType.DISABLED)
+        },
+      })
+    })
+
+    it('updates truncationType to LAST_MESSAGES with truncationLastMessagesCount', async () => {
+      const workspace = await createTestWorkspace()
+      const modelProvider = await createTestModelProvider({
+        data: { workspaceId: workspace.id },
+      })
+      const privateKey = await createTestApiKey({
+        data: { workspaceId: workspace.id, type: ApiKeyType.PRIVATE },
+      })
+
+      const assistant = await prisma.assistant.create({
+        data: {
+          workspaceId: workspace.id,
+          modelProviderId: modelProvider.id,
+          modelSlug: 'gpt-4o-mini',
+          storageProviderType: StorageProviderType.SUPERINTERFACE_CLOUD,
+          truncationType: TruncationType.AUTO,
+        },
+      })
+
+      const appHandler =
+        await import('../../src/app/api/assistants/[assistantId]/route')
+
+      await testApiHandler({
+        appHandler,
+        params: { assistantId: assistant.id },
+        test: async ({ fetch }) => {
+          const response = await fetch({
+            method: 'PATCH',
+            headers: { Authorization: `Bearer ${privateKey.value}` },
+            body: JSON.stringify({
+              truncationType: 'LAST_MESSAGES',
+              truncationLastMessagesCount: 5,
+            }),
+          })
+
+          assert.strictEqual(response.status, 200)
+          const data = await response.json()
+          assert.strictEqual(data.assistant.truncationType, 'LAST_MESSAGES')
+          assert.strictEqual(data.assistant.truncationLastMessagesCount, 5)
+
+          const stored = await prisma.assistant.findUniqueOrThrow({
+            where: { id: assistant.id },
+          })
+          assert.strictEqual(
+            stored.truncationType,
+            TruncationType.LAST_MESSAGES,
+          )
+          assert.strictEqual(stored.truncationLastMessagesCount, 5)
+        },
+      })
+    })
   })
 
   describe('GET /api/assistants/[assistantId]', () => {
@@ -410,9 +587,8 @@ describe('/api/assistants', () => {
         },
       })
 
-      const appHandler = await import(
-        '../../src/app/api/assistants/[assistantId]/route'
-      )
+      const appHandler =
+        await import('../../src/app/api/assistants/[assistantId]/route')
 
       await testApiHandler({
         appHandler,
@@ -437,6 +613,49 @@ describe('/api/assistants', () => {
       })
     })
 
+    it('returns truncationType and truncationLastMessagesCount', async () => {
+      const workspace = await createTestWorkspace()
+      const modelProvider = await createTestModelProvider({
+        data: { workspaceId: workspace.id },
+      })
+      const privateKey = await createTestApiKey({
+        data: { workspaceId: workspace.id, type: ApiKeyType.PRIVATE },
+      })
+
+      const assistant = await prisma.assistant.create({
+        data: {
+          workspaceId: workspace.id,
+          modelProviderId: modelProvider.id,
+          modelSlug: 'gpt-4o-mini',
+          storageProviderType: StorageProviderType.SUPERINTERFACE_CLOUD,
+          truncationType: TruncationType.LAST_MESSAGES,
+          truncationLastMessagesCount: 20,
+        },
+      })
+
+      const appHandler =
+        await import('../../src/app/api/assistants/[assistantId]/route')
+
+      await testApiHandler({
+        appHandler,
+        params: { assistantId: assistant.id },
+        test: async ({ fetch }) => {
+          const response = await fetch({
+            method: 'GET',
+            headers: { Authorization: `Bearer ${privateKey.value}` },
+          })
+
+          assert.strictEqual(response.status, 200)
+          const data = await response.json()
+          assert.strictEqual(
+            data.assistant.truncationType,
+            TruncationType.LAST_MESSAGES,
+          )
+          assert.strictEqual(data.assistant.truncationLastMessagesCount, 20)
+        },
+      })
+    })
+
     it('returns correct storageProviderAssistantId for OPENAI', async () => {
       const workspace = await createTestWorkspace()
       const modelProvider = await createTestModelProvider({
@@ -456,9 +675,8 @@ describe('/api/assistants', () => {
         },
       })
 
-      const appHandler = await import(
-        '../../src/app/api/assistants/[assistantId]/route'
-      )
+      const appHandler =
+        await import('../../src/app/api/assistants/[assistantId]/route')
 
       await testApiHandler({
         appHandler,

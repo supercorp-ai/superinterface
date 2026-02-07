@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import {
   StorageProviderType,
+  TruncationType,
   Prisma,
   ApiKeyType,
   ToolType,
@@ -152,6 +153,8 @@ export const buildPATCH =
         instructions: z.string().optional(),
         codeInterpreterEnabled: z.boolean().optional(),
         fileSearchEnabled: z.boolean().optional(),
+        truncationType: z.nativeEnum(TruncationType).optional(),
+        truncationLastMessagesCount: z.number().int().nullable().optional(),
       })
       .superRefine((data, ctx) => {
         if (!data.storageProviderType) return
@@ -204,6 +207,8 @@ export const buildPATCH =
       instructions,
       codeInterpreterEnabled,
       fileSearchEnabled,
+      truncationType,
+      truncationLastMessagesCount,
     } = parseResult.data
 
     // Fetch existing assistant to determine storage provider type if not provided in update
@@ -251,6 +256,10 @@ export const buildPATCH =
       ...(name !== undefined && { name }),
       ...(description !== undefined && { description }),
       ...(instructions !== undefined && { instructions }),
+      ...(truncationType !== undefined && { truncationType }),
+      ...(truncationLastMessagesCount !== undefined && {
+        truncationLastMessagesCount,
+      }),
       tools: {
         create: [
           ...(codeInterpreterEnabled === true

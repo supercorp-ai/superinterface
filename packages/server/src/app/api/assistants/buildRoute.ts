@@ -2,6 +2,7 @@ import { headers } from 'next/headers'
 import {
   ApiKeyType,
   StorageProviderType,
+  TruncationType,
   ToolType,
   type PrismaClient,
 } from '@prisma/client'
@@ -22,6 +23,8 @@ const createAssistantSchema = z
     instructions: z.string().optional().default(''),
     codeInterpreterEnabled: z.boolean().optional().default(false),
     fileSearchEnabled: z.boolean().optional().default(false),
+    truncationType: z.nativeEnum(TruncationType).optional(),
+    truncationLastMessagesCount: z.number().int().nullable().optional(),
   })
   .superRefine((data, ctx) => {
     if (
@@ -139,6 +142,8 @@ export const buildPOST =
       instructions,
       codeInterpreterEnabled,
       fileSearchEnabled,
+      truncationType,
+      truncationLastMessagesCount,
     } = parseResult.data
 
     const workspaceId = privateApiKey.workspaceId
@@ -157,6 +162,10 @@ export const buildPOST =
           : storageProviderType === StorageProviderType.AZURE_RESPONSES
             ? { azureResponsesAgentName: storageProviderAssistantId ?? null }
             : { openaiAssistantId: storageProviderAssistantId ?? null }),
+        ...(truncationType !== undefined && { truncationType }),
+        ...(truncationLastMessagesCount !== undefined && {
+          truncationLastMessagesCount,
+        }),
         tools: {
           create: [
             ...(fileSearchEnabled
