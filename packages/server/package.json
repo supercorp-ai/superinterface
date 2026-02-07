@@ -1,6 +1,6 @@
 {
   "name": "@superinterface/server",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "type": "module",
   "bin": {
     "superinterface-server": "./bin/index.cjs"
@@ -128,10 +128,25 @@
       "import": "./dist/app/api/workspaces/[workspaceId]/*.js",
       "default": "./dist/app/api/workspaces/[workspaceId]/*.js"
     },
+    "./next/api/assistants/[assistantId]/tools/*": {
+      "types": "./dist/app/api/assistants/[assistantId]/tools/*.d.ts",
+      "import": "./dist/app/api/assistants/[assistantId]/tools/*.js",
+      "default": "./dist/app/api/assistants/[assistantId]/tools/*.js"
+    },
+    "./next/api/assistants/[assistantId]/tools/[toolId]/*": {
+      "types": "./dist/app/api/assistants/[assistantId]/tools/[toolId]/*.d.ts",
+      "import": "./dist/app/api/assistants/[assistantId]/tools/[toolId]/*.js",
+      "default": "./dist/app/api/assistants/[assistantId]/tools/[toolId]/*.js"
+    },
     "./lib/assistants/serializeApiAssistant": {
       "types": "./dist/lib/assistants/serializeApiAssistant.d.ts",
       "import": "./dist/lib/assistants/serializeApiAssistant.js",
       "default": "./dist/lib/assistants/serializeApiAssistant.js"
+    },
+    "./lib/tools/isToolConfigAvailable": {
+      "types": "./dist/lib/tools/isToolConfigAvailable.d.ts",
+      "import": "./dist/lib/tools/isToolConfigAvailable.js",
+      "default": "./dist/lib/tools/isToolConfigAvailable.js"
     }
   },
   "scripts": {
