@@ -2,7 +2,7 @@
   "name": "thread-dialog",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "npm@11.4.2",
+  "packageManager": "npm@11.9.0",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -10,8 +10,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@radix-ui/themes": "^3.2.1",
-    "@superinterface/react": "^4.0.0",
+    "@radix-ui/themes": "^3.3.0",
+    "@superinterface/react": "^5.4.0",
     "next": "15.5.9",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
