@@ -7,6 +7,7 @@ export const set = ({
 }: {
   assistantId: string
   threadId: string
-}) => (
-  Cookies.set(key({ assistantId }), threadId)
-)
+}) =>
+  Cookies.set(key({ assistantId }), threadId, {
+    expires: 365,
+  })
