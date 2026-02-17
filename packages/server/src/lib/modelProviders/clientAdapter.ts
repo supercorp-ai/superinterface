@@ -11,6 +11,7 @@ import {
   togetherClientAdapter,
   anthropicClientAdapter,
   azureAiProjectClientAdapter,
+  openRouterClientAdapter,
 } from 'supercompat'
 import { AIProjectClient as AIProjectClientV1 } from '@azure/ai-projects'
 import {
@@ -77,9 +78,15 @@ export const clientAdapter = ({
   }
 
   if (modelProvider.type === ModelProviderType.OPEN_ROUTER) {
-    return buildOpenaiClientAdapter({
-      modelProvider,
-      baseURL: 'https://openrouter.ai/api/v1',
+    return openRouterClientAdapter({
+      openRouter: new OpenAI({
+        apiKey: modelProvider.apiKey,
+        baseURL: 'https://openrouter.ai/api/v1',
+        defaultHeaders: {
+          'HTTP-Referer': 'https://superinterface.ai',
+          'X-Title': 'Superinterface',
+        },
+      }),
     })
   }
 

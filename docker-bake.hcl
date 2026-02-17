@@ -10,6 +10,9 @@ target "server" {
   context    = "."
   dockerfile = "packages/server/Dockerfile"
   tags       = ["${REGISTRY}:${TAG}"]
+  args       = {
+    VERSION = TAG
+  }
 }
 
 target "server-release" {
