@@ -85,6 +85,10 @@ export const toolConfigs: ToolConfig[] = [
         modelProviderType: ModelProviderType.AZURE_OPENAI,
         storageProviderType: StorageProviderType.AZURE_RESPONSES,
       },
+      {
+        modelProviderType: ModelProviderType.OPEN_ROUTER,
+        storageProviderType: StorageProviderType.SUPERINTERFACE_CLOUD,
+      },
     ],
   },
   {

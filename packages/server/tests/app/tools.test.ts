@@ -260,6 +260,70 @@ describe('/api/assistants/[assistantId]/tools', () => {
         },
       })
     })
+
+    it('creates a COMPUTER_USE tool for OPEN_ROUTER provider', async () => {
+      const { assistant, privateKey } = await createAssistantWithWorkspace({
+        modelProviderType: ModelProviderType.OPEN_ROUTER,
+        storageProviderType: StorageProviderType.SUPERINTERFACE_CLOUD,
+      })
+
+      const appHandler =
+        await import('../../src/app/api/assistants/[assistantId]/tools/route')
+
+      await testApiHandler({
+        appHandler,
+        params: { assistantId: assistant.id },
+        test: async ({ fetch }) => {
+          const response = await fetch({
+            method: 'POST',
+            headers: { Authorization: `Bearer ${privateKey.value}` },
+            body: JSON.stringify({
+              type: ToolType.COMPUTER_USE,
+              computerUseTool: {
+                displayWidth: 1920,
+                displayHeight: 1080,
+                environment: 'BROWSER',
+              },
+            }),
+          })
+
+          assert.strictEqual(response.status, 200)
+          const data = await response.json()
+          assert.strictEqual(data.tool.type, ToolType.COMPUTER_USE)
+          assert.strictEqual(data.tool.computerUseTool.displayWidth, 1920)
+          assert.strictEqual(data.tool.computerUseTool.displayHeight, 1080)
+          assert.strictEqual(data.tool.computerUseTool.environment, 'BROWSER')
+        },
+      })
+    })
+
+    it('returns 400 when IMAGE_GENERATION is not available for OPEN_ROUTER', async () => {
+      const { assistant, privateKey } = await createAssistantWithWorkspace({
+        modelProviderType: ModelProviderType.OPEN_ROUTER,
+        storageProviderType: StorageProviderType.SUPERINTERFACE_CLOUD,
+      })
+
+      const appHandler =
+        await import('../../src/app/api/assistants/[assistantId]/tools/route')
+
+      await testApiHandler({
+        appHandler,
+        params: { assistantId: assistant.id },
+        test: async ({ fetch }) => {
+          const response = await fetch({
+            method: 'POST',
+            headers: { Authorization: `Bearer ${privateKey.value}` },
+            body: JSON.stringify({
+              type: ToolType.IMAGE_GENERATION,
+            }),
+          })
+
+          assert.strictEqual(response.status, 400)
+          const data = await response.json()
+          assert.ok(data.error.includes('not available'))
+        },
+      })
+    })
   })
 
   describe('GET /api/assistants/[assistantId]/tools', () => {

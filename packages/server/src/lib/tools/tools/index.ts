@@ -233,6 +233,17 @@ const nativeTools = ({
           }
         }
 
+        if (assistant.modelProvider.type === ModelProviderType.OPEN_ROUTER) {
+          return {
+            type: 'computer_use_preview',
+            computer_use_preview: {
+              environment: tool.computerUseTool!.environment.toLowerCase(),
+              display_width: tool.computerUseTool!.displayWidth,
+              display_height: tool.computerUseTool!.displayHeight,
+            },
+          }
+        }
+
         return null
       }
 
