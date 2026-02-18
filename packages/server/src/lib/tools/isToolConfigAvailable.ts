@@ -89,6 +89,10 @@ export const toolConfigs: ToolConfig[] = [
         modelProviderType: ModelProviderType.OPEN_ROUTER,
         storageProviderType: StorageProviderType.SUPERINTERFACE_CLOUD,
       },
+      {
+        modelProviderType: ModelProviderType.GOOGLE,
+        storageProviderType: StorageProviderType.SUPERINTERFACE_CLOUD,
+      },
     ],
   },
   {
