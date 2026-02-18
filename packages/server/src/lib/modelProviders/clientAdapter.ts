@@ -2,6 +2,7 @@ import Groq from 'groq-sdk'
 import OpenAI from 'openai'
 import { Mistral } from '@mistralai/mistralai'
 import Anthropic from '@anthropic-ai/sdk'
+import { GoogleGenAI } from '@google/genai'
 import {
   mistralClientAdapter,
   groqClientAdapter,
@@ -136,10 +137,7 @@ export const clientAdapter = ({
 
   if (modelProvider.type === ModelProviderType.GOOGLE) {
     return googleClientAdapter({
-      google: new OpenAI({
-        apiKey: modelProvider.apiKey,
-        baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/',
-      }),
+      google: new GoogleGenAI({ apiKey: modelProvider.apiKey }),
     })
   }
 

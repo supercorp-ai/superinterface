@@ -120,6 +120,9 @@ export const handleComputerCall = async ({
     }
   }
 
+  // @ts-expect-error computer_call is compatability type
+  const rawAction = toolCall.computer_call.action
+
   let mcpConnection: McpConnection | null = null
   try {
     const connection = await connectMcpServer({
@@ -133,10 +136,7 @@ export const handleComputerCall = async ({
     const mcpServerToolOutput = (await mcpConnection.client.callTool(
       {
         name: 'computer_call',
-        arguments: {
-          // @ts-expect-error computer_call is compatability type
-          action: toolCall.computer_call.action,
-        },
+        arguments: { action: rawAction },
       },
       CallToolResultSchema,
       {
@@ -182,8 +182,7 @@ export const handleComputerCall = async ({
         requestRoute: LogRequestRoute.MESSAGES,
         level: LogLevel.ERROR,
         status: 500,
-        // @ts-expect-error compat
-        message: `Error calling computer_call with action ${JSON.stringify(toolCall.computer_call.action)}: ${message}`,
+        message: `Error calling computer_call with action ${JSON.stringify(rawAction)}: ${message}`,
         workspaceId: assistant.workspaceId,
         assistantId: assistant.id,
         threadId: thread.id,
@@ -193,8 +192,7 @@ export const handleComputerCall = async ({
 
     return {
       tool_call_id: toolCall.id,
-      // @ts-expect-error compat
-      output: `Error calling computer_call with action ${JSON.stringify(toolCall.computer_call.action)}: ${message}`,
+      output: `Error calling computer_call with action ${JSON.stringify(rawAction)}: ${message}`,
     }
   } finally {
     if (mcpConnection) {

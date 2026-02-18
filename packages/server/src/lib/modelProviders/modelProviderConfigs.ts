@@ -128,7 +128,7 @@ export const modelProviderConfigs: ModelProviderConfig[] = [
     iconUrl: '/images/google-gemini-logo-square.svg',
     logoUrl: '/images/google-gemini-logo-square.svg',
     dashboardUrl: 'https://aistudio.google.com/apikey',
-    modelSlugs: ['gemini-2.0-flash-exp'],
+    modelSlugs: ['gemini-3-flash-preview'],
     storageProviderTypes: [StorageProviderType.SUPERINTERFACE_CLOUD],
     isFunctionCallingAvailable: true,
   },

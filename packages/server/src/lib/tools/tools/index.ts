@@ -233,7 +233,10 @@ const nativeTools = ({
           }
         }
 
-        if (assistant.modelProvider.type === ModelProviderType.OPEN_ROUTER) {
+        if (
+          assistant.modelProvider.type === ModelProviderType.OPEN_ROUTER ||
+          assistant.modelProvider.type === ModelProviderType.GOOGLE
+        ) {
           return {
             type: 'computer_use_preview',
             computer_use_preview: {
