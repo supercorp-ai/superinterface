@@ -3,6 +3,7 @@ import OpenAI from 'openai'
 import { Mistral } from '@mistralai/mistralai'
 import Anthropic from '@anthropic-ai/sdk'
 import { GoogleGenAI } from '@google/genai'
+import { OpenRouter } from '@openrouter/sdk'
 import {
   mistralClientAdapter,
   groqClientAdapter,
@@ -80,14 +81,12 @@ export const clientAdapter = ({
 
   if (modelProvider.type === ModelProviderType.OPEN_ROUTER) {
     return openRouterClientAdapter({
-      openRouter: new OpenAI({
+      openRouter: new OpenRouter({
         apiKey: modelProvider.apiKey,
-        baseURL: 'https://openrouter.ai/api/v1',
-        defaultHeaders: {
-          'HTTP-Referer': 'https://superinterface.ai',
-          'X-Title': 'Superinterface',
-        },
+        httpReferer: 'https://superinterface.ai',
+        xTitle: 'Superinterface',
       }),
+      provider: { sort: 'throughput' },
     })
   }
 
