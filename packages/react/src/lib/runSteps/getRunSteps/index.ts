@@ -7,9 +7,13 @@ type Args = {
 }
 
 export const getRunSteps = async ({ threadId, runId, client }: Args) => {
-  const runStepsResponse = await client.beta.threads.runs.steps.list(runId, {
-    thread_id: threadId,
-  })
+  const runSteps: OpenAI.Beta.Threads.Runs.RunStep[] = []
 
-  return runStepsResponse.data
+  for await (const runStep of client.beta.threads.runs.steps.list(runId, {
+    thread_id: threadId,
+  })) {
+    runSteps.push(runStep)
+  }
+
+  return runSteps
 }
