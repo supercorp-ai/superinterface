@@ -45,11 +45,13 @@ const MessageGroup = ({ messageGroup }: { messageGroup: MessageGroupType }) => {
   const isHidden = useMemo(
     () =>
       messageGroup.messages.some((message) =>
-        (message.content ?? []).some((content) => {
-          if (content.type !== 'text') return false
+        (message.content ?? []).some(
+          (content: { type: string; text?: { value: string } }) => {
+            if (content.type !== 'text') return false
 
-          return content.text.value.includes('<Hidden>')
-        }),
+            return content.text?.value.includes('<Hidden>')
+          },
+        ),
       ),
     [messageGroup],
   )
