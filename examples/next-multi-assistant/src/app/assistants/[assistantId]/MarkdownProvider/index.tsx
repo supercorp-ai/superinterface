@@ -26,10 +26,7 @@ export const MarkdownProvider = ({ children }: Args) => {
   )
 
   return (
-    <SuperinterfaceMarkdownProvider
-      // @ts-expect-error broad types
-      components={components}
-    >
+    <SuperinterfaceMarkdownProvider components={components}>
       {children}
     </SuperinterfaceMarkdownProvider>
   )

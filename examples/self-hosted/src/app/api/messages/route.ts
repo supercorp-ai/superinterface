@@ -27,7 +27,6 @@ export const GET = async (request: NextRequest) => {
   return NextResponse.json(
     await messagesResponse({
       threadId,
-      // @ts-expect-error OpenAI is not typed correctly here
       client,
       ...(pageParam ? { pageParam } : {}),
     }),
