@@ -331,7 +331,10 @@ export const useDefaultPlay = ({
     const chunkQueue = chunkQueuesRef.current.get(candidate.messageId)
     const activeChunk =
       chunkQueue && chunkQueue.length > 0 ? chunkQueue[0] : null
-    currentChunkRef.current = activeChunk
+    currentChunkRef.current = {
+      messageId: candidate.messageId,
+      chunk: activeChunk,
+    }
 
     const searchParams = new URLSearchParams({
       input: candidate.sentence,

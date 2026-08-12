@@ -4,7 +4,7 @@ import { Howler } from 'howler'
 import { useAudioPlayer } from 'react-use-audio-player'
 import { useLatestMessage } from '@/hooks/messages/useLatestMessage'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
-import { AudioEngine, type PlayArgs } from '@/types'
+import { AudioEngine, type PlayArgs, type SerializedMessage } from '@/types'
 import { isOptimistic } from '@/lib/optimistic/isOptimistic'
 import { input as getInput } from './lib/input'
 import { isHtmlAudioSupported } from './lib/isHtmlAudioSupported'
@@ -50,6 +50,96 @@ export const useMessageAudio = ({
   const isLastSentencePlayedRef = useRef(false)
 
   const latestMessageProps = useLatestMessage()
+  const latestMessageRef = useRef<SerializedMessage | null>(
+    latestMessageProps.latestMessage,
+  )
+  latestMessageRef.current = latestMessageProps.latestMessage
+
+  const customProcessedRef = useRef<{
+    id: string
+    text: string
+    status?: SerializedMessage['status']
+  } | null>(null)
+  const customOnEndPendingRef = useRef(false)
+  const customActiveChunksRef = useRef(0)
+  const [customActiveChunks, setCustomActiveChunks] = useState(0)
+
+  const finishCustomChunk = useCallback(() => {
+    customActiveChunksRef.current = Math.max(
+      customActiveChunksRef.current - 1,
+      0,
+    )
+    setCustomActiveChunks(customActiveChunksRef.current)
+
+    if (
+      customOnEndPendingRef.current &&
+      customActiveChunksRef.current === 0 &&
+      latestMessageRef.current?.status !== 'in_progress'
+    ) {
+      customOnEndPendingRef.current = false
+      onEnd()
+    }
+  }, [onEnd])
+
+  useEffect(() => {
+    if (!passedPlay) {
+      customProcessedRef.current = null
+      customOnEndPendingRef.current = false
+      customActiveChunksRef.current = 0
+      setCustomActiveChunks(0)
+      return
+    }
+
+    const message = latestMessageProps.latestMessage
+    if (!message || message.role !== 'assistant') return
+
+    const input = getInput({ message })
+    if (input == null) return
+
+    const previous = customProcessedRef.current
+    const isSameMessage = previous?.id === String(message.id)
+    const previousText = isSameMessage ? previous.text : ''
+    const previousStatus = isSameMessage ? previous.status : undefined
+    const delta =
+      previousText && input.startsWith(previousText)
+        ? input.slice(previousText.length)
+        : input === previousText
+          ? ''
+          : input
+    const statusChanged = previousStatus !== message.status
+
+    customProcessedRef.current = {
+      id: String(message.id),
+      text: input,
+      status: message.status,
+    }
+
+    if (!delta && !statusChanged) return
+
+    customOnEndPendingRef.current = true
+    customActiveChunksRef.current += 1
+    setCustomActiveChunks(customActiveChunksRef.current)
+
+    let finished = false
+    const finish = () => {
+      if (finished) return
+      finished = true
+      finishCustomChunk()
+    }
+
+    try {
+      passedPlay({
+        input: delta,
+        message,
+        onPlay: () => setIsAudioPlayed(true),
+        onStop: finish,
+        onEnd: finish,
+      })
+    } catch (error) {
+      finish()
+      throw error
+    }
+  }, [passedPlay, latestMessageProps.latestMessage, finishCustomChunk])
 
   useEffect(() => {
     if (!isPlaying) return
@@ -141,6 +231,7 @@ export const useMessageAudio = ({
   )
 
   useEffect(() => {
+    if (passedPlay) return
     if (isPlaying) return
     if (audioPlayer.playing) return
     if (!latestMessageProps.latestMessage) return
@@ -200,6 +291,7 @@ export const useMessageAudio = ({
     onEnd,
     play,
     fullSentenceRegex,
+    passedPlay,
   ])
 
   useEffect(() => {
@@ -268,10 +360,19 @@ export const useMessageAudio = ({
 
   const isPending = useMemo(
     () =>
-      isPlaying ||
-      unplayedMessageSentences.length > 0 ||
-      latestMessageProps.latestMessage?.status === 'in_progress',
-    [isPlaying, unplayedMessageSentences, latestMessageProps],
+      passedPlay
+        ? customActiveChunks > 0 ||
+          latestMessageProps.latestMessage?.status === 'in_progress'
+        : isPlaying ||
+          unplayedMessageSentences.length > 0 ||
+          latestMessageProps.latestMessage?.status === 'in_progress',
+    [
+      passedPlay,
+      customActiveChunks,
+      isPlaying,
+      unplayedMessageSentences,
+      latestMessageProps,
+    ],
   )
 
   return {
