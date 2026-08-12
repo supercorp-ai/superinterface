@@ -3,7 +3,6 @@
 import type OpenAI from 'openai'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { Link } from '@/contexts/markdown/MarkdownContext/lib/components/Link'
-import { fileContentUrl } from '@/lib/files/fileContentUrl'
 
 type FilePathAnnotationType =
   OpenAI.Beta.Threads.Messages.FilePathAnnotation & {
@@ -20,16 +19,14 @@ export const FilePathAnnotation = ({
   children: React.ReactNode
 }) => {
   const superinterfaceContext = useSuperinterfaceContext()
-  const href = fileContentUrl({
-    baseUrl: superinterfaceContext.baseUrl,
-    variables: superinterfaceContext.variables,
-    fileId: annotation.file_path.file_id,
-    containerId: annotation.file_path.container_id,
-  })
+  const searchParams = new URLSearchParams(superinterfaceContext.variables)
+  if (annotation.file_path.container_id) {
+    searchParams.set('containerId', annotation.file_path.container_id)
+  }
 
   return (
     <Link
-      href={href}
+      href={`${superinterfaceContext.baseUrl}/files/${annotation.file_path.file_id}/contents?${searchParams}`}
       target="_self"
       download
     >

@@ -20,15 +20,7 @@ interface AnnotationNode extends Literal {
 
 const markerPattern = /^【[^】]+】$/
 
-/**
- * Detect broken annotations: a `file_citation` annotation's `text` should
- * always be a complete 【...】 marker (per OpenAI Assistants API docs). If
- * any `file_citation` has non-marker text, the response has broken
- * annotations (Azure bug) and we strip unmatched markers.
- *
- * This only applies to `file_citation`: Responses API `file_path`
- * annotations can legitimately have empty text and use their offsets.
- */
+/** Detect malformed Assistants API citation markers. */
 const hasBrokenAnnotations = (
   annotations: OpenAI.Beta.Threads.Messages.Annotation[],
 ) =>
@@ -49,7 +41,7 @@ const sortedAnnotations = ({
     return annotations.sort((a, b) => a.start_index - b.start_index)
   }
 
-  // Keep non-citation annotations; they do not use marker text.
+  // File paths use offsets rather than citation marker text.
   return annotations
     .filter((a) => a.type !== 'file_citation' || markerPattern.test(a.text))
     .sort((a, b) => a.start_index - b.start_index)
@@ -87,7 +79,7 @@ export const remarkAnnotation = ({
         return [node]
       })
 
-      // Append only malformed citation markers.
+      // Append malformed citation markers for the fallback renderer.
       if (broken) {
         const invalidAnnotations = content.text.annotations.filter(
           (a) => a.type === 'file_citation' && !markerPattern.test(a.text),
@@ -220,17 +212,11 @@ const processNodeWithAnnotations = ({
     const nodeEnd = imageNode.position?.end.offset
     if (!isNumber(nodeStart) || !isNumber(nodeEnd)) return [imageNode]
 
-    const markdownSource = content.text.value.slice(nodeStart, nodeEnd)
-    const relativeUrlStart = markdownSource.indexOf(imageNode.url)
-    if (relativeUrlStart < 0) return [imageNode]
-
-    const urlStartOffset = nodeStart + relativeUrlStart
-    const urlEndOffset = urlStartOffset + imageNode.url.length
     const annotation = annotations.find(
       (candidate) =>
         candidate.type === 'file_path' &&
-        candidate.start_index >= urlStartOffset &&
-        candidate.end_index <= urlEndOffset,
+        candidate.start_index >= nodeStart &&
+        candidate.end_index <= nodeEnd,
     )
     if (!annotation) return [imageNode]
 

@@ -6,7 +6,6 @@ import { cacheHeaders } from '@/lib/cache/cacheHeaders'
 import { assistantClientAdapter } from '@/lib/assistants/assistantClientAdapter'
 import { workspaceAccessWhere as getWorkspaceAccessWhere } from '@/lib/apiKeys/workspaceAccessWhere'
 import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
-import { serveContainerFileContent } from './lib/containerFile'
 
 type PurposeAssistantsResponse = ({
   file,
@@ -119,9 +118,6 @@ export const buildGET =
       )
     }
 
-    // Responses code-interpreter files require both ids and are not
-    // addressable through /v1/files. The React client keeps file_id in the
-    // path and supplies container_id separately as a query parameter.
     const containerId = request.nextUrl.searchParams.get('containerId')
     if (containerId !== null && !containerId) {
       return NextResponse.json(
@@ -133,9 +129,18 @@ export const buildGET =
     const assistantClient = getAssistantClient({ assistant, prisma })
 
     if (containerId !== null) {
-      return serveContainerFileContent({
-        client: assistantClient,
-        containerRef: { containerId, fileId },
+      const response = await assistantClient.containers.files.content.retrieve(
+        fileId,
+        { container_id: containerId },
+      )
+      return new NextResponse(response.body, {
+        headers: {
+          ...cacheHeaders,
+          'Content-Type':
+            response.headers.get('Content-Type') ?? 'application/octet-stream',
+          'Content-Disposition':
+            response.headers.get('Content-Disposition') ?? 'inline',
+        },
       })
     }
 
