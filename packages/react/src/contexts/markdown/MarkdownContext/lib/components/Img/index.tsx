@@ -30,11 +30,23 @@ export const Img = (props: ImgProps) => {
   }
 
   if (!src) {
-    return <Image {...props} />
+    return (
+      <Image
+        {...props}
+      />
+    )
   } else if (isVideoSrc({ src: props.src ?? src })) {
-    return <Video src={src} />
+    return (
+      <Video
+        src={src}
+      />
+    )
   } else if (isAudioSrc({ src: props.src ?? src })) {
-    return <Audio src={src} />
+    return (
+      <Audio
+        src={src}
+      />
+    )
   } else {
     return (
       <Image
