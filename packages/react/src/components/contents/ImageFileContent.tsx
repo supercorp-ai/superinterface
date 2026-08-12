@@ -1,19 +1,27 @@
-import type OpenAI from 'openai'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { Image } from '@/components/images/Image'
+import type { ImageFileContentBlock } from '@/types'
+import { fileContentUrl, fileReference } from '@/lib/files/fileContentUrl'
 
 export const ImageFileContent = ({
   content,
 }: {
-  content: OpenAI.Beta.Threads.Messages.ImageFileContentBlock
+  content: ImageFileContentBlock
 }) => {
   const superinterfaceContext = useSuperinterfaceContext()
-  const nextSearchParams = new URLSearchParams(superinterfaceContext.variables)
+  const src = fileContentUrl({
+    baseUrl: superinterfaceContext.baseUrl,
+    variables: superinterfaceContext.variables,
+    reference: fileReference({
+      fileId: content.image_file.file_id,
+      containerId: content.image_file.container_id,
+    }),
+  })
 
   return (
     <Image
       alt=""
-      src={`${superinterfaceContext.baseUrl}/files/${content.image_file.file_id}/contents?${nextSearchParams}`}
+      src={src}
     />
   )
 }

@@ -1,11 +1,12 @@
 import type OpenAI from 'openai'
 import { useComponents } from '@/hooks/components/useComponents'
+import type {
+  ImageFileContentBlock as ImageFileContentBlockType,
+  MessageContent,
+  TextContentBlock as TextContentBlockType,
+} from '@/types'
 
-const TextContent = ({
-  content,
-}: {
-  content: OpenAI.Beta.Threads.Messages.TextContentBlock
-}) => {
+const TextContent = ({ content }: { content: TextContentBlockType }) => {
   const {
     components: { TextContent },
   } = useComponents()
@@ -16,7 +17,7 @@ const TextContent = ({
 const ImageFileContent = ({
   content,
 }: {
-  content: OpenAI.Beta.Threads.Messages.ImageFileContentBlock
+  content: ImageFileContentBlockType
 }) => {
   const {
     components: { ImageFileContent },
@@ -37,11 +38,7 @@ const ImageUrlContent = ({
   return <ImageUrlContent content={content} />
 }
 
-export const ContentPart = ({
-  content,
-}: {
-  content: OpenAI.Beta.Threads.Messages.MessageContent
-}) => {
+export const ContentPart = ({ content }: { content: MessageContent }) => {
   if (content.type === 'text') {
     return <TextContent content={content} />
   }

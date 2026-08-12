@@ -1,6 +1,52 @@
 import type OpenAI from 'openai'
 import { AvatarType, IconAvatarName } from '@/enums'
 
+export type FilePathAnnotation = Omit<
+  OpenAI.Beta.Threads.Messages.FilePathAnnotation,
+  'file_path'
+> & {
+  file_path: OpenAI.Beta.Threads.Messages.FilePathAnnotation['file_path'] & {
+    container_id?: string
+  }
+}
+
+export type MessageAnnotation =
+  | Exclude<
+      OpenAI.Beta.Threads.Messages.Annotation,
+      OpenAI.Beta.Threads.Messages.FilePathAnnotation
+    >
+  | FilePathAnnotation
+
+export type TextContentBlock = Omit<
+  OpenAI.Beta.Threads.Messages.TextContentBlock,
+  'text'
+> & {
+  text: Omit<
+    OpenAI.Beta.Threads.Messages.TextContentBlock['text'],
+    'annotations'
+  > & {
+    annotations: MessageAnnotation[]
+  }
+}
+
+export type ImageFileContentBlock = Omit<
+  OpenAI.Beta.Threads.Messages.ImageFileContentBlock,
+  'image_file'
+> & {
+  image_file: OpenAI.Beta.Threads.Messages.ImageFileContentBlock['image_file'] & {
+    container_id?: string
+  }
+}
+
+export type MessageContent =
+  | Exclude<
+      OpenAI.Beta.Threads.Messages.MessageContent,
+      | OpenAI.Beta.Threads.Messages.TextContentBlock
+      | OpenAI.Beta.Threads.Messages.ImageFileContentBlock
+    >
+  | TextContentBlock
+  | ImageFileContentBlock
+
 export type SerializedRunStep = Pick<
   OpenAI.Beta.Threads.Runs.RunStep,
   | 'id'
@@ -12,19 +58,23 @@ export type SerializedRunStep = Pick<
   | 'status'
 >
 
-export type SerializedMessage = Pick<
-  OpenAI.Beta.Threads.Messages.Message,
-  | 'id'
-  | 'role'
-  | 'created_at'
-  | 'content'
-  | 'run_id'
-  | 'assistant_id'
-  | 'thread_id'
-  | 'attachments'
-  | 'metadata'
-  | 'status'
+export type SerializedMessage = Omit<
+  Pick<
+    OpenAI.Beta.Threads.Messages.Message,
+    | 'id'
+    | 'role'
+    | 'created_at'
+    | 'content'
+    | 'run_id'
+    | 'assistant_id'
+    | 'thread_id'
+    | 'attachments'
+    | 'metadata'
+    | 'status'
+  >,
+  'content'
 > & {
+  content: MessageContent[]
   runSteps: SerializedRunStep[]
 }
 

@@ -1,7 +1,7 @@
-import type OpenAI from 'openai'
 import { isNumber } from 'radash'
 import type { Node, Literal, Position } from 'unist'
-import type { Text, Link } from 'mdast'
+import type { Text, Link, Image } from 'mdast'
+import type { MessageAnnotation, TextContentBlock } from '@/types'
 // @ts-ignore-next-line
 import flatMap from 'unist-util-flatmap'
 
@@ -21,20 +21,26 @@ interface AnnotationNode extends Literal {
 const markerPattern = /^【[^】]+】$/
 
 /**
- * Detect broken annotations: annotation.text should always be a complete 【...】 marker
- * (per OpenAI Assistants API docs). If any annotation's text is not a marker, the
- * response has broken annotations (Azure bug) and we strip unmatched markers.
+ * Detect broken annotations: a `file_citation` annotation's `text` should
+ * always be a complete 【...】 marker (per OpenAI Assistants API docs). If
+ * any `file_citation` has non-marker text, the response has broken
+ * annotations (Azure bug) and we strip unmatched markers.
+ *
+ * IMPORTANT: this check is scoped to `file_citation` only. `file_path`
+ * annotations — including those that supercompat maps from the Responses API
+ * `container_file_citation` shape — legitimately carry an empty `text` and
+ * are matched by `start_index` / `end_index` against the URL substring inside
+ * a markdown link. Treating their empty `text` as "broken" would filter
+ * every code-interpreter file annotation out of the message and leave raw
+ * `sandbox:` hrefs in the rendered output.
  */
-const hasBrokenAnnotations = (
-  annotations: OpenAI.Beta.Threads.Messages.Annotation[],
-) =>
-  annotations.length > 0 && annotations.some((a) => !markerPattern.test(a.text))
+const hasBrokenAnnotations = (annotations: MessageAnnotation[]) =>
+  annotations.length > 0 &&
+  annotations.some(
+    (a) => a.type === 'file_citation' && !markerPattern.test(a.text),
+  )
 
-const sortedAnnotations = ({
-  content,
-}: {
-  content: OpenAI.Beta.Threads.Messages.TextContentBlock
-}) => {
+const sortedAnnotations = ({ content }: { content: TextContentBlock }) => {
   const annotations = content.text.annotations
 
   // If all annotations are valid markers (OpenAI format), use as-is
@@ -42,23 +48,29 @@ const sortedAnnotations = ({
     return annotations.sort((a, b) => a.start_index - b.start_index)
   }
 
-  // Broken annotations detected (Azure bug): only keep valid marker annotations
+  // Broken annotations detected (Azure bug): only keep valid marker
+  // file_citations AND any non-file_citation annotations (e.g. file_path
+  // whose `text` is intentionally empty and is matched by position).
   return annotations
-    .filter((a) => markerPattern.test(a.text))
+    .filter((a) => a.type !== 'file_citation' || markerPattern.test(a.text))
     .sort((a, b) => a.start_index - b.start_index)
 }
 
 export const remarkAnnotation = ({
   content,
 }: {
-  content: OpenAI.Beta.Threads.Messages.TextContentBlock
+  content: TextContentBlock
 }) => {
   const broken = hasBrokenAnnotations(content.text?.annotations ?? [])
 
   return () => {
     return (tree: any) => {
       flatMap(tree, (node: Node) => {
-        if (node.type === 'text' || node.type === 'link') {
+        if (
+          node.type === 'text' ||
+          node.type === 'link' ||
+          node.type === 'image'
+        ) {
           const result = processNodeWithAnnotations({ node, content })
 
           // If broken annotations detected, strip leftover 【...】 markers from text nodes
@@ -76,10 +88,13 @@ export const remarkAnnotation = ({
         return [node]
       })
 
-      // If broken annotations detected, append invalid annotations as nodes at the end
+      // If broken annotations detected, append invalid annotations as nodes at the end.
+      // Scoped to `file_citation` only — `file_path` annotations have empty
+      // text by design and are processed inline by start_index/end_index
+      // against URL ranges, never by marker-text matching.
       if (broken) {
         const invalidAnnotations = content.text.annotations.filter(
-          (a) => !markerPattern.test(a.text),
+          (a) => a.type === 'file_citation' && !markerPattern.test(a.text),
         )
         if (invalidAnnotations.length > 0) {
           const annotationNodes: AnnotationNode[] = invalidAnnotations.map(
@@ -135,7 +150,7 @@ const processNodeWithAnnotations = ({
   content,
 }: {
   node: Node
-  content: OpenAI.Beta.Threads.Messages.TextContentBlock
+  content: TextContentBlock
 }): Node[] => {
   if (!content.text?.annotations?.length || !node.position) {
     return [node]
@@ -203,6 +218,34 @@ const processNodeWithAnnotations = ({
     } else {
       return [linkNode]
     }
+  } else if (node.type === 'image') {
+    const imageNode = node as Image
+    const nodeStart = imageNode.position?.start.offset
+    const nodeEnd = imageNode.position?.end.offset
+    if (!isNumber(nodeStart) || !isNumber(nodeEnd)) return [imageNode]
+
+    const markdownSource = content.text.value.slice(nodeStart, nodeEnd)
+    const relativeUrlStart = markdownSource.indexOf(imageNode.url)
+    if (relativeUrlStart < 0) return [imageNode]
+
+    const urlStartOffset = nodeStart + relativeUrlStart
+    const urlEndOffset = urlStartOffset + imageNode.url.length
+    const annotation = annotations.find(
+      (candidate) =>
+        candidate.type === 'file_path' &&
+        candidate.start_index >= urlStartOffset &&
+        candidate.end_index <= urlEndOffset,
+    )
+    if (!annotation) return [imageNode]
+
+    imageNode.data = {
+      ...(imageNode.data ?? {}),
+      hProperties: {
+        ...((imageNode.data as any)?.hProperties ?? {}),
+        'data-file-annotation': JSON.stringify(annotation),
+      },
+    }
+    return [imageNode]
   } else {
     return [node]
   }
