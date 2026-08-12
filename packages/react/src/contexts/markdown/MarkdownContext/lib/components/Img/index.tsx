@@ -6,7 +6,7 @@ import { Audio } from './Audio'
 import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import {
   fileContentUrl,
-  fileReferenceFromAnnotation,
+  fileIdsFromAnnotation,
 } from '@/lib/files/fileContentUrl'
 
 type ImgProps = JSX.IntrinsicElements['img'] & {
@@ -20,7 +20,7 @@ export const Img = (props: ImgProps) => {
   let reference = null
   if (serializedAnnotation) {
     try {
-      reference = fileReferenceFromAnnotation(JSON.parse(serializedAnnotation))
+      reference = fileIdsFromAnnotation(JSON.parse(serializedAnnotation))
     } catch {}
   }
 
@@ -28,7 +28,7 @@ export const Img = (props: ImgProps) => {
     ? fileContentUrl({
         baseUrl: superinterfaceContext.baseUrl,
         variables: superinterfaceContext.variables,
-        reference,
+        ...reference,
       })
     : imageProps.src
 

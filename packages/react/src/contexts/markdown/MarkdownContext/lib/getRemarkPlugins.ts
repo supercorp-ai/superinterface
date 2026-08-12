@@ -1,10 +1,10 @@
+import type OpenAI from 'openai'
 import remarkGfm from 'remark-gfm'
 import { remarkAnnotation } from '@/lib/remark/remarkAnnotation'
 import { remarkPureLiteralPlugin } from '@/lib/remark/remarkPureLiteralPlugin'
-import type { TextContentBlock } from '@/types'
 
 export const getRemarkPlugins = ({
   content,
 }: {
-  content: TextContentBlock
+  content: OpenAI.Beta.Threads.Messages.TextContentBlock
 }) => [remarkPureLiteralPlugin, remarkAnnotation({ content }), remarkGfm]

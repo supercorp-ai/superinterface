@@ -1,7 +1,7 @@
 import { QuoteIcon } from '@radix-ui/react-icons'
+import type OpenAI from 'openai'
 import { FilePathAnnotation } from '@/components/annotations/FilePathAnnotation'
 import { AnnotationBase } from './AnnotationBase'
-import type { MessageAnnotation } from '@/types'
 
 export const Annotation = ({
   children,
@@ -12,7 +12,7 @@ export const Annotation = ({
 }) => {
   const annotation = JSON.parse(
     rest['data-annotation'] ?? '{}',
-  ) as MessageAnnotation
+  ) as OpenAI.Beta.Threads.Messages.Annotation
 
   if (annotation.type === 'file_citation') {
     return (

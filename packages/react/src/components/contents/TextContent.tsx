@@ -1,3 +1,4 @@
+import type OpenAI from 'openai'
 import React, { useState, useEffect, useMemo } from 'react'
 import { Badge } from '@radix-ui/themes'
 import { compile } from '@mdx-js/mdx'
@@ -7,14 +8,17 @@ import { recmaFallbackComponentPlugin } from '@/lib/recma/recmaFallbackComponent
 import { useMarkdownContext } from '@/hooks/markdown/useMarkdownContext'
 import { escapeInvalidTagNames } from '@/lib/markdown/escapeInvalidTagNames'
 import { ErrorBoundary } from 'react-error-boundary'
-import type { TextContentBlock } from '@/types'
 
 const evaluate = async ({ code }: { code: string }) => {
   const fn = new Function('runtime', 'useMDXComponents', code)
   return fn({ ...runtime, useMDXComponents })
 }
 
-export const TextContent = ({ content }: { content: TextContentBlock }) => {
+export const TextContent = ({
+  content,
+}: {
+  content: OpenAI.Beta.Threads.Messages.TextContentBlock
+}) => {
   const { getRemarkPlugins, components } = useMarkdownContext()
   const remarkPlugins = useMemo(
     () => getRemarkPlugins({ content }),

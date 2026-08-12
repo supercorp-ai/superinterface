@@ -1,46 +1,26 @@
-export type FileReference =
-  | {
-      source: 'file'
-      fileId: string
-    }
-  | {
-      source: 'container'
-      fileId: string
-      containerId: string
-    }
-
 export const fileContentUrl = ({
   baseUrl,
   variables,
-  reference,
-}: {
-  baseUrl: string
-  variables: ConstructorParameters<typeof URLSearchParams>[0]
-  reference: FileReference
-}) => {
-  const searchParams = new URLSearchParams(variables)
-  if (reference.source === 'container') {
-    searchParams.set('containerId', reference.containerId)
-  }
-  const query = searchParams.toString()
-
-  return `${baseUrl}/files/${encodeURIComponent(reference.fileId)}/contents${query ? `?${query}` : ''}`
-}
-
-export const fileReference = ({
   fileId,
   containerId,
 }: {
+  baseUrl: string
+  variables: ConstructorParameters<typeof URLSearchParams>[0]
   fileId: string
   containerId?: string
-}): FileReference =>
-  containerId
-    ? { source: 'container', fileId, containerId }
-    : { source: 'file', fileId }
+}) => {
+  const searchParams = new URLSearchParams(variables)
+  if (containerId) {
+    searchParams.set('containerId', containerId)
+  }
+  const query = searchParams.toString()
 
-export const fileReferenceFromAnnotation = (
+  return `${baseUrl}/files/${encodeURIComponent(fileId)}/contents${query ? `?${query}` : ''}`
+}
+
+export const fileIdsFromAnnotation = (
   annotation: unknown,
-): FileReference | null => {
+): { fileId: string; containerId?: string } | null => {
   if (!annotation || typeof annotation !== 'object') return null
 
   const candidate = annotation as {
@@ -69,8 +49,8 @@ export const fileReferenceFromAnnotation = (
     return null
   }
 
-  return fileReference({
+  return {
     fileId: candidate.file_path.file_id,
     containerId: normalizedContainerId,
-  })
+  }
 }
