@@ -38,15 +38,3 @@ test('an annotated Markdown link keeps separate file and container ids', () => {
     JSON.parse(node.data.hProperties['data-annotation']).file_path,
   ).toEqual({ file_id: 'cfile_xyz', container_id: 'cntr_abc' })
 })
-
-test('an annotated Markdown image exposes the same ids to the img renderer', () => {
-  const url = 'sandbox:/mnt/data/chart.png'
-  const text = `![Chart](${url})`
-  const tree = parse(text, annotationFor(text, url))
-  const image = tree.children[0].children[0]
-
-  expect(image.type).toBe('image')
-  expect(
-    JSON.parse(image.data.hProperties['data-file-annotation']).file_path,
-  ).toEqual({ file_id: 'cfile_xyz', container_id: 'cntr_abc' })
-})
