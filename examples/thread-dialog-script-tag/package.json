@@ -5,6 +5,7 @@
   "keywords": [],
   "license": "ISC",
   "scripts": {
+    "build": "node -e \"\"",
     "dev": "npx serve . -p 3006"
   }
 }
