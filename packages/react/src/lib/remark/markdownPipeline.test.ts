@@ -354,6 +354,27 @@ describe('full markdown pipeline', () => {
       const result = await compileFullPipeline(text, [])
       expect(result).not.toContain('_components.annotation')
     })
+
+    test('annotated sandbox image compiles with file metadata for the img component', async () => {
+      const url = 'sandbox:/mnt/data/chart.png'
+      const text = `![Chart](${url})`
+      const annotation = {
+        type: 'file_path',
+        text: '',
+        start_index: text.indexOf(url),
+        end_index: text.indexOf(url) + url.length,
+        file_path: {
+          file_id: 'cfile_chart',
+          container_id: 'cntr_chart',
+        },
+      }
+      const result = await compileFullPipeline(text, [annotation])
+
+      expect(result).toContain('_components.img')
+      expect(result).toContain('data-file-annotation')
+      expect(result).toContain('cfile_chart')
+      expect(result).toContain('cntr_chart')
+    })
   })
 
   describe('realistic AI response patterns', () => {

@@ -1,7 +1,7 @@
 import type OpenAI from 'openai'
 import { isNumber } from 'radash'
 import type { Node, Literal, Position } from 'unist'
-import type { Text, Link } from 'mdast'
+import type { Text, Link, Image } from 'mdast'
 // @ts-ignore-next-line
 import flatMap from 'unist-util-flatmap'
 
@@ -57,7 +57,11 @@ export const remarkAnnotation = ({
   return () => {
     return (tree: any) => {
       flatMap(tree, (node: Node) => {
-        if (node.type === 'text' || node.type === 'link') {
+        if (
+          node.type === 'text' ||
+          node.type === 'link' ||
+          node.type === 'image'
+        ) {
           const result = processNodeWithAnnotations({ node, content })
 
           // If broken annotations detected, strip leftover 【...】 markers from text nodes
@@ -202,6 +206,28 @@ const processNodeWithAnnotations = ({
     } else {
       return [linkNode]
     }
+  } else if (node.type === 'image') {
+    const imageNode = node as Image
+    const nodeStart = imageNode.position?.start.offset
+    const nodeEnd = imageNode.position?.end.offset
+    if (!isNumber(nodeStart) || !isNumber(nodeEnd)) return [imageNode]
+
+    const annotation = annotations.find(
+      (candidate) =>
+        candidate.type === 'file_path' &&
+        candidate.start_index >= nodeStart &&
+        candidate.end_index <= nodeEnd,
+    )
+    if (!annotation) return [imageNode]
+
+    imageNode.data = {
+      ...(imageNode.data ?? {}),
+      hProperties: {
+        ...((imageNode.data as any)?.hProperties ?? {}),
+        'data-file-annotation': JSON.stringify(annotation),
+      },
+    }
+    return [imageNode]
   } else {
     return [node]
   }
