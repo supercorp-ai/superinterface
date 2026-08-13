@@ -20,15 +20,14 @@ interface AnnotationNode extends Literal {
 
 const markerPattern = /^【[^】]+】$/
 
-/**
- * Detect broken annotations: annotation.text should always be a complete 【...】 marker
- * (per OpenAI Assistants API docs). If any annotation's text is not a marker, the
- * response has broken annotations (Azure bug) and we strip unmatched markers.
- */
+/** Detect malformed Assistants API citation markers. */
 const hasBrokenAnnotations = (
   annotations: OpenAI.Beta.Threads.Messages.Annotation[],
 ) =>
-  annotations.length > 0 && annotations.some((a) => !markerPattern.test(a.text))
+  annotations.length > 0 &&
+  annotations.some(
+    (a) => a.type === 'file_citation' && !markerPattern.test(a.text),
+  )
 
 const sortedAnnotations = ({
   content,
@@ -42,9 +41,9 @@ const sortedAnnotations = ({
     return annotations.sort((a, b) => a.start_index - b.start_index)
   }
 
-  // Broken annotations detected (Azure bug): only keep valid marker annotations
+  // File paths use offsets rather than citation marker text.
   return annotations
-    .filter((a) => markerPattern.test(a.text))
+    .filter((a) => a.type !== 'file_citation' || markerPattern.test(a.text))
     .sort((a, b) => a.start_index - b.start_index)
 }
 
@@ -76,10 +75,10 @@ export const remarkAnnotation = ({
         return [node]
       })
 
-      // If broken annotations detected, append invalid annotations as nodes at the end
+      // Append malformed citation markers for the fallback renderer.
       if (broken) {
         const invalidAnnotations = content.text.annotations.filter(
-          (a) => !markerPattern.test(a.text),
+          (a) => a.type === 'file_citation' && !markerPattern.test(a.text),
         )
         if (invalidAnnotations.length > 0) {
           const annotationNodes: AnnotationNode[] = invalidAnnotations.map(

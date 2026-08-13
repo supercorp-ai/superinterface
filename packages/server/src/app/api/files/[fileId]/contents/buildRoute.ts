@@ -15,13 +15,17 @@ type PurposeAssistantsResponse = ({
   workspaceAccessWhere: Prisma.WorkspaceWhereInput
 }) => Promise<NextResponse> | NextResponse
 
+type AssistantClientAdapter = typeof assistantClientAdapter
+
 export const buildGET =
   ({
     prisma,
+    getAssistantClient = assistantClientAdapter,
     purposeAssistantsResponse = () =>
       NextResponse.json({ error: 'No file source found' }, { status: 404 }),
   }: {
     prisma: PrismaClient
+    getAssistantClient?: AssistantClientAdapter
     purposeAssistantsResponse?: PurposeAssistantsResponse
   }) =>
   async (
@@ -114,7 +118,31 @@ export const buildGET =
       )
     }
 
-    const assistantClient = assistantClientAdapter({ assistant, prisma })
+    const containerId = request.nextUrl.searchParams.get('containerId')
+    if (containerId !== null && !containerId) {
+      return NextResponse.json(
+        { error: 'Invalid containerId' },
+        { status: 400 },
+      )
+    }
+
+    const assistantClient = getAssistantClient({ assistant, prisma })
+
+    if (containerId !== null) {
+      const response = await assistantClient.containers.files.content.retrieve(
+        fileId,
+        { container_id: containerId },
+      )
+      return new NextResponse(response.body, {
+        headers: {
+          ...cacheHeaders,
+          'Content-Type':
+            response.headers.get('Content-Type') ?? 'application/octet-stream',
+          'Content-Disposition':
+            response.headers.get('Content-Disposition') ?? 'inline',
+        },
+      })
+    }
 
     const file = await assistantClient.files.retrieve(fileId)
 
