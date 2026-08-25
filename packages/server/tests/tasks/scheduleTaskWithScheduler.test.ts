@@ -1,7 +1,12 @@
 import { describe, it, beforeEach } from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
-import { scheduleTask } from '../../src/lib/tasks/scheduleTask'
+import {
+  getTaskDeliveryDeduplicationId,
+  scheduleTask,
+  TASK_DELIVERY_RETRIES,
+  TASK_DELIVERY_TIMEOUT,
+} from '../../src/lib/tasks/scheduleTask'
 import { cancelScheduledTask } from '../../src/lib/tasks/cancelScheduledTask'
 import type { TaskScheduler } from '../../src/lib/tasks/schedulers/types'
 import type { PrismaClient, Task } from '@prisma/client'
@@ -15,6 +20,9 @@ const createRecordingScheduler = () => {
     url: string
     body: Record<string, unknown>
     delay: number
+    deduplicationId?: string
+    retries?: number
+    timeout?: Parameters<TaskScheduler['publishJSON']>[0]['timeout']
     messageId: string
   }> = []
   const deleted: string[] = []
@@ -99,6 +107,37 @@ describe('scheduleTask with pluggable scheduler', () => {
       'http://localhost:3000/api/cloud/tasks/callback',
     )
     assert.deepEqual(recording.published[0].body, { taskId: task.id })
+  })
+
+  it('limits QStash delivery retries and sets a callback timeout', async () => {
+    const task = makeTask()
+
+    await scheduleTask({
+      task,
+      prisma: mockDb.prisma,
+      scheduler: recording.scheduler,
+    })
+
+    assert.equal(recording.published[0].retries, TASK_DELIVERY_RETRIES)
+    assert.equal(recording.published[0].retries, 2)
+    assert.equal(recording.published[0].timeout, TASK_DELIVERY_TIMEOUT)
+    assert.equal(recording.published[0].timeout, '15m')
+  })
+
+  it('publishes with the deterministic ID for this task occurrence', async () => {
+    const start = new Date(Date.now() + 60 * 60 * 1000).toISOString()
+    const task = makeTask({ schedule: { start } as TaskSchedule })
+
+    await scheduleTask({
+      task,
+      prisma: mockDb.prisma,
+      scheduler: recording.scheduler,
+    })
+
+    assert.equal(
+      recording.published[0].deduplicationId,
+      getTaskDeliveryDeduplicationId({ task, nextIso: start }),
+    )
   })
 
   it('stores messageId in database after publish', async () => {
@@ -200,6 +239,122 @@ describe('scheduleTask with pluggable scheduler', () => {
     // Delay should be approximately 120 seconds (give or take 2 for test execution)
     assert.ok(recording.published[0].delay >= 118)
     assert.ok(recording.published[0].delay <= 122)
+  })
+
+  it('does not update the task when publication fails', async () => {
+    const scheduler: TaskScheduler = {
+      publishJSON: async () => {
+        throw new Error('QStash unavailable')
+      },
+      messages: { delete: async () => undefined },
+    }
+
+    await assert.rejects(
+      scheduleTask({ task: makeTask(), prisma: mockDb.prisma, scheduler }),
+      /QStash unavailable/,
+    )
+    assert.equal(mockDb.updates.length, 0)
+  })
+
+  it('deletes a just-published message when the task vanished before update', async () => {
+    const task = makeTask()
+    const error = new Error('Record not found') as Error & { code: string }
+    error.code = 'P2025'
+    const prisma = {
+      task: { update: async () => Promise.reject(error) },
+    } as unknown as PrismaClient
+
+    await scheduleTask({ task, prisma, scheduler: recording.scheduler })
+
+    assert.equal(recording.published.length, 1)
+    assert.deepEqual(recording.deleted, [recording.published[0].messageId])
+  })
+
+  it('propagates non-deletion database errors without deleting the message', async () => {
+    const task = makeTask()
+    const prisma = {
+      task: {
+        update: async () => {
+          throw new Error('database unavailable')
+        },
+      },
+    } as unknown as PrismaClient
+
+    await assert.rejects(
+      scheduleTask({ task, prisma, scheduler: recording.scheduler }),
+      /database unavailable/,
+    )
+    assert.equal(recording.deleted.length, 0)
+  })
+})
+
+describe('task delivery deduplication IDs', () => {
+  const nextIso = '2026-08-26T12:00:00.000Z'
+
+  it('is stable for the same task revision and occurrence', () => {
+    const task = makeTask()
+
+    assert.equal(
+      getTaskDeliveryDeduplicationId({ task, nextIso }),
+      getTaskDeliveryDeduplicationId({ task: { ...task }, nextIso }),
+    )
+  })
+
+  it('is safe for use as a QStash deduplication key', () => {
+    const id = getTaskDeliveryDeduplicationId({ task: makeTask(), nextIso })
+
+    assert.match(id, /^task-[a-f0-9]{64}$/)
+  })
+
+  it('changes for a different occurrence', () => {
+    const task = makeTask()
+
+    assert.notEqual(
+      getTaskDeliveryDeduplicationId({ task, nextIso }),
+      getTaskDeliveryDeduplicationId({
+        task,
+        nextIso: '2026-08-27T12:00:00.000Z',
+      }),
+    )
+  })
+
+  it('changes when the task message is edited', () => {
+    const task = makeTask()
+
+    assert.notEqual(
+      getTaskDeliveryDeduplicationId({ task, nextIso }),
+      getTaskDeliveryDeduplicationId({
+        task: { ...task, message: 'Edited instructions' },
+        nextIso,
+      }),
+    )
+  })
+
+  it('changes when the task schedule is edited', () => {
+    const task = makeTask()
+
+    assert.notEqual(
+      getTaskDeliveryDeduplicationId({ task, nextIso }),
+      getTaskDeliveryDeduplicationId({
+        task: {
+          ...task,
+          schedule: { start: '2026-09-01T12:00:00.000Z' },
+        },
+        nextIso,
+      }),
+    )
+  })
+
+  it('changes for a different task even if content and occurrence match', () => {
+    const task = makeTask()
+
+    assert.notEqual(
+      getTaskDeliveryDeduplicationId({ task, nextIso }),
+      getTaskDeliveryDeduplicationId({
+        task: { ...task, id: randomUUID() },
+        nextIso,
+      }),
+    )
   })
 })
 

@@ -231,7 +231,7 @@ describe('localScheduler — delivery', () => {
     }
   })
 
-  it('sends POST with correct content-type header', async () => {
+  it('sends POST with QStash-compatible delivery headers', async () => {
     const scheduler = createLocalScheduler()
     let capturedHeaders: Record<string, string> = {}
 
@@ -243,7 +243,7 @@ describe('localScheduler — delivery', () => {
     globalThis.fetch = mockFetch
 
     try {
-      await scheduler.publishJSON({
+      const { messageId } = await scheduler.publishJSON({
         url: 'http://localhost:3000/api/tasks/callback',
         body: { taskId: randomUUID() },
         delay: 0,
@@ -252,6 +252,8 @@ describe('localScheduler — delivery', () => {
       await new Promise((resolve) => setTimeout(resolve, 50))
 
       assert.equal(capturedHeaders['Content-Type'], 'application/json')
+      assert.equal(capturedHeaders['Upstash-Message-Id'], messageId)
+      assert.equal(capturedHeaders['Upstash-Retried'], '0')
     } finally {
       globalThis.fetch = originalFetch
     }

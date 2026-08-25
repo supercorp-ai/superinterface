@@ -15,7 +15,11 @@ export const createLocalScheduler = (): TaskScheduler & {
         try {
           await fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              'Upstash-Message-Id': messageId,
+              'Upstash-Retried': '0',
+            },
             body: JSON.stringify(body),
           })
         } catch (error) {

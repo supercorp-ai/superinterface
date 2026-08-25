@@ -1,6 +1,7 @@
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
+import { createHash } from 'node:crypto'
 
 import { type Task, type PrismaClient } from '@prisma/client'
 import { getNextOccurrence } from './getNextOccurrence'
@@ -8,6 +9,30 @@ import type { TaskScheduler } from './schedulers/types'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
+
+export const TASK_DELIVERY_RETRIES = 2
+export const TASK_DELIVERY_TIMEOUT = '15m'
+
+export const getTaskDeliveryDeduplicationId = ({
+  task,
+  nextIso,
+}: {
+  task: Task
+  nextIso: string
+}) => {
+  const digest = createHash('sha256')
+    .update(
+      JSON.stringify({
+        taskId: task.id,
+        message: task.message,
+        schedule: task.schedule,
+        nextIso,
+      }),
+    )
+    .digest('hex')
+
+  return `task-${digest}`
+}
 
 export const scheduleTask = async ({
   task,
@@ -30,11 +55,15 @@ export const scheduleTask = async ({
   if (!next.isValid()) return
 
   const delay = Math.max(0, next.diff(dayjs.utc(), 'second'))
+  const deduplicationId = getTaskDeliveryDeduplicationId({ task, nextIso })
 
   const { messageId } = await scheduler.publishJSON({
     url: callbackUrl,
     body: { taskId: task.id },
     delay,
+    deduplicationId,
+    retries: TASK_DELIVERY_RETRIES,
+    timeout: TASK_DELIVERY_TIMEOUT,
   })
 
   try {

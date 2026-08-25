@@ -31,6 +31,7 @@ import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpen
 import { serializeMetadata } from '@/lib/metadata/serializeMetadata'
 import { isResponsesStorageProvider } from '@/lib/storageProviders/isResponsesStorageProvider'
 import { serializeError } from '@/lib/errors/serializeError'
+import { cancelInFlightRun } from './lib/cancelInFlightRun'
 
 export const maxDuration = 800
 
@@ -710,22 +711,21 @@ export const buildPOST =
           }
         },
         onClose: async () => {
-          if (latestCompletedRunData) return
-          if (
-            !isOpenaiAssistantsStorageProvider({
-              storageProviderType: assistant.storageProviderType,
-            })
-          )
-            return
-
-          if (latestInProgressRunData) {
-            await assistantClient.beta.threads.runs.cancel(
-              latestInProgressRunData.id,
-              {
-                thread_id: latestInProgressRunData.thread_id,
-              },
-            )
-          }
+          // Cancel any in-flight run when the client disconnects so the
+          // server-side response releases the conversation lock — see
+          // `cancelInFlightRun` for the full rationale.
+          await cancelInFlightRun({
+            assistantClient,
+            storageProviderType: assistant.storageProviderType,
+            inProgressRun: latestInProgressRunData
+              ? {
+                  id: latestInProgressRunData.id,
+                  thread_id: latestInProgressRunData.thread_id,
+                }
+              : null,
+            hasCompleted: Boolean(latestCompletedRunData),
+            onWarn: (message, error) => console.warn(message, error),
+          })
         },
       }),
       {
