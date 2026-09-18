@@ -163,6 +163,7 @@ export const modelProviderConfigs: ModelProviderConfig[] = [
     dashboardUrl: 'https://console.groq.com/keys',
     modelSlugs: [
       // 'llama-3.1-405b-reasoning',
+      'openai/gpt-oss-20b',
       'meta-llama/llama-4-scout-17b-16e-instruct',
       'llama-3.1-8b-instant',
       'llama3-groq-70b-8192-tool-use-preview',
