@@ -44,12 +44,11 @@ const appendToBody = ({
   currentScript,
 }: {
   currentScript?: HTMLScriptElement | null
-} = {}) => (
+} = {}) =>
   appendWithStyles({
     appendElement: ({ element }) => document.body.appendChild(element),
     currentScript: currentScript ?? null,
   })
-)
 
 export const rootElement = ({
   currentScript,
@@ -71,12 +70,9 @@ export const rootElement = ({
 
     const parentNode = currentScript.parentNode
 
-    if (!parentNode) {
-      return appendToBody({ currentScript })
-    }
-
     return appendWithStyles({
-      appendElement: ({ element }) => parentNode.insertBefore(element, currentScript.nextSibling),
+      appendElement: ({ element }) =>
+        parentNode.insertBefore(element, currentScript.nextSibling),
       currentScript,
     })
   }

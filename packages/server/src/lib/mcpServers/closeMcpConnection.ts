@@ -11,6 +11,6 @@ export const closeMcpConnection = async ({
   //   jsonrpc: '2.0',
   //   method: 'ping',
   // })
+  // Closing the client also closes its transport.
   await mcpConnection.client.close()
-  await mcpConnection.transport.close()
 }

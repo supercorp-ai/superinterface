@@ -1,14 +1,6 @@
-export const formattedJsonOrRaw = ({
-  value,
-}: {
-  value: string | null
-}) => {
-  if (!value) {
-    return null
-  }
-
+export const formattedJsonOrRaw = ({ value }: { value: string | null }) => {
   try {
-    return JSON.stringify(JSON.parse(value), null, 2)
+    return value ? JSON.stringify(JSON.parse(value), null, 2) : null
   } catch (error) {
     if (typeof value === 'string') {
       return value

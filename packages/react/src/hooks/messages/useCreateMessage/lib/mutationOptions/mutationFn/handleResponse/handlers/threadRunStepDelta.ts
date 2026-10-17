@@ -47,7 +47,7 @@ const updatedRunStep = ({
   value: ThreadRunStepDeltaEvent
 }) => {
   // @ts-ignore-next-line
-  if (!runStep?.step_details?.tool_calls) return runStep
+  if (!runStep.step_details?.tool_calls) return runStep
 
   if (value.data.delta?.step_details?.type === 'tool_calls') {
     if (!value.data.delta.step_details.tool_calls) return runStep

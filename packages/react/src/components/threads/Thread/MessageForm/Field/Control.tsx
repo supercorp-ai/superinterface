@@ -50,9 +50,9 @@ const Input = (
   useEffect(() => {
     if (isDisabled) return
     if (!isDisabledPrevious) return
-    if (!textareaRef.current) return
 
-    textareaRef.current.focus()
+    // The textarea always renders, so its ref is set before effects run.
+    textareaRef.current!.focus()
   }, [isDisabled, isDisabledPrevious, textareaProps])
 
   return (

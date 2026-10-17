@@ -8,26 +8,18 @@ import { useComponents } from '@/hooks/components/useComponents'
 
 const StartingSkeleton = () => {
   const {
-    components: {
-      StartingSkeleton,
-    },
+    components: { StartingSkeleton },
   } = useComponents()
 
-  return (
-    <StartingSkeleton />
-  )
+  return <StartingSkeleton />
 }
 
 const StartingContentSkeleton = () => {
   const {
-    components: {
-      StartingContentSkeleton,
-    },
+    components: { StartingContentSkeleton },
   } = useComponents()
 
-  return (
-    <StartingContentSkeleton />
-  )
+  return <StartingContentSkeleton />
 }
 
 export const Progress = () => {
@@ -45,9 +37,7 @@ export const Progress = () => {
   }, [latestMessage, isMutatingMessage])
 
   if (isStartingSkeletonVisible) {
-    return (
-      <StartingSkeleton />
-    )
+    return <StartingSkeleton />
   }
 
   if (isMutatingMessage) {
@@ -61,6 +51,4 @@ export const Progress = () => {
       </MessageGroup.Root>
     )
   }
-
-  return null
 }

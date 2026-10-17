@@ -21,13 +21,9 @@ export const Annotation = ({
         content="File cited."
       />
     )
-  } else if (annotation.type === 'file_path') {
-    return (
-      <FilePathAnnotation annotation={annotation}>
-        {children}
-      </FilePathAnnotation>
-    )
   }
 
-  return null
+  return annotation.type === 'file_path' ? (
+    <FilePathAnnotation annotation={annotation}>{children}</FilePathAnnotation>
+  ) : null
 }

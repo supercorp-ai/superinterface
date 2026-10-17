@@ -107,7 +107,7 @@ export const buildGetOpenaiAssistant =
       instructions: assistant.instructions,
       description: null,
       tools: thread
-        ? ((await getTools({ assistant, thread, prisma }))?.tools ?? [])
+        ? ((await getTools({ assistant, thread, prisma })).tools ?? [])
         : [],
       metadata: {},
       top_p: 1.0,

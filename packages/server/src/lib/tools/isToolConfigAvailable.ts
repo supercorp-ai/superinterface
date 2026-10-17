@@ -150,13 +150,13 @@ export const isToolConfigAvailable = ({
   toolType: ToolType
   modelProviderType: ModelProviderType
   storageProviderType: StorageProviderType
-}): boolean => {
-  const toolConfig = toolConfigs.find((config) => config.type === toolType)
-  if (!toolConfig) return false
-
-  return toolConfig.availabilities.some(
-    (availability) =>
-      availability.modelProviderType === modelProviderType &&
-      availability.storageProviderType === storageProviderType,
+}): boolean =>
+  toolConfigs.some(
+    (config) =>
+      config.type === toolType &&
+      config.availabilities.some(
+        (availability) =>
+          availability.modelProviderType === modelProviderType &&
+          availability.storageProviderType === storageProviderType,
+      ),
   )
-}

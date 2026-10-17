@@ -52,7 +52,7 @@ export const remarkAnnotation = ({
 }: {
   content: OpenAI.Beta.Threads.Messages.TextContentBlock
 }) => {
-  const broken = hasBrokenAnnotations(content.text?.annotations ?? [])
+  const broken = hasBrokenAnnotations(content.text.annotations ?? [])
 
   return () => {
     return (tree: any) => {
@@ -79,30 +79,29 @@ export const remarkAnnotation = ({
         return [node]
       })
 
-      // Append malformed citation markers for the fallback renderer.
+      // Append malformed citation markers for the fallback renderer. When
+      // `broken`, there is at least one of them.
       if (broken) {
         const invalidAnnotations = content.text.annotations.filter(
           (a) => a.type === 'file_citation' && !markerPattern.test(a.text),
         )
-        if (invalidAnnotations.length > 0) {
-          const annotationNodes: AnnotationNode[] = invalidAnnotations.map(
-            (annotation) => ({
-              type: 'annotation' as const,
-              value: '',
-              data: {
-                hName: 'annotation' as const,
-                hProperties: {
-                  ['data-annotation']: JSON.stringify(annotation),
-                },
+        const annotationNodes: AnnotationNode[] = invalidAnnotations.map(
+          (annotation) => ({
+            type: 'annotation' as const,
+            value: '',
+            data: {
+              hName: 'annotation' as const,
+              hProperties: {
+                ['data-annotation']: JSON.stringify(annotation),
               },
-            }),
-          )
-          // Append a paragraph containing all invalid annotation nodes
-          tree.children.push({
-            type: 'paragraph',
-            children: annotationNodes,
-          })
-        }
+            },
+          }),
+        )
+        // Append a paragraph containing all invalid annotation nodes
+        tree.children.push({
+          type: 'paragraph',
+          children: annotationNodes,
+        })
       }
     }
   }
@@ -118,16 +117,12 @@ const stripMarkers = (node: Text): Node[] => {
   const parts = node.value.split(/【[^】]+】/)
   if (parts.length === 1) return [node] // no markers found
 
-  const nodes: Node[] = []
-  for (const part of parts) {
-    if (part) {
-      nodes.push({
-        type: 'text',
-        value: part,
-        position: node.position,
-      } as Text)
-    }
-  }
+  const nodes = parts
+    .filter((part) => part)
+    .map(
+      (part) =>
+        ({ type: 'text', value: part, position: node.position }) as Text,
+    )
   return nodes.length > 0
     ? nodes
     : [{ type: 'text', value: '', position: node.position } as Text]
@@ -140,7 +135,7 @@ const processNodeWithAnnotations = ({
   node: Node
   content: OpenAI.Beta.Threads.Messages.TextContentBlock
 }): Node[] => {
-  if (!content.text?.annotations?.length || !node.position) {
+  if (!content.text.annotations?.length || !node.position) {
     return [node]
   }
   const annotations = sortedAnnotations({ content })
@@ -148,16 +143,8 @@ const processNodeWithAnnotations = ({
   if (node.type === 'text') {
     return processTextNode({ node: node as Text, annotations })
   } else if (node.type === 'link') {
-    const linkNode = node as Link
-
-    linkNode.children = flatMap(linkNode.children, (child: Node) => {
-      if (child.type === 'text') {
-        return processTextNode({ node: child as Text, annotations })
-      }
-      return [child]
-    })
-
-    if (!linkNode.position) return [linkNode]
+    // Its text children were already processed: the tree is walked bottom-up.
+    const linkNode = node as Link & { position: Position }
 
     // Compute the total label length from all text children.
     let labelLength = 0
@@ -206,10 +193,11 @@ const processNodeWithAnnotations = ({
     } else {
       return [linkNode]
     }
-  } else if (node.type === 'image') {
-    const imageNode = node as Image
-    const nodeStart = imageNode.position?.start.offset
-    const nodeEnd = imageNode.position?.end.offset
+  } else {
+    // Only text, link and image nodes are processed.
+    const imageNode = node as Image & { position: Position }
+    const nodeStart = imageNode.position.start.offset
+    const nodeEnd = imageNode.position.end.offset
     if (!isNumber(nodeStart) || !isNumber(nodeEnd)) return [imageNode]
 
     const annotation = annotations.find(
@@ -228,8 +216,6 @@ const processNodeWithAnnotations = ({
       },
     }
     return [imageNode]
-  } else {
-    return [node]
   }
 }
 
@@ -240,9 +226,10 @@ const processTextNode = ({
   node: Text
   annotations: any[]
 }): Node[] => {
-  if (!node.position || !node.value) return [node]
-  const nodeStart = node.position.start.offset!
-  const nodeEnd = node.position.end.offset!
+  // Only called for nodes with a position.
+  if (!node.value) return [node]
+  const nodeStart = node.position!.start.offset!
+  const nodeEnd = node.position!.end.offset!
   if (!isNumber(nodeStart) || !isNumber(nodeEnd)) return [node]
 
   const newNodes: Node[] = []

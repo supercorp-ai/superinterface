@@ -1,224 +1,47 @@
-import { headers } from 'next/headers'
-import {
-  ApiKeyType,
-  StorageProviderType,
-  TruncationType,
-  ToolType,
-  type PrismaClient,
-} from '@prisma/client'
+import type { PrismaClient } from '@prisma/client'
 import { NextResponse } from 'next/server'
-import { z } from 'zod'
-import { cacheHeaders } from '@/lib/cache/cacheHeaders'
-import { serializeApiAssistant } from '@/lib/assistants/serializeApiAssistant'
-import { getApiKey } from '@/lib/apiKeys/getApiKey'
-import { openaiAssistantsStorageProviderTypes } from '@/lib/storageProviders/openaiAssistantsStorageProviderTypes'
-
-const createAssistantSchema = z
-  .object({
-    storageProviderType: z.nativeEnum(StorageProviderType),
-    storageProviderAssistantId: z.string().nullable().optional(),
-    modelProviderId: z.string(),
-    model: z.string(),
-    name: z.string().optional(),
-    description: z.string().optional().default(''),
-    instructions: z.string().optional().default(''),
-    codeInterpreterEnabled: z.boolean().optional().default(false),
-    fileSearchEnabled: z.boolean().optional().default(false),
-    truncationType: z.nativeEnum(TruncationType).optional(),
-    truncationLastMessagesCount: z.number().int().nullable().optional(),
-  })
-  .superRefine((data, ctx) => {
-    const storageTypesWithAssistantId: StorageProviderType[] = [
-      ...openaiAssistantsStorageProviderTypes,
-      StorageProviderType.AZURE_AGENTS,
-    ]
-    const needsAssistantId = storageTypesWithAssistantId.includes(
-      data.storageProviderType,
-    )
-
-    if (!needsAssistantId && data.storageProviderAssistantId) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          'storageProviderAssistantId should not be provided for this storage provider',
-        path: ['storageProviderAssistantId'],
-      })
-    }
-
-    if (needsAssistantId && !data.storageProviderAssistantId) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          'storageProviderAssistantId is required for this storage provider',
-        path: ['storageProviderAssistantId'],
-      })
-    }
-  })
+import { corsOptionsResponse } from '@/lib/cache/corsOptionsResponse'
+import { authorizedWorkspaceResponse } from './lib/authorizedWorkspaceResponse'
+import { createAssistantSchema } from './lib/createAssistantSchema'
+import { listAssistantsResponse } from './lib/listAssistantsResponse'
+import { createAssistantResponse } from './lib/createAssistantResponse'
 
 export const buildGET =
   ({ prisma }: { prisma: PrismaClient }) =>
-  async () => {
-    const headersList = await headers()
-    const authorization = headersList.get('authorization')
-    if (!authorization) {
-      return NextResponse.json(
-        { error: 'No authorization header found' },
-        { status: 400 },
-      )
-    }
-
-    const privateApiKey = await getApiKey({
-      authorization,
-      type: ApiKeyType.PRIVATE,
+  async () =>
+    authorizedWorkspaceResponse({
       prisma,
+      respond: ({ workspaceId }) =>
+        listAssistantsResponse({ prisma, workspaceId }),
     })
-
-    if (!privateApiKey) {
-      return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })
-    }
-
-    const assistants = await prisma.assistant.findMany({
-      where: {
-        workspaceId: privateApiKey.workspaceId,
-      },
-      include: {
-        tools: true,
-        avatar: {
-          include: {
-            imageAvatar: true,
-            iconAvatar: true,
-          },
-        },
-      },
-    })
-
-    return NextResponse.json(
-      {
-        assistants: assistants.map((a) =>
-          serializeApiAssistant({ assistant: a }),
-        ),
-      },
-      { headers: cacheHeaders },
-    )
-  }
 
 export const buildPOST =
   ({ prisma }: { prisma: PrismaClient }) =>
-  async (request: Request) => {
-    const headersList = await headers()
-    const authorization = headersList.get('authorization')
-    if (!authorization) {
-      return NextResponse.json(
-        { error: 'No authorization header found' },
-        { status: 400 },
-      )
-    }
-
-    const privateApiKey = await getApiKey({
-      authorization,
-      type: ApiKeyType.PRIVATE,
+  async (request: Request) =>
+    authorizedWorkspaceResponse({
       prisma,
-    })
+      respond: async ({ workspaceId }) => {
+        const parseResult = createAssistantSchema.safeParse(
+          await request.json(),
+        )
 
-    if (!privateApiKey) {
-      return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })
-    }
+        if (!parseResult.success) {
+          return NextResponse.json(
+            {
+              error: `Missing required fields. ${JSON.stringify(parseResult.error.format())}`,
+            },
+            { status: 400 },
+          )
+        }
 
-    const parseResult = createAssistantSchema.safeParse(await request.json())
-
-    if (!parseResult.success) {
-      return NextResponse.json(
-        {
-          error: `Missing required fields. ${JSON.stringify(parseResult.error.format())}`,
-        },
-        { status: 400 },
-      )
-    }
-
-    const {
-      storageProviderType,
-      storageProviderAssistantId,
-      modelProviderId,
-      model,
-      name,
-      description,
-      instructions,
-      codeInterpreterEnabled,
-      fileSearchEnabled,
-      truncationType,
-      truncationLastMessagesCount,
-    } = parseResult.data
-
-    const workspaceId = privateApiKey.workspaceId
-
-    const assistant = await prisma.assistant.create({
-      data: {
-        workspace: { connect: { id: workspaceId } },
-        modelProvider: { connect: { id: modelProviderId } },
-        modelSlug: model,
-        name,
-        description,
-        instructions,
-        storageProviderType,
-        ...(storageProviderType === StorageProviderType.AZURE_AGENTS
-          ? { azureAgentsAgentId: storageProviderAssistantId ?? null }
-          : storageProviderType === StorageProviderType.AZURE_RESPONSES
-            ? { azureResponsesAgentName: storageProviderAssistantId ?? null }
-            : { openaiAssistantId: storageProviderAssistantId ?? null }),
-        ...(truncationType !== undefined && { truncationType }),
-        ...(truncationLastMessagesCount !== undefined && {
-          truncationLastMessagesCount,
-        }),
-        tools: {
-          create: [
-            ...(fileSearchEnabled
-              ? [
-                  {
-                    type: ToolType.FILE_SEARCH,
-                    fileSearchTool: {
-                      create: {},
-                    },
-                  },
-                ]
-              : []),
-            ...(codeInterpreterEnabled
-              ? [
-                  {
-                    type: ToolType.CODE_INTERPRETER,
-                    codeInterpreterTool: {
-                      create: {},
-                    },
-                  },
-                ]
-              : []),
-          ],
-        },
-      },
-      include: {
-        tools: true,
-        avatar: {
-          include: {
-            imageAvatar: true,
-            iconAvatar: true,
-          },
-        },
+        return createAssistantResponse({
+          prisma,
+          workspaceId,
+          body: parseResult.data,
+        })
       },
     })
 
-    return NextResponse.json(
-      {
-        assistant: serializeApiAssistant({ assistant }),
-      },
-      { headers: cacheHeaders },
-    )
-  }
-
-export const buildOPTIONS = () => () =>
-  NextResponse.json(
-    {},
-    {
-      headers: cacheHeaders,
-    },
-  )
+export const buildOPTIONS = () => corsOptionsResponse
 
 export { createAssistantSchema }

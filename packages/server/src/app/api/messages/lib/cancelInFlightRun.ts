@@ -76,7 +76,8 @@ export const cancelInFlightRun = async ({
   } catch (error) {
     onWarn?.(
       'cancel-on-disconnect: ignoring upstream cancel error',
-      (error as { message?: string })?.message ?? error,
+      // The OpenAI client always rejects with an Error.
+      (error as Error).message,
     )
     return { status: 'error', error }
   }

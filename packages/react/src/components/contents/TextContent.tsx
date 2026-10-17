@@ -1,7 +1,7 @@
 import type OpenAI from 'openai'
 import React, { useState, useEffect, useMemo } from 'react'
 import { Badge } from '@radix-ui/themes'
-import { compile } from '@mdx-js/mdx'
+import { compile, runSync } from '@mdx-js/mdx'
 import { MDXProvider, useMDXComponents } from '@mdx-js/react'
 import * as runtime from 'react/jsx-runtime'
 import { recmaFallbackComponentPlugin } from '@/lib/recma/recmaFallbackComponentPlugin'
@@ -9,10 +9,8 @@ import { useMarkdownContext } from '@/hooks/markdown/useMarkdownContext'
 import { escapeInvalidTagNames } from '@/lib/markdown/escapeInvalidTagNames'
 import { ErrorBoundary } from 'react-error-boundary'
 
-const evaluate = async ({ code }: { code: string }) => {
-  const fn = new Function('runtime', 'useMDXComponents', code)
-  return fn({ ...runtime, useMDXComponents })
-}
+const evaluate = async ({ code }: { code: string }) =>
+  runSync(code, { ...runtime, useMDXComponents })
 
 export const TextContent = ({
   content,
@@ -48,7 +46,7 @@ export const TextContent = ({
 
         const { default: MDXContent } = module
 
-        setMDXComponent(() => MDXContent)
+        setMDXComponent(() => MDXContent as React.ComponentType)
       } catch (error) {}
     }
 

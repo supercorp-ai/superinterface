@@ -3,14 +3,15 @@ import {
   ClientToolHandler,
   Assistant,
   Thread,
-  LogRequestMethod,
-  LogRequestRoute,
-  LogLevel,
   type PrismaClient,
 } from '@prisma/client'
-import { createLog } from '@/lib/logs/createLog'
-import { enqueueJson } from '@superinterface/react/utils'
-import { redis } from '@/lib/redis'
+import { rejectToolCall } from '@/lib/toolCalls/rejectToolCall'
+import { toolCallLogScope } from '@/lib/toolCalls/toolCallLogScope'
+import { NO_ARGUMENTS, parseFunctionArguments } from './parseFunctionArguments'
+import { requestClientToolCall } from './clientTool/requestClientToolCall'
+import { clientToolOutputKeys } from './clientTool/clientToolOutputKeys'
+import { markClientToolPending } from './clientTool/markClientToolPending'
+import { pollClientToolOutput } from './clientTool/pollClientToolOutput'
 
 export const handleClientTool = async ({
   clientToolHandler,
@@ -29,103 +30,34 @@ export const handleClientTool = async ({
   run: OpenAI.Beta.Threads.Runs.Run
   prisma: PrismaClient
 }) => {
-  let args = {}
+  const parsed = parseFunctionArguments({
+    json: toolCall.function.arguments || NO_ARGUMENTS,
+  })
 
-  const toolCallArguments = toolCall.function.arguments
-
-  if (toolCallArguments) {
-    try {
-      args = JSON.parse(toolCallArguments)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (e: any) {
-      createLog({
-        log: {
-          requestMethod: LogRequestMethod.POST,
-          requestRoute: LogRequestRoute.MESSAGES,
-          level: LogLevel.ERROR,
-          status: 400,
-          message: `Failed parsing client tool function arguments: ${e.message}`,
-          workspaceId: assistant.workspaceId,
-          assistantId: assistant.id,
-          threadId: thread.id,
-        },
-        prisma,
-      })
-
-      return {
-        tool_call_id: toolCall.id,
-        output: 'Invalid arguments.',
-      }
-    }
+  if (!parsed.ok) {
+    return rejectToolCall({
+      toolCall,
+      scope: toolCallLogScope({ assistant, thread }),
+      message: `Failed parsing client tool function arguments: ${parsed.error.message}`,
+      output: 'Invalid arguments.',
+      prisma,
+    })
   }
 
-  enqueueJson({
+  requestClientToolCall({
+    clientToolHandler,
+    args: parsed.args,
+    toolCall,
     controller,
-    value: {
-      event: 'thread.run.requires_action',
-      data: {
-        ...run,
-        required_action: {
-          type: 'submit_client_tool_outputs',
-          submit_client_tool_outputs: {
-            tool_calls: [
-              {
-                id: toolCall.id,
-                type: 'function',
-                function: {
-                  name: clientToolHandler.name,
-                  arguments: JSON.stringify({
-                    ...clientToolHandler.arguments,
-                    ...args,
-                  }),
-                },
-              },
-              // toolCall,
-              // {
-              //   id: toolCall.id,
-              //   type: 'function',
-              //   function: toolCall,
-              //     toolCall,
-              //     output: 'Function is running',
-              //   },
-              // },
-            ],
-          },
-        },
-      },
-    },
+    run,
   })
 
-  await redis.set(`submit-client-tool-outputs:pending:${toolCall.id}`, '1', {
-    ex: 60 * 60 * 24 * 7,
-  })
+  const keys = clientToolOutputKeys({ toolCallId: toolCall.id })
 
-  const functionResult = await new Promise(async (resolve) => {
-    const timeout = setTimeout(() => {
-      resolve('Function call timed out')
-    }, 60000)
-
-    const checkResult = async () => {
-      const result = await redis.get(
-        `submit-client-tool-outputs:output:${toolCall.id}`,
-      )
-
-      if (result === null) {
-        setTimeout(checkResult, 500)
-      } else {
-        clearTimeout(timeout)
-
-        await redis.del(`submit-client-tool-outputs:pending:${toolCall.id}`)
-        await redis.del(`submit-client-tool-outputs:output:${toolCall.id}`)
-        resolve(result)
-      }
-    }
-
-    checkResult()
-  })
+  await markClientToolPending({ keys })
 
   return {
     tool_call_id: toolCall.id,
-    output: functionResult,
+    output: await pollClientToolOutput({ keys }),
   }
 }

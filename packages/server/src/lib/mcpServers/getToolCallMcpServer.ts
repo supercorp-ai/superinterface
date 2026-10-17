@@ -1,9 +1,19 @@
 import OpenAI from 'openai'
 import { Prisma, Thread, PrismaClient } from '@prisma/client'
-import { connectMcpServer } from '@/lib/mcpServers/connectMcpServer'
 import type { McpConnection } from '@/types'
-import { closeMcpConnection } from '@/lib/mcpServers/closeMcpConnection'
+import { findMcpServerTool } from './findMcpServerTool'
 
+const lastFailure = ({ failures }: { failures: Error[] }) =>
+  failures.at(-1) ?? null
+
+type ToolCallMcpServer = {
+  // The open connection to the first server with the tool.
+  mcpConnection: McpConnection | undefined
+  // The last failure connecting to or listing the tools of a server.
+  error: Error | null
+}
+
+// Finds the first of the assistant's MCP servers with the called tool.
 export const getToolCallMcpServer = async ({
   assistant,
   toolCall,
@@ -24,56 +34,30 @@ export const getToolCallMcpServer = async ({
   toolCall: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall
   thread: Thread
   prisma: PrismaClient
-}) => {
-  let mcpConnection: McpConnection | null = null
-  let error: Error | null = null
+}): Promise<ToolCallMcpServer> => {
+  const { name: toolName } = toolCall.function
+  const failures: Error[] = []
 
   for (const mcpServer of assistant.mcpServers) {
-    if (mcpConnection) break
-    let innerMcpConnection: McpConnection | null = null
-    try {
-      const connection = await connectMcpServer({
-        mcpServer,
-        thread,
-        assistant,
-        prisma,
-      })
-      innerMcpConnection = connection.mcpConnection
+    const lookup = await findMcpServerTool({
+      mcpServer,
+      toolName,
+      thread,
+      assistant,
+      prisma,
+    })
 
-      const listToolsResponse =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (await innerMcpConnection.client.listTools()) as any
-
-      const tool = listToolsResponse.tools.find(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (tool: any) => tool.name === toolCall.function.name,
-      )
-
-      if (!tool) {
-        await closeMcpConnection({
-          mcpConnection: innerMcpConnection,
-        })
-        continue
+    if (lookup.outcome === 'found') {
+      return {
+        mcpConnection: lookup.mcpConnection,
+        error: lastFailure({ failures }),
       }
+    }
 
-      mcpConnection = innerMcpConnection
-      break
-    } catch (e) {
-      error = e instanceof Error ? e : new Error(String(e))
-      if (innerMcpConnection) {
-        try {
-          await closeMcpConnection({
-            mcpConnection: innerMcpConnection,
-          })
-        } catch {
-          // Ignore close errors so tool errors propagate.
-        }
-      }
+    if (lookup.outcome === 'failed') {
+      failures.push(lookup.error)
     }
   }
 
-  return {
-    mcpConnection: mcpConnection as McpConnection | null,
-    error,
-  }
+  return { mcpConnection: undefined, error: lastFailure({ failures }) }
 }

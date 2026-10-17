@@ -11,14 +11,10 @@ import { useIsMutatingMessage } from '@/hooks/messages/useIsMutatingMessage'
 
 const StartingToolCalls = () => {
   const {
-    components: {
-      StartingToolCalls,
-    },
+    components: { StartingToolCalls },
   } = useComponents()
 
-  return (
-    <StartingToolCalls />
-  )
+  return <StartingToolCalls />
 }
 
 const Content = ({
@@ -26,27 +22,14 @@ const Content = ({
 }: {
   latestRunStep: SerializedRunStep | null
 }) => {
-  const latestToolCall = useMemo(
-    () => {
-      if (!latestRunStep) return null
-      if (!latestRunStep.step_details) return null
-      if (latestRunStep.step_details.type !== 'tool_calls') return null
-
-      return latestRunStep.step_details.tool_calls[0]
-    },
-    [latestRunStep],
-  )
-
   if (!latestRunStep || latestRunStep.step_details.type !== 'tool_calls') {
-    return (
-      <Spinner />
-    )
+    return <Spinner />
   }
 
+  const [latestToolCall] = latestRunStep.step_details.tool_calls
+
   if (!latestToolCall) {
-    return (
-      <StartingToolCalls />
-    )
+    return <StartingToolCalls />
   }
 
   return (
@@ -67,17 +50,13 @@ const Progress = ({
   const latestRunStep = useMemo(
     () =>
       latestAssistantMessage.runSteps.find(
-        (rs) =>
-          rs.status === 'in_progress',
+        (rs) => rs.status === 'in_progress',
       ) ?? null,
     [latestAssistantMessage],
   )
 
-  if (latestAssistantMessage.status !== 'in_progress' && !isMutatingMessage) {
-    return null
-  }
-
-  return (
+  return latestAssistantMessage.status === 'in_progress' ||
+    isMutatingMessage ? (
     <Flex
       style={{
         position: 'fixed',
@@ -89,12 +68,10 @@ const Progress = ({
       }}
     >
       <Card>
-        <Content
-          latestRunStep={latestRunStep}
-        />
+        <Content latestRunStep={latestRunStep} />
       </Card>
     </Flex>
-  )
+  ) : null
 }
 
 export const Gui = () => {

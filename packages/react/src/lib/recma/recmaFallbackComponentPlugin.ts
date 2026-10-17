@@ -1,46 +1,43 @@
-import { visit, CONTINUE, SKIP } from 'estree-util-visit';
+import { visit, SKIP } from 'estree-util-visit'
 import type {
   Node,
-  VariableDeclaration,
   FunctionDeclaration,
   BlockStatement,
   IfStatement,
   CallExpression,
   AssignmentExpression,
-} from 'estree';
+} from 'estree'
 
 export const recmaFallbackComponentPlugin = () => {
   return (tree: Node) => {
     // Step 1: Change variable declarations from 'const' to 'let'
     visit(tree, (node) => {
-      if (node.type === 'VariableDeclaration' && node.kind === 'const') {
-        const varDecl = node as VariableDeclaration;
-
-        for (const declarator of varDecl.declarations) {
-          // Check for both _components and direct component destructuring patterns
-          if (
-            (declarator.id.type === 'ObjectPattern' &&
-              declarator.init?.type === 'Identifier' &&
+      if (
+        node.type === 'VariableDeclaration' &&
+        node.kind === 'const' &&
+        // Check for both _components and direct component destructuring patterns
+        node.declarations.some(
+          (declarator) =>
+            declarator.id.type === 'ObjectPattern' &&
+            ((declarator.init?.type === 'Identifier' &&
               declarator.init.name === '_components') ||
-            (declarator.id.type === 'ObjectPattern' &&
-              declarator.init?.type === 'ObjectExpression')
-          ) {
-            varDecl.kind = 'let';
-            return SKIP;
-          }
-        }
+              declarator.init?.type === 'ObjectExpression'),
+        )
+      ) {
+        node.kind = 'let'
+        return SKIP
       }
-      return CONTINUE;
-    });
+    })
 
     // Step 2: Modify the _missingMdxReference function
     visit(tree, (node) => {
       if (
+        // MDX turns the only nameless function declaration (`export default
+        // function () {}`) into an expression before recma plugins run.
         node.type === 'FunctionDeclaration' &&
-        node.id?.type === 'Identifier' &&
         node.id.name === '_missingMdxReference'
       ) {
-        const funcNode = node as FunctionDeclaration;
+        const funcNode = node as FunctionDeclaration
 
         funcNode.body = {
           type: 'BlockStatement',
@@ -66,48 +63,45 @@ export const recmaFallbackComponentPlugin = () => {
                             type: 'BinaryExpression',
                             operator: '+',
                             left: { type: 'Literal', value: '<' },
-                            right: { type: 'Identifier', name: 'id' }
+                            right: { type: 'Identifier', name: 'id' },
                           },
                           right: {
                             type: 'BinaryExpression',
                             operator: '+',
-                            left: { type: 'Literal', value: '></'},
+                            left: { type: 'Literal', value: '></' },
                             right: {
                               type: 'BinaryExpression',
                               operator: '+',
                               left: { type: 'Identifier', name: 'id' },
-                              right: { type: 'Literal', value: '>' }
-                            }
-                          }
-                        }
-                      }
-                    ]
+                              right: { type: 'Literal', value: '>' },
+                            },
+                          },
+                        },
+                      },
+                    ],
                   },
                   generator: false,
-                  async: false
-                }
+                  async: false,
+                },
               },
-              alternate: null
-            }
-          ]
-        } as BlockStatement;
-
-        return SKIP;
+              alternate: null,
+            },
+          ],
+        } as BlockStatement
       }
-      return CONTINUE;
-    });
+    })
 
     // Step 3: Modify the if statements to assign the missing component
     visit(tree, (node) => {
       if (node.type === 'IfStatement') {
-        const ifNode = node as IfStatement;
+        const ifNode = node as IfStatement
 
         if (
           ifNode.test.type === 'UnaryExpression' &&
           ifNode.test.operator === '!' &&
           ifNode.test.argument.type === 'Identifier'
         ) {
-          const componentName = ifNode.test.argument.name;
+          const componentName = ifNode.test.argument.name
 
           if (
             ifNode.consequent.type === 'ExpressionStatement' &&
@@ -121,18 +115,17 @@ export const recmaFallbackComponentPlugin = () => {
               operator: '=',
               left: { type: 'Identifier', name: componentName },
               right: ifNode.consequent.expression as CallExpression,
-            };
+            }
 
             ifNode.consequent = {
               type: 'ExpressionStatement',
               expression: assignmentExpr,
-            };
+            }
 
-            return SKIP;
+            return SKIP
           }
         }
       }
-      return CONTINUE;
-    });
-  };
-};
+    })
+  }
+}

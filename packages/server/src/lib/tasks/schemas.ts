@@ -18,6 +18,8 @@ export const updateTaskSchema = z.object({
   key: z.string().optional(),
 })
 
+export const updateTaskBodySchema = updateTaskSchema.omit({ taskId: true })
+
 export const deleteTaskSchema = z.object({
   taskId: z.string(),
 })

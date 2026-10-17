@@ -2,41 +2,31 @@ import type OpenAI from 'openai'
 import { validate } from 'uuid'
 import type { PrismaClient } from '@prisma/client'
 import { enqueueJson } from '@superinterface/react/utils'
+import { deltaText } from './outputStream/deltaText'
+import { toolCallIndex } from './outputStream/toolCallIndex'
+import { toolCallOutputDelta } from './outputStream/toolCallOutputDelta'
+import { readMessageEvents } from './outputStream/readMessageEvents'
+import { findLatestRunStep } from './outputStream/findLatestRunStep'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const deltaContent = ({ data }: { data: any }) => {
-  return (
-    data.delta.content
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .map((content: any) => {
-        if (content.type === 'text') {
-          return content.text.value
-        }
-
-        return ''
-      })
-      .join('\n\n')
-  )
-}
-
+// Streams a handler run's message deltas into the parent stream as the tool
+// call's output and reports each completed message.
 export const streamOutput = async ({
   toolCall,
   run,
   messageResponse,
-  onThreadMessageCompleted = () => {},
-  onThreadRunStepCompleted = () => {},
+  onThreadMessageCompleted,
   controller,
   prisma,
 }: {
   toolCall: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall
   run: OpenAI.Beta.Threads.Runs.Run
   controller: ReadableStreamDefaultController
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  messageResponse: ReadableStream<any>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onThreadMessageCompleted?: ({ message }: { message: any }) => void
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onThreadRunStepCompleted?: ({ runStep }: { runStep: any }) => void
+  messageResponse: ReadableStream<Uint8Array>
+  onThreadMessageCompleted: ({
+    message,
+  }: {
+    message: OpenAI.Beta.Threads.Messages.Message
+  }) => void
   prisma: PrismaClient
 }) => {
   // TODO figure out how to stream non-prisma runs
@@ -44,64 +34,30 @@ export const streamOutput = async ({
     return
   }
 
-  // TODO: get real run step id somehow
-  const latestRunStep = await prisma.runStep.findFirst({
-    where: {
-      runId: run.id,
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  })
+  const latestRunStep = await findLatestRunStep({ runId: run.id, prisma })
+  const index = toolCallIndex({ run, toolCall })
 
-  const index =
-    run.required_action?.submit_tool_outputs.tool_calls.findIndex(
-      (tc) => tc.id === toolCall.id,
-    ) ?? 0
-
-  // @ts-expect-error unclear type
-  for await (const value of messageResponse) {
-    const data = JSON.parse(Buffer.from(value).toString('utf-8'))
-
-    if (data.event === 'thread.message.delta') {
+  for await (const event of readMessageEvents({ messageResponse })) {
+    if (event.event === 'thread.message.delta') {
       enqueueJson({
         controller,
-        value: {
-          event: 'thread.run.step.delta',
-          data: {
-            object: 'thread.run.step.delta',
-            run_id: run.id,
+        value: toolCallOutputDelta({
+          target: {
+            runId: run.id,
             // TODO: proper id
-            id: latestRunStep?.id ?? '1',
-            delta: {
-              step_details: {
-                type: 'tool_calls',
-                tool_calls: [
-                  {
-                    id: toolCall.id,
-                    type: 'function',
-                    index,
-                    function: {
-                      output: deltaContent({ data: data.data }),
-                    },
-                  },
-                ],
-              },
-            },
+            // Prisma runs always have a run step by the time tools are called.
+            runStepId: latestRunStep!.id,
+            toolCallId: toolCall.id,
+            index,
           },
-        },
+          output: deltaText({ delta: event.data.delta }),
+        }),
       })
     }
 
-    if (data.event === 'thread.message.completed') {
+    if (event.event === 'thread.message.completed') {
       onThreadMessageCompleted({
-        message: data.data,
-      })
-    }
-
-    if (data.event === 'thread.run.step.completed') {
-      onThreadRunStepCompleted({
-        runStep: data.data,
+        message: event.data,
       })
     }
   }

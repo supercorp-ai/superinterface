@@ -12,9 +12,10 @@ import { url as getUrl } from '@/lib/mcpServers/url'
 
 const fetchWithHeaders =
   ({ headers }: { headers: Record<string, string> }) =>
-  (url: string | URL, init?: RequestInit) => {
+  // The MCP SSE transport always calls this with an init.
+  (url: string | URL, init: RequestInit) => {
     const fetchHeaders = new Headers({
-      ...(init?.headers ?? {}),
+      ...init.headers,
       ...headers,
     })
 
@@ -61,27 +62,24 @@ export const getTransport = ({
     })
   }
 
-  if (mcpServer.transportType === TransportType.SSE) {
-    const url = getUrl({ thread, mcpServer, assistant, prisma })
+  // SSE is the only remaining transport type.
+  const url = getUrl({ thread, mcpServer, assistant, prisma })
 
-    const headers = getHeaders({
-      thread,
-      mcpServer,
-      assistant,
-      prisma,
-    })
+  const headers = getHeaders({
+    thread,
+    mcpServer,
+    assistant,
+    prisma,
+  })
 
-    return new SSEClientTransport(new URL(url), {
-      eventSourceInit: {
-        fetch: fetchWithHeaders({ headers }),
-      },
-      requestInit: {
-        headers,
-      },
-    })
-  }
-
-  throw new Error(`Unknown transport type ${mcpServer.transportType}`)
+  return new SSEClientTransport(new URL(url), {
+    eventSourceInit: {
+      fetch: fetchWithHeaders({ headers }),
+    },
+    requestInit: {
+      headers,
+    },
+  })
 }
 
 export const connectMcpServer = async ({
