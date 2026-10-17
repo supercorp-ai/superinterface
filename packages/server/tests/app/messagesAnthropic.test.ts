@@ -44,7 +44,7 @@ describe('/api/messages anthropic tool calls', () => {
         workspaceId: workspace.id,
         modelProviderId: modelProvider.id,
         storageProviderType: StorageProviderType.SUPERINTERFACE_CLOUD,
-        modelSlug: 'claude-sonnet-4-20250514',
+        modelSlug: 'claude-opus-5-5',
         instructions:
           'You MUST call the getComments function before responding. Do not respond with text first — always call getComments immediately.',
       },

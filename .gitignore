@@ -2,3 +2,5 @@ node_modules
 dist
 .turbo
 .claude
+test-results
+playwright-report

@@ -78,3 +78,17 @@ test('does not bridge non-file annotations to Markdown images', () => {
   expect(image.type).toBe('image')
   expect(image.data?.hProperties?.['data-file-annotation']).toBeUndefined()
 })
+
+test('annotates a Markdown image when the file path lies between its start and end offsets', () => {
+  const url = 'sandbox:/mnt/data/chart.png'
+  const text = `See ![Chart](${url}) here.`
+  const tree = parse(text, annotationFor(text, url))
+  const [, image] = tree.children[0].children
+
+  // The image node spans `![Chart](...)`, from offset 4 to the closing `)`.
+  expect(image.position.start.offset).toBe(4)
+  expect(image.position.end.offset).toBe(text.indexOf(') here.') + 1)
+  expect(image.data.hProperties['data-file-annotation']).toBe(
+    JSON.stringify(annotationFor(text, url)),
+  )
+})

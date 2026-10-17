@@ -56,4 +56,18 @@ describe('remarkPureLiteralPlugin', () => {
     const result = await compileMdx('<Box label={`hello`} />')
     expect(result).toContain('hello')
   })
+
+  // BUG: handleExpressionAttribute turns a spread attribute that is not a
+  // pure literal into a nameless attribute, which MDX cannot compile. Left
+  // alone, the spread would compile.
+  test('BUG: a spread attribute that is not a pure literal fails to compile', async () => {
+    await expect(compileMdx('<Box {...props} />')).rejects.toThrow(
+      "Cannot read properties of undefined (reading 'includes')",
+    )
+    expect(
+      String(
+        await compile('<Box {...props} />', { outputFormat: 'function-body' }),
+      ),
+    ).toContain('...props')
+  })
 })

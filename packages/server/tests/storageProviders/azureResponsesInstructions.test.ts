@@ -14,13 +14,17 @@ import { createTestApiKey } from '../lib/apiKeys/createTestApiKey'
 import { createTestAssistant } from '../lib/assistants/createTestAssistant'
 import { NextRequest } from 'next/server'
 import { buildPOST } from '@/app/api/messages/buildRoute'
+import { azureCredentialsSkipReason } from '../lib/providers/azureCredentialsSkipReason'
 
 type StreamEvent = {
   event?: string
   data?: Record<string, unknown>
 }
 
-describe('Azure Responses API Instructions Integration Tests', () => {
+// These call the real Azure APIs, so they only run with usable credentials.
+const skip = await azureCredentialsSkipReason()
+
+describe('Azure Responses API Instructions Integration Tests', { skip }, () => {
   it('should use agent stored instructions when agent is specified', async () => {
     console.log(
       'Testing Azure Responses with agent instructions (custom instructions ignored)...',

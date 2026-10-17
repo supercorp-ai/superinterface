@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- the route is built with partial prisma and client fakes */
 import { describe, test } from 'node:test'
 import { strict as assert } from 'node:assert'
 import { NextRequest } from 'next/server'
@@ -101,6 +102,17 @@ describe('container file contents route', () => {
     assert.equal(response.status, 200)
     assert.equal(regularRetrieveCalled, true)
     assert.equal(regularContentCalled, true)
+    assert.deepEqual(
+      Array.from(new Uint8Array(await response.arrayBuffer())),
+      [1, 2],
+    )
+    assert.deepEqual(
+      {
+        type: response.headers.get('Content-Type'),
+        disposition: response.headers.get('Content-Disposition'),
+      },
+      { type: 'application/octet-stream', disposition: 'inline' },
+    )
   })
 
   test('rejects an explicitly empty containerId', async () => {
