@@ -4,6 +4,7 @@
     "outDir": "./dist",
     "declaration": false,
     "noEmit": false,
+    "baseUrl": "../..",
     "paths": {
       "@/*": [
         "./packages/javascript/src/*",
