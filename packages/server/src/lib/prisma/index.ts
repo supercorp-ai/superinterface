@@ -10,10 +10,7 @@ const resolveDatabaseAdapter = (): SupportedDatabaseAdapter => {
     return 'direct'
   }
 
-  if (['neon', 'vercel', 'vercel_postgres'].includes(adapter)) {
-    return 'neon'
-  }
-
+  // 'neon', 'vercel', 'vercel_postgres' and any unknown value use Neon.
   return 'neon'
 }
 

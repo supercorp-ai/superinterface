@@ -11,7 +11,7 @@ const Content = ({
   codeInterpreter: OpenAI.Beta.Threads.Runs.CodeInterpreterToolCall.CodeInterpreter
 }) => {
   if (!codeInterpreter.input) {
-    return null
+    return
   }
 
   return (

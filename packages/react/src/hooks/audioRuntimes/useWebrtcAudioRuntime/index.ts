@@ -30,11 +30,7 @@ const handleThreadEvent = ({
   }
 }
 
-const createAnalyser = ({
-  mediaStream,
-}: {
-  mediaStream: MediaStream
-}) => {
+const createAnalyser = ({ mediaStream }: { mediaStream: MediaStream }) => {
   const audioCtx = new AudioContext()
   const source = audioCtx.createMediaStreamSource(mediaStream)
   const analyser = audioCtx.createAnalyser()
@@ -80,7 +76,9 @@ const handleEvent = ({
 }
 
 export const useWebrtcAudioRuntime = () => {
-  const [recorderStatus, setRecorderStatus] = useState<'idle' | 'recording' | 'paused' | 'stopped'>('idle')
+  const [recorderStatus, setRecorderStatus] = useState<
+    'idle' | 'recording' | 'paused' | 'stopped'
+  >('idle')
   const superinterfaceContext = useSuperinterfaceContext()
 
   const [userIsPending, setUserIsPending] = useState(false)
@@ -154,21 +152,30 @@ export const useWebrtcAudioRuntime = () => {
       openaiEventsDataChannel.addEventListener('message', async (e) => {
         const parsedData = JSON.parse(e.data)
 
-        if (!sentTypes.includes(parsedData.type)) return;
-        if (parsedData.type === 'response.done' && parsedData.response.status !== 'completed') return
+        if (!sentTypes.includes(parsedData.type)) return
+        if (
+          parsedData.type === 'response.done' &&
+          parsedData.response.status !== 'completed'
+        )
+          return
 
-        const searchParams = new URLSearchParams(variableParams({
-          variables: superinterfaceContext.variables,
-          superinterfaceContext,
-        }))
+        const searchParams = new URLSearchParams(
+          variableParams({
+            variables: superinterfaceContext.variables,
+            superinterfaceContext,
+          }),
+        )
 
-        const eventsResponse = await fetch(`${superinterfaceContext.baseUrl}/audio-runtimes/webrtc/events?${searchParams}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        const eventsResponse = await fetch(
+          `${superinterfaceContext.baseUrl}/audio-runtimes/webrtc/events?${searchParams}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: e.data,
           },
-          body: e.data,
-        })
+        )
 
         if (!eventsResponse.body) {
           throw new Error('No body in events response')
@@ -201,13 +208,13 @@ export const useWebrtcAudioRuntime = () => {
                   openaiEventsDataChannel,
                 })
               } catch (error) {
-                console.error('JSON parse error:', error, 'Line:', line);
+                console.error('JSON parse error:', error, 'Line:', line)
               }
             }
           }
 
           // Read the next chunk
-          ({ value, done } = await reader.read())
+          ;({ value, done } = await reader.read())
         }
       })
 
@@ -217,23 +224,26 @@ export const useWebrtcAudioRuntime = () => {
         peerConn.addTrack(t, ms)
       })
 
-      setRecorderStatus('idle')
-
       const offer = await peerConn.createOffer()
       await peerConn.setLocalDescription(offer)
 
-      const searchParams = new URLSearchParams(variableParams({
-        variables: superinterfaceContext.variables,
-        superinterfaceContext,
-      }))
+      const searchParams = new URLSearchParams(
+        variableParams({
+          variables: superinterfaceContext.variables,
+          superinterfaceContext,
+        }),
+      )
 
-      const sdpResponse = await fetch(`${superinterfaceContext.baseUrl}/audio-runtimes/webrtc?${searchParams}`, {
-        method: 'POST',
-        body: offer.sdp,
-        headers: {
-          'Content-Type': 'application/sdp',
+      const sdpResponse = await fetch(
+        `${superinterfaceContext.baseUrl}/audio-runtimes/webrtc?${searchParams}`,
+        {
+          method: 'POST',
+          body: offer.sdp,
+          headers: {
+            'Content-Type': 'application/sdp',
+          },
         },
-      })
+      )
 
       if (!sdpResponse.ok) {
         throw new Error(`Server responded with status ${sdpResponse.status}`)
@@ -260,10 +270,7 @@ export const useWebrtcAudioRuntime = () => {
       console.error('Error initRealtimeSession:', err)
       setUserIsPending(false)
       setRecorderStatus('stopped')
-      setAssistantPlaying(false)
-      setAssistantPaused(false)
       setAssistantIsPending(false)
-      setAssistantIsReady(false)
       setAssistantAudioPlayed(false)
     }
   }
@@ -277,7 +284,9 @@ export const useWebrtcAudioRuntime = () => {
   }) {
     try {
       userAnalyserRef.current = createAnalyser({ mediaStream: localStream })
-      assistantAnalyserRef.current = createAnalyser({ mediaStream: remoteStream })
+      assistantAnalyserRef.current = createAnalyser({
+        mediaStream: remoteStream,
+      })
     } catch (err) {
       console.warn('Could not build analyzers:', err)
     }
@@ -295,7 +304,7 @@ export const useWebrtcAudioRuntime = () => {
     }
 
     if (localStreamRef.current) {
-      localStreamRef.current.getAudioTracks().forEach((t) => t.enabled = true)
+      localStreamRef.current.getAudioTracks().forEach((t) => (t.enabled = true))
     }
   }
 
@@ -306,42 +315,46 @@ export const useWebrtcAudioRuntime = () => {
     setAssistantPlaying(false)
 
     if (localStreamRef.current) {
-      localStreamRef.current.getAudioTracks().forEach((t) => t.enabled = false)
+      localStreamRef.current
+        .getAudioTracks()
+        .forEach((t) => (t.enabled = false))
     }
   }
 
-
-  return useMemo(() => ({
-    webrtcAudioRuntime: {
-      user: {
-        start: async () => {},
-        pause,
-        resume: start,
-        stop: pause,
-        isPending: userIsPending,
-        visualizationAnalyser: userAnalyserRef.current,
-        rawStatus: recorderStatus,
+  return useMemo(
+    () => ({
+      webrtcAudioRuntime: {
+        user: {
+          start: async () => {},
+          pause,
+          resume: start,
+          stop: pause,
+          isPending: userIsPending,
+          visualizationAnalyser: userAnalyserRef.current,
+          rawStatus: recorderStatus,
+        },
+        assistant: {
+          play: start,
+          pause,
+          stop: pause,
+          visualizationAnalyser: assistantAnalyserRef.current,
+          playing: assistantPlaying,
+          paused: assistantPaused,
+          isPending: assistantIsPending,
+          isReady: assistantIsReady,
+          isAudioPlayed: assistantAudioPlayed,
+          rawStatus: undefined,
+        },
       },
-      assistant: {
-        play: start,
-        pause,
-        stop: pause,
-        visualizationAnalyser: assistantAnalyserRef.current,
-        playing: assistantPlaying,
-        paused: assistantPaused,
-        isPending: assistantIsPending,
-        isReady: assistantIsReady,
-        isAudioPlayed: assistantAudioPlayed,
-        rawStatus: undefined,
-      },
-    },
-  }), [
-    recorderStatus,
-    userIsPending,
-    assistantPlaying,
-    assistantPaused,
-    assistantIsPending,
-    assistantIsReady,
-    assistantAudioPlayed,
-  ])
+    }),
+    [
+      recorderStatus,
+      userIsPending,
+      assistantPlaying,
+      assistantPaused,
+      assistantIsPending,
+      assistantIsReady,
+      assistantAudioPlayed,
+    ],
+  )
 }

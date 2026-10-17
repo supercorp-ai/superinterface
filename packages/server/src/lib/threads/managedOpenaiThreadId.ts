@@ -1,8 +1,10 @@
-import { Prisma, StorageProviderType, type PrismaClient } from '@prisma/client'
+import type { Prisma, PrismaClient } from '@prisma/client'
 import { assistantClientAdapter } from '@/lib/assistants/assistantClientAdapter'
-import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
-import { isAzureAgentsStorageProvider } from '@/lib/storageProviders/isAzureAgentsStorageProvider'
+import { storageThreadIdData } from '@/lib/threads/createThread/storageThreadIdData'
 
+// Creates the storage provider's thread for an existing thread row and
+// records its id on the row. Only called for OpenAI Assistants and Responses
+// storage providers.
 export const managedOpenaiThreadId = async ({
   assistant,
   threadId,
@@ -34,10 +36,9 @@ export const managedOpenaiThreadId = async ({
   threadId: string
   prisma: PrismaClient
 }) => {
-  const newStorageThread = await assistantClientAdapter({
-    assistant,
-    prisma,
-  }).beta.threads.create({
+  const { beta } = assistantClientAdapter({ assistant, prisma })
+
+  const { id: storageThreadId } = await beta.threads.create({
     metadata: {
       assistantId: assistant.id,
       threadId,
@@ -48,33 +49,11 @@ export const managedOpenaiThreadId = async ({
     where: {
       id: threadId,
     },
-    data: {
-      ...(isOpenaiAssistantsStorageProvider({
-        storageProviderType: assistant.storageProviderType,
-      })
-        ? {
-            openaiThreadId: newStorageThread.id,
-          }
-        : {}),
-      ...(assistant.storageProviderType === StorageProviderType.OPENAI_RESPONSES
-        ? {
-            openaiConversationId: newStorageThread.id,
-          }
-        : {}),
-      ...(assistant.storageProviderType === StorageProviderType.AZURE_RESPONSES
-        ? {
-            azureOpenaiConversationId: newStorageThread.id,
-          }
-        : {}),
-      ...(isAzureAgentsStorageProvider({
-        storageProviderType: assistant.storageProviderType,
-      })
-        ? {
-            azureAgentsThreadId: newStorageThread.id,
-          }
-        : {}),
-    },
+    data: storageThreadIdData({
+      storageProviderType: assistant.storageProviderType,
+      storageThreadId,
+    }),
   })
 
-  return newStorageThread.id
+  return storageThreadId
 }

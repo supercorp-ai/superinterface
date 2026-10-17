@@ -12,7 +12,7 @@ export const threadCreated = ({
   // @ts-ignore-next-line
   if (!value.data.metadata?.assistantId) return
   // @ts-ignore-next-line
-  if (!value.data.metadata?.threadId) return
+  if (!value.data.metadata.threadId) return
 
   superinterfaceContext.threadIdStorageOptions.set({
     // @ts-ignore-next-line

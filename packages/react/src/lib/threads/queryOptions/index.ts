@@ -3,6 +3,7 @@ import { useSuperinterfaceContext } from '@/hooks/core/useSuperinterfaceContext'
 import { useThreadContext } from '@/hooks/threads/useThreadContext'
 import { MessagesPage } from '@/types'
 import { variableParams } from './variableParams'
+import { responseError } from '@/lib/errors/responseError'
 
 type QueryFunctionArgs = {
   queryKey: Readonly<[string, { [key: string]: any }]>
@@ -36,12 +37,10 @@ export const queryOptions = ({
       return fetch(`${superinterfaceContext.baseUrl}${path}?${params}`).then(
         async (response) => {
           if (response.status !== 200) {
-            try {
-              const errorResponse = (await response.json()) as { error: string }
-              throw new Error(errorResponse.error)
-            } catch (error) {
-              throw new Error('Failed to fetch')
-            }
+            throw await responseError({
+              response,
+              defaultMessage: 'Failed to fetch',
+            })
           }
 
           return response.json() as Promise<MessagesPage>

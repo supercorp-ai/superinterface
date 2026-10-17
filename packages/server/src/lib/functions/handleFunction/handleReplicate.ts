@@ -1,17 +1,14 @@
 import OpenAI from 'openai'
 import {
   ReplicateHandler,
-  ReplicateHandlerType,
   Assistant,
   Thread,
-  LogRequestMethod,
-  LogRequestRoute,
-  LogLevel,
   type PrismaClient,
 } from '@prisma/client'
-import Replicate from 'replicate'
-import { createLog } from '@/lib/logs/createLog'
-import { merge } from '@/lib/misc/merge'
+import { rejectToolCall } from '@/lib/toolCalls/rejectToolCall'
+import { toolCallLogScope } from '@/lib/toolCalls/toolCallLogScope'
+import { parseFunctionArguments } from './parseFunctionArguments'
+import { runReplicate } from './replicate/runReplicate'
 
 export const handleReplicate = async ({
   replicateHandler,
@@ -26,90 +23,35 @@ export const handleReplicate = async ({
   thread: Thread
   prisma: PrismaClient
 }) => {
-  let args
+  const scope = toolCallLogScope({ assistant, thread })
+  const parsed = parseFunctionArguments({ json: toolCall.function.arguments })
 
-  try {
-    args = JSON.parse(toolCall.function.arguments)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (e: any) {
-    createLog({
-      log: {
-        requestMethod: LogRequestMethod.POST,
-        requestRoute: LogRequestRoute.MESSAGES,
-        level: LogLevel.ERROR,
-        status: 400,
-        message: `Failed parsing Replicate function arguments: ${e.message}`,
-        workspaceId: assistant.workspaceId,
-        assistantId: assistant.id,
-        threadId: thread.id,
-      },
+  if (!parsed.ok) {
+    return rejectToolCall({
+      toolCall,
+      scope,
+      message: `Failed parsing Replicate function arguments: ${parsed.error.message}`,
+      output: 'Invalid arguments.',
       prisma,
     })
-
-    return {
-      tool_call_id: toolCall.id,
-      output: 'Invalid arguments.',
-    }
   }
 
-  const replicate = new Replicate({
-    auth: replicateHandler.apiKey,
-    useFileOutput: false,
-  })
-
-  if (replicateHandler.type === ReplicateHandlerType.RUN) {
-    try {
-      const result = await replicate.run(
-        replicateHandler.identifier as '`${string}/${string}',
-        merge(replicateHandler.body, args),
-      )
-
-      return {
-        tool_call_id: toolCall.id,
-        output: JSON.stringify(result),
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (e: any) {
-      createLog({
-        log: {
-          requestMethod: LogRequestMethod.POST,
-          requestRoute: LogRequestRoute.MESSAGES,
-          level: LogLevel.ERROR,
-          status: 400,
-          message: `Failed calling Replicate RUN function: ${e.message}`,
-          workspaceId: assistant.workspaceId,
-          assistantId: assistant.id,
-          threadId: thread.id,
-        },
-        prisma,
-      })
-
-      return {
-        tool_call_id: toolCall.id,
-        output: 'Function call failed.',
-      }
-    }
-  } else {
-    createLog({
-      log: {
-        requestMethod: LogRequestMethod.POST,
-        requestRoute: LogRequestRoute.MESSAGES,
-        level: LogLevel.ERROR,
-        status: 400,
-        message: `Invalid Replicate handler type: ${replicateHandler.type}`,
-        workspaceId: assistant.workspaceId,
-        assistantId: assistant.id,
-        threadId: thread.id,
-      },
-      prisma,
-    })
+  // RUN is the only Replicate handler type.
+  try {
+    const result = await runReplicate({ replicateHandler, args: parsed.args })
 
     return {
       tool_call_id: toolCall.id,
-      output: JSON.stringify({
-        success: false,
-        message: 'Invalid Replicate handler type',
-      }),
+      output: JSON.stringify(result),
     }
+  } catch (e) {
+    // The Replicate SDK fails with Error instances.
+    return rejectToolCall({
+      toolCall,
+      scope,
+      message: `Failed calling Replicate RUN function: ${(e as Error).message}`,
+      output: 'Function call failed.',
+      prisma,
+    })
   }
 }

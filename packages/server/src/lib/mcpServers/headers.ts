@@ -1,67 +1,11 @@
-import type { Prisma, Thread, Assistant, PrismaClient } from '@prisma/client'
-import {
-  LogRequestMethod,
-  LogRequestRoute,
-  LogLevel,
-  TransportType,
-} from '@prisma/client'
+import type { Thread, Assistant, PrismaClient } from '@prisma/client'
 import { dash } from 'radash'
-import { interpolateFunctionValue } from '@/lib/functions/interpolateFunctionValue'
-import { createLog } from '@/lib/logs/createLog'
+import type { RemoteMcpServer } from './remoteMcpServer'
+import { transportSetting } from './transportSetting'
+import { interpolateMcpServerValues } from './interpolateMcpServerValues'
 
-const transportHeaders = ({
-  mcpServer,
-}: {
-  mcpServer: Prisma.McpServerGetPayload<{
-    include: {
-      httpTransport: true
-      sseTransport: true
-    }
-  }>
-}) => {
-  if (mcpServer.transportType === TransportType.HTTP) {
-    return mcpServer.httpTransport!.headers
-  } else if (mcpServer.transportType === TransportType.SSE) {
-    return mcpServer.sseTransport!.headers
-  }
-
-  return {}
-}
-
-const interpolatedTransportHeaders = ({
-  mcpServer,
-  thread,
-  metadata,
-  assistant,
-}: {
-  mcpServer: Prisma.McpServerGetPayload<{
-    include: {
-      httpTransport: true
-      sseTransport: true
-    }
-  }>
-  thread: Thread
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  metadata?: Record<string, any>
-  assistant: Assistant
-}) => {
-  const result: Record<string, string> = {}
-  const missing: string[] = []
-
-  for (const [k, v] of Object.entries(transportHeaders({ mcpServer }))) {
-    const res = interpolateFunctionValue({
-      value: v,
-      args: metadata,
-      thread,
-      assistant,
-    })
-    result[k] = res.value
-    missing.push(...res.missing)
-  }
-
-  return { headers: result, missing }
-}
-
+// The server's transport headers with their {{variable}} templates filled
+// in, followed by the thread's metadata, all with dashed names.
 export const headers = ({
   thread,
   mcpServer,
@@ -69,44 +13,19 @@ export const headers = ({
   prisma,
 }: {
   thread: Thread
-  mcpServer: Prisma.McpServerGetPayload<{
-    include: {
-      httpTransport: true
-      sseTransport: true
-    }
-  }>
+  mcpServer: RemoteMcpServer
   assistant: Assistant
   prisma: PrismaClient
 }) => {
-  const { headers, missing } = interpolatedTransportHeaders({
-    mcpServer,
+  const transportHeaders = interpolateMcpServerValues({
+    values: transportSetting({ mcpServer, field: 'headers', fallback: {} }),
     thread,
-    metadata: thread.metadata ?? {},
     assistant,
+    prisma,
   })
 
-  if (missing.length) {
-    const message = `Missing variables in MCP server: ${missing.join(', ')}`
-
-    createLog({
-      log: {
-        requestMethod: LogRequestMethod.POST,
-        requestRoute: LogRequestRoute.MESSAGES,
-        level: LogLevel.ERROR,
-        status: 400,
-        message,
-        workspaceId: assistant.workspaceId,
-        assistantId: assistant.id,
-        threadId: thread.id,
-      },
-      prisma,
-    })
-
-    throw new Error(message)
-  }
-
   const data = {
-    ...headers,
+    ...transportHeaders,
     ...(thread.metadata ?? {}),
   }
 

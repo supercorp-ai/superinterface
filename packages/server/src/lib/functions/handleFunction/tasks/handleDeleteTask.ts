@@ -1,73 +1,41 @@
-import OpenAI from 'openai'
-import {
-  DeleteTaskHandler,
-  Assistant,
-  Thread,
-  PrismaClient,
-} from '@prisma/client'
-import { serializeTask } from '@/lib/tasks/serializeTask'
+import type { DeleteTaskHandler } from '@prisma/client'
 import { deleteTaskSchema } from '@/lib/tasks/schemas'
-import { parseTaskToolArgs } from '@/lib/tasks/parseTaskToolArgs'
-import { getTaskToolKey } from '@/lib/tasks/getTaskToolKey'
-import { cancelScheduledTask } from '@/lib/tasks/cancelScheduledTask'
+import {
+  parseTaskToolCall,
+  type TaskToolCallContext,
+} from '@/lib/tasks/parseTaskToolCall'
+import { findTaskToolTask } from '@/lib/tasks/findTaskToolTask'
+import { deleteScheduledTask } from '@/lib/tasks/deleteScheduledTask'
+import { taskToolOutput } from '@/lib/tasks/taskToolOutput'
+import { taskToolResult } from '@/lib/tasks/taskToolResult'
 import { defaultScheduler } from '@/lib/tasks/schedulers/defaultScheduler'
-import type { TaskScheduler } from '@/lib/tasks/schedulers/types'
 
 export const handleDeleteTask = async ({
   taskHandler,
-  toolCall,
-  assistant,
-  thread,
-  prisma,
-  scheduler = defaultScheduler,
-}: {
-  taskHandler: DeleteTaskHandler
-  toolCall: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall
-  assistant: Assistant
-  thread: Thread
-  prisma: PrismaClient
-  scheduler?: TaskScheduler
-}) => {
-  const parsedArgs = parseTaskToolArgs({ toolCall, assistant, thread, prisma })
-  if (!parsedArgs.ok)
-    return { tool_call_id: toolCall.id, output: parsedArgs.error }
+  ...context
+}: TaskToolCallContext & { taskHandler: DeleteTaskHandler }) => {
+  const { toolCall, assistant, prisma } = context
 
-  const check = deleteTaskSchema.safeParse(parsedArgs.args)
-  if (!check.success)
-    return { tool_call_id: toolCall.id, output: check.error.toString() }
-  const args = check.data
-
-  const { ok, key, error } = await getTaskToolKey({
-    thread,
-    assistant,
+  const call = await parseTaskToolCall({
+    context,
     keyTemplate: taskHandler.keyTemplate,
+    schema: deleteTaskSchema,
+  })
+  if (!call.ok) return taskToolOutput({ toolCall, output: call.error })
+
+  const existing = await findTaskToolTask({
     prisma,
+    taskId: call.args.taskId,
+    key: call.key,
+    workspaceId: assistant.workspaceId,
+  })
+  if (!existing.ok) return taskToolResult({ toolCall, result: existing })
+
+  const result = await deleteScheduledTask({
+    prisma,
+    scheduler: defaultScheduler,
+    existingTask: existing.task,
   })
 
-  if (!ok) return { tool_call_id: toolCall.id, output: error }
-
-  const existing = await prisma.task.findFirst({
-    where: {
-      id: args.taskId,
-      key,
-      thread: {
-        assistant: {
-          workspaceId: assistant.workspaceId,
-        },
-      },
-    },
-  })
-
-  if (!existing) {
-    return { tool_call_id: toolCall.id, output: 'Task not found.' }
-  }
-
-  await cancelScheduledTask({ task: existing, scheduler })
-
-  const task = await prisma.task.delete({ where: { id: args.taskId } })
-
-  return {
-    tool_call_id: toolCall.id,
-    output: JSON.stringify({ task: serializeTask({ task }) }),
-  }
+  return taskToolResult({ toolCall, result })
 }

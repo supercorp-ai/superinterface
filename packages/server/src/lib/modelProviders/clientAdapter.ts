@@ -63,7 +63,7 @@ export const clientAdapter = ({
         // @ts-expect-error duplex is not yet in the types
         fetch: (url: RequestInfo, init?: RequestInit): Promise<Response> =>
           fetch(url, {
-            ...(init || {}),
+            ...init,
             // @ts-expect-error duplex is not yet in the types
             duplex: 'half',
           }),
@@ -123,7 +123,7 @@ export const clientAdapter = ({
         // @ts-expect-error duplex is not yet in the types
         fetch: (url: RequestInfo, init?: RequestInit): Promise<Response> =>
           fetch(url, {
-            ...(init || {}),
+            ...init,
             // @ts-expect-error duplex is not yet in the types
             duplex: 'half',
           }),
@@ -143,11 +143,8 @@ export const clientAdapter = ({
     })
   }
 
-  if (modelProvider.type === ModelProviderType.GOOGLE) {
-    return googleClientAdapter({
-      google: new GoogleGenAI({ apiKey: modelProvider.apiKey }),
-    })
-  }
-
-  throw new Error(`Invalid model provider type: ${modelProvider.type}`)
+  // Every other ModelProviderType is handled above, so this is GOOGLE.
+  return googleClientAdapter({
+    google: new GoogleGenAI({ apiKey: modelProvider.apiKey }),
+  })
 }

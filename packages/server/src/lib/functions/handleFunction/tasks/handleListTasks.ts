@@ -1,60 +1,35 @@
-import OpenAI from 'openai'
-import {
-  ListTasksHandler,
-  Assistant,
-  Thread,
-  PrismaClient,
-} from '@prisma/client'
+import type { ListTasksHandler } from '@prisma/client'
 import { serializeTask } from '@/lib/tasks/serializeTask'
 import { listTasksSchema } from '@/lib/tasks/schemas'
-import { parseTaskToolArgs } from '@/lib/tasks/parseTaskToolArgs'
-import { getTaskToolKey } from '@/lib/tasks/getTaskToolKey'
+import {
+  parseTaskToolCall,
+  type TaskToolCallContext,
+} from '@/lib/tasks/parseTaskToolCall'
+import { taskToolWhere } from '@/lib/tasks/taskToolWhere'
+import { taskToolOutput } from '@/lib/tasks/taskToolOutput'
 
 export const handleListTasks = async ({
   taskHandler,
-  toolCall,
-  assistant,
-  thread,
-  prisma,
-}: {
-  taskHandler: ListTasksHandler
-  toolCall: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall
-  assistant: Assistant
-  thread: Thread
-  prisma: PrismaClient
-}) => {
-  const parsedArgs = parseTaskToolArgs({ toolCall, assistant, thread, prisma })
-  if (!parsedArgs.ok)
-    return { tool_call_id: toolCall.id, output: parsedArgs.error }
+  ...context
+}: TaskToolCallContext & { taskHandler: ListTasksHandler }) => {
+  const { toolCall, assistant, prisma } = context
 
-  const check = listTasksSchema.safeParse(parsedArgs.args)
-  if (!check.success)
-    return { tool_call_id: toolCall.id, output: check.error.toString() }
-
-  const { ok, key, error } = await getTaskToolKey({
-    thread,
-    assistant,
+  const call = await parseTaskToolCall({
+    context,
     keyTemplate: taskHandler.keyTemplate,
-    prisma,
+    schema: listTasksSchema,
   })
-  if (!ok) return { tool_call_id: toolCall.id, output: error }
+  if (!call.ok) return taskToolOutput({ toolCall, output: call.error })
 
   const tasks = await prisma.task.findMany({
-    where: {
-      key,
-      thread: {
-        assistant: {
-          workspaceId: assistant.workspaceId,
-        },
-      },
-    },
+    where: taskToolWhere({ key: call.key, workspaceId: assistant.workspaceId }),
     orderBy: { createdAt: 'desc' },
   })
 
-  return {
-    tool_call_id: toolCall.id,
+  return taskToolOutput({
+    toolCall,
     output: JSON.stringify({
-      tasks: tasks.map((t) => serializeTask({ task: t })),
+      tasks: tasks.map((task) => serializeTask({ task })),
     }),
-  }
+  })
 }

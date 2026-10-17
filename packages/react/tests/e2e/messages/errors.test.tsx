@@ -94,22 +94,19 @@ describe('errors in a Thread', () => {
         TIMEOUT,
       ),
     ).toBeTruthy()
-    // BUG: the server's reason ("Invalid api key") is replaced with a
-    // generic error for both queries.
+    // The app gets the server's reason for both queries.
     await waitFor(() => {
       expect(screen.getByTestId('messages-error').textContent).toBe(
-        'Failed to fetch',
+        'Invalid api key',
       )
       expect(screen.getByTestId('assistant-error').textContent).toBe(
-        'Failed to fetch',
+        'Invalid api key',
       )
     }, TIMEOUT)
     expect(fakeLlm.completionRequests()).toEqual([])
   }, 60_000)
 
-  // BUG: the server's reason ("Invalid api key") is replaced with a generic
-  // message, so the user can't tell why sending failed.
-  it("BUG: hides the server's reason when it refuses a message", async () => {
+  it("shows the server's reason when it refuses a message", async () => {
     const fakeLlm = await startFakeLlm()
     cleanups.push(fakeLlm.close)
     const { assistant } = await createTestAssistant({
@@ -128,10 +125,10 @@ describe('errors in a Thread', () => {
       placeholder: 'Message ...',
     })
 
-    expect(await screen.findByText(SEND_FAILED, {}, TIMEOUT)).toBeTruthy()
+    expect(await screen.findByText('Invalid api key', {}, TIMEOUT)).toBeTruthy()
     // BUG: the same unhandled rejection from the Thread's form as above.
     await waitFor(() => expect(rejections.reasons).toHaveLength(1), TIMEOUT)
-    expect((rejections.reasons[0] as Error).message).toBe(SEND_FAILED)
+    expect((rejections.reasons[0] as Error).message).toBe('Invalid api key')
     expect(fakeLlm.completionRequests()).toEqual([])
   }, 60_000)
 

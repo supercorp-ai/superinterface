@@ -4,17 +4,12 @@ import { openaiClientAdapter } from 'supercompat/openai'
 
 export const buildOpenaiClientAdapter = ({
   modelProvider,
-  baseURL,
-  apiKey,
 }: {
   modelProvider: ModelProvider
-  baseURL?: string
-  apiKey?: string
 }) =>
   openaiClientAdapter({
     openai: new OpenAI({
-      apiKey: apiKey ?? modelProvider.apiKey,
-      ...(baseURL ? { baseURL } : {}),
+      apiKey: modelProvider.apiKey,
       defaultHeaders: {
         'HTTP-Referer': 'https://superinterface.ai',
         'X-Title': 'Superinterface',
@@ -22,7 +17,7 @@ export const buildOpenaiClientAdapter = ({
       // @ts-expect-error duplex is not yet in the types
       fetch: (url: RequestInfo, init?: RequestInit): Promise<Response> =>
         fetch(url, {
-          ...(init || {}),
+          ...init,
           // @ts-expect-error duplex is not yet in the types
           duplex: 'half',
         }),

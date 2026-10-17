@@ -1,107 +1,28 @@
-import OpenAI from 'openai'
-import {
-  Assistant,
-  Thread,
-  LogRequestMethod,
-  LogRequestRoute,
-  LogLevel,
-  type PrismaClient,
-} from '@prisma/client'
-import { createLog } from '@/lib/logs/createLog'
-import { scheduleSchema } from './scheduleSchema'
-import { getNextOccurrence } from './getNextOccurrence'
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
-import timezone from 'dayjs/plugin/timezone'
+import { LogRequestMethod } from '@prisma/client'
+import { logMessagesError } from '@/lib/logs/logMessagesError'
+import type { TaskToolCallContext } from './parseTaskToolCall'
+import { checkTaskToolArgs } from './checkTaskToolArgs'
 
-dayjs.extend(utc)
-dayjs.extend(timezone)
-
-const formatCurrentTime = ({
-  schedule,
-}: {
-  schedule: PrismaJson.TaskSchedule
-}) => {
-  if (schedule.timeZone) {
-    return `${dayjs().tz(schedule.timeZone).format()} in timezone ${schedule.timeZone}`
-  }
-
-  return `${dayjs().toISOString()} in UTC`
-}
-
+// Parses a task tool call's arguments. Invalid arguments are logged for the
+// workspace and returned as an error for the model.
 export const parseTaskToolArgs = ({
   toolCall,
   assistant,
   thread,
   prisma,
-}: {
-  toolCall: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall
-  assistant: Assistant
-  thread: Thread
-  prisma: PrismaClient
-}) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let args: any = {}
-  try {
-    args = JSON.parse(toolCall.function.arguments || '{}')
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (e: any) {
-    createLog({
-      log: {
-        requestMethod: LogRequestMethod.POST,
-        requestRoute: LogRequestRoute.MESSAGES,
-        level: LogLevel.ERROR,
-        status: 400,
-        message: `Failed parsing task function arguments: ${e.message}`,
-        workspaceId: assistant.workspaceId,
-        assistantId: assistant.id,
-        threadId: thread.id,
-      },
-      prisma,
-    })
-    return { ok: false as const, error: 'Invalid arguments.' }
-  }
+}: TaskToolCallContext) => {
+  const argsCheck = checkTaskToolArgs({ toolCall })
+  if (argsCheck.ok) return { ok: true as const, args: argsCheck.value }
 
-  if (args && typeof args === 'object' && args.schedule !== undefined) {
-    const parsed = scheduleSchema.safeParse(args.schedule)
-    if (!parsed.success) {
-      createLog({
-        log: {
-          requestMethod: LogRequestMethod.POST,
-          requestRoute: LogRequestRoute.MESSAGES,
-          level: LogLevel.ERROR,
-          status: 400,
-          message: 'Invalid schedule provided.',
-          workspaceId: assistant.workspaceId,
-          assistantId: assistant.id,
-          threadId: thread.id,
-        },
-        prisma,
-      })
-      return { ok: false as const, error: parsed.error.toString() }
-    }
+  logMessagesError({
+    prisma,
+    requestMethod: LogRequestMethod.POST,
+    status: 400,
+    message: argsCheck.logMessage,
+    workspaceId: assistant.workspaceId,
+    assistantId: assistant.id,
+    threadId: thread.id,
+  })
 
-    const next = getNextOccurrence({ schedule: args.schedule })
-    if (!next) {
-      const message = `Schedule must be in the future. Current time: ${formatCurrentTime({ schedule: args.schedule })}`
-
-      createLog({
-        log: {
-          requestMethod: LogRequestMethod.POST,
-          requestRoute: LogRequestRoute.MESSAGES,
-          level: LogLevel.ERROR,
-          status: 400,
-          message,
-          workspaceId: assistant.workspaceId,
-          assistantId: assistant.id,
-          threadId: thread.id,
-        },
-        prisma,
-      })
-
-      return { ok: false as const, error: message }
-    }
-  }
-
-  return { ok: true as const, args }
+  return { ok: false as const, error: argsCheck.error }
 }

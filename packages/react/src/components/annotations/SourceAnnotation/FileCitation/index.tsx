@@ -27,10 +27,9 @@ export const FileCitation = ({
 
       <Dialog.Root
         open={!!activeFileId}
-        onOpenChange={(open) => {
-          if (!open) {
-            setActiveFileId(null)
-          }
+        // Without a Dialog.Trigger, the dialog only ever asks to close.
+        onOpenChange={() => {
+          setActiveFileId(null)
         }}
       >
         <Dialog.Content

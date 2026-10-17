@@ -6,25 +6,20 @@ import {
   ClientToolHandlerType,
 } from '@prisma/client'
 import { z } from 'zod'
-import { isJSON } from '@/lib/misc/isJSON'
+import { jsonStringSchema } from '@/lib/misc/jsonStringSchema'
+import { addNestedSchemaIssues } from '@/lib/misc/addNestedSchemaIssues'
 
 const requestHandlerSchema = z.object({
   method: z.nativeEnum(MethodType),
   url: z.string().min(1).url(),
-  headers: z.string().min(1).refine(isJSON, {
-    message: 'Must be a valid JSON string.',
-  }),
-  body: z.string().min(1).refine(isJSON, {
-    message: 'Must be a valid JSON string.',
-  }),
+  headers: jsonStringSchema,
+  body: jsonStringSchema,
 })
 
 const firecrawlHandlerSchema = z.object({
   type: z.nativeEnum(FirecrawlHandlerType),
   apiKey: z.string().min(1),
-  body: z.string().min(1).refine(isJSON, {
-    message: 'Must be a valid JSON string.',
-  }),
+  body: jsonStringSchema,
 })
 
 const assistantHandlerSchema = z.object({
@@ -35,155 +30,86 @@ const replicateHandlerSchema = z.object({
   type: z.nativeEnum(ReplicateHandlerType),
   identifier: z.string().min(1),
   apiKey: z.string().min(1),
-  body: z.string().min(1).refine(isJSON, {
-    message: 'Must be a valid JSON string.',
-  }),
+  body: jsonStringSchema,
 })
 
 const clientToolHandlerSchema = z.object({
   type: z.nativeEnum(ClientToolHandlerType),
   name: z.string().min(1),
-  arguments: z.string().min(1).refine(isJSON, {
-    message: 'Must be a valid JSON string.',
-  }),
+  arguments: jsonStringSchema,
 })
 
 const taskHandlerSchema = z.object({
   keyTemplate: z.string(),
 })
 
+// The handler field each handler type requires, with its schema.
+const requiredHandlers = [
+  {
+    type: HandlerType.REQUEST,
+    key: 'requestHandler',
+    schema: requestHandlerSchema,
+  },
+  {
+    type: HandlerType.FIRECRAWL,
+    key: 'firecrawlHandler',
+    schema: firecrawlHandlerSchema,
+  },
+  {
+    type: HandlerType.ASSISTANT,
+    key: 'assistantHandler',
+    schema: assistantHandlerSchema,
+  },
+  {
+    type: HandlerType.REPLICATE,
+    key: 'replicateHandler',
+    schema: replicateHandlerSchema,
+  },
+  {
+    type: HandlerType.CLIENT_TOOL,
+    key: 'clientToolHandler',
+    schema: clientToolHandlerSchema,
+  },
+  {
+    type: HandlerType.CREATE_TASK,
+    key: 'createTaskHandler',
+    schema: taskHandlerSchema,
+  },
+  {
+    type: HandlerType.LIST_TASKS,
+    key: 'listTasksHandler',
+    schema: taskHandlerSchema,
+  },
+  {
+    type: HandlerType.UPDATE_TASK,
+    key: 'updateTaskHandler',
+    schema: taskHandlerSchema,
+  },
+  {
+    type: HandlerType.DELETE_TASK,
+    key: 'deleteTaskHandler',
+    schema: taskHandlerSchema,
+  },
+] as const
+
+// baseSchema accepts every handler field as optional; this requires the one
+// matching the handler type. An invalid handler that baseSchema already
+// reported is reported again here.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const superRefine = (values: any, ctx: any) => {
-  if (values.handler.type === HandlerType.REQUEST) {
-    const result = requestHandlerSchema.safeParse(values.handler.requestHandler)
-
-    if (result.success) return
-
-    result.error.issues.forEach((issue) =>
-      ctx.addIssue({
-        ...issue,
-        path: ['handler', 'requestHandler', ...issue.path],
+export const superRefine = (values: any, ctx: any) =>
+  requiredHandlers
+    .filter(({ type }) => type === values.handler.type)
+    .forEach(({ key, schema }) =>
+      addNestedSchemaIssues({
+        ctx,
+        schema,
+        value: values.handler[key],
+        path: ['handler', key],
       }),
     )
-  }
-
-  if (values.handler.type === HandlerType.FIRECRAWL) {
-    const result = firecrawlHandlerSchema.safeParse(
-      values.handler.firecrawlHandler,
-    )
-
-    if (result.success) return
-
-    result.error.issues.forEach((issue) =>
-      ctx.addIssue({
-        ...issue,
-        path: ['handler', 'firecrawlHandler', ...issue.path],
-      }),
-    )
-  }
-
-  if (values.handler.type === HandlerType.ASSISTANT) {
-    const result = assistantHandlerSchema.safeParse(
-      values.handler.assistantHandler,
-    )
-
-    if (result.success) return
-
-    result.error.issues.forEach((issue) =>
-      ctx.addIssue({
-        ...issue,
-        path: ['handler', 'assistantHandler', ...issue.path],
-      }),
-    )
-  }
-
-  if (values.handler.type === HandlerType.REPLICATE) {
-    const result = replicateHandlerSchema.safeParse(
-      values.handler.replicateHandler,
-    )
-
-    if (result.success) return
-
-    result.error.issues.forEach((issue) =>
-      ctx.addIssue({
-        ...issue,
-        path: ['handler', 'replicateHandler', ...issue.path],
-      }),
-    )
-  }
-
-  if (values.handler.type === HandlerType.CLIENT_TOOL) {
-    const result = clientToolHandlerSchema.safeParse(
-      values.handler.clientToolHandler,
-    )
-
-    if (result.success) return
-
-    result.error.issues.forEach((issue) =>
-      ctx.addIssue({
-        ...issue,
-        path: ['handler', 'clientToolHandler', ...issue.path],
-      }),
-    )
-  }
-
-  if (values.handler.type === HandlerType.CREATE_TASK) {
-    const result = taskHandlerSchema.safeParse(values.handler.createTaskHandler)
-
-    if (result.success) return
-
-    result.error.issues.forEach((issue) =>
-      ctx.addIssue({
-        ...issue,
-        path: ['handler', 'createTaskHandler', ...issue.path],
-      }),
-    )
-  }
-
-  if (values.handler.type === HandlerType.LIST_TASKS) {
-    const result = taskHandlerSchema.safeParse(values.handler.listTasksHandler)
-
-    if (result.success) return
-
-    result.error.issues.forEach((issue) =>
-      ctx.addIssue({
-        ...issue,
-        path: ['handler', 'listTasksHandler', ...issue.path],
-      }),
-    )
-  }
-
-  if (values.handler.type === HandlerType.UPDATE_TASK) {
-    const result = taskHandlerSchema.safeParse(values.handler.updateTaskHandler)
-
-    if (result.success) return
-
-    result.error.issues.forEach((issue) =>
-      ctx.addIssue({
-        ...issue,
-        path: ['handler', 'updateTaskHandler', ...issue.path],
-      }),
-    )
-  }
-
-  if (values.handler.type === HandlerType.DELETE_TASK) {
-    const result = taskHandlerSchema.safeParse(values.handler.deleteTaskHandler)
-
-    if (result.success) return
-
-    result.error.issues.forEach((issue) =>
-      ctx.addIssue({
-        ...issue,
-        path: ['handler', 'deleteTaskHandler', ...issue.path],
-      }),
-    )
-  }
-}
 
 export const baseSchema = z.object({
-  openapiSpec: z.string().min(1).refine(isJSON, {
-    message: 'Must be a valid JSON string.',
-  }),
+  openapiSpec: jsonStringSchema,
   handler: z.object({
     type: z.nativeEnum(HandlerType),
     requestHandler: requestHandlerSchema.nullable().optional(),

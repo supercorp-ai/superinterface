@@ -5,13 +5,9 @@ export const getOrganizationApiKey = async ({
   authorization,
   prisma,
 }: {
-  authorization: string | null
+  authorization: string
   prisma: PrismaClient
 }): Promise<OrganizationApiKey | null> => {
-  if (!authorization) {
-    return null
-  }
-
   const [, organizationApiKeyValue] = authorization.split('Bearer ')
 
   if (!validate(organizationApiKeyValue)) {

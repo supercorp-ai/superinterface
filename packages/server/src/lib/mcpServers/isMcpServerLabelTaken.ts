@@ -1,7 +1,10 @@
 import type { PrismaClient } from '@prisma/client'
 import { getMcpServerLabel } from '@/lib/mcpServers/getMcpServerLabel'
 import { normalizeMcpServerName } from '@/lib/mcpServers/normalizeMcpServerName'
+import { isValidMcpServerLabel } from '@/lib/mcpServers/isValidMcpServerLabel'
 
+// Whether another MCP server of the assistant already uses the label,
+// compared case-insensitively. Servers without a name are labeled by id.
 export const isMcpServerLabelTaken = async ({
   prisma,
   assistantId,
@@ -30,34 +33,15 @@ export const isMcpServerLabelTaken = async ({
     },
   })
 
-  const normalizedTarget = normalizeMcpServerName(label)
-
-  if (!/[a-zA-Z0-9]/.test(normalizedTarget)) {
-    return false
-  }
-
-  const targetLower = normalizedTarget.toLowerCase()
+  // Callers only pass labels that already contain an alphanumeric character.
+  const targetLower = normalizeMcpServerName(label).toLowerCase()
 
   return existing.some((server) => {
-    const normalizedExisting = server.name
-      ? normalizeMcpServerName(server.name)
-      : null
-
-    if (normalizedExisting && /[a-zA-Z0-9]/.test(normalizedExisting)) {
-      if (normalizedExisting.toLowerCase() === targetLower) {
-        return true
-      }
-    }
-
-    const fallback = getMcpServerLabel({
-      id: server.id,
-      name: server.name,
-    })
-    const normalizedFallback = normalizeMcpServerName(fallback)
+    const existingLabel = normalizeMcpServerName(getMcpServerLabel(server))
 
     return (
-      /[a-zA-Z0-9]/.test(normalizedFallback) &&
-      normalizedFallback.toLowerCase() === targetLower
+      isValidMcpServerLabel({ label: existingLabel }) &&
+      existingLabel.toLowerCase() === targetLower
     )
   })
 }

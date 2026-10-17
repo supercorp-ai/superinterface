@@ -1,19 +1,15 @@
-import {
-  Cross1Icon,
-} from '@radix-ui/react-icons'
-import {
-  IconButton,
-  Flex,
-} from '@radix-ui/themes'
+import { Cross1Icon } from '@radix-ui/react-icons'
+import { IconButton, Flex } from '@radix-ui/themes'
 import { useThreadDialogContext } from '@/hooks/threads/useThreadDialogContext'
 
 export const Close = () => {
-  const { setIsOpen, isOpen } = useThreadDialogContext()
+  const { setIsOpen } = useThreadDialogContext()
 
   return (
     <Flex
       display={{
-        initial: isOpen ? 'flex' : 'none',
+        // Only rendered by Content.Root, which renders nothing while closed.
+        initial: 'flex',
         sm: 'none',
       }}
       onClick={() => setIsOpen((prev) => !prev)}
@@ -23,7 +19,7 @@ export const Close = () => {
       align="end"
       position="absolute"
       top="24px"
-      right='24px'
+      right="24px"
       style={{
         zIndex: 9999999999,
       }}

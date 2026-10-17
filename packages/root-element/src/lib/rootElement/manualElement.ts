@@ -7,9 +7,9 @@ export const manualElement = ({
 }) => {
   const scriptTagId = getScriptTagId({ currentScript })
 
-  if (!scriptTagId) {
-    return null
-  }
-
-  return document.querySelector(`.superinterface-root[data-script-tag-id="${scriptTagId}"]`)
+  return scriptTagId
+    ? document.querySelector(
+        `.superinterface-root[data-script-tag-id="${scriptTagId}"]`,
+      )
+    : null
 }

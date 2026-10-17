@@ -34,7 +34,8 @@ const occurrences = async ({
 }) => {
   const getScheduleOccurrences = await loadGetScheduleOccurrences()
 
-  return getScheduleOccurrences(schedule as Schedule, {
+  return getScheduleOccurrences({
+    schedule: schedule as Schedule,
     lookAheadDays,
     maxOccurrences,
   }).map((occurrence) => occurrence.toISOString())

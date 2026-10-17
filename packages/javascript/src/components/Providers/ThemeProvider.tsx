@@ -1,25 +1,16 @@
-import {
-  useSuperinterfaceContext,
-  useAssistant,
-} from '@superinterface/react'
+import { useSuperinterfaceContext, useAssistant } from '@superinterface/react'
 import { Theme } from '@radix-ui/themes'
 
-export const ThemeProvider = ({
-  children,
-}: {
-  children: React.ReactNode
-}) => {
+export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const superinterfaceContext = useSuperinterfaceContext()
 
   const { assistant } = useAssistant({
     assistantId: superinterfaceContext.variables.assistantId,
   })
 
-  if (!assistant) {
-    return null
-  }
-
-  return (
+  // React renders null and undefined alike, so the missing-assistant case is
+  // folded into the one return.
+  return assistant ? (
     <Theme
       accentColor={assistant.theme.accentColor}
       grayColor={assistant.theme.grayColor}
@@ -31,5 +22,5 @@ export const ThemeProvider = ({
     >
       {children}
     </Theme>
-  )
+  ) : null
 }

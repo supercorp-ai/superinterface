@@ -144,13 +144,11 @@ const main = async () => {
 
       const taskEntries = taskGroup
         .map((task) => {
-          const occurrences = getScheduleOccurrences(
-            task.schedule as PrismaJson.TaskSchedule,
-            {
-              lookAheadDays: LOOKAHEAD_DAYS,
-              maxOccurrences: MAX_OCCURRENCES,
-            },
-          )
+          const occurrences = getScheduleOccurrences({
+            schedule: task.schedule as PrismaJson.TaskSchedule,
+            lookAheadDays: LOOKAHEAD_DAYS,
+            maxOccurrences: MAX_OCCURRENCES,
+          })
           occurrencesMap.set(task.id, occurrences)
           return {
             task,

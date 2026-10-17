@@ -1,70 +1,16 @@
 import OpenAI from 'openai'
-import {
-  ModelProviderType,
-  Prisma,
-  Thread,
-  LogRequestMethod,
-  LogRequestRoute,
-  LogLevel,
-  ToolType,
-  type PrismaClient,
-} from '@prisma/client'
-import { createLog } from '@/lib/logs/createLog'
+import { Prisma, Thread, ToolType, type PrismaClient } from '@prisma/client'
 import { closeMcpConnection } from '@/lib/mcpServers/closeMcpConnection'
-import {
-  CallToolResultSchema,
-  CallToolResult,
-} from '@modelcontextprotocol/sdk/types.js'
 import { connectMcpServer } from '@/lib/mcpServers/connectMcpServer'
 import type { McpConnection } from '@/types'
 import { getComputerCallActions } from '@/lib/computerCalls/getComputerCallActions'
-
-const getContent = ({
-  mcpServerToolOutput,
-}: {
-  mcpServerToolOutput: CallToolResult
-}) => mcpServerToolOutput.content.find((c) => c.type === 'image')
-
-const getImageUrl = ({
-  mcpServerToolOutput,
-}: {
-  mcpServerToolOutput: CallToolResult
-}) => {
-  const content = getContent({ mcpServerToolOutput })
-  if (!content) return null
-
-  return `data:${content.mimeType};base64,${content.data}`
-}
-
-const serializeOutput = ({
-  assistant,
-  imageUrl,
-}: {
-  assistant: Prisma.AssistantGetPayload<{
-    include: {
-      modelProvider: true
-    }
-  }>
-  imageUrl: string
-}) => {
-  if (assistant.modelProvider.type === ModelProviderType.ANTHROPIC) {
-    return [
-      {
-        type: 'image',
-        source: {
-          type: 'base64',
-          media_type: 'image/png',
-          data: imageUrl.split(',')[1],
-        },
-      },
-    ]
-  }
-
-  return JSON.stringify({
-    type: 'computer_screenshot',
-    image_url: imageUrl,
-  })
-}
+import {
+  failToolCall,
+  type ToolCallLogScope,
+} from '@/lib/toolCalls/failToolCall'
+import { callComputerActions } from './callComputerActions'
+import { computerCallOutput } from './computerCallOutput'
+import { COMPUTER_CALL_TOOL_NAME } from './constants'
 
 export const handleComputerCall = async ({
   assistant,
@@ -96,29 +42,27 @@ export const handleComputerCall = async ({
   thread: Thread
   prisma: PrismaClient
 }) => {
+  const scope: ToolCallLogScope = {
+    workspaceId: assistant.workspaceId,
+    assistantId: assistant.id,
+    threadId: thread.id,
+  }
+
   const tool = assistant.tools.find(
     (tool) => tool.type === ToolType.COMPUTER_USE,
   )
 
-  if (!tool || !tool.computerUseTool || !tool.computerUseTool.mcpServer) {
-    createLog({
-      log: {
-        requestMethod: LogRequestMethod.POST,
-        requestRoute: LogRequestRoute.MESSAGES,
-        level: LogLevel.ERROR,
-        status: 500,
-        message: 'No computer use tool configured.',
-        workspaceId: assistant.workspaceId,
-        assistantId: assistant.id,
-        threadId: thread.id,
-      },
+  // Every COMPUTER_USE tool is created together with its computerUseTool.
+  const mcpServer = tool?.computerUseTool!.mcpServer
+
+  if (!mcpServer) {
+    return failToolCall({
+      toolCall,
+      scope,
+      message: 'No computer use tool configured.',
+      output: 'No computer use tool configured.',
       prisma,
     })
-
-    return {
-      tool_call_id: toolCall.id,
-      output: 'No computer use tool configured.',
-    }
   }
 
   const { actions, acknowledgedSafetyChecks } = getComputerCallActions({
@@ -134,116 +78,47 @@ export const handleComputerCall = async ({
 
   const rawAction = actions.length === 1 ? actions[0] : actions
 
-  let mcpConnection: McpConnection | null = null
+  let mcpConnection: McpConnection | undefined
+
   try {
-    const connection = await connectMcpServer({
+    ;({ mcpConnection } = await connectMcpServer({
       thread,
       assistant,
-      mcpServer: tool.computerUseTool.mcpServer,
+      mcpServer,
       prisma,
+    }))
+
+    const mcpServerToolOutput = await callComputerActions({
+      mcpConnection,
+      actions,
     })
-    mcpConnection = connection.mcpConnection
-
-    let mcpServerToolOutput: CallToolResult | null = null
-
-    for (const action of actions) {
-      mcpServerToolOutput = (await mcpConnection.client.callTool(
-        {
-          name: 'computer_call',
-          arguments: { action },
-        },
-        CallToolResultSchema,
-        {
-          timeout: 300000,
-        },
-      )) as CallToolResult
-    }
-
-    if (!mcpServerToolOutput) {
-      throw new Error('No computer output returned.')
-    }
-
-    const imageUrl = getImageUrl({
-      mcpServerToolOutput,
-    })
-
-    if (!imageUrl) {
-      const screenshotOutput = (await mcpConnection.client.callTool(
-        {
-          name: 'computer_call',
-          arguments: {
-            action: { type: 'screenshot' },
-          },
-        },
-        CallToolResultSchema,
-        {
-          timeout: 300000,
-        },
-      )) as CallToolResult
-
-      const screenshotUrl = getImageUrl({
-        mcpServerToolOutput: screenshotOutput,
-      })
-
-      if (screenshotUrl) {
-        return {
-          tool_call_id: toolCall.id,
-          output: serializeOutput({
-            imageUrl: screenshotUrl,
-            assistant,
-          }),
-          acknowledged_safety_checks: acknowledgedSafetyChecks,
-        }
-      }
-
-      return {
-        tool_call_id: toolCall.id,
-        output:
-          mcpServerToolOutput.structuredContent ??
-          mcpServerToolOutput.content ??
-          '',
-        acknowledged_safety_checks: acknowledgedSafetyChecks,
-      }
-    }
 
     return {
       tool_call_id: toolCall.id,
-      output: serializeOutput({
-        imageUrl,
+      output: await computerCallOutput({
+        mcpConnection,
+        mcpServerToolOutput,
         assistant,
       }),
       acknowledged_safety_checks: acknowledgedSafetyChecks,
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (e: any) {
-    const message = e instanceof Error ? e.message : String(e)
-    createLog({
-      log: {
-        requestMethod: LogRequestMethod.POST,
-        requestRoute: LogRequestRoute.MESSAGES,
-        level: LogLevel.ERROR,
-        status: 500,
-        message: `Error calling computer_call with action ${JSON.stringify(rawAction)}: ${message}`,
-        workspaceId: assistant.workspaceId,
-        assistantId: assistant.id,
-        threadId: thread.id,
-      },
+  } catch (e) {
+    // MCP SDK, transport and URL/header failures are all Error instances.
+    const message = `Error calling ${COMPUTER_CALL_TOOL_NAME} with action ${JSON.stringify(rawAction)}: ${(e as Error).message}`
+
+    return failToolCall({
+      toolCall,
+      scope,
+      message,
+      output: message,
       prisma,
     })
-
-    return {
-      tool_call_id: toolCall.id,
-      output: `Error calling computer_call with action ${JSON.stringify(rawAction)}: ${message}`,
-    }
   } finally {
     if (mcpConnection) {
-      try {
-        await closeMcpConnection({
-          mcpConnection,
-        })
-      } catch {
-        // Ignore close errors so the tool output is still returned.
-      }
+      // Closing the MCP SDK HTTP/SSE transports does not throw.
+      await closeMcpConnection({
+        mcpConnection,
+      })
     }
   }
 }

@@ -5,8 +5,11 @@ export const host = ({
 }: {
   superinterfaceContext: ReturnType<typeof useSuperinterfaceContext>
 }) => {
-  if (!superinterfaceContext.baseUrl) return ''
-  if (!/^https?:\/\//i.test(superinterfaceContext.baseUrl)) return ''
+  const { baseUrl } = superinterfaceContext
 
-  return new URL(superinterfaceContext.baseUrl).origin
+  // SuperinterfaceProvider ignores an empty baseUrl, so there always is one,
+  // and a missing one would not be an http(s) url either.
+  if (!/^https?:\/\//i.test(String(baseUrl))) return ''
+
+  return new URL(baseUrl!).origin
 }

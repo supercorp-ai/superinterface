@@ -32,9 +32,6 @@ import { startFakeHttpEndpoint } from '../lib/startFakeHttpEndpoint'
 import { startHeldProxy } from '../lib/threads/startHeldProxy'
 import { waitForPending } from '../lib/threads/waitForPending'
 
-const SEND_FAILED =
-  'Failed to send your message, try again. If you are the owner, check the logs.'
-
 const TIMEOUT = { timeout: 15_000 }
 
 // Wraps hooks the way an app embeds Superinterface, without the UI.
@@ -190,15 +187,14 @@ describe('message hooks', () => {
       { wrapper },
     )
 
-    // BUG: the server's own reason ("No content found.") is replaced with a
-    // generic message.
+    // The server's own reason reaches the app.
     for (const { result } of [noOptions, emptyOptions, withOnError]) {
       await expect(
         result.current.createMessage({ content: '' }),
-      ).rejects.toThrow(SEND_FAILED)
+      ).rejects.toThrow('No content found.')
     }
     expect(errors).toHaveLength(1)
-    expect((errors[0] as Error).message).toBe(SEND_FAILED)
+    expect((errors[0] as Error).message).toBe('No content found.')
     expect(fakeLlm.completionRequests()).toEqual([])
   }, 60_000)
 
@@ -240,7 +236,7 @@ describe('message hooks', () => {
     await act(() =>
       expect(
         loaded.result.current.createMessage({ content: '' }),
-      ).rejects.toThrow(SEND_FAILED),
+      ).rejects.toThrow('No content found.'),
     )
     expect(contexts).toEqual([
       { prevMessages, newMessage: { ...variables, content: '' } },
@@ -258,7 +254,7 @@ describe('message hooks', () => {
     await act(() =>
       expect(
         loading.result.current.createMessage({ content: '' }),
-      ).rejects.toThrow(SEND_FAILED),
+      ).rejects.toThrow('No content found.'),
     )
     expect(contexts[1]).toEqual({
       prevMessages: undefined,
@@ -294,12 +290,10 @@ describe('message hooks', () => {
       () => expect(result.current.messages.isError).toBe(true),
       TIMEOUT,
     )
-    // BUG: the server's reasons ("No assistant id found", "No assistantId
-    // found.") are replaced with generic errors.
-    expect(result.current.messages.error?.message).toBe('Failed to fetch')
+    expect(result.current.messages.error?.message).toBe('No assistant id found')
     await expect(
       result.current.createMessage({ content: 'Anyone there?' }),
-    ).rejects.toThrow(SEND_FAILED)
+    ).rejects.toThrow('No assistantId found.')
   }, 60_000)
 
   it('gives custom message components the message they render', async () => {
