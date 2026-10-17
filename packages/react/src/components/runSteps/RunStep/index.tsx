@@ -5,11 +5,7 @@ type Args = {
   runStep: SerializedRunStep
 } & StyleProps
 
-export const RunStep = ({
-  runStep,
-  className,
-  style,
-}: Args) => {
+export const RunStep = ({ runStep, className, style }: Args) => {
   if (runStep.step_details.type === 'tool_calls') {
     return (
       <ToolCalls
@@ -20,8 +16,6 @@ export const RunStep = ({
       />
     )
   }
-
-  return null
 }
 
 RunStep.ToolCalls = ToolCalls

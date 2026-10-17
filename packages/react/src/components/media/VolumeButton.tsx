@@ -1,17 +1,6 @@
-import {
-  MuteButton,
-  useMediaState,
-  useMediaRemote,
-} from '@vidstack/react'
-import {
-  IconButton,
-  HoverCard,
-  Slider,
-} from '@radix-ui/themes'
-import {
-  SpeakerModerateIcon,
-  SpeakerOffIcon,
-} from '@radix-ui/react-icons'
+import { MuteButton, useMediaState, useMediaRemote } from '@vidstack/react'
+import { IconButton, HoverCard, Slider } from '@radix-ui/themes'
+import { SpeakerModerateIcon, SpeakerOffIcon } from '@radix-ui/react-icons'
 
 export const VolumeButton = () => {
   const volume = useMediaState('volume')
@@ -26,7 +15,8 @@ export const VolumeButton = () => {
           asChild
         >
           <MuteButton>
-            {(isMuted || volume === 0) ? <SpeakerOffIcon /> : <SpeakerModerateIcon />}
+            {/* Vidstack reports a volume of 0 as muted. */}
+            {isMuted ? <SpeakerOffIcon /> : <SpeakerModerateIcon />}
           </MuteButton>
         </IconButton>
       </HoverCard.Trigger>
@@ -40,9 +30,7 @@ export const VolumeButton = () => {
           variant="soft"
           orientation="vertical"
           value={[volume * 100]}
-          onValueChange={([value]) => (
-            remote.changeVolume(value / 100)
-          )}
+          onValueChange={([value]) => remote.changeVolume(value / 100)}
         />
       </HoverCard.Content>
     </HoverCard.Root>

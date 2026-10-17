@@ -1,6 +1,6 @@
 import { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
-import { parse } from '@babel/parser'
+import { parseExpression } from '@babel/parser'
 import * as Babel from '@babel/types'
 
 type MdxJsxElement = {
@@ -33,23 +33,28 @@ type MdxTextExpression = { type: 'mdxTextExpression'; value: string }
 
 export const remarkPureLiteralPlugin: Plugin = () => (tree) => {
   visit(tree, (node: any) => {
-    if (node.type === 'mdxJsxFlowElement' || node.type === 'mdxJsxTextElement') {
+    if (
+      node.type === 'mdxJsxFlowElement' ||
+      node.type === 'mdxJsxTextElement'
+    ) {
       const jsxEl = node as MdxJsxElement
       jsxEl.attributes.forEach((attr) => {
         if (attr.type === 'mdxJsxExpressionAttribute') {
           handleExpressionAttribute(attr, attr.value)
         } else if (
-          attr.type === 'mdxJsxAttribute' &&
-          typeof attr.value === 'object' &&
-          attr.value !== null &&
-          attr.value.type === 'mdxJsxAttributeValueExpression'
+          // Every other attribute is an `mdxJsxAttribute`: its value is a
+          // string, null for a bare attribute, or an expression.
+          attr.value?.type === 'mdxJsxAttributeValueExpression'
         ) {
           handleExpressionAttribute(attr, attr.value.value)
         }
       })
     }
 
-    if (node.type === 'mdxFlowExpression' || node.type === 'mdxTextExpression') {
+    if (
+      node.type === 'mdxFlowExpression' ||
+      node.type === 'mdxTextExpression'
+    ) {
       const exprNode = node as MdxFlowExpression | MdxTextExpression
       node.type = 'text'
       node.value = `{${exprNode.value}}`
@@ -62,7 +67,7 @@ export const remarkPureLiteralPlugin: Plugin = () => (tree) => {
 
 const handleExpressionAttribute = (
   attr: MdxJsxExpressionAttribute | MdxJsxAttribute,
-  rawExpression: string
+  rawExpression: string,
 ) => {
   if (!checkIfPureLiteral(rawExpression)) {
     attr.type = 'mdxJsxAttribute'
@@ -72,22 +77,22 @@ const handleExpressionAttribute = (
 
 const fixRawExpression = (rawExpr: string): string => `(${rawExpr.trim()})`
 
+// MDX only hands over expressions that parse as one JavaScript expression;
+// `parseExpression` throws on anything else.
 const checkIfPureLiteral = (rawExpr: string): boolean => {
   try {
-    const ast = parse(fixRawExpression(rawExpr), {
-      sourceType: 'unambiguous',
-      plugins: ['jsx', 'typescript']
-    })
-    if (ast.program.body.length !== 1) return false
-    const stmt = ast.program.body[0]
-    return Babel.isExpressionStatement(stmt) && isNodePureLiteral(stmt.expression)
+    return isNodePureLiteral(
+      parseExpression(fixRawExpression(rawExpr), {
+        sourceType: 'unambiguous',
+        plugins: ['jsx', 'typescript'],
+      }),
+    )
   } catch {
     return false
   }
 }
 
-const isNodePureLiteral = (node: Babel.Node | null | undefined): boolean => {
-  if (!node) return false
+const isNodePureLiteral = (node: Babel.Node): boolean => {
   if (
     Babel.isNumericLiteral(node) ||
     Babel.isStringLiteral(node) ||
@@ -113,7 +118,7 @@ const isNodePureLiteral = (node: Babel.Node | null | undefined): boolean => {
         (Babel.isIdentifier(prop.key) ||
           Babel.isStringLiteral(prop.key) ||
           Babel.isNumericLiteral(prop.key)) &&
-        isNodePureLiteral(prop.value)
+        isNodePureLiteral(prop.value),
     )
   }
   if (Babel.isArrayExpression(node)) {

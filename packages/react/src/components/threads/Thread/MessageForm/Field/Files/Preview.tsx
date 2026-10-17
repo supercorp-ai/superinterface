@@ -1,14 +1,5 @@
-import {
-  Flex,
-  Card,
-  Spinner,
-  Text,
-  IconButton,
-} from '@radix-ui/themes'
-import {
-  FileIcon,
-  Cross2Icon,
-} from '@radix-ui/react-icons'
+import { Flex, Card, Spinner, Text, IconButton } from '@radix-ui/themes'
+import { FileIcon, Cross2Icon } from '@radix-ui/react-icons'
 import { useMessageFormContext } from '@/hooks/messages/useMessageFormContext'
 import { isOptimistic } from '@/lib/optimistic/isOptimistic'
 import type { StyleProps } from '@/types'
@@ -17,7 +8,7 @@ export const Preview = (props: StyleProps) => {
   const { files, setFiles } = useMessageFormContext()
 
   if (!files.length) {
-    return null
+    return
   }
 
   return (
@@ -45,12 +36,8 @@ export const Preview = (props: StyleProps) => {
               minWidth="0"
               maxWidth="250px"
             >
-              <Flex
-                flexShrink="0"
-              >
-                <Spinner
-                  loading={isOptimistic({ id: file.id })}
-                >
+              <Flex flexShrink="0">
+                <Spinner loading={isOptimistic({ id: file.id })}>
                   <FileIcon />
                 </Spinner>
               </Flex>
@@ -64,15 +51,13 @@ export const Preview = (props: StyleProps) => {
               </Text>
             </Flex>
 
-            <Flex
-              flexShrink="0"
-            >
+            <Flex flexShrink="0">
               <IconButton
-                onClick={() => (
-                  setFiles((prev) => (
-                    prev.filter((prevFile) => prevFile.id !== file.id)
-                  ))
-                )}
+                onClick={() =>
+                  setFiles((prev) =>
+                    prev.filter((prevFile) => prevFile.id !== file.id),
+                  )
+                }
                 color="gray"
                 variant="ghost"
                 size="1"

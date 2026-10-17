@@ -16,9 +16,11 @@
   "scripts": {
     "build": "tsup",
     "lint": "tsc --noEmit",
-    "metafile": "tsup --metafile"
+    "metafile": "tsup --metafile",
+    "test": "playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
     "tsup": "^8.4.0"
   }
 }

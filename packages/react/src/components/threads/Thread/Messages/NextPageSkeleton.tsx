@@ -10,7 +10,7 @@ export const NextPageSkeleton = () => {
   } = useComponents()
 
   if (!hasNextPage) {
-    return null
+    return
   }
 
   return <MessagesSkeleton />

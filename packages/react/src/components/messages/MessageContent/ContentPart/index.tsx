@@ -53,6 +53,4 @@ export const ContentPart = ({
   if (content.type === 'image_url') {
     return <ImageUrlContent content={content} />
   }
-
-  return null
 }

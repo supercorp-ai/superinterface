@@ -43,26 +43,19 @@ export const useRecorder = ({ isStopOnSilence, onStart, onStop }: Args) => {
       isInited.current = false
       if (onStart) onStart(event, opts)
 
-      setSilenceStart(null)
       setNoiseStart(null)
     },
     onStop: async (...args) => {
       // endAudioPlayer.play()
       setStatus('stopped')
       if (onStop) await onStop(...args)
-      setSilenceStart(null)
-      setNoiseStart(null)
     },
     onPause: () => {
       setStatus('paused')
-
-      setSilenceStart(null)
-      setNoiseStart(null)
     },
     onResume: () => {
       setStatus('recording')
 
-      setSilenceStart(null)
       setNoiseStart(null)
     },
   })
@@ -111,11 +104,9 @@ export const useRecorder = ({ isStopOnSilence, onStart, onStop }: Args) => {
 
     const isSilent = frequencyData.every((f) => f === 0)
 
-    setSilenceStart((silenceStart: Dayjs | null) => {
-      if (isSilent) return silenceStart || dayjs()
-
-      return null
-    })
+    setSilenceStart((silenceStart: Dayjs | null) =>
+      isSilent ? silenceStart || dayjs() : null,
+    )
 
     setNoiseStart((noiseStart: Dayjs | null) => {
       if (isSilent) return noiseStart
