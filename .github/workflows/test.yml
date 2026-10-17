@@ -1,0 +1,131 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SUPERCOV_VERSION: 4.15.0
+  # Real-provider integration tests skip themselves when these are empty or
+  # rejected, so the suite passes without them.
+  TEST_OPENAI_API_KEY: ${{ secrets.TEST_OPENAI_API_KEY }}
+  TEST_ANTHROPIC_API_KEY: ${{ secrets.TEST_ANTHROPIC_API_KEY }}
+  TEST_GOOGLE_API_KEY: ${{ secrets.TEST_GOOGLE_API_KEY }}
+  TEST_OPENROUTER_API_KEY: ${{ secrets.TEST_OPENROUTER_API_KEY }}
+  TEST_AZURE_OPENAI_API_KEY: ${{ secrets.TEST_AZURE_OPENAI_API_KEY }}
+  TEST_AZURE_OPENAI_ENDPOINT: ${{ secrets.TEST_AZURE_OPENAI_ENDPOINT }}
+  TEST_AZURE_AI_PROJECT_ENDPOINT: ${{ secrets.TEST_AZURE_AI_PROJECT_ENDPOINT }}
+  TEST_AZURE_TENANT_ID: ${{ secrets.TEST_AZURE_TENANT_ID }}
+  TEST_AZURE_CLIENT_ID: ${{ secrets.TEST_AZURE_CLIENT_ID }}
+  TEST_AZURE_CLIENT_SECRET: ${{ secrets.TEST_AZURE_CLIENT_SECRET }}
+
+jobs:
+  server:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: packages/server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+        working-directory: .
+      - run: npx prisma generate
+      # The server imports @superinterface/react/server from its build.
+      - run: npm run build
+        working-directory: packages/react
+      - run: npx -y supercov@$SUPERCOV_VERSION -- npm run test
+      - run: node ../../.github/scripts/checkCoverage.mjs --lines 100 --branches 100 --mcdc 100
+
+  react:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: packages/react
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+        working-directory: .
+      # The e2e tests start the real server (next dev) against Postgres.
+      - run: npx prisma generate
+        working-directory: packages/server
+      # The server it starts imports @superinterface/react/server from the build.
+      - run: npm run build
+      - run: npx -y supercov@$SUPERCOV_VERSION -- npx vitest run
+      # Two MC/DC conditions are known to be unreachable for now (React 19.2
+      # <Activity>, threadIdStorageOptions={null}).
+      - run: node ../../.github/scripts/checkCoverage.mjs --lines 100 --branches 99.3 --mcdc 99.4
+
+  embeds:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+        working-directory: packages/server
+      - run: npx playwright install --with-deps chromium
+      # The script-tag bundles include the built react and root-element packages.
+      - run: npm run build
+        working-directory: packages/root-element
+      - run: npm run build
+        working-directory: packages/react
+      - run: npx -y supercov@$SUPERCOV_VERSION -- sh -c "npm run build && npx playwright test"
+        working-directory: packages/root-element
+      - run: node ../../.github/scripts/checkCoverage.mjs --lines 100 --branches 100 --mcdc 100
+        working-directory: packages/root-element
+      - run: npx -y supercov@$SUPERCOV_VERSION -- sh -c "npm run build && npx playwright test"
+        working-directory: packages/javascript
+      - run: node ../../.github/scripts/checkCoverage.mjs --lines 100 --branches 100 --mcdc 100
+        working-directory: packages/javascript
