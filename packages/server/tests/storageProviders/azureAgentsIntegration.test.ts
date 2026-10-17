@@ -14,6 +14,7 @@ import { createTestApiKey } from '../lib/apiKeys/createTestApiKey'
 import { createTestAssistant } from '../lib/assistants/createTestAssistant'
 import { NextRequest } from 'next/server'
 import { buildPOST } from '@/app/api/messages/buildRoute'
+import { azureCredentialsSkipReason } from '../lib/providers/azureCredentialsSkipReason'
 
 const buildAzureAiProjectClient = () => {
   if (
@@ -37,7 +38,10 @@ const buildAzureAiProjectClient = () => {
   )
 }
 
-describe('Azure Agents Integration Tests', () => {
+// These call the real Azure APIs, so they only run with usable credentials.
+const skip = await azureCredentialsSkipReason()
+
+describe('Azure Agents Integration Tests', { skip }, () => {
   it('should handle FILE_SEARCH tool with empty vector store without crashing', async () => {
     const azureClient = buildAzureAiProjectClient()
 

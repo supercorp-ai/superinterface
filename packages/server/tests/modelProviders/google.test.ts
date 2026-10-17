@@ -13,10 +13,17 @@ import { createTestApiKey } from '../lib/apiKeys/createTestApiKey'
 import { createTestAssistant } from '../lib/assistants/createTestAssistant'
 import { clientAdapter } from '@/lib/modelProviders/clientAdapter'
 import { buildPOST } from '@/app/api/messages/buildRoute'
+import { googleSkipReason } from '../lib/providers/googleSkipReason'
 
 type ClientAdapterArgs = Parameters<typeof clientAdapter>[0]
 
 const googleApiKey = process.env.TEST_GOOGLE_API_KEY
+
+// The integration tests call the real Gemini API, so they only run with a
+// key that can make requests.
+const googleIntegrationSkip = await googleSkipReason({
+  model: 'gemini-3-flash-preview',
+})
 
 describe('Google', () => {
   describe('clientAdapter', () => {
@@ -73,7 +80,7 @@ describe('Google', () => {
     })
   })
 
-  describe('integration', () => {
+  describe('integration', { skip: googleIntegrationSkip }, () => {
     it('should send message and receive response via Google', async () => {
       if (!googleApiKey) {
         console.log('Skipping: TEST_GOOGLE_API_KEY not set')

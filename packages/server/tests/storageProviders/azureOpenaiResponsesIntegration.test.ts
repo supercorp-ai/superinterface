@@ -14,13 +14,17 @@ import { createTestApiKey } from '../lib/apiKeys/createTestApiKey'
 import { createTestAssistant } from '../lib/assistants/createTestAssistant'
 import { NextRequest } from 'next/server'
 import { buildPOST } from '@/app/api/messages/buildRoute'
+import { azureCredentialsSkipReason } from '../lib/providers/azureCredentialsSkipReason'
 
 type StreamEvent = {
   event?: string
   data?: Record<string, unknown>
 }
 
-describe('Azure OpenAI Responses API Integration Tests', () => {
+// These call the real Azure APIs, so they only run with usable credentials.
+const skip = await azureCredentialsSkipReason()
+
+describe('Azure OpenAI Responses API Integration Tests', { skip }, () => {
   it('should create conversation and send messages using Azure OpenAI Responses API', async () => {
     // Debug: Check if Azure AI Project Client returns a client with responses API
     const { AIProjectClient } = await import('@azure/ai-projects-v2')

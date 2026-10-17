@@ -18,7 +18,6 @@ import {
 import { AIProjectClient as AIProjectClientV1 } from '@azure/ai-projects'
 import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
 import { isResponsesStorageProvider } from '@/lib/storageProviders/isResponsesStorageProvider'
-import { isAzureAgentsStorageProvider } from '@/lib/storageProviders/isAzureAgentsStorageProvider'
 import { clientAdapter } from '@/lib/modelProviders/clientAdapter'
 import { buildGetOpenaiAssistant } from './buildGetOpenaiAssistant'
 import { getAzureAiProjectClient } from '@/lib/modelProviders/getAzureAiProjectClient'
@@ -63,24 +62,15 @@ const storageAdapter = ({
     return openaiResponsesStorageAdapter({ deferItemCreationUntilRun: true })
   }
 
-  if (
-    isAzureAgentsStorageProvider({
-      storageProviderType: assistant.storageProviderType,
-    })
-  ) {
-    const azureAiProject = getAzureAiProjectClient({
-      modelProvider: assistant.modelProvider,
-      storageProviderType: assistant.storageProviderType,
-    })
-    return azureAgentsStorageAdapter({
-      azureAiProject: azureAiProject as AIProjectClientV1,
-      prisma,
-    })
-  }
-
-  throw new Error(
-    `Invalid storage provider type: ${assistant.storageProviderType}`,
-  )
+  // The only remaining storage provider type is Azure Agents.
+  const azureAiProject = getAzureAiProjectClient({
+    modelProvider: assistant.modelProvider,
+    storageProviderType: assistant.storageProviderType,
+  })
+  return azureAgentsStorageAdapter({
+    azureAiProject: azureAiProject as AIProjectClientV1,
+    prisma,
+  })
 }
 
 const runAdapter = ({
@@ -143,23 +133,14 @@ const runAdapter = ({
     })
   }
 
-  if (
-    isAzureAgentsStorageProvider({
-      storageProviderType: assistant.storageProviderType,
-    })
-  ) {
-    const azureAiProject = getAzureAiProjectClient({
-      modelProvider: assistant.modelProvider,
-      storageProviderType: assistant.storageProviderType,
-    })
-    return azureAgentsRunAdapter({
-      azureAiProject: azureAiProject as AIProjectClientV1,
-    })
-  }
-
-  throw new Error(
-    `Invalid storage provider type: ${assistant.storageProviderType}`,
-  )
+  // The only remaining storage provider type is Azure Agents.
+  const azureAiProject = getAzureAiProjectClient({
+    modelProvider: assistant.modelProvider,
+    storageProviderType: assistant.storageProviderType,
+  })
+  return azureAgentsRunAdapter({
+    azureAiProject: azureAiProject as AIProjectClientV1,
+  })
 }
 
 export const assistantClientAdapter = ({

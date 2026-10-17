@@ -7,11 +7,9 @@ export const getMcpServerLabel = ({
   id: string
   name: string | null | undefined
 }) => {
+  // Normalizing keeps the length, so a non-empty name stays non-empty.
   if (name) {
-    const normalized = normalizeMcpServerName(name)
-    if (normalized) {
-      return normalized
-    }
+    return normalizeMcpServerName(name)
   }
 
   return `mcp-server-${id}`

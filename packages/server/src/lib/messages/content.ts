@@ -1,7 +1,11 @@
-import { ModelProviderType, Prisma } from '@prisma/client'
-import { toFile } from 'openai'
-import { buildOpenaiClient } from '@/lib/modelProviders/buildOpenaiClient'
+import type { Prisma } from '@prisma/client'
 import { isEmpty } from 'radash'
+import { openaiModelProvider } from './openaiModelProvider'
+import { dataUrlBase64 } from './dataUrlBase64'
+import { transcribeAudio } from './transcribeAudio'
+
+// Stands in for the transcript of audio with no payload.
+const EMPTY_AUDIO_TRANSCRIPT = '-'
 
 type Args = {
   textContent?: string
@@ -22,39 +26,17 @@ export const content = async ({
   audioContent,
   assistant,
 }: Args) => {
-  if (textContent) {
-    return textContent
-  }
+  if (textContent) return textContent
 
-  if (audioContent) {
-    const openaiModelProvider = assistant.workspace.modelProviders.find(
-      (mp) => mp.type === ModelProviderType.OPENAI,
-    )
+  if (!audioContent) throw new Error('No content found')
 
-    if (!openaiModelProvider?.apiKey) {
-      throw new Error('No OpenAI API key found')
-    }
+  const modelProvider = openaiModelProvider({
+    modelProviders: assistant.workspace.modelProviders,
+  })
 
-    const client = buildOpenaiClient({
-      modelProvider: openaiModelProvider,
-    })
+  const base64Audio = dataUrlBase64({ dataUrl: audioContent })
 
-    const base64Content = audioContent.split(',')[1]
+  if (isEmpty(base64Audio)) return EMPTY_AUDIO_TRANSCRIPT
 
-    if (isEmpty(base64Content)) {
-      return '-'
-    }
-
-    const audioBuffer = Buffer.from(base64Content, 'base64')
-    const file = await toFile(audioBuffer, 'message.mp3')
-
-    const transcription = await client.audio.transcriptions.create({
-      file,
-      model: 'whisper-1',
-    })
-
-    return transcription.text
-  }
-
-  throw new Error('No content found')
+  return transcribeAudio({ modelProvider, base64Audio })
 }

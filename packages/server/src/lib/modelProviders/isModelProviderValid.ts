@@ -5,10 +5,6 @@ export const isModelProviderValid = ({
 }: {
   modelProvider: ModelProvider
 }) => {
-  if (modelProvider.type === ModelProviderType.OLLAMA) {
-    return !!modelProvider.endpoint
-  }
-
   if (!modelProvider.apiKey) {
     return false
   }

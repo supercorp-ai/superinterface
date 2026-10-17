@@ -1,19 +1,14 @@
 import { type NextRequest, NextResponse } from 'next/server'
-import {
-  StorageProviderType,
-  TruncationType,
-  Prisma,
-  ApiKeyType,
-  ToolType,
-  type PrismaClient,
-} from '@prisma/client'
-import { cacheHeaders } from '@/lib/cache/cacheHeaders'
-import { workspaceAccessWhere as getWorkspaceAccessWhere } from '@/lib/apiKeys/workspaceAccessWhere'
-import { serializeAssistant } from '@/lib/assistants/serializeAssistant'
-import { serializeApiAssistant } from '@/lib/assistants/serializeApiAssistant'
-import { headers } from 'next/headers'
-import { z } from 'zod'
-import { getApiKey } from '@/lib/apiKeys/getApiKey'
+import type { PrismaClient } from '@prisma/client'
+import { getAuthorizationHeader } from '@/lib/apiKeys/getAuthorizationHeader'
+import { authorizedRouteHandler } from '@/lib/apiKeys/authorizedRouteHandler'
+import { authorizeAssistantRequest } from '@/lib/assistants/authorizeAssistantRequest'
+import { corsOptionsResponse } from '@/lib/cache/corsOptionsResponse'
+import { privateAssistantResponse } from './lib/privateAssistantResponse'
+import { publicAssistantResponse } from './lib/publicAssistantResponse'
+import { updateAssistantSchema } from './lib/updateAssistantSchema'
+import { updateAssistantResponse } from './lib/updateAssistantResponse'
+import { deleteAssistantResponse } from './lib/deleteAssistantResponse'
 
 type RouteProps = {
   params: Promise<{
@@ -21,358 +16,45 @@ type RouteProps = {
   }>
 }
 
+// Private api keys in the authorization header get the full assistant,
+// public api keys in the query string get its public fields.
 export const buildGET =
   ({ prisma }: { prisma: PrismaClient }) =>
   async (request: NextRequest, props: RouteProps) => {
-    const params = await props.params
+    const { assistantId } = await props.params
 
-    const { assistantId } = params
-
-    const headersList = await headers()
-    const authorization = headersList.get('authorization')
+    const authorization = await getAuthorizationHeader()
 
     if (authorization) {
-      const privateApiKey = await getApiKey({
-        authorization,
-        type: ApiKeyType.PRIVATE,
-        prisma,
-      })
+      return privateAssistantResponse({ prisma, authorization, assistantId })
+    }
 
-      if (!privateApiKey) {
-        return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })
-      }
+    return publicAssistantResponse({ prisma, request, assistantId })
+  }
 
-      const assistant = await prisma.assistant.findUnique({
-        where: {
-          id: assistantId,
-          workspaceId: privateApiKey.workspaceId,
-        },
-        include: {
-          tools: true,
-          avatar: {
-            include: {
-              imageAvatar: true,
-              iconAvatar: true,
-            },
-          },
-        },
-      })
+export const buildPATCH = ({ prisma }: { prisma: PrismaClient }) =>
+  authorizedRouteHandler({
+    authorize: authorizeAssistantRequest({ prisma }),
+    handle: async ({ request, where }) => {
+      const parseResult = updateAssistantSchema.safeParse(await request.json())
 
-      if (!assistant) {
+      if (!parseResult.success) {
         return NextResponse.json(
-          { error: 'No assistant found' },
+          {
+            error: 'Invalid body: ' + parseResult.error.message,
+          },
           { status: 400 },
         )
       }
 
-      return NextResponse.json(
-        {
-          assistant: serializeApiAssistant({ assistant }),
-        },
-        { headers: cacheHeaders },
-      )
-    }
-
-    const workspaceAccessWhere = await getWorkspaceAccessWhere({
-      publicApiKey: request.nextUrl.searchParams.get('publicApiKey'),
-      prisma,
-    })
-
-    if (!workspaceAccessWhere) {
-      return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })
-    }
-
-    if (!assistantId) {
-      return NextResponse.json(
-        { error: 'No assistant id found' },
-        { status: 400 },
-      )
-    }
-
-    const assistant = await prisma.assistant.findFirst({
-      where: {
-        id: assistantId,
-        workspace: workspaceAccessWhere,
-      },
-      include: {
-        avatar: {
-          include: {
-            imageAvatar: true,
-            iconAvatar: true,
-          },
-        },
-      },
-    })
-
-    if (!assistant) {
-      return NextResponse.json({ error: 'No assistant found' }, { status: 400 })
-    }
-
-    return NextResponse.json(
-      {
-        assistant: serializeAssistant({ assistant }),
-      },
-      { headers: cacheHeaders },
-    )
-  }
-
-export const buildPATCH =
-  ({ prisma }: { prisma: PrismaClient }) =>
-  async (request: NextRequest, props: RouteProps) => {
-    const params = await props.params
-
-    const { assistantId } = params
-
-    const headersList = await headers()
-    const authorization = headersList.get('authorization')
-    if (!authorization) {
-      return NextResponse.json(
-        { error: 'No authorization header found' },
-        { status: 400 },
-      )
-    }
-
-    const privateApiKey = await getApiKey({
-      authorization,
-      type: ApiKeyType.PRIVATE,
-      prisma,
-    })
-
-    if (!privateApiKey) {
-      return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })
-    }
-
-    const updateSchema = z
-      .object({
-        storageProviderType: z.nativeEnum(StorageProviderType).optional(),
-        storageProviderAssistantId: z.string().nullable().optional(),
-        modelProviderId: z.string().optional(),
-        model: z.string().optional(),
-        name: z.string().optional(),
-        description: z.string().optional(),
-        instructions: z.string().optional(),
-        codeInterpreterEnabled: z.boolean().optional(),
-        fileSearchEnabled: z.boolean().optional(),
-        truncationType: z.nativeEnum(TruncationType).optional(),
-        truncationLastMessagesCount: z.number().int().nullable().optional(),
-      })
-      .superRefine((data, ctx) => {
-        if (!data.storageProviderType) return
-
-        if (
-          data.storageProviderType ===
-            StorageProviderType.SUPERINTERFACE_CLOUD &&
-          data.storageProviderAssistantId
-        ) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message:
-              'storageProviderAssistantId should not be provided for SUPERINTERFACE_CLOUD',
-            path: ['storageProviderAssistantId'],
-          })
-        }
-
-        if (
-          data.storageProviderType !==
-            StorageProviderType.SUPERINTERFACE_CLOUD &&
-          !data.storageProviderAssistantId
-        ) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message:
-              'storageProviderAssistantId is required for this storage provider',
-            path: ['storageProviderAssistantId'],
-          })
-        }
-      })
-
-    const parseResult = updateSchema.safeParse(await request.json())
-
-    if (!parseResult.success) {
-      return NextResponse.json(
-        {
-          error: 'Invalid body: ' + parseResult.error.message,
-        },
-        { status: 400 },
-      )
-    }
-
-    const {
-      storageProviderType,
-      storageProviderAssistantId,
-      modelProviderId,
-      model,
-      name,
-      description,
-      instructions,
-      codeInterpreterEnabled,
-      fileSearchEnabled,
-      truncationType,
-      truncationLastMessagesCount,
-    } = parseResult.data
-
-    // Fetch existing assistant to determine storage provider type if not provided in update
-    const existingAssistant = await prisma.assistant.findUnique({
-      where: {
-        id: assistantId,
-        workspaceId: privateApiKey.workspaceId,
-      },
-      select: {
-        storageProviderType: true,
-      },
-    })
-
-    if (!existingAssistant) {
-      return NextResponse.json({ error: 'No assistant found' }, { status: 400 })
-    }
-
-    const effectiveStorageProviderType =
-      storageProviderType ?? existingAssistant.storageProviderType
-
-    const data: Prisma.AssistantUpdateInput = {
-      ...(storageProviderType !== undefined && { storageProviderType }),
-      ...(storageProviderAssistantId !== undefined &&
-        (effectiveStorageProviderType === StorageProviderType.AZURE_AGENTS
-          ? {
-              azureAgentsAgentId: storageProviderAssistantId,
-              openaiAssistantId: null,
-              azureResponsesAgentName: null,
-            }
-          : effectiveStorageProviderType === StorageProviderType.AZURE_RESPONSES
-            ? {
-                azureResponsesAgentName: storageProviderAssistantId,
-                openaiAssistantId: null,
-                azureAgentsAgentId: null,
-              }
-            : {
-                openaiAssistantId: storageProviderAssistantId,
-                azureAgentsAgentId: null,
-                azureResponsesAgentName: null,
-              })),
-      ...(modelProviderId !== undefined && {
-        modelProvider: { connect: { id: modelProviderId } },
-      }),
-      ...(model !== undefined && { modelSlug: model }),
-      ...(name !== undefined && { name }),
-      ...(description !== undefined && { description }),
-      ...(instructions !== undefined && { instructions }),
-      ...(truncationType !== undefined && { truncationType }),
-      ...(truncationLastMessagesCount !== undefined && {
-        truncationLastMessagesCount,
-      }),
-      tools: {
-        create: [
-          ...(codeInterpreterEnabled === true
-            ? [
-                {
-                  type: ToolType.CODE_INTERPRETER,
-                  codeInterpreterTool: { create: {} },
-                },
-              ]
-            : []),
-          ...(fileSearchEnabled === true
-            ? [{ type: ToolType.FILE_SEARCH, fileSearchTool: { create: {} } }]
-            : []),
-        ],
-        deleteMany: [
-          ...(codeInterpreterEnabled === false
-            ? [{ assistantId, type: ToolType.CODE_INTERPRETER }]
-            : []),
-          ...(fileSearchEnabled === false
-            ? [{ assistantId, type: ToolType.FILE_SEARCH }]
-            : []),
-        ],
-      },
-    }
-
-    const assistant = await prisma.assistant.update({
-      where: {
-        id: assistantId,
-        workspaceId: privateApiKey.workspaceId,
-      },
-      data,
-      include: {
-        tools: true,
-        avatar: {
-          include: {
-            imageAvatar: true,
-            iconAvatar: true,
-          },
-        },
-      },
-    })
-
-    return NextResponse.json(
-      {
-        assistant: serializeApiAssistant({ assistant }),
-      },
-      { headers: cacheHeaders },
-    )
-  }
-
-export const buildDELETE =
-  ({ prisma }: { prisma: PrismaClient }) =>
-  async (_request: NextRequest, props: RouteProps) => {
-    const params = await props.params
-
-    const { assistantId } = params
-
-    const headersList = await headers()
-    const authorization = headersList.get('authorization')
-    if (!authorization) {
-      return NextResponse.json(
-        { error: 'No authorization header found' },
-        { status: 400 },
-      )
-    }
-
-    const privateApiKey = await getApiKey({
-      authorization,
-      type: ApiKeyType.PRIVATE,
-      prisma,
-    })
-
-    if (!privateApiKey) {
-      return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })
-    }
-    const assistant = await prisma.assistant.findFirst({
-      where: {
-        id: assistantId,
-        workspaceId: privateApiKey.workspaceId,
-      },
-      include: {
-        tools: true,
-        avatar: {
-          include: {
-            imageAvatar: true,
-            iconAvatar: true,
-          },
-        },
-      },
-    })
-
-    if (!assistant) {
-      return NextResponse.json({ error: 'No assistant found' }, { status: 400 })
-    }
-
-    await prisma.assistant.delete({
-      where: {
-        id: assistant.id,
-      },
-    })
-
-    return NextResponse.json(
-      {
-        assistant: serializeApiAssistant({ assistant }),
-      },
-      { headers: cacheHeaders },
-    )
-  }
-
-export const buildOPTIONS = () => () =>
-  NextResponse.json(
-    {},
-    {
-      headers: cacheHeaders,
+      return updateAssistantResponse({ prisma, where, body: parseResult.data })
     },
-  )
+  })
+
+export const buildDELETE = ({ prisma }: { prisma: PrismaClient }) =>
+  authorizedRouteHandler({
+    authorize: authorizeAssistantRequest({ prisma }),
+    handle: ({ where }) => deleteAssistantResponse({ prisma, where }),
+  })
+
+export const buildOPTIONS = () => corsOptionsResponse

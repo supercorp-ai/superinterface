@@ -425,6 +425,13 @@ describe('/api/tasks', () => {
           )
         },
       })
+
+      // The conflicting task is neither stored nor queued.
+      assert.strictEqual(
+        await prisma.task.count({ where: { threadId: thread.id } }),
+        1,
+      )
+      assert.strictEqual(publishJSONCalls.length, 0)
     })
 
     it('creates task when schedule is at least 15 minutes apart', async () => {

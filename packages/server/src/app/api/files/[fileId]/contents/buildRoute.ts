@@ -1,19 +1,13 @@
-import type { OpenAI } from 'openai'
-import { isString } from 'radash'
-import { type Prisma, type PrismaClient } from '@prisma/client'
+import { type PrismaClient } from '@prisma/client'
 import { type NextRequest, NextResponse } from 'next/server'
 import { cacheHeaders } from '@/lib/cache/cacheHeaders'
 import { assistantClientAdapter } from '@/lib/assistants/assistantClientAdapter'
-import { workspaceAccessWhere as getWorkspaceAccessWhere } from '@/lib/apiKeys/workspaceAccessWhere'
-import { isOpenaiAssistantsStorageProvider } from '@/lib/storageProviders/isOpenaiAssistantsStorageProvider'
-
-type PurposeAssistantsResponse = ({
-  file,
-  workspaceAccessWhere,
-}: {
-  file: OpenAI.Files.FileObject
-  workspaceAccessWhere: Prisma.WorkspaceWhereInput
-}) => Promise<NextResponse> | NextResponse
+import { authorizeFileRequest } from '../../lib/authorizeFileRequest'
+import { badRequestResponse } from '../../lib/badRequestResponse'
+import { findFileAssistant } from '../../lib/findFileAssistant'
+import type { PurposeAssistantsResponse } from './lib/purposeAssistantsResponse'
+import { containerFileResponse } from './lib/containerFileResponse'
+import { storedFileResponse } from './lib/storedFileResponse'
 
 type AssistantClientAdapter = typeof assistantClientAdapter
 
@@ -36,136 +30,48 @@ export const buildGET =
       }>
     },
   ) => {
-    const params = await props.params
+    const { fileId } = await props.params
+    const { searchParams } = request.nextUrl
 
-    const { fileId } = params
-
-    const assistantId = request.nextUrl.searchParams.get('assistantId')
-
-    if (!isString(assistantId)) {
-      return NextResponse.json(
-        { error: 'Invalid assistantId' },
-        { status: 400 },
-      )
-    }
-
-    const publicApiKey = request.nextUrl.searchParams.get('publicApiKey')
-
-    if (!isString(publicApiKey)) {
-      return NextResponse.json(
-        { error: 'Invalid publicApiKey' },
-        { status: 400 },
-      )
-    }
-
-    const workspaceAccessWhere = await getWorkspaceAccessWhere({
-      publicApiKey,
+    const authorized = await authorizeFileRequest({
+      params: searchParams,
       prisma,
     })
 
-    if (!workspaceAccessWhere) {
-      return NextResponse.json({ error: 'Invalid api key' }, { status: 400 })
-    }
+    if (authorized.errorResponse) return authorized.errorResponse
 
-    if (!assistantId) {
-      return NextResponse.json(
-        { error: 'No assistantId found' },
-        { status: 400 },
-      )
-    }
+    const { assistantId, workspaceAccessWhere } = authorized
 
-    const assistant = await prisma.assistant.findFirst({
-      where: {
-        id: assistantId,
-        workspace: workspaceAccessWhere,
-      },
-      include: {
-        modelProvider: true,
-        tools: {
-          include: {
-            fileSearchTool: true,
-            webSearchTool: true,
-            imageGenerationTool: true,
-            codeInterpreterTool: true,
-            computerUseTool: true,
-          },
-        },
-        mcpServers: {
-          include: {
-            computerUseTool: true,
-            stdioTransport: true,
-            sseTransport: true,
-            httpTransport: true,
-          },
-        },
-        functions: true,
-      },
+    const found = await findFileAssistant({
+      prisma,
+      assistantId,
+      workspaceAccessWhere,
     })
 
-    if (!assistant) {
-      return NextResponse.json({ error: 'No assistant found' }, { status: 400 })
+    if (found.errorResponse) return found.errorResponse
+
+    // Without a containerId the file is read from the storage provider's
+    // files, so an empty one is a mistake rather than a request for those.
+    const containerId = searchParams.get('containerId')
+
+    if (containerId === '') {
+      return badRequestResponse({ error: 'Invalid containerId' })
     }
 
-    if (
-      isOpenaiAssistantsStorageProvider({
-        storageProviderType: assistant.storageProviderType,
-      }) &&
-      !assistant.openaiAssistantId
-    ) {
-      return NextResponse.json(
-        { error: 'Assistant setup is not done.' },
-        { status: 400 },
-      )
-    }
-
-    const containerId = request.nextUrl.searchParams.get('containerId')
-    if (containerId !== null && !containerId) {
-      return NextResponse.json(
-        { error: 'Invalid containerId' },
-        { status: 400 },
-      )
-    }
-
-    const assistantClient = getAssistantClient({ assistant, prisma })
+    const assistantClient = getAssistantClient({
+      assistant: found.assistant,
+      prisma,
+    })
 
     if (containerId !== null) {
-      const response = await assistantClient.containers.files.content.retrieve(
-        fileId,
-        { container_id: containerId },
-      )
-      return new NextResponse(response.body, {
-        headers: {
-          ...cacheHeaders,
-          'Content-Type':
-            response.headers.get('Content-Type') ?? 'application/octet-stream',
-          'Content-Disposition':
-            response.headers.get('Content-Disposition') ?? 'inline',
-        },
-      })
+      return containerFileResponse({ assistantClient, fileId, containerId })
     }
 
-    const file = await assistantClient.files.retrieve(fileId)
-
-    if (!file) {
-      return NextResponse.json({ error: 'No file found' }, { status: 404 })
-    }
-
-    if (file.purpose === 'assistants') {
-      return purposeAssistantsResponse({ file, workspaceAccessWhere })
-    }
-
-    const fileContentResponse = await assistantClient.files.content(fileId)
-    const fileData = await fileContentResponse.arrayBuffer()
-
-    return new NextResponse(fileData, {
-      headers: {
-        ...cacheHeaders,
-        'Content-Type':
-          fileContentResponse.headers.get('Content-Type') ??
-          'application/octet-stream',
-        'Content-Disposition':
-          fileContentResponse.headers.get('Content-Disposition') ?? 'inline',
-      },
+    return storedFileResponse({
+      assistantClient,
+      fileId,
+      workspaceAccessWhere,
+      purposeAssistantsResponse,
     })
   }
 

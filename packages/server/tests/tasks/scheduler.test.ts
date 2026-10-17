@@ -1,4 +1,4 @@
-import { describe, it, beforeEach, afterEach } from 'node:test'
+import { describe, it, beforeEach, afterEach, mock } from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import { createLocalScheduler } from '../../src/lib/tasks/schedulers/localScheduler'
@@ -202,6 +202,116 @@ describe('localScheduler — delivery', () => {
     }
   })
 
+  // The scheduler calls the global setTimeout/clearTimeout at call time, so
+  // swapping them records which timers it creates and which it clears.
+  const recordTimers = () => {
+    const originalSetTimeout = globalThis.setTimeout
+    const originalClearTimeout = globalThis.clearTimeout
+    const created: unknown[] = []
+    const cleared: unknown[] = []
+
+    globalThis.setTimeout = ((...args: Parameters<typeof setTimeout>) => {
+      const timer = originalSetTimeout(...args)
+      created.push(timer)
+      return timer
+    }) as typeof setTimeout
+    globalThis.clearTimeout = ((timer: Parameters<typeof clearTimeout>[0]) => {
+      cleared.push(timer)
+      originalClearTimeout(timer)
+    }) as typeof clearTimeout
+
+    return {
+      created,
+      cleared,
+      restore: () => {
+        globalThis.setTimeout = originalSetTimeout
+        globalThis.clearTimeout = originalClearTimeout
+      },
+    }
+  }
+
+  it('forgets a delivered message, so deleting it later clears no timer', async () => {
+    const scheduler = createLocalScheduler()
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = async () => new Response('ok', { status: 200 })
+    const timers = recordTimers()
+
+    try {
+      const delivered = await scheduler.publishJSON({
+        url: 'http://localhost:3000/api/tasks/callback',
+        body: { taskId: 'delivered' },
+        delay: 0,
+      })
+      const pending = await scheduler.publishJSON({
+        url: 'http://localhost:3000/api/tasks/callback',
+        body: { taskId: 'pending' },
+        delay: 60,
+      })
+      const [deliveredTimer, pendingTimer] = timers.created
+      timers.restore()
+      await new Promise((resolve) => setTimeout(resolve, 50))
+
+      const afterDelivery = recordTimers()
+      try {
+        // messages.delete clears the timer of a message the scheduler still
+        // tracks...
+        await scheduler.messages.delete(pending.messageId)
+        assert.deepEqual(afterDelivery.cleared, [pendingTimer])
+        // ...but the delivered message stopped being tracked when its timer
+        // fired, so its timer is not cleared again.
+        await scheduler.messages.delete(delivered.messageId)
+        assert.deepEqual(afterDelivery.cleared, [pendingTimer])
+        assert.ok(!afterDelivery.cleared.includes(deliveredTimer))
+      } finally {
+        afterDelivery.restore()
+      }
+    } finally {
+      timers.restore()
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  it('dispose clears every pending timer and forgets them', async () => {
+    const scheduler = createLocalScheduler()
+    const delivered: unknown[] = []
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = async (_input, init) => {
+      delivered.push(JSON.parse(init?.body as string))
+      return new Response('ok', { status: 200 })
+    }
+    const timers = recordTimers()
+
+    try {
+      const first = await scheduler.publishJSON({
+        url: 'http://localhost:3000/api/tasks/callback',
+        body: { taskId: 'first' },
+        delay: 1,
+      })
+      await scheduler.publishJSON({
+        url: 'http://localhost:3000/api/tasks/callback',
+        body: { taskId: 'second' },
+        delay: 1,
+      })
+      assert.equal(timers.created.length, 2)
+
+      scheduler.dispose()
+      assert.deepEqual(timers.cleared, timers.created)
+
+      // dispose also empties the scheduler. Had it kept the disposed timers,
+      // deleting a disposed message or disposing again would clear them again.
+      await scheduler.messages.delete(first.messageId)
+      scheduler.dispose()
+      assert.equal(timers.cleared.length, 2)
+      timers.restore()
+
+      await new Promise((resolve) => setTimeout(resolve, 1200))
+      assert.deepEqual(delivered, [])
+    } finally {
+      timers.restore()
+      globalThis.fetch = originalFetch
+    }
+  })
+
   it('does not deliver after cancel', async () => {
     const scheduler = createLocalScheduler()
     const receivedBodies: unknown[] = []
@@ -295,6 +405,8 @@ describe('localScheduler — delivery', () => {
     }
     globalThis.fetch = mockFetch
 
+    const consoleError = mock.method(console, 'error', () => undefined)
+
     try {
       await scheduler.publishJSON({
         url: 'http://localhost:3000/api/tasks/callback',
@@ -304,7 +416,17 @@ describe('localScheduler — delivery', () => {
 
       // Wait for timer — should not throw/crash the process
       await new Promise((resolve) => setTimeout(resolve, 50))
+
+      assert.equal(consoleError.mock.callCount(), 1)
+      const [message, error] = consoleError.mock.calls[0].arguments
+      assert.equal(
+        message,
+        'Local scheduler: failed to deliver to http://localhost:3000/api/tasks/callback:',
+      )
+      assert.ok(error instanceof Error)
+      assert.equal(error.message, 'Network error')
     } finally {
+      consoleError.mock.restore()
       globalThis.fetch = originalFetch
     }
   })

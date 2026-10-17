@@ -12,10 +12,15 @@ execSync(`createdb -h localhost -U postgres ${dbName}`, {
 
 const commonEnv = { ...process.env, DATABASE_URL: dbUrl, DIRECT_URL: dbUrl }
 
+const testPaths = process.argv.slice(2)
+const testPattern = testPaths.length
+  ? testPaths.join(' ')
+  : "'tests/**/*.test.ts'"
+
 try {
   execSync('npx prisma migrate deploy', { stdio: 'inherit', env: commonEnv })
   execSync(
-    'node --import tsx --experimental-test-module-mocks --test --test-isolation=process --test-concurrency=8 --test-force-exit tests/**/*.test.ts',
+    `node --import tsx --experimental-test-module-mocks --test --test-isolation=process --test-concurrency=8 --test-force-exit ${testPattern}`,
     {
       stdio: 'inherit',
       env: { ...commonEnv, NODE_ENV: 'test' },

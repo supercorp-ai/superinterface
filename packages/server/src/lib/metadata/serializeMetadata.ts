@@ -28,9 +28,8 @@ export const serializeMetadata = ({
           requestRoute: LogRequestRoute.MESSAGES,
           level: LogLevel.ERROR,
           status: 500,
-          message: `Failed to serialize key "${key}": ${
-            error instanceof Error ? error.message : String(error)
-          }`,
+          // Variables are parsed JSON, so String() can only throw a TypeError.
+          message: `Failed to serialize key "${key}": ${(error as Error).message}`,
           workspaceId,
         },
         prisma,

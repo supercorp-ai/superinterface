@@ -1,135 +1,44 @@
-import OpenAI from 'openai'
-import {
-  UpdateTaskHandler,
-  Assistant,
-  Thread,
-  PrismaClient,
-} from '@prisma/client'
-import { serializeTask } from '@/lib/tasks/serializeTask'
-import { validateSchedule } from '@/lib/tasks/validateSchedule'
+import type { UpdateTaskHandler } from '@prisma/client'
 import { updateTaskSchema } from '@/lib/tasks/schemas'
-import { parseTaskToolArgs } from '@/lib/tasks/parseTaskToolArgs'
-import { getTaskToolKey } from '@/lib/tasks/getTaskToolKey'
-import { scheduleTask } from '@/lib/tasks/scheduleTask'
-import { cancelScheduledTask } from '@/lib/tasks/cancelScheduledTask'
-import { ensureTaskSchedule } from '@/lib/tasks/ensureTaskSchedule'
-import { TaskScheduleConflictError } from '@/lib/errors'
+import {
+  parseTaskToolCall,
+  type TaskToolCallContext,
+} from '@/lib/tasks/parseTaskToolCall'
+import { findTaskToolTask } from '@/lib/tasks/findTaskToolTask'
+import { taskToolWhere } from '@/lib/tasks/taskToolWhere'
+import { updateScheduledTask } from '@/lib/tasks/updateScheduledTask'
+import { taskToolOutput } from '@/lib/tasks/taskToolOutput'
+import { taskToolResult } from '@/lib/tasks/taskToolResult'
 import { defaultScheduler } from '@/lib/tasks/schedulers/defaultScheduler'
-import type { TaskScheduler } from '@/lib/tasks/schedulers/types'
 
 export const handleUpdateTask = async ({
   taskHandler,
-  toolCall,
-  assistant,
-  thread,
-  prisma,
-  scheduler = defaultScheduler,
-  callbackUrl,
-}: {
-  taskHandler: UpdateTaskHandler
-  toolCall: OpenAI.Beta.Threads.Runs.RequiredActionFunctionToolCall
-  assistant: Assistant
-  thread: Thread
-  prisma: PrismaClient
-  scheduler?: TaskScheduler
-  callbackUrl?: string
-}) => {
-  const parsedArgs = parseTaskToolArgs({ toolCall, assistant, thread, prisma })
-  if (!parsedArgs.ok) {
-    return { tool_call_id: toolCall.id, output: parsedArgs.error }
-  }
+  ...context
+}: TaskToolCallContext & { taskHandler: UpdateTaskHandler }) => {
+  const { toolCall, assistant, prisma } = context
 
-  const check = updateTaskSchema.safeParse(parsedArgs.args)
-  if (!check.success) {
-    return { tool_call_id: toolCall.id, output: check.error.toString() }
-  }
-  const args = check.data
-
-  const { ok, key, error } = await getTaskToolKey({
-    thread,
-    assistant,
+  const call = await parseTaskToolCall({
+    context,
     keyTemplate: taskHandler.keyTemplate,
+    schema: updateTaskSchema,
+  })
+  if (!call.ok) return taskToolOutput({ toolCall, output: call.error })
+
+  // parseTaskToolArgs already rejected schedules that are invalid or have no
+  // future occurrence.
+  const { taskId, ...changes } = call.args
+  const scope = { key: call.key, workspaceId: assistant.workspaceId }
+
+  const existing = await findTaskToolTask({ prisma, taskId, ...scope })
+  if (!existing.ok) return taskToolResult({ toolCall, result: existing })
+
+  const result = await updateScheduledTask({
     prisma,
+    scheduler: defaultScheduler,
+    existingTask: existing.task,
+    changes,
+    where: { id: taskId, ...taskToolWhere(scope) },
   })
 
-  if (!ok) {
-    return { tool_call_id: toolCall.id, output: error }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const updateData: any = {}
-  if (args.title !== undefined) {
-    updateData.title = args.title
-  }
-  if (args.message !== undefined) {
-    updateData.message = args.message
-  }
-  if (args.schedule !== undefined) {
-    if (!validateSchedule(args.schedule)) {
-      return { tool_call_id: toolCall.id, output: 'Invalid schedule.' }
-    }
-    updateData.schedule = args.schedule
-  }
-  if (args.key !== undefined) {
-    updateData.key = args.key ?? ''
-  }
-
-  const existingTask = await prisma.task.findFirst({
-    where: {
-      id: args.taskId,
-      key,
-      thread: {
-        assistant: {
-          workspaceId: assistant.workspaceId,
-        },
-      },
-    },
-  })
-
-  if (!existingTask) {
-    return { tool_call_id: toolCall.id, output: 'Task not found.' }
-  }
-
-  const finalKey = args.key ?? existingTask.key ?? ''
-  const finalSchedule = args.schedule ?? existingTask.schedule
-
-  try {
-    await ensureTaskSchedule({
-      prisma,
-      threadId: existingTask.threadId,
-      key: finalKey,
-      schedule: finalSchedule,
-      excludeTaskId: existingTask.id,
-    })
-  } catch (error) {
-    if (error instanceof TaskScheduleConflictError) {
-      return {
-        tool_call_id: toolCall.id,
-        output: error.message,
-      }
-    }
-    throw error
-  }
-
-  await cancelScheduledTask({ task: existingTask, scheduler })
-
-  const task = await prisma.task.update({
-    where: {
-      id: args.taskId,
-      key,
-      thread: {
-        assistant: {
-          workspaceId: assistant.workspaceId,
-        },
-      },
-    },
-    data: updateData,
-  })
-
-  await scheduleTask({ task, prisma, scheduler, callbackUrl })
-
-  return {
-    tool_call_id: toolCall.id,
-    output: JSON.stringify({ task: serializeTask({ task }) }),
-  }
+  return taskToolResult({ toolCall, result })
 }

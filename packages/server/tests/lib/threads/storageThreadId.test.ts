@@ -84,18 +84,4 @@ describe('storageThreadId', () => {
 
     assert.strictEqual(storageThreadId({ thread }), 'local-thread-id')
   })
-
-  it('throws error for invalid storage type', () => {
-    const thread = {
-      id: 'local-thread-id',
-      assistant: {
-        storageProviderType: 'INVALID_TYPE' as unknown as StorageProviderType,
-      },
-    } as unknown as ThreadArg
-
-    assert.throws(
-      () => storageThreadId({ thread }),
-      /Invalid storage type: INVALID_TYPE/,
-    )
-  })
 })

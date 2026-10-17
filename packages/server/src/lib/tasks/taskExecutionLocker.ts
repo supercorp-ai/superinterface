@@ -76,13 +76,10 @@ export const createInMemoryTaskExecutionLocker = (): TaskExecutionLocker => {
       const token = randomUUID()
       locks.set(key, { token, expiresAt: now + ttlSeconds * 1000 })
 
-      let released = false
-
       return {
+        // Only removes the lock while this lease still owns it, so releasing
+        // twice or after the lease expired and was replaced is a no-op.
         release: async () => {
-          if (released) return
-          released = true
-
           if (locks.get(key)?.token === token) {
             locks.delete(key)
           }
